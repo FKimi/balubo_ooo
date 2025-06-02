@@ -477,7 +477,7 @@ export default function EditWorkPage() {
                           }
                         }}
                       />
-                      <div className="fallback-bg hidden absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                      <div className="fallback-bg absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
                         <div className="text-center">
                           <span className="text-4xl mb-2 block">🖼️</span>
                           <p className="text-sm text-gray-500">画像を読み込めませんでした</p>
@@ -490,6 +490,7 @@ export default function EditWorkPage() {
                     {(previewData.siteName || previewData.icon) && (
                       <div className="flex items-center space-x-2 mb-3">
                         {previewData.icon && (
+                          // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={previewData.icon}
                             alt="サイトアイコン"

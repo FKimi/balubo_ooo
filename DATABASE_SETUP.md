@@ -70,7 +70,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://kdrnxnorxquxvxutkwnq.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # 既存の設定
-LINKPREVIEW_API_KEY=23c2c2d4e248bc250a0adf683ac26621
+LINKPREVIEW_API_KEY=your_linkpreview_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 

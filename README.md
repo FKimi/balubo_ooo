@@ -26,12 +26,19 @@ npm install
 
 ### 2. 環境変数の設定
 
-`.env.local`ファイルを作成し、以下の環境変数を設定してください：
+開発を開始する前に、環境変数ファイルを設定してください：
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+1. `.env.example`を`.env.local`にコピー
+```bash
+cp .env.example .env.local
 ```
+
+2. `.env.local`ファイルを開き、実際の値を設定：
+- `NEXT_PUBLIC_SUPABASE_URL`: SupabaseプロジェクトのURL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabaseの匿名キー
+- `GOOGLE_CLIENT_ID`: Google OAuth クライアントID
+- `GOOGLE_CLIENT_SECRET`: Google OAuth クライアントシークレット
+- `GEMINI_API_KEY`: Google Gemini APIキー
 
 ### 3. Supabaseの設定
 
@@ -162,4 +169,21 @@ console.log('アクティブな購読数:', status.activeSubscriptions)
 
 ## 🤝 コントリビューション
 
-プルリクエストやイシューの報告を歓迎します。 
+プルリクエストやイシューの報告を歓迎します。
+
+## セキュリティ注意事項
+
+- `.env.local`ファイルは絶対にGitにコミットしないでください
+- APIキーなどの機密情報は環境変数として管理してください
+- 本番環境では適切な環境変数を設定してください
+
+## デプロイ
+
+本番環境（Vercel等）では、環境変数を適切に設定してからデプロイしてください。
+
+## トラブルシューティング
+
+### デプロイエラー
+- 環境変数が正しく設定されているか確認
+- TypeScriptエラーがないか確認
+- 必要な依存関係がインストールされているか確認 

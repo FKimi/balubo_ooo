@@ -55,58 +55,6 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # その他の既存設定
-LINKPREVIEW_API_KEY=23c2c2d4e248bc250a0adf683ac26621
+LINKPREVIEW_API_KEY=your_linkpreview_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
-
-## 4. 実装済み機能
-
-### 4.1 ログイン画面
-- `/login`ページにGoogleログインボタンが追加済み
-- 従来のメール/パスワードログインと併用可能
-
-### 4.2 新規登録画面
-- `/register`ページにGoogleアカウント登録ボタンが追加済み
-- 従来のメール/パスワード登録と併用可能
-
-### 4.3 認証フロー
-1. ユーザーがGoogleログインボタンをクリック
-2. Googleの認証画面にリダイレクト
-3. ユーザーがGoogleアカウントで認証
-4. `/auth/callback`ページで認証結果を処理
-5. 成功時は`/profile`ページにリダイレクト
-
-## 5. トラブルシューティング
-
-### 5.1 よくあるエラー
-
-**エラー**: "Supabase is not configured"
-- **解決方法**: `.env.local`ファイルでSupabase環境変数が正しく設定されているか確認
-
-**エラー**: "redirect_uri_mismatch"
-- **解決方法**: Google Cloud ConsoleとSupabaseの両方でリダイレクトURIが一致しているか確認
-
-**エラー**: "invalid_client"
-- **解決方法**: Google Cloud ConsoleのクライアントIDとクライアントシークレットが正しくSupabaseに設定されているか確認
-
-### 5.2 デバッグ方法
-1. ブラウザの開発者ツールでネットワークタブを確認
-2. Supabaseダッシュボードの「Authentication」→「Users」でユーザー作成状況を確認
-3. コンソールログでエラーメッセージを確認
-
-## 6. セキュリティ考慮事項
-
-1. **クライアントシークレット**: 絶対に公開リポジトリにコミットしない
-2. **リダイレクトURI**: 本番環境では必ずHTTPSを使用
-3. **スコープ**: 必要最小限の権限のみを要求
-4. **セッション管理**: Supabaseが自動的に処理
-
-## 7. 今後の拡張可能性
-
-- 他のOAuthプロバイダー（GitHub、Twitter等）の追加
-- ソーシャルログイン後のプロフィール情報自動入力
-- アカウント連携機能（既存アカウントとGoogleアカウントの紐付け）
-
----
-
-**注意**: この機能を本番環境で使用する前に、必ずテスト環境で動作確認を行ってください。 
