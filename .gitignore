@@ -64,5 +64,5 @@ coverage/
 tmp/
 temp/
 
-# SpecStory explanation file
-.specstory/.what-is-this.md
+# SpecStory (contains sensitive information)
+.specstory/
