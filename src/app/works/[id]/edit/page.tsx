@@ -87,7 +87,7 @@ export default function EditWorkPage() {
         'Content-Type': 'application/json'
       }
     }
-  })
+  }, [user])
 
   // 作品データを取得
   useEffect(() => {
@@ -462,6 +462,7 @@ export default function EditWorkPage() {
                 <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
                   {previewData.image && (
                     <div className="w-full h-48 bg-gray-100 relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={previewData.image}
                         alt="OGP画像"
