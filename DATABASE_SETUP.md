@@ -71,7 +71,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # 既存の設定
 LINKPREVIEW_API_KEY=23c2c2d4e248bc250a0adf683ac26621
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 **注意**: `NEXT_PUBLIC_SUPABASE_ANON_KEY`は、Supabase Dashboard → Settings → API から取得してください。

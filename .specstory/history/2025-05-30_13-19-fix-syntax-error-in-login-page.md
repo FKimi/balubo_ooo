@@ -1654,7 +1654,9 @@ _**Assistant**_
 
 ---
 
-
+```bash
+npm run dev
+```
 
 ---
 

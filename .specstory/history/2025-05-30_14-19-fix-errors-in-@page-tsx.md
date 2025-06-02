@@ -801,6 +801,88 @@ This error occurred during the build process and can only be dismissed by fixing
 
 _**Assistant**_
 
+エラーを修正します。`AuthenticatedLayout`コンポーネントが`use client`ディレクティブを必要としているため、`metadata`のエクスポートと競合しています。解決策として、`AuthenticatedLayout`を別ファイルに分離します。
+
+---
+
+```diff
+- 
++ 'use client'
++ 
++ import { Header, MobileBottomNavigation } from '@/components/layout/header'
++ 
++ export function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
++   return (
++     <div className="min-h-screen bg-base-light-gray">
++       <Header />
++       <main className="pb-16 md:pb-0">
++         {children}
++       </main>
++       <MobileBottomNavigation />
++     </div>
++   )
++ } 
+```
+
+---
+
+次に、`layout.tsx`から`AuthenticatedLayout`を削除し、元の状態に戻します。
+
+---
+
+```diff
+  import { AuthProvider } from '@/contexts/AuthContext'
+  import { initializeMCPSupabase } from '@/lib/mcp-supabase'
+- import { Header, MobileBottomNavigation } from '@/components/layout/header'
+  
+  const inter = Inter({ subsets: ['latin'] })
+```
+
+```diff
+    initializeMCPSupabase().catch(console.warn)
+  }
+- 
+- // 認証が必要なページ用のレイアウト
+- export function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+-   return (
+-     <div className="min-h-screen bg-base-light-gray">
+-       <Header />
+-       <main className="pb-16 md:pb-0">
+-         {children}
+-       </main>
+-       <MobileBottomNavigation />
+-     </div>
+-   )
+- }
+  
+  export default function RootLayout({
+```
+
+---
+
+次に、プロフィールページのインポートを新しいファイルに変更します。
+
+---
+
+```diff
+  import Image from 'next/image'
+  import { useRouter, useSearchParams } from 'next/navigation'
+- import { AuthenticatedLayout } from '@/app/layout'
++ import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
+  import { Button } from '@/components/ui/button'
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+```
+
+---
+
+開発サーバーを再起動して、エラーが解決されたか確認しましょう。
+
+---
+
+Cancelled
+
+---
+
 
 
 ---

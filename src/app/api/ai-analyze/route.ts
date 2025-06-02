@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY_HERE'
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is not set in environment variables')
+}
+
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
 export async function POST(request: NextRequest) {
