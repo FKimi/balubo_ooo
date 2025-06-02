@@ -497,11 +497,6 @@ export default function ProfileContent() {
     }
   }
 
-  // 作品編集ページへの遷移
-  const handleEditWork = (workId: string) => {
-    router.push(`/works/${workId}/edit`)
-  }
-
   if (!profileData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -513,56 +508,84 @@ export default function ProfileContent() {
     )
   }
 
+  // プロフィール情報から表示用データを取得
+  const displayName = profileData?.displayName || 'ユーザー'
+  const bio = profileData?.bio || ''
+  const location = profileData?.location || ''
+  const websiteUrl = profileData?.websiteUrl || ''
+  const skills = profileData?.skills || []
+  const career = profileData?.career || []
+  const hasCustomBackground = !!(profileData?.backgroundImageUrl)
+  const backgroundImageUrl = profileData?.backgroundImageUrl || ''
+  const hasCustomAvatar = !!(profileData?.avatarImageUrl)
+  const avatarImageUrl = profileData?.avatarImageUrl || ''
+  const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <ProfileHeader 
-          profileData={profileData}
-          onEditClick={() => router.push('/profile/edit')}
-        />
-        
-        <ProfileTabs
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          profileData={profileData}
-          savedWorks={savedWorks}
-          isLoadingWorks={isLoadingWorks}
-          inputs={inputs}
-          inputAnalysis={inputAnalysis}
-          isLoadingInputs={isLoadingInputs}
-          onSkillAdd={() => setIsSkillModalOpen(true)}
-          onSkillRemove={handleRemoveSkill}
-          onCareerAdd={() => setIsCareerModalOpen(true)}
-          onCareerEdit={handleEditCareer}
-          onCareerDelete={handleDeleteCareerConfirm}
-          onWorkEdit={handleEditWork}
-          onWorkDelete={deleteWork}
-        />
-        
-        <ProfileModals
-          isSkillModalOpen={isSkillModalOpen}
-          setIsSkillModalOpen={setIsSkillModalOpen}
-          newSkill={newSkill}
-          setNewSkill={setNewSkill}
-          onSkillAdd={handleAddSkill}
-          isUpdatingSkills={isUpdatingSkills}
-          skillError={skillError}
-          isCareerModalOpen={isCareerModalOpen}
-          setIsCareerModalOpen={setIsCareerModalOpen}
-          newCareer={newCareer}
-          setNewCareer={setNewCareer}
-          onCareerAdd={handleAddCareer}
-          isEditCareerModalOpen={isEditCareerModalOpen}
-          setIsEditCareerModalOpen={setIsEditCareerModalOpen}
-          editingCareer={editingCareer}
-          setEditingCareer={setEditingCareer}
-          onCareerUpdate={handleUpdateCareer}
-          isDeleteConfirmOpen={isDeleteConfirmOpen}
-          setIsDeleteConfirmOpen={setIsDeleteConfirmOpen}
-          onCareerDeleteConfirm={handleDeleteCareer}
-          isUpdatingCareer={isUpdatingCareer}
-        />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div className="max-w-4xl mx-auto">
+          {/* プロフィールヘッダー */}
+          <ProfileHeader
+            displayName={displayName}
+            bio={bio}
+            location={location}
+            websiteUrl={websiteUrl}
+            backgroundImageUrl={backgroundImageUrl}
+            avatarImageUrl={avatarImageUrl}
+            isProfileEmpty={isProfileEmpty}
+            hasCustomBackground={hasCustomBackground}
+            hasCustomAvatar={hasCustomAvatar}
+          />
+          
+          {/* タブコンテンツ */}
+          <ProfileTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            profileData={profileData}
+            savedWorks={savedWorks}
+            setSavedWorks={setSavedWorks}
+            inputs={inputs}
+            inputAnalysis={inputAnalysis}
+            isLoadingInputs={isLoadingInputs}
+            deleteWork={deleteWork}
+            onAddSkill={() => setIsSkillModalOpen(true)}
+            onRemoveSkill={handleRemoveSkill}
+            setIsSkillModalOpen={setIsSkillModalOpen}
+            onEditCareer={handleEditCareer}
+            onDeleteCareerConfirm={handleDeleteCareerConfirm}
+            setIsCareerModalOpen={setIsCareerModalOpen}
+          />
+          
+          {/* モーダル群 */}
+          <ProfileModals
+            isSkillModalOpen={isSkillModalOpen}
+            setIsSkillModalOpen={setIsSkillModalOpen}
+            newSkill={newSkill}
+            setNewSkill={setNewSkill}
+            onAddSkill={handleAddSkill}
+            isUpdatingSkills={isUpdatingSkills}
+            skillError={skillError}
+            setSkillError={setSkillError}
+            isCareerModalOpen={isCareerModalOpen}
+            setIsCareerModalOpen={setIsCareerModalOpen}
+            newCareer={newCareer}
+            setNewCareer={setNewCareer}
+            onAddCareer={handleAddCareer}
+            isEditCareerModalOpen={isEditCareerModalOpen}
+            setIsEditCareerModalOpen={setIsEditCareerModalOpen}
+            editingCareer={editingCareer}
+            setEditingCareer={setEditingCareer}
+            onUpdateCareer={handleUpdateCareer}
+            isDeleteConfirmOpen={isDeleteConfirmOpen}
+            setIsDeleteConfirmOpen={setIsDeleteConfirmOpen}
+            deletingCareerId={deletingCareerId}
+            setDeletingCareerId={setDeletingCareerId}
+            onDeleteCareer={handleDeleteCareer}
+            isUpdatingCareer={isUpdatingCareer}
+          />
+        </div>
+      </main>
     </div>
   )
 } 
