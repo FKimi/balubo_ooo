@@ -1,0 +1,927 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { useAuth } from '@/contexts/AuthContext'
+import { ProfileData, Work, CareerItem, defaultProfileData } from '@/types/profile'
+import { WorkBanner } from '@/components/WorkBanner'
+import type { InputData, InputAnalysis } from '@/types/input'
+import { ProfileHeader } from '@/components/profile/ProfileHeader'
+import { ProfileTabs } from '@/components/profile/ProfileTabs'
+import { ProfileModals } from '@/components/profile/ProfileModals'
+
+export default function ProfilePage() {
+  const { user } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [profileData, setProfileData] = useState<ProfileData | null>(null)
+  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs'>('profile')
+  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
+  const [newSkill, setNewSkill] = useState('')
+  // スキル管理用のstate
+  const [isUpdatingSkills, setIsUpdatingSkills] = useState(false)
+  const [skillError, setSkillError] = useState<string | null>(null)
+  
+  const [isCareerModalOpen, setIsCareerModalOpen] = useState(false)
+  const [newCareer, setNewCareer] = useState<Partial<CareerItem>>({
+    company: '',
+    position: '',
+    department: '',
+    startDate: '',
+    endDate: '',
+    description: '',
+    isCurrent: false
+  })
+  // キャリア編集・削除用のstate
+  const [isEditCareerModalOpen, setIsEditCareerModalOpen] = useState(false)
+  const [editingCareer, setEditingCareer] = useState<CareerItem | null>(null)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [deletingCareerId, setDeletingCareerId] = useState<string | null>(null)
+  const [isUpdatingCareer, setIsUpdatingCareer] = useState(false)
+  
+  const [savedWorks, setSavedWorks] = useState<any[]>([])
+  const [isLoadingWorks, setIsLoadingWorks] = useState(false)
+  
+  // インプット関連のstate
+  const [inputs, setInputs] = useState<InputData[]>([])
+  const [inputAnalysis, setInputAnalysis] = useState<InputAnalysis | null>(null)
+  const [isLoadingInputs, setIsLoadingInputs] = useState(false)
+
+  // クエリパラメータからタブを設定
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && ['profile', 'works', 'inputs'].includes(tabParam)) {
+      setActiveTab(tabParam as 'profile' | 'works' | 'inputs')
+    }
+  }, [searchParams])
+
+  // サンプル作品データ
+  const sampleWorks: Work[] = [
+    {
+      id: '1',
+      title: 'SDGsに関する企業の取り組み事例集',
+      description: '持続可能な開発目標（SDGs）に取り組む日本企業の事例をまとめた記事です。環境配慮から社会貢献まで、様々な取り組みを紹介しています。',
+      type: '記事',
+      date: '2024年04月',
+      tags: ['SDGs', 'サステナビリティ', '企業事例'],
+      imageUrl: '/api/placeholder/300/200'
+    },
+    {
+      id: '2',
+      title: 'テレワーク時代のチームビルディング',
+      description: 'リモートワークが一般化する中で、チームの結束力を高める方法について解説した記事です。オンラインでのコミュニケーション術やチーム運営のコツを詳しく説明しています。',
+      type: '記事',
+      date: '2024年03月',
+      tags: ['テレワーク', 'チームビルディング', 'リモートワーク'],
+      imageUrl: '/api/placeholder/300/200'
+    },
+    {
+      id: '3',
+      title: '初心者向けデジタルマーケティング入門',
+      description: 'デジタルマーケティングの基礎知識から実践方法まで解説した初心者向けガイドです。SEO、SNS活用、コンテンツマーケティングなど幅広くカバーしています。',
+      type: '電子書籍',
+      date: '2024年02月',
+      tags: ['デジタルマーケティング', 'SEO', 'SNS', '+1'],
+      imageUrl: '/api/placeholder/300/200'
+    }
+  ]
+
+  // サンプルキャリアデータ
+  const sampleCareer: CareerItem[] = [
+    {
+      id: '1',
+      company: 'ニューズピックス',
+      position: 'ブランドデザインエディター',
+      department: 'ブランドデザイン',
+      startDate: '2019年11月',
+      description: '広告記事の企画・インタビュー・ライティング・編集',
+      isCurrent: true
+    },
+    {
+      id: '2',
+      company: 'エンジニアtype',
+      position: '編集',
+      department: '',
+      startDate: '2018年04月',
+      endDate: '2019年10月',
+      description: 'エンジニア向けwebメディアで一連の編集業務',
+      isCurrent: false
+    }
+  ]
+
+  // よく使用するタグのサンプルデータ
+  const sampleTags = [
+    { name: 'AI', count: 10, color: 'bg-pink-500' },
+    { name: 'プログラミング', count: 7, color: 'bg-orange-500' },
+    { name: 'テクノロジー', count: 7, color: 'bg-blue-500' },
+    { name: 'スタートアップ', count: 7, color: 'bg-green-500' },
+    { name: 'ビジネス', count: 6, color: 'bg-purple-500' },
+    { name: '成功事例', count: 6, color: 'bg-red-500' },
+    { name: 'NewsPicks', count: 6, color: 'bg-cyan-500' }
+  ]
+
+  // アクティビティのサンプルデータ
+  const sampleActivity = [
+    { month: '1月', value: 0 },
+    { month: '2月', value: 0 },
+    { month: '3月', value: 0 },
+    { month: '4月', value: 2 },
+    { month: '5月', value: 1 },
+    { month: '6月', value: 0 },
+    { month: '7月', value: 0 },
+    { month: '8月', value: 0 },
+    { month: '9月', value: 0 },
+    { month: '10月', value: 0 },
+    { month: '11月', value: 0 },
+    { month: '12月', value: 0 }
+  ]
+
+  // 作品データからタグを集計する関数
+  const generateTagsFromWorks = (works: any[]) => {
+    const tagCount: { [key: string]: number } = {}
+    
+    works.forEach(work => {
+      if (work.tags && Array.isArray(work.tags)) {
+        work.tags.forEach((tag: string) => {
+          tagCount[tag] = (tagCount[tag] || 0) + 1
+        })
+      }
+    })
+
+    // タグを使用回数順にソートし、上位7件を取得
+    const sortedTags = Object.entries(tagCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 7)
+      .map(([name, count], index) => ({
+        name,
+        count,
+        color: [
+          'bg-pink-500',
+          'bg-orange-500', 
+          'bg-blue-500',
+          'bg-green-500',
+          'bg-purple-500',
+          'bg-red-500',
+          'bg-cyan-500'
+        ][index] || 'bg-gray-500'
+      }))
+
+    return {
+      tags: sortedTags,
+      totalCount: Object.values(tagCount).reduce((sum, count) => sum + count, 0)
+    }
+  }
+
+  // 作品データから月別アクティビティを生成する関数
+  const generateActivityFromWorks = (works: any[]) => {
+    const currentYear = new Date().getFullYear()
+    const monthlyCount: { [key: string]: number } = {}
+    
+    // 1年分の月を初期化
+    for (let i = 1; i <= 12; i++) {
+      const monthKey = `${currentYear}-${i.toString().padStart(2, '0')}`
+      monthlyCount[monthKey] = 0
+    }
+
+    works.forEach(work => {
+      const createdAt = work.createdAt || work.created_at
+      if (createdAt) {
+        const date = new Date(createdAt)
+        if (date.getFullYear() === currentYear) {
+          const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
+          if (monthlyCount[monthKey] !== undefined) {
+            monthlyCount[monthKey]++
+          }
+        }
+      }
+    })
+
+    return [
+      { month: '1月', value: monthlyCount[`${currentYear}-01`] || 0 },
+      { month: '2月', value: monthlyCount[`${currentYear}-02`] || 0 },
+      { month: '3月', value: monthlyCount[`${currentYear}-03`] || 0 },
+      { month: '4月', value: monthlyCount[`${currentYear}-04`] || 0 },
+      { month: '5月', value: monthlyCount[`${currentYear}-05`] || 0 },
+      { month: '6月', value: monthlyCount[`${currentYear}-06`] || 0 },
+      { month: '7月', value: monthlyCount[`${currentYear}-07`] || 0 },
+      { month: '8月', value: monthlyCount[`${currentYear}-08`] || 0 },
+      { month: '9月', value: monthlyCount[`${currentYear}-09`] || 0 },
+      { month: '10月', value: monthlyCount[`${currentYear}-10`] || 0 },
+      { month: '11月', value: monthlyCount[`${currentYear}-11`] || 0 },
+      { month: '12月', value: monthlyCount[`${currentYear}-12`] || 0 }
+    ]
+  }
+
+  // プロフィールデータをデータベースから取得する関数
+  const fetchProfileData = async () => {
+    try {
+      // MCPクライアントを使用してプロフィールデータを取得
+      const { mcpSupabase } = await import('@/lib/mcp-supabase')
+      
+      // 認証トークンを取得
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      if (!token) {
+        console.log('認証トークンがありません。ローカルデータを使用します。')
+        return null
+      }
+
+      // ユーザーIDを取得
+      const { data: { user } } = await supabase.auth.getUser(token)
+      if (!user) {
+        console.log('ユーザー情報の取得に失敗しました。')
+        return null
+      }
+
+      // MCPクライアントでプロフィールデータを取得（トークン付き）
+      const profile = await mcpSupabase.getProfile(user.id, token)
+      
+      if (profile) {
+        console.log('MCPクライアントからプロフィールデータを取得しました:', profile)
+        return profile
+      } else {
+        console.log('プロフィールデータが見つかりません。')
+        return null
+      }
+    } catch (error) {
+      // ブラウザ拡張機能のエラーを無視
+      if (error instanceof Error && error.message.includes('message port closed')) {
+        console.warn('ブラウザ拡張機能のエラーを無視しました:', error.message)
+        return null
+      }
+      
+      console.error('プロフィール取得エラー:', error)
+      return null
+    }
+  }
+
+  // 保存された作品データを取得
+  const fetchSavedWorks = async () => {
+    setIsLoadingWorks(true)
+    try {
+      // 認証トークンを取得
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const response = await fetch('/api/works', {
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+      })
+
+      // レスポンスがJSONかどうかを確認
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('APIレスポンスがJSONではありません:', {
+          status: response.status,
+          contentType,
+          url: response.url
+        })
+        
+        // HTMLレスポンスの場合の詳細ログ
+        const text = await response.text()
+        if (text.includes('<!DOCTYPE')) {
+          console.error('HTMLページが返されました（おそらく404エラー）:', text.substring(0, 200))
+        }
+        
+        throw new Error(`APIエラー: ${response.status} - JSONではないレスポンスが返されました`)
+      }
+
+      const data = await response.json()
+      
+      if (response.ok) {
+        setSavedWorks(data.works || [])
+      } else {
+        console.error('作品データの取得に失敗しました:', data.error)
+        throw new Error(data.error || `APIエラー: ${response.status}`)
+      }
+    } catch (error) {
+      console.error('作品データの取得エラー:', error)
+      // エラーが発生した場合は空配列を設定
+      setSavedWorks([])
+      
+      // ユーザーに分かりやすいエラーメッセージを表示
+      if (error instanceof Error) {
+        if (error.message.includes('fetch')) {
+          console.error('ネットワークエラー: APIサーバーに接続できません')
+        } else if (error.message.includes('JSON')) {
+          console.error('データ形式エラー: サーバーから正しいデータが返されませんでした')
+        }
+      }
+    } finally {
+      setIsLoadingWorks(false)
+    }
+  }
+
+  // 作品削除機能
+  const deleteWork = async (workId: string) => {
+    try {
+      // 認証トークンを取得
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const response = await fetch(`/api/works/${workId}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+      })
+
+      // レスポンスがJSONかどうかを確認
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('削除API: JSONではないレスポンス:', {
+          status: response.status,
+          contentType,
+          url: response.url
+        })
+        throw new Error(`削除エラー: ${response.status} - サーバーエラーが発生しました`)
+      }
+
+      if (response.ok) {
+        // 削除成功時、ローカルの状態を更新
+        setSavedWorks(prev => prev.filter(work => work.id !== workId))
+        alert('作品を削除しました')
+      } else {
+        const data = await response.json()
+        throw new Error(data.error || '削除に失敗しました')
+      }
+    } catch (error) {
+      console.error('削除エラー:', error)
+      alert(error instanceof Error ? error.message : '削除に失敗しました')
+    }
+  }
+
+  useEffect(() => {
+    // プロフィールデータの読み込み（データベース優先、ローカル併用）
+    const loadProfileData = async () => {
+      try {
+        // まずデータベースから取得を試行
+        const dbProfile = await fetchProfileData()
+        
+        if (dbProfile) {
+          // データベースからデータを取得できた場合
+          const convertedProfile = {
+            displayName: dbProfile.display_name || '',
+            bio: dbProfile.bio || '',
+            professions: dbProfile.professions || [],
+            skills: dbProfile.skills || [],
+            location: dbProfile.location || '',
+            websiteUrl: dbProfile.website_url || '',
+            portfolioVisibility: dbProfile.portfolio_visibility || 'public',
+            backgroundImageUrl: dbProfile.background_image_url || '',
+            avatarImageUrl: dbProfile.avatar_image_url || '',
+            desiredRate: dbProfile.desired_rate || '',
+            jobChangeIntention: dbProfile.job_change_intention || 'not_considering',
+            sideJobIntention: dbProfile.side_job_intention || 'not_considering',
+            projectRecruitmentStatus: dbProfile.project_recruitment_status || 'not_recruiting',
+            experienceYears: dbProfile.experience_years || undefined,
+            workingHours: dbProfile.working_hours || '',
+            career: dbProfile.career || []
+          }
+          
+          setProfileData(convertedProfile)
+          
+          // ローカルストレージにもバックアップ保存
+          localStorage.setItem('profileData', JSON.stringify(convertedProfile))
+          
+          // MCPリアルタイム購読を設定
+          if (user?.id) {
+            const { mcpSupabase } = await import('@/lib/mcp-supabase')
+            try {
+              // 認証トークンを再取得（リアルタイム購読用）
+              const { supabase } = await import('@/lib/supabase')
+              const { data: { session } } = await supabase.auth.getSession()
+              const realtimeToken = session?.access_token
+
+              await mcpSupabase.subscribeToProfile(user.id, (updatedProfile) => {
+                console.log('リアルタイムでプロフィールが更新されました:', updatedProfile)
+                
+                // リアルタイムで受信したデータを変換
+                const convertedRealtimeProfile = {
+                  displayName: updatedProfile.display_name || '',
+                  bio: updatedProfile.bio || '',
+                  professions: updatedProfile.professions || [],
+                  skills: updatedProfile.skills || [],
+                  location: updatedProfile.location || '',
+                  websiteUrl: updatedProfile.website_url || '',
+                  portfolioVisibility: updatedProfile.portfolio_visibility || 'public',
+                  backgroundImageUrl: updatedProfile.background_image_url || '',
+                  avatarImageUrl: updatedProfile.avatar_image_url || '',
+                  desiredRate: updatedProfile.desired_rate || '',
+                  jobChangeIntention: updatedProfile.job_change_intention || 'not_considering',
+                  sideJobIntention: updatedProfile.side_job_intention || 'not_considering',
+                  projectRecruitmentStatus: updatedProfile.project_recruitment_status || 'not_recruiting',
+                  experienceYears: updatedProfile.experience_years || undefined,
+                  workingHours: updatedProfile.working_hours || '',
+                  career: updatedProfile.career || []
+                }
+                
+                // リアルタイム更新を状態に反映
+                setProfileData(convertedRealtimeProfile)
+                localStorage.setItem('profileData', JSON.stringify(convertedRealtimeProfile))
+              }, realtimeToken) // 再取得したトークンを使用
+            } catch (realtimeError) {
+              console.warn('リアルタイム購読の設定に失敗しましたが、通常の機能は継続します:', realtimeError)
+            }
+          }
+        } else {
+          // データベースにデータがない場合はローカルストレージから読み込み
+          const savedProfile = localStorage.getItem('profileData')
+          if (savedProfile) {
+            const parsedProfile = JSON.parse(savedProfile)
+            setProfileData({
+              ...parsedProfile,
+              displayName: parsedProfile.displayName || user?.user_metadata?.display_name || ''
+            })
+          }
+        }
+      } catch (error) {
+        console.error('プロフィールデータの読み込みエラー:', error)
+        // エラー時はローカルストレージから読み込み
+        try {
+          const savedProfile = localStorage.getItem('profileData')
+          if (savedProfile) {
+            const parsedProfile = JSON.parse(savedProfile)
+            setProfileData({
+              ...parsedProfile,
+              displayName: parsedProfile.displayName || user?.user_metadata?.display_name || ''
+            })
+          }
+        } catch (localError) {
+          console.error('ローカルデータの読み込みにも失敗:', localError)
+        }
+      }
+    }
+
+    // プロフィールデータと作品データを並行して取得
+    const loadAllData = async () => {
+      await Promise.all([
+        loadProfileData(),
+        fetchSavedWorks(), // 初回ロード時に作品データも取得
+        fetchInputs(), // 初回ロード時にインプットデータも取得
+        fetchInputAnalysis() // 初回ロード時にインプット分析も取得
+      ])
+    }
+
+    // userが存在する場合のみ実行
+    if (user?.id) {
+      loadAllData()
+    }
+  }, [user?.id])
+
+  // 作品タブがアクティブになったときに作品データを再取得
+  useEffect(() => {
+    if (activeTab === 'works') {
+      fetchSavedWorks()
+    }
+  }, [activeTab])
+
+  // インプットタブがアクティブになったときにインプットデータを再取得
+  useEffect(() => {
+    if (activeTab === 'inputs') {
+      fetchInputs()
+      fetchInputAnalysis()
+    }
+  }, [activeTab])
+
+  // 作品データが更新された時にプロフィールタブの表示も更新されるよう監視
+  useEffect(() => {
+    if (activeTab === 'profile' && savedWorks.length > 0) {
+      // 作品データが読み込まれた後、プロフィールタブでの表示を更新
+      // （タグとアクティビティデータは自動的に再計算される）
+    }
+  }, [savedWorks, activeTab])
+
+  // 新規ユーザー向けのデフォルト値を設定
+  const displayName = profileData?.displayName || user?.user_metadata?.display_name || 'ユーザー'
+  const bio = profileData?.bio || ''
+  const professions = profileData?.professions || []
+  const skills = profileData?.skills || []
+  const location = profileData?.location || ''
+  const websiteUrl = profileData?.websiteUrl || ''
+  const backgroundImageUrl = profileData?.backgroundImageUrl || ''
+  const avatarImageUrl = profileData?.avatarImageUrl || ''
+  const career = profileData?.career || sampleCareer
+
+  // ユーザーが情報を入力済みかどうかの判定
+  const isProfileEmpty = !bio && !location && !websiteUrl && skills.length === 0 && professions.length === 0
+  const hasCustomBackground = !!backgroundImageUrl
+  const hasCustomAvatar = !!avatarImageUrl
+
+  // 作品データから動的にタグとアクティビティを生成
+  const dynamicTagsData = generateTagsFromWorks(savedWorks)
+  const dynamicActivity = generateActivityFromWorks(savedWorks)
+  
+  // 表示用のタグデータ（作品がない場合はサンプルデータを使用）
+  const displayTags = savedWorks.length > 0 ? dynamicTagsData.tags : sampleTags
+  const displayTagsTotal = savedWorks.length > 0 ? dynamicTagsData.totalCount : 49
+  
+  // 表示用のアクティビティデータ（作品がない場合はサンプルデータを使用）
+  const displayActivity = savedWorks.length > 0 ? dynamicActivity : sampleActivity
+
+  // スキル追加機能
+  const handleAddSkill = async () => {
+    if (newSkill.trim() && profileData) {
+      setIsUpdatingSkills(true)
+      setSkillError(null)
+      
+      try {
+        const updatedProfile = {
+          ...profileData,
+          skills: [...skills, newSkill.trim()]
+        }
+        setProfileData(updatedProfile)
+        
+        // データベースに保存
+        await saveSkillsToDatabase(updatedProfile)
+        
+        // 成功時のみモーダルを閉じる
+        setNewSkill('')
+        setIsSkillModalOpen(false)
+        setSkillError(null)
+      } catch (error) {
+        console.error('スキル追加エラー:', error)
+        setSkillError('スキルの追加に失敗しました')
+        // エラー時はモーダルを開いたまま
+      } finally {
+        setIsUpdatingSkills(false)
+      }
+    }
+  }
+
+  // スキル削除機能
+  const handleRemoveSkill = async (index: number) => {
+    if (profileData) {
+      setIsUpdatingSkills(true)
+      setSkillError(null)
+      
+      try {
+        const updatedProfile = {
+          ...profileData,
+          skills: skills.filter((_, i) => i !== index)
+        }
+        setProfileData(updatedProfile)
+        
+        // データベースに保存
+        await saveSkillsToDatabase(updatedProfile)
+      } catch (error) {
+        console.error('スキル削除エラー:', error)
+        setSkillError('スキルの削除に失敗しました')
+        
+        // エラー時は元の状態に戻す
+        const originalProfile = {
+          ...profileData,
+          skills: skills
+        }
+        setProfileData(originalProfile)
+      } finally {
+        setIsUpdatingSkills(false)
+      }
+    }
+  }
+
+  // データベースにスキル情報を保存する関数
+  const saveSkillsToDatabase = async (updatedProfile: ProfileData) => {
+    try {
+      // 認証トークンを取得
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      if (!token || !user?.id) {
+        // トークンがない場合はローカルストレージのみ更新
+        localStorage.setItem('profileData', JSON.stringify(updatedProfile))
+        return
+      }
+
+      // MCPクライアントを使用してデータベースに保存
+      const { mcpSupabase } = await import('@/lib/mcp-supabase')
+      await mcpSupabase.saveProfile(user.id, updatedProfile, token)
+      
+      // ローカルストレージにもバックアップ保存
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile))
+      
+      console.log('スキル情報をデータベースに保存しました')
+    } catch (error) {
+      console.error('スキルデータベース保存エラー:', error)
+      // エラーが発生してもローカルストレージには保存
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile))
+      
+      // ユーザーにエラーを通知（非同期なので控えめに）
+      console.warn('スキル情報の保存でエラーが発生しましたが、ローカルには保存されました')
+    }
+  }
+
+  // キャリア追加機能
+  const handleAddCareer = () => {
+    if (newCareer.company && newCareer.position && newCareer.startDate && profileData) {
+      const careerItem: CareerItem = {
+        id: Date.now().toString(),
+        company: newCareer.company,
+        position: newCareer.position,
+        department: newCareer.department || '',
+        startDate: newCareer.startDate,
+        ...(newCareer.isCurrent ? {} : { endDate: newCareer.endDate || '' }),
+        description: newCareer.description || '',
+        isCurrent: newCareer.isCurrent || false
+      }
+      
+      const updatedProfile = {
+        ...profileData,
+        career: [careerItem, ...career]
+      }
+      setProfileData(updatedProfile)
+      
+      // データベースに保存
+      saveCareerToDatabase(updatedProfile)
+      
+      setNewCareer({
+        company: '',
+        position: '',
+        department: '',
+        startDate: '',
+        endDate: '',
+        description: '',
+        isCurrent: false
+      })
+      setIsCareerModalOpen(false)
+    }
+  }
+
+  // キャリア編集機能
+  const handleEditCareer = (careerItem: CareerItem) => {
+    setEditingCareer(careerItem)
+    setIsEditCareerModalOpen(true)
+  }
+
+  // キャリア更新機能
+  const handleUpdateCareer = async () => {
+    if (!editingCareer || !profileData) return
+
+    setIsUpdatingCareer(true)
+    try {
+      const updatedCareer = career.map(item => 
+        item.id === editingCareer.id ? editingCareer : item
+      )
+      
+      const updatedProfile = {
+        ...profileData,
+        career: updatedCareer
+      }
+      
+      setProfileData(updatedProfile)
+      
+      // データベースに保存
+      await saveCareerToDatabase(updatedProfile)
+      
+      setIsEditCareerModalOpen(false)
+      setEditingCareer(null)
+    } catch (error) {
+      console.error('キャリア更新エラー:', error)
+      alert('キャリア情報の更新に失敗しました')
+    } finally {
+      setIsUpdatingCareer(false)
+    }
+  }
+
+  // キャリア削除確認
+  const handleDeleteCareerConfirm = (careerId: string) => {
+    setDeletingCareerId(careerId)
+    setIsDeleteConfirmOpen(true)
+  }
+
+  // キャリア削除実行
+  const handleDeleteCareer = async () => {
+    if (!deletingCareerId || !profileData) return
+
+    try {
+      const updatedCareer = career.filter(item => item.id !== deletingCareerId)
+      const updatedProfile = {
+        ...profileData,
+        career: updatedCareer
+      }
+      
+      setProfileData(updatedProfile)
+      
+      // データベースに保存
+      await saveCareerToDatabase(updatedProfile)
+      
+      setIsDeleteConfirmOpen(false)
+      setDeletingCareerId(null)
+    } catch (error) {
+      console.error('キャリア削除エラー:', error)
+      alert('キャリア情報の削除に失敗しました')
+    }
+  }
+
+  // データベースにキャリア情報を保存する関数
+  const saveCareerToDatabase = async (updatedProfile: ProfileData) => {
+    try {
+      // 認証トークンを取得
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      if (!token || !user?.id) {
+        // トークンがない場合はローカルストレージのみ更新
+        localStorage.setItem('profileData', JSON.stringify(updatedProfile))
+        return
+      }
+
+      // MCPクライアントを使用してデータベースに保存
+      const { mcpSupabase } = await import('@/lib/mcp-supabase')
+      await mcpSupabase.saveProfile(user.id, updatedProfile, token)
+      
+      // ローカルストレージにもバックアップ保存
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile))
+      
+      console.log('キャリア情報をデータベースに保存しました')
+    } catch (error) {
+      console.error('データベース保存エラー:', error)
+      // エラーが発生してもローカルストレージには保存
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile))
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    // Chrome拡張機能のエラーを抑制
+    const originalError = console.error
+    console.error = (...args) => {
+      // メッセージポートのエラーを無視
+      const message = args[0]?.toString() || ''
+      if (message.includes('message port closed') || 
+          message.includes('Unchecked runtime.lastError')) {
+        return
+      }
+      originalError.apply(console, args)
+    }
+
+    // クリーンアップ
+    return () => {
+      console.error = originalError
+    }
+  }, [])
+
+  // インプットデータを取得する関数
+  const fetchInputs = async () => {
+    try {
+      setIsLoadingInputs(true)
+      console.log('インプットデータ取得開始...')
+      
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session?.access_token) {
+        console.warn('認証トークンが見つかりません')
+        return
+      }
+
+      const response = await fetch('/api/inputs', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`インプット取得エラー: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('インプットデータ取得成功:', data.inputs?.length || 0, '件')
+      setInputs(data.inputs || [])
+    } catch (error) {
+      console.error('インプット取得エラー:', error)
+      setInputs([])
+    } finally {
+      setIsLoadingInputs(false)
+    }
+  }
+
+  // インプット分析を取得する関数
+  const fetchInputAnalysis = async () => {
+    try {
+      console.log('インプット分析取得開始...')
+      
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session?.access_token) {
+        console.warn('認証トークンが見つかりません')
+        return
+      }
+
+      const response = await fetch('/api/inputs/analysis', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`インプット分析取得エラー: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('インプット分析取得成功:', data.analysis)
+      setInputAnalysis(data.analysis)
+    } catch (error) {
+      console.error('インプット分析取得エラー:', error)
+      setInputAnalysis(null)
+    }
+  }
+
+  return (
+    <ProtectedRoute>
+      <AuthenticatedLayout>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+          <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+            <div className="max-w-4xl mx-auto">
+              {/* プロフィールヘッダー */}
+              <ProfileHeader
+                hasCustomBackground={hasCustomBackground}
+                backgroundImageUrl={backgroundImageUrl}
+                isProfileEmpty={isProfileEmpty}
+                hasCustomAvatar={hasCustomAvatar}
+                avatarImageUrl={avatarImageUrl}
+                displayName={displayName}
+                bio={bio}
+                location={location}
+                websiteUrl={websiteUrl}
+              />
+
+              {/* タブコンテンツ */}
+              <ProfileTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                profileData={profileData}
+                savedWorks={savedWorks}
+                inputs={inputs}
+                inputAnalysis={inputAnalysis}
+                isLoadingWorks={isLoadingWorks}
+                isLoadingInputs={isLoadingInputs}
+                skills={skills}
+                career={career}
+                isProfileEmpty={isProfileEmpty}
+                onSkillModalOpen={() => setIsSkillModalOpen(true)}
+                onCareerModalOpen={() => setIsCareerModalOpen(true)}
+                onSkillRemove={handleRemoveSkill}
+                onCareerEdit={handleEditCareer}
+                onCareerDelete={handleDeleteCareerConfirm}
+                onWorkDelete={deleteWork}
+              />
+
+              {/* モーダル群 */}
+              <ProfileModals
+                // スキル関連
+                isSkillModalOpen={isSkillModalOpen}
+                setIsSkillModalOpen={setIsSkillModalOpen}
+                newSkill={newSkill}
+                setNewSkill={setNewSkill}
+                isUpdatingSkills={isUpdatingSkills}
+                skillError={skillError}
+                setSkillError={setSkillError}
+                onAddSkill={handleAddSkill}
+                // キャリア関連
+                isCareerModalOpen={isCareerModalOpen}
+                setIsCareerModalOpen={setIsCareerModalOpen}
+                newCareer={newCareer}
+                setNewCareer={setNewCareer}
+                onAddCareer={handleAddCareer}
+                // キャリア編集関連
+                isEditCareerModalOpen={isEditCareerModalOpen}
+                setIsEditCareerModalOpen={setIsEditCareerModalOpen}
+                editingCareer={editingCareer}
+                setEditingCareer={setEditingCareer}
+                isUpdatingCareer={isUpdatingCareer}
+                onUpdateCareer={handleUpdateCareer}
+                // 削除確認関連
+                isDeleteConfirmOpen={isDeleteConfirmOpen}
+                setIsDeleteConfirmOpen={setIsDeleteConfirmOpen}
+                deletingCareerId={deletingCareerId}
+                setDeletingCareerId={setDeletingCareerId}
+                onDeleteCareer={handleDeleteCareer}
+              />
+            </div>
+          </main>
+        </div>
+      </AuthenticatedLayout>
+    </ProtectedRoute>
+  )
+}

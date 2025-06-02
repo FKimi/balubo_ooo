@@ -1,0 +1,75 @@
+{
+  "id": "0f33f45c-d1a6-4a2a-8cd8-323b478c0a33",
+  "user_id": "964bb561-c9d6-4f1e-bcdf-937d0ecadfe8",
+  "title": "balubo - あなたの実績をAIが言語化。ライター/編集者の新しい「伝える」形 | 先行登録",
+  "description": "ライター・編集者の実績とスキルをAIが客観的に分析し、言語化。baluboはあなたの「書く力」を新しい形で伝え、キャリアを拓くポートフォリオサイトです。最新情報や先行アクセスはこちらから。",
+  "external_url": "https://v0-f8-sigma.vercel.app/#waitlist",
+  "tags": [
+    "AI活用",
+    "ポートフォリオ",
+    "ライター",
+    "編集者",
+    "キャリア支援"
+  ],
+  "roles": [
+    "執筆"
+  ],
+  "categories": [],
+  "production_date": null,
+  "banner_image_url": "",
+  "preview_data": {
+    "url": "https://v0-f8-sigma.vercel.app/#waitlist",
+    "icon": "",
+    "image": "https://v0-f8-sigma.vercel.app/og-image.png",
+    "title": "balubo - あなたの実績をAIが言語化。ライター/編集者の新しい「伝える」形 | 先行登録",
+    "locale": "",
+    "iconSize": 0,
+    "iconType": "",
+    "siteName": "",
+    "iconWidth": 0,
+    "imageSize": 0,
+    "imageType": "",
+    "iconHeight": 0,
+    "imageWidth": 0,
+    "description": "ライター・編集者の実績とスキルをAIが客観的に分析し、言語化。baluboはあなたの「書く力」を新しい形で伝え、キャリアを拓くポートフォリオサイトです。最新情報や先行アクセスはこちらから。",
+    "imageHeight": 0
+  },
+  "created_at": "2025-05-31T14:57:55.983+00:00",
+  "updated_at": "2025-05-31T14:57:55.983+00:00",
+  "ai_analysis_result": {
+    "tags": [
+      "AI活用",
+      "ポートフォリオ",
+      "ライター",
+      "編集者",
+      "キャリア支援"
+    ],
+    "summary": "AIがライター・編集者の実績を言語化し、キャリア支援するポートフォリオサイト",
+    "category": "記事・ライティング",
+    "keywords": [
+      "AI",
+      "人工知能",
+      "自然言語処理",
+      "実績管理",
+      "ポートフォリオサイト",
+      "ライター向けツール",
+      "編集者向けツール",
+      "キャリア形成",
+      "スキル言語化"
+    ],
+    "strengths": {
+      "impact": [
+        "より効果的な自己アピールで、キャリアアップを支援",
+        "ライター・編集者の市場価値向上に貢献"
+      ],
+      "expertise": [
+        "AIによるスキル分析で、客観的な能力評価が可能",
+        "実績を効果的に言語化することで、自身の専門性を明確に示せる"
+      ],
+      "creativity": [
+        "AIによる客観的な実績表現で、新たな自己表現方法を提供",
+        "従来のポートフォリオ作成の負担を軽減し、創造的な活動に時間を割ける"
+      ]
+    }
+  }
+}

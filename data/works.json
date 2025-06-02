@@ -1,0 +1,81 @@
+[
+  {
+    "id": "1748185931552",
+    "title": "Fumiya Kimiwadaのプロフィール | YOUTRUST",
+    "description": "株式会社ニューズピックスのFumiya Kimiwadaのプロフィールや投稿。Newspicks ブランドデザインエディター。 広告記事の企画・取材・ライティング・編集をしてます。 カルチャー、スタートアップ領域が好きです。 よろしくお願いいたします。 企画／取材／...",
+    "externalUrl": "https://youtrust.jp/users/d221b2efc95707b44ab019b8297d7e3b",
+    "productionDate": "",
+    "tags": [
+      "プロフィール",
+      "ニューズピックス",
+      "ブランドデザイン",
+      "エディター",
+      "記事ライティング"
+    ],
+    "roles": [
+      "編集",
+      "撮影",
+      "企画"
+    ],
+    "categories": [],
+    "previewData": {
+      "title": "Fumiya Kimiwadaのプロフィール | YOUTRUST",
+      "description": "株式会社ニューズピックスのFumiya Kimiwadaのプロフィールや投稿。Newspicks ブランドデザインエディター。 広告記事の企画・取材・ライティング・編集をしてます。 カルチャー、スタートアップ領域が好きです。 よろしくお願いいたします。 企画／取材／...",
+      "image": "https://daxgddo8oz9ps.cloudfront.net/user_ogps/ogp_images/000/006/109/original/mini_magick20210407-1325-7crjdy.png",
+      "url": "https://youtrust.jp/users/d221b2efc95707b44ab019b8297d7e3b",
+      "imageWidth": 0,
+      "imageHeight": 0,
+      "imageSize": 0,
+      "imageType": "",
+      "icon": "",
+      "iconWidth": 0,
+      "iconHeight": 0,
+      "iconSize": 0,
+      "iconType": "",
+      "siteName": "",
+      "locale": ""
+    },
+    "createdAt": "2025-05-25T15:12:11.552Z",
+    "updatedAt": "2025-05-25T15:48:29.755Z"
+  },
+  {
+    "id": "1748190779125",
+    "title": "Google Cloud Platform",
+    "description": "Google Cloud Platform lets you build, deploy, and scale applications, websites, and services on the same infrastructure as Google.",
+    "externalUrl": "https://console.cloud.google.com/apis/credentials?authuser=5&inv=1&invt=AbyWXA&project=gen-lang-client-0271799735",
+    "tags": [
+      "クラウドプラットフォーム",
+      "Google Cloud",
+      "IaaS",
+      "PaaS",
+      "SaaS",
+      "インフラ",
+      "サーバーレス",
+      "アプリケーション開発"
+    ],
+    "roles": [
+      "編集",
+      "撮影",
+      "企画"
+    ],
+    "previewData": {
+      "title": "Google Cloud Platform",
+      "description": "Google Cloud Platform lets you build, deploy, and scale applications, websites, and services on the same infrastructure as Google.",
+      "image": "https://www.gstatic.com/devrel-devsite/prod/v2210deb8920cd4a55bd580441aa58e7853c206a55a0deb1e9fcb1af8d6b7835b/cloud/images/social-icon-google-cloud-1200-630.png",
+      "url": "https://console.cloud.google.com/apis/credentials?authuser=5&inv=1&invt=AbyWXA&project=gen-lang-client-0271799735",
+      "imageWidth": 1200,
+      "imageHeight": 630,
+      "imageSize": 0,
+      "imageType": "png",
+      "icon": "https://ssl.gstatic.com/pantheon/images/favicon/favicon.ico",
+      "iconWidth": 0,
+      "iconHeight": 0,
+      "iconSize": 0,
+      "iconType": "",
+      "siteName": "Google Cloud Console",
+      "locale": ""
+    },
+    "createdAt": "2025-05-25T16:32:59.125Z",
+    "updatedAt": "2025-05-25T16:32:59.125Z"
+  }
+]
