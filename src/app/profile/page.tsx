@@ -1,4 +1,7 @@
-import { Suspense } from 'react'
+'use client'
+
+import { Suspense, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import ProfileContent from './profile-content'
@@ -15,6 +18,22 @@ function ProfileLoadingFallback() {
 }
 
 export default function ProfilePage() {
+  const router = useRouter()
+
+  // OAuth認証後のフラグメント処理
+  useEffect(() => {
+    const handleOAuthCallback = () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      if (hashParams.get('access_token') || hashParams.get('refresh_token')) {
+        console.log('OAuth認証フラグメント検出 - URLをクリーンアップします')
+        // URLのフラグメントをクリアして履歴を更新
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.search)
+      }
+    }
+
+    handleOAuthCallback()
+  }, [])
+
   return (
     <ProtectedRoute>
       <AuthenticatedLayout>

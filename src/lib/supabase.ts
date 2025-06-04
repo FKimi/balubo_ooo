@@ -61,9 +61,17 @@ export const auth = {
     if (!isSupabaseConfigured) {
       return { data: null, error: { message: 'Supabase is not configured' } }
     }
+    
+    // サイトのオリジンを取得（クライアントサイドでのみ利用可能）
+    const siteUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://balubo-ooo.vercel.app'
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
+        // ログイン後にプロフィールページにリダイレクト
+        redirectTo: `${siteUrl}/profile`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
