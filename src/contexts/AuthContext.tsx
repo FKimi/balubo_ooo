@@ -43,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // ガード節：Supabaseが設定されていない場合は早期return
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.log('[AuthContext] Supabase設定が不完全です')
       setUser(null)
       setLoading(false)
       return
@@ -51,12 +52,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 初期認証状態の確認
     const getInitialUser = async () => {
       setLoading(true)
+      console.log('[AuthContext] 初期ユーザー取得開始')
       
       try {
         const { user } = await auth.getCurrentUser()
+        console.log('[AuthContext] 初期ユーザー取得結果:', { 
+          hasUser: !!user, 
+          userEmail: user?.email,
+          currentUrl: typeof window !== 'undefined' ? window.location.href : 'サーバーサイド'
+        })
         setUser(user)
       } catch (error) {
-        console.warn('Authentication not available:', getErrorMessage(error))
+        console.warn('[AuthContext] 初期認証取得エラー:', getErrorMessage(error))
         setUser(null)
       } finally {
         setLoading(false)
@@ -68,13 +75,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 認証状態の変更を監視
     try {
       const { data: { subscription } } = auth.onAuthStateChange((event, session) => {
+        console.log('[AuthContext] 認証状態変更:', { 
+          event, 
+          hasSession: !!session,
+          userEmail: session?.user?.email,
+          currentUrl: typeof window !== 'undefined' ? window.location.href : 'サーバーサイド',
+          hasAccessToken: typeof window !== 'undefined' && window.location.hash.includes('access_token'),
+          hasRefreshToken: typeof window !== 'undefined' && window.location.hash.includes('refresh_token')
+        })
+        
         setUser(session?.user ?? null)
         setLoading(false)
+
+        // OAuth認証完了時の特別な処理
+        if (event === 'SIGNED_IN' && session) {
+          console.log('[AuthContext] SIGNED_IN イベント検出:', {
+            userEmail: session.user.email,
+            currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド',
+            hasFragment: typeof window !== 'undefined' && window.location.hash.length > 0
+          })
+
+          // /profileにいるかどうかチェック
+          if (typeof window !== 'undefined' && window.location.pathname === '/profile') {
+            console.log('[AuthContext] 既に/profileページにいます - リダイレクト不要')
+          } else {
+            console.log('[AuthContext] /profileページ以外にいます:', window.location.pathname)
+          }
+        } else if (event === 'SIGNED_OUT') {
+          console.log('[AuthContext] SIGNED_OUT イベント検出')
+        }
       })
 
       return () => subscription.unsubscribe()
     } catch (error) {
-      console.warn('Auth state change monitoring not available:', getErrorMessage(error))
+      console.warn('[AuthContext] 認証状態監視設定エラー:', getErrorMessage(error))
       setLoading(false)
       return undefined
     }
@@ -93,8 +127,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       const result = await auth.signUp(email, password, displayName)
+      console.log('[AuthContext] サインアップ結果:', { hasData: !!result.data, hasError: !!result.error })
       return result
     } catch (error) {
+      console.error('[AuthContext] サインアップエラー:', getErrorMessage(error))
       return { 
         data: null, 
         error: { message: getErrorMessage(error) } 
@@ -117,8 +153,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       const result = await auth.signIn(email, password)
+      console.log('[AuthContext] サインイン結果:', { hasData: !!result.data, hasError: !!result.error })
       return result
     } catch (error) {
+      console.error('[AuthContext] サインインエラー:', getErrorMessage(error))
       return { 
         data: null, 
         error: { message: getErrorMessage(error) } 
@@ -133,8 +171,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       const result = await auth.signOut()
+      console.log('[AuthContext] サインアウト結果:', { hasError: !!result.error })
       return { error: result.error ? { message: getErrorMessage(result.error) } : null }
     } catch (error) {
+      console.error('[AuthContext] サインアウトエラー:', getErrorMessage(error))
       return { error: { message: getErrorMessage(error) } }
     } finally {
       setLoading(false)
@@ -143,13 +183,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async (): Promise<AuthResult> => {
     setLoading(true)
+    console.log('[AuthContext] Googleサインイン開始')
     
     try {
       const result = await auth.signInWithGoogle()
+      console.log('[AuthContext] Googleサインイン結果:', { hasData: !!result.data, hasError: !!result.error })
       
       // OAuthの場合は通常リダイレクトが発生するため、userは即座には取得できない
       // 成功の場合はdataにはOAuth情報が含まれるが、userは含まれない
       if (result.error) {
+        console.error('[AuthContext] Googleサインインエラー:', getErrorMessage(result.error))
         return { 
           data: null, 
           error: { message: getErrorMessage(result.error) } 
@@ -157,11 +200,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       // OAuth成功の場合（リダイレクトが発生するため、実際のユーザー情報は後で取得される）
+      console.log('[AuthContext] Googleサインイン成功 - リダイレクト処理開始')
       return { 
         data: { user: null }, 
         error: null 
       }
     } catch (error) {
+      console.error('[AuthContext] Googleサインイン例外:', getErrorMessage(error))
       return { 
         data: null, 
         error: { message: getErrorMessage(error) } 

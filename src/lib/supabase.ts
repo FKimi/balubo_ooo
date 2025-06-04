@@ -67,17 +67,35 @@ export const auth = {
       ? window.location.origin 
       : process.env.NEXT_PUBLIC_SITE_URL || 'https://balubo-ooo.vercel.app'
 
+    const redirectURL = `${siteUrl}/profile`
+
+    // ★★★ デバッグログ ★★★
+    console.log('[Supabase Auth] Googleサインイン試行開始:', {
+      siteUrl,
+      redirectURL,
+      windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'サーバーサイド',
+      envSiteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+      currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド'
+    })
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         // ログイン後にプロフィールページにリダイレクト
-        redirectTo: `${siteUrl}/profile`,
+        redirectTo: redirectURL,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
         },
       },
     })
+    
+    if (error) {
+      console.error('[Supabase Auth] Googleサインインエラー:', error)
+    } else {
+      console.log('[Supabase Auth] Googleサインイン成功:', { data })
+    }
+    
     return { data, error }
   },
 

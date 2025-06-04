@@ -20,7 +20,8 @@ function ProfileLoadingFallback() {
 export default function ProfilePage() {
   const router = useRouter()
 
-  // OAuth認証後のフラグメント処理
+  // OAuth認証後のフラグメント処理 - 一時的に無効化してSupabaseの自動処理に任せる
+  /*
   useEffect(() => {
     const handleOAuthCallback = () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1))
@@ -33,6 +34,7 @@ export default function ProfilePage() {
 
     handleOAuthCallback()
   }, [])
+  */
 
   return (
     <ProtectedRoute>
