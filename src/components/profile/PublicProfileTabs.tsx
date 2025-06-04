@@ -31,7 +31,7 @@ export function PublicProfileTabs({
     totalWorks: works.length,
     roles: works.reduce((acc, work) => {
       if (work.roles && Array.isArray(work.roles)) {
-        work.roles.forEach(role => {
+        work.roles.forEach((role: string) => {
           acc[role] = (acc[role] || 0) + 1
         })
       } else if (work.roles) {
@@ -61,7 +61,7 @@ export function PublicProfileTabs({
     }, {} as Record<string, number>),
     genresDistribution: inputs.reduce((acc, input) => {
       if (input.genres && Array.isArray(input.genres)) {
-        input.genres.forEach(genre => {
+        input.genres.forEach((genre: string) => {
           acc[genre] = (acc[genre] || 0) + 1
         })
       } else if (input.genres) {
