@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ProfileData } from '@/types/profile'
+import { ShareProfileButton } from './ShareProfileButton'
 
 interface ProfileHeaderProps {
   displayName: string
@@ -14,6 +15,8 @@ interface ProfileHeaderProps {
   isProfileEmpty: boolean
   hasCustomBackground: boolean
   hasCustomAvatar: boolean
+  userId?: string | undefined
+  portfolioVisibility?: string
 }
 
 export function ProfileHeader({
@@ -25,7 +28,9 @@ export function ProfileHeader({
   avatarImageUrl,
   isProfileEmpty,
   hasCustomBackground,
-  hasCustomAvatar
+  hasCustomAvatar,
+  userId,
+  portfolioVisibility
 }: ProfileHeaderProps) {
   return (
     <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl mb-6 sm:mb-8">
@@ -105,8 +110,14 @@ export function ProfileHeader({
           </div>
         </div>
 
-        {/* 編集ボタン - 右上に配置 */}
-        <div className="absolute -top-8 sm:-top-12 right-4 sm:right-6 md:right-8">
+        {/* 編集・共有ボタン - 右上に配置 */}
+        <div className="absolute -top-8 sm:-top-12 right-4 sm:right-6 md:right-8 flex gap-2">
+          {/* 共有ボタン - 公開設定の場合のみ表示 */}
+          {portfolioVisibility === 'public' && userId && (
+            <ShareProfileButton userId={userId} displayName={displayName} />
+          )}
+          
+          {/* 編集ボタン */}
           <Link href="/profile/edit">
             <Button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg text-xs sm:text-sm">
               <svg className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

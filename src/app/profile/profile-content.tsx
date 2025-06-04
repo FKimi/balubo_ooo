@@ -536,6 +536,8 @@ export default function ProfileContent() {
             isProfileEmpty={isProfileEmpty}
             hasCustomBackground={hasCustomBackground}
             hasCustomAvatar={hasCustomAvatar}
+            userId={user?.id}
+            portfolioVisibility={profileData?.portfolioVisibility}
           />
           
           {/* タブコンテンツ */}

@@ -9,6 +9,9 @@ yarn-error.log*
 .env
 .env*.local
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Vercel
 .vercel
@@ -66,3 +69,36 @@ temp/
 
 # SpecStory (contains sensitive information)
 .specstory/
+
+# 追加のセキュリティ項目
+# API Keys and secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+config/secrets/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+logs/
+*.log
+
+# Cache files
+.cache/
+*.cache
+
+# Backup files
+*.backup
+*.bak
+*.swp
+*.swo
+
+# Personal notes and todo files
+TODO.md
+NOTES.md
+personal/

@@ -36,9 +36,12 @@ cp .env.example .env.local
 2. `.env.local`ファイルを開き、実際の値を設定：
 - `NEXT_PUBLIC_SUPABASE_URL`: SupabaseプロジェクトのURL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabaseの匿名キー
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabaseのサービスロールキー（公開プロフィール機能に必要）
 - `GOOGLE_CLIENT_ID`: Google OAuth クライアントID
 - `GOOGLE_CLIENT_SECRET`: Google OAuth クライアントシークレット
 - `GEMINI_API_KEY`: Google Gemini APIキー
+
+**重要**: `SUPABASE_SERVICE_ROLE_KEY`は公開プロフィール共有機能で使用されます。これにより、認証が不要な状況でも他のユーザーの公開データにアクセスできます。この値は機密情報なので、絶対に公開しないでください。
 
 ### 3. Supabaseの設定
 
