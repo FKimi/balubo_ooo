@@ -164,7 +164,7 @@ export function ShareProfileButton({ userId, displayName }: ShareProfileButtonPr
               <div className="text-sm font-medium text-gray-700 mb-3">共有方法を選択</div>
               
               {/* ネイティブ共有 */}
-              {typeof navigator !== 'undefined' && navigator.share && (
+              {typeof navigator !== 'undefined' && 'share' in navigator && (
                 <Button
                   onClick={handleNativeShare}
                   className="w-full flex items-center justify-center gap-3 p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-lg transition-all"
