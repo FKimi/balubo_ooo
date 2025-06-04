@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -11,20 +11,54 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) {
+    // OAuth認証後のフラグメント検出 - セッション確立を少し待つ
+    const hasOAuthFragment = typeof window !== 'undefined' && 
+      (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))
+    
+    if (hasOAuthFragment) {
+      console.log('[ProtectedRoute] OAuth認証フラグメント検出 - セッション確立を待機')
+      // OAuth認証後は少し待ってからリダイレクト判定を行う
+      const timer = setTimeout(() => {
+        setIsInitialLoad(false)
+      }, 2000) // 2秒待つ
+      
+      return () => clearTimeout(timer)
+    } else {
+      setIsInitialLoad(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    // 初期ロード中、または認証ローディング中は何もしない
+    if (isInitialLoad || loading) {
+      return
+    }
+
+    console.log('[ProtectedRoute] 認証チェック:', { 
+      hasUser: !!user, 
+      loading, 
+      isInitialLoad,
+      currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド'
+    })
+
+    if (!user) {
+      console.log('[ProtectedRoute] 未認証のため/loginにリダイレクト')
       router.push('/login')
     }
-  }, [user, loading, router])
+  }, [user, loading, isInitialLoad, router])
 
   // ローディング中は何も表示しない
-  if (loading) {
+  if (loading || isInitialLoad) {
     return (
       <div className="min-h-screen bg-base-light-gray flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-text-secondary">読み込み中...</p>
+          <p className="text-text-secondary">
+            {isInitialLoad ? '認証処理中...' : '読み込み中...'}
+          </p>
         </div>
       </div>
     )
