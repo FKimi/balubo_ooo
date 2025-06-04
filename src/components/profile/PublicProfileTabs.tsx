@@ -198,10 +198,10 @@ export function PublicProfileTabs({
                               <div className="w-20 bg-gray-200 rounded-full h-2">
                                 <div 
                                   className="bg-indigo-600 h-2 rounded-full" 
-                                  style={{ width: `${(count / workStats.totalWorks) * 100}%` }}
+                                  style={{ width: `${((count as number) / workStats.totalWorks) * 100}%` }}
                                 ></div>
                               </div>
-                              <span className="text-sm font-medium text-gray-900 w-8 text-right">{count}</span>
+                              <span className="text-sm font-medium text-gray-900 w-8 text-right">{count as number}</span>
                             </div>
                           </div>
                         ))}
@@ -310,7 +310,7 @@ export function PublicProfileTabs({
                     {Object.entries(inputAnalysis.typeDistribution).map(([type, count]) => (
                       <div key={type} className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">{type}</span>
-                        <span className="text-lg font-bold text-blue-600">{count}件</span>
+                        <span className="text-lg font-bold text-blue-600">{count as number}件</span>
                       </div>
                     ))}
                   </div>
