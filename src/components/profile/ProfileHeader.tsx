@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ProfileData } from '@/types/profile'
 import { ShareProfileButton } from './ShareProfileButton'
+import { FollowStats } from './FollowStats'
 
 interface ProfileHeaderProps {
   displayName: string
@@ -163,6 +164,13 @@ export function ProfileHeader({
               </div>
             )}
           </div>
+
+          {/* フォロー統計 */}
+          {userId && (
+            <div className="mb-4 sm:mb-6">
+              <FollowStats userId={userId} />
+            </div>
+          )}
 
           {/* 詳細情報 */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">

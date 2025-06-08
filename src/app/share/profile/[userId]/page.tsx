@@ -167,7 +167,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Suspense fallback={<div>読み込み中...</div>}>
-        <PublicProfileContent data={data} />
+        <PublicProfileContent data={data} userId={params.userId} />
       </Suspense>
     </div>
   )

@@ -24,10 +24,11 @@ CREATE TABLE IF NOT EXISTS works (
 -- RLS (Row Level Security) を有効化
 ALTER TABLE works ENABLE ROW LEVEL SECURITY;
 
--- ユーザーは自分の作品のみアクセス可能
-CREATE POLICY "Users can view their own works" ON works
-  FOR SELECT USING (auth.uid() = user_id);
+-- 作品の閲覧は全員可能（認証済みユーザー）
+CREATE POLICY "Authenticated users can view all works" ON works
+  FOR SELECT USING (auth.role() = 'authenticated');
 
+-- ユーザーは自分の作品のみ作成・更新・削除可能
 CREATE POLICY "Users can insert their own works" ON works
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 

@@ -1,6 +1,9 @@
 'use client'
 
+import FollowButton from './FollowButton'
+
 interface PublicProfileHeaderProps {
+  userId: string
   displayName: string
   bio: string
   location: string
@@ -14,6 +17,7 @@ interface PublicProfileHeaderProps {
 }
 
 export function PublicProfileHeader({
+  userId,
   displayName,
   bio,
   location,
@@ -87,23 +91,32 @@ export function PublicProfileHeader({
 
         {/* プロフィール詳細 */}
         <div className="space-y-3 sm:space-y-4">
-          {/* 名前と職種 */}
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 break-words">
-              {displayName}
-            </h1>
-            {professions && professions.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {professions.map((profession, index) => (
-                  <span 
-                    key={index}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                  >
-                    {profession}
-                  </span>
-                ))}
-              </div>
-            )}
+          {/* 名前と職種、フォローボタン */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 break-words">
+                {displayName}
+              </h1>
+              {professions && professions.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {professions.map((profession, index) => (
+                    <span 
+                      key={index}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                      {profession}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* フォローボタン */}
+            <div className="flex-shrink-0 sm:mt-2">
+                          <FollowButton 
+              targetUserId={userId}
+            />
+            </div>
           </div>
 
           {/* 自己紹介 */}

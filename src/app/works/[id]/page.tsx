@@ -6,11 +6,14 @@ import { useParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { WorkBanner } from '@/components/WorkBanner'
+import LikeButton from '@/components/work/LikeButton'
+import CommentsSection from '@/components/work/CommentsSection'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 interface WorkData {
   id: string
+  user_id: string
   title: string
   description: string
   externalUrl: string
@@ -30,6 +33,7 @@ export default function WorkDetailPage() {
   const params = useParams()
   const workId = params.id as string
   const [work, setWork] = useState<WorkData | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -40,6 +44,11 @@ export default function WorkDetailPage() {
         const { supabase } = await import('@/lib/supabase')
         const { data: { session } } = await supabase.auth.getSession()
         const token = session?.access_token
+        
+        // 現在のユーザー情報を取得
+        if (session?.user) {
+          setCurrentUser(session.user)
+        }
 
         const response = await fetch(`/api/works/${workId}`, {
           headers: {
@@ -52,6 +61,7 @@ export default function WorkDetailPage() {
           console.log('Work detail data received:', {
             id: data.work.id,
             title: data.work.title,
+            user_id: data.work.user_id,
             externalUrl: data.work.externalUrl,
             banner_image_url: data.work.banner_image_url,
             hasPreviewData: !!data.work.previewData,
@@ -144,9 +154,9 @@ export default function WorkDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <Header />
-        
-        <main className="container mx-auto px-4 py-8">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             {/* ヘッダー */}
             <div className="flex items-center justify-between mb-8">
@@ -159,16 +169,19 @@ export default function WorkDetailPage() {
                 </Button>
               </Link>
               
-              <div className="flex gap-3">
-                <Link href={`/works/${work.id}/edit`}>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    編集
-                  </Button>
-                </Link>
-              </div>
+              {/* 編集ボタンは作品の所有者のみに表示 */}
+              {currentUser && work.user_id === currentUser.id && (
+                <div className="flex gap-3">
+                  <Link href={`/works/${work.id}/edit`}>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      編集
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* 作品詳細 */}
@@ -403,6 +416,13 @@ export default function WorkDetailPage() {
                   </div>
                 )}
 
+                {/* いいねボタン */}
+                <div className="mb-8">
+                  <div className="flex items-center gap-4">
+                    <LikeButton workId={work.id} />
+                  </div>
+                </div>
+
                 {/* メタ情報 */}
                 <div className="pt-6 border-t border-gray-200">
                   <div className="flex items-center justify-between text-sm text-gray-500">
@@ -414,6 +434,11 @@ export default function WorkDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* コメントセクション */}
+            <div className="mt-8">
+              <CommentsSection workId={work.id} />
+            </div>
           </div>
         </main>
       </div>

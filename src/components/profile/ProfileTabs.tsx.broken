@@ -22,6 +22,11 @@ import {
 } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { 
+  // ... existing imports
+  ChartBarIcon 
+} from '@heroicons/react/24/outline'
 
 interface ProfileTabsProps {
   activeTab: string
@@ -60,6 +65,8 @@ export function ProfileTabs({
   onDeleteCareerConfirm,
   setIsCareerModalOpen
 }: ProfileTabsProps) {
+  const { user } = useAuth()
+
   // カスタムフックからデータを取得
   const workStats = useWorkStatistics(savedWorks)
   const { categories, addCategory, updateCategory, deleteCategory, updateWorkCategory } = useWorkCategories(savedWorks, setSavedWorks)
@@ -103,7 +110,71 @@ export function ProfileTabs({
       .slice(0, 10)
   }
 
+  // インプットから興味・関心を分析
+  const getInputInterests = () => {
+    const genreCount: { [key: string]: number } = {}
+    const tagCount: { [key: string]: number } = {}
+    const typeCount: { [key: string]: number } = {}
+    
+    inputs.forEach(input => {
+      // ジャンル集計
+      if (input.genres && Array.isArray(input.genres)) {
+        input.genres.forEach(genre => {
+          genreCount[genre] = (genreCount[genre] || 0) + 1
+        })
+      }
+      
+      // タグ集計
+      if (input.tags && Array.isArray(input.tags)) {
+        input.tags.forEach(tag => {
+          tagCount[tag] = (tagCount[tag] || 0) + 1
+        })
+      }
+      
+      // タイプ集計
+      if (input.type) {
+        typeCount[input.type] = (typeCount[input.type] || 0) + 1
+      }
+    })
+    
+    // トップ項目を取得
+    const topGenres = Object.entries(genreCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 8)
+    
+    const topTags = Object.entries(tagCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 8)
+    
+    const topTypes = Object.entries(typeCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+    
+    return {
+      topGenres,
+      topTags,
+      topTypes,
+      totalInputs: inputs.length
+    }
+  }
+
   const topTags = getTopTags()
+  const inputInterests = getInputInterests()
+
+  // タイプアイコンを取得
+  const getTypeIcon = (type: string) => {
+    const icons: Record<string, string> = {
+      book: '📚',
+      manga: '📖',
+      movie: '🎬',
+      anime: '🎌',
+      tv: '📺',
+      game: '🎮',
+      podcast: '🎧',
+      other: '📄'
+    }
+    return icons[type] || '📄'
+  }
 
   // 作品カテゴリタブコンポーネント
   function WorksWithCategoryTabs({
@@ -395,7 +466,7 @@ export function ProfileTabs({
         </div>
 
         {/* 作品グリッド */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredWorks.length > 0 ? (
             filteredWorks.map((work: WorkData) => (
               <WorkCard
@@ -424,255 +495,596 @@ export function ProfileTabs({
     )
   }
 
+  // インプットカテゴリタブコンポーネント
+  function InputsWithCategoryTabs({
+    inputs,
+    inputAnalysis,
+    isLoadingInputs
+  }: {
+    inputs: InputData[]
+    inputAnalysis: InputAnalysis | null
+    isLoadingInputs: boolean
+  }) {
+    const [selectedType, setSelectedType] = useState<string>('all')
+
+    // インプットのタイプ別カテゴリ定義
+    const inputCategories = [
+      { id: 'all', name: 'ALL', icon: '📁', color: '#6B7280' },
+      { id: 'book', name: '本・書籍', icon: '📚', color: '#2563EB' },
+      { id: 'manga', name: '漫画', icon: '📖', color: '#DC2626' },
+      { id: 'movie', name: '映画', icon: '🎬', color: '#7C3AED' },
+      { id: 'anime', name: 'アニメ', icon: '🎭', color: '#EA580C' },
+      { id: 'tv', name: 'TV番組', icon: '📺', color: '#059669' },
+      { id: 'game', name: 'ゲーム', icon: '🎮', color: '#DB2777' },
+      { id: 'podcast', name: 'ポッドキャスト', icon: '🎧', color: '#0891B2' },
+      { id: 'other', name: 'その他', icon: '📝', color: '#6B7280' }
+    ]
+
+    // 選択されたタイプでフィルタリング
+    const filteredInputs = selectedType === 'all' 
+      ? inputs 
+      : inputs.filter(input => input.type === selectedType)
+
+    // タイプ別の件数を計算
+    const getTypeCount = (typeId: string) => {
+      if (typeId === 'all') return inputs.length
+      return inputs.filter(input => input.type === typeId).length
+    }
+
+    return (
+      <div>
+        {/* カテゴリタブ */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 mb-4">
+            {inputCategories.map((category) => {
+              const count = getTypeCount(category.id)
+              if (category.id !== 'all' && count === 0) return null // 件数が0のカテゴリは非表示
+
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedType(category.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1 ${
+                    selectedType === category.id
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span>{category.icon}</span>
+                  {category.name}
+                  <span className="ml-1 text-xs opacity-75">
+                    ({count})
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* コンパクトな分析セクション */}
+        {inputAnalysis && inputs.length > 0 && (
+          <div className="mb-8">
+            {/* 1行4列のコンパクトなレイアウト */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {/* 統計情報 */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-purple-600">📈</span>
+                  <h3 className="text-sm font-semibold text-gray-900">統計情報</h3>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xl font-bold text-purple-600">{inputAnalysis.totalInputs}件</div>
+                  <div className="text-xs text-gray-600">
+                    ❤️ {inputAnalysis.favoriteCount}件 | 
+                    ⭐ {inputAnalysis.averageRating ? inputAnalysis.averageRating.toFixed(1) : '-'}
+                  </div>
+                </div>
+              </div>
+
+              {/* タイプ分布 */}
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-4 border border-orange-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-orange-600">📚</span>
+                  <h3 className="text-sm font-semibold text-gray-900">タイプ分布</h3>
+                </div>
+                <div className="space-y-1">
+                  {inputAnalysis.typeDistribution && Object.entries(inputAnalysis.typeDistribution).slice(0, 2).map(([type, count]) => (
+                    <div key={type} className="flex justify-between text-xs">
+                      <span className="text-gray-700 capitalize">{type}</span>
+                      <span className="text-orange-600 font-semibold">{count}件</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 興味関心ワード */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-blue-600">🏷️</span>
+                  <h3 className="text-sm font-semibold text-gray-900">人気タグ</h3>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {inputAnalysis.topTags && inputAnalysis.topTags.slice(0, 3).map((tagItem, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-white text-blue-700 rounded text-xs border border-blue-200"
+                    >
+                      {typeof tagItem === 'string' ? tagItem : tagItem.tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* ジャンル分析 */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-green-600">📊</span>
+                  <h3 className="text-sm font-semibold text-gray-900">人気ジャンル</h3>
+                </div>
+                <div className="space-y-1">
+                  {inputAnalysis.topGenres && inputAnalysis.topGenres.slice(0, 2).map((genreItem, index) => (
+                    <div key={index} className="flex justify-between text-xs">
+                      <span className="text-gray-700">
+                        {typeof genreItem === 'string' ? genreItem : genreItem.genre}
+                      </span>
+                      <span className="text-green-600 font-semibold">
+                        {typeof genreItem === 'object' && genreItem.count ? `${genreItem.count}件` : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* インプットリスト */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isLoadingInputs ? (
+            <div className="col-span-full text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-600 mt-2">インプットを読み込み中...</p>
+            </div>
+          ) : filteredInputs.length > 0 ? (
+            filteredInputs.map((input) => (
+              <Link 
+                key={input.id} 
+                href={`/profile/inputs/${input.id}`}
+                className="block transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden h-full cursor-pointer group">
+                  <div className="relative">
+                    {/* カバー画像 */}
+                    <div className="w-full h-48 relative">
+                      {(input as any).cover_image_url || input.coverImageUrl ? (
+                        <img 
+                          src={(input as any).cover_image_url || input.coverImageUrl} 
+                          alt={input.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            // 画像の読み込みに失敗した場合、フォールバック表示に切り替え
+                            const target = e.currentTarget
+                            const fallback = target.nextElementSibling as HTMLElement
+                            if (fallback) {
+                              target.style.display = 'none'
+                              fallback.style.display = 'flex'
+                            }
+                          }}
+                        />
+                      ) : null}
+                      {/* フォールバック表示（画像がない場合、または読み込み失敗時） */}
+                      <div 
+                        className={`w-full h-full bg-gradient-to-br flex items-center justify-center ${
+                          (input as any).cover_image_url || input.coverImageUrl ? 'hidden' : 'flex'
+                        } ${
+                          input.type === 'book' ? 'from-blue-100 to-blue-200' :
+                          input.type === 'manga' ? 'from-red-100 to-red-200' :
+                          input.type === 'movie' ? 'from-purple-100 to-purple-200' :
+                          input.type === 'anime' ? 'from-orange-100 to-orange-200' :
+                          input.type === 'tv' ? 'from-green-100 to-green-200' :
+                          input.type === 'game' ? 'from-pink-100 to-pink-200' :
+                          input.type === 'podcast' ? 'from-cyan-100 to-cyan-200' :
+                          'from-gray-100 to-gray-200'
+                        } group-hover:scale-105 transition-transform duration-300`}
+                        style={{ display: (input as any).cover_image_url || input.coverImageUrl ? 'none' : 'flex' }}
+                      >
+                        <div className="text-center">
+                          <span className="text-6xl mb-2 block">
+                            {inputCategories.find(cat => cat.id === input.type)?.icon || '📄'}
+                          </span>
+                          <span className="text-sm font-medium text-gray-600">
+                            {inputCategories.find(cat => cat.id === input.type)?.name || 'その他'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* お気に入りバッジ */}
+                      {input.favorite && (
+                        <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full p-1 shadow-md">
+                          <span className="text-red-500 text-lg">❤️</span>
+                        </div>
+                      )}
+                      
+                      {/* 評価バッジ */}
+                      {input.rating && input.rating > 0 && (
+                        <div className="absolute top-2 left-2 bg-white bg-opacity-90 rounded-full px-2 py-1 shadow-md flex items-center gap-1">
+                          <span className="text-yellow-500">⭐</span>
+                          <span className="text-xs font-medium text-gray-700">{input.rating}</span>
+                        </div>
+                      )}
+                      
+                      {/* ホバー時の詳細ボタン */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full px-4 py-2 text-sm font-medium text-gray-900 shadow-lg">
+                          詳細を見る
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* カードコンテンツ */}
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        {/* タイトルと作者 */}
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">{input.title}</h3>
+                          {input.authorCreator && (
+                            <p className="text-sm text-gray-600">{input.authorCreator}</p>
+                          )}
+                        </div>
+                        
+                        {/* タグとジャンル */}
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {inputCategories.find(cat => cat.id === input.type)?.icon} {input.type}
+                          </Badge>
+                          {input.status && (
+                            <Badge variant="outline" className="text-xs">
+                              {input.status}
+                            </Badge>
+                          )}
+                          {input.tags && input.tags.slice(0, 2).map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        {/* レビュー */}
+                        {input.review && (
+                          <p className="text-sm text-gray-700 line-clamp-2">
+                            💭 {input.review}
+                          </p>
+                        )}
+                        
+                        {/* ノート */}
+                        {input.notes && (
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            📝 {input.notes}
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </div>
+                </Card>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="text-4xl mb-3">
+                {inputCategories.find(cat => cat.id === selectedType)?.icon || '📂'}
+              </div>
+              <h4 className="text-lg font-semibold text-gray-600 mb-2">
+                {selectedType === 'all' ? 'まだインプットがありません' : `${inputCategories.find(cat => cat.id === selectedType)?.name}のインプットがありません`}
+              </h4>
+              <p className="text-gray-500">
+                {selectedType === 'all' 
+                  ? '最初のインプットを追加しましょう' 
+                  : '他のカテゴリを確認するか、新しいインプットを追加してください'
+                }
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ====== ProfileTabsコンポーネントのメインreturn文 ======
   return (
     <div className="space-y-6">
       {/* タブナビゲーション */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-        <button 
-          onClick={() => setActiveTab('profile')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-        >
-          👤 プロフィール
-        </button>
-        <button 
-          onClick={() => setActiveTab('works')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'works' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-        >
-          🎨 作品
-        </button>
-        <button 
-          onClick={() => setActiveTab('inputs')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'inputs' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-        >
-          📚 インプット
-        </button>
+      <div className="flex items-center justify-between">
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+          <button 
+            onClick={() => setActiveTab('profile')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            👤 プロフィール
+          </button>
+          <button 
+            onClick={() => setActiveTab('works')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'works' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            🎨 作品
+          </button>
+          <button 
+            onClick={() => setActiveTab('inputs')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'inputs' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          >
+            📚 インプット
+          </button>
+        </div>
+        
+        {/* レポートボタンを追加 */}
+        {savedWorks.length >= 3 && (
+          <Link href="/report">
+            <Button variant="outline" className="flex items-center gap-2">
+              <ChartBarIcon className="h-4 w-4" />
+              詳細レポート
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* タブコンテンツ */}
       <div className="mt-6">
         {/* プロフィールタブ */}
         {activeTab === 'profile' && (
-          <div className="space-y-8">
-            {/* 新規ユーザー向けウェルカムメッセージ */}
-            {(!profileData?.bio && (!profileData?.skills || profileData.skills.length === 0) && (!profileData?.career || profileData.career.length === 0)) && (
-              <Card className="border-dashed border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-                <CardContent className="p-8 text-center">
-                  <div className="text-6xl mb-4">✨</div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">プロフィールを充実させましょう！</h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    あなたの経験やスキルを追加して、他のクリエイターとのつながりを深めましょう。<br />
-                    プロフィールが充実していると、より多くの機会が生まれます。
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <Button 
+            <div className="space-y-8">
+              {/* 新規ユーザー向けウェルカムメッセージ */}
+              {(!profileData?.bio && (!profileData?.skills || profileData.skills.length === 0) && (!profileData?.career || profileData.career.length === 0)) && (
+                <Card className="border-dashed border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+                  <CardContent className="p-8 text-center">
+                    <div className="text-6xl mb-4">✨</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">プロフィールを充実させましょう！</h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      あなたの経験やスキルを追加して、他のクリエイターとのつながりを深めましょう。<br />
+                      プロフィールが充実していると、より多くの機会が生まれます。
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button 
+                        onClick={() => setIsSkillModalOpen(true)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        スキルを追加
+                      </Button>
+                      <Button 
+                        onClick={() => setIsCareerModalOpen(true)}
+                        variant="outline"
+                        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2M8 6v2a2 2 0 002 2h4a2 2 0 002-2V6m0 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2z" />
+                        </svg>
+                        キャリアを追加
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* できること（スキル）セクション */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">⚡ できること</h3>
+                    <Button
                       onClick={() => setIsSkillModalOpen(true)}
+                      size="sm"
                       className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      スキルを追加
-                    </Button>
-                    <Button 
-                      onClick={() => setIsCareerModalOpen(true)}
-                      variant="outline"
-                      className="border-purple-200 text-purple-700 hover:bg-purple-50"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2M8 6v2a2 2 0 002 2h4a2 2 0 002-2V6m0 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2z" />
-                      </svg>
-                      キャリアを追加
+                      追加
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            )}
 
-            {/* できること（スキル）セクション */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">⚡ できること</h3>
-                  <Button
-                    onClick={() => setIsSkillModalOpen(true)}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    追加
-                  </Button>
-                </div>
-
-                {profileData?.skills && profileData.skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {profileData.skills.map((skill, index) => (
-                      <div key={index} className="group relative">
-                        <Badge
-                          variant="secondary"
-                          className="px-3 py-1 bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors pr-8"
-                        >
-                          {skill}
-                          <button
-                            onClick={() => onRemoveSkill(index)}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  {profileData?.skills && profileData.skills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {profileData.skills.map((skill, index) => (
+                        <div key={index} className="group relative">
+                          <Badge
+                            variant="secondary"
+                            className="px-3 py-1 bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors pr-8"
                           >
-                            ×
-                          </button>
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-3">💡</div>
-                    <p className="text-gray-500 mb-4">まだスキルが登録されていません</p>
-                    <Button
-                      onClick={() => setIsSkillModalOpen(true)}
-                      variant="outline"
-                      className="border-purple-200 text-purple-700 hover:bg-purple-50"
-                    >
-                      最初のスキルを追加
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* キャリアセクション */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">💼 キャリア</h3>
-                  <Button
-                    onClick={() => setIsCareerModalOpen(true)}
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    追加
-                  </Button>
-                </div>
-
-                {profileData?.career && profileData.career.length > 0 ? (
-                  <div className="space-y-4">
-                    {profileData.career.map((careerItem) => (
-                      <div key={careerItem.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-semibold text-gray-900">{careerItem.position}</h4>
-                              {careerItem.isCurrent && (
-                                <Badge className="bg-green-100 text-green-800 text-xs">現職</Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-600 mb-1">{careerItem.company}</p>
-                            {careerItem.department && (
-                              <p className="text-sm text-gray-500 mb-2">{careerItem.department}</p>
-                            )}
-                            <p className="text-xs text-gray-500 mb-3">
-                              {careerItem.startDate} - {careerItem.isCurrent ? '現在' : careerItem.endDate || '不明'}
-                            </p>
-                            {careerItem.description && (
-                              <p className="text-sm text-gray-700">{careerItem.description}</p>
-                            )}
-                          </div>
-                          <div className="flex gap-2 ml-4">
+                            {skill}
                             <button
-                              onClick={() => onEditCareer(careerItem)}
-                              className="w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-full flex items-center justify-center transition-colors"
+                              onClick={() => onRemoveSkill(index)}
+                              className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
+                              ×
                             </button>
-                            <button
-                              onClick={() => onDeleteCareerConfirm(careerItem.id)}
-                              className="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-full flex items-center justify-center transition-colors"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-3">💼</div>
-                    <p className="text-gray-500 mb-4">まだキャリア情報が登録されていません</p>
-                    <Button
-                      onClick={() => setIsCareerModalOpen(true)}
-                      variant="outline"
-                      className="border-green-200 text-green-700 hover:bg-green-50"
-                    >
-                      最初のキャリアを追加
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* よく使用するタグ */}
-            {topTags.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">🏷️ よく使用するタグ</h3>
-                  <div className="space-y-3">
-                    {topTags.map(([tag, count], index) => (
-                      <div key={tag} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                            {index + 1}
-                          </div>
-                          <Badge variant="outline" className="text-sm">
-                            {tag}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" 
-                              style={{ width: `${Math.min((count / Math.max(...topTags.map(([, c]) => c))) * 100, 100)}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium text-gray-600 w-8 text-right">{count}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-700">
-                      💡 作品に設定したタグの使用頻度です。よく使うタグはあなたの得意分野を表しています。
-                    </p>
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-3">💡</div>
+                      <p className="text-gray-500 mb-4">まだスキルが登録されていません</p>
+                      <Button
+                        onClick={() => setIsSkillModalOpen(true)}
+                        variant="outline"
+                        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                      >
+                        最初のスキルを追加
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            )}
 
-            {/* 作品統計・役割分布 */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">📊 作品統計・役割分布</h3>
-                </div>
+              {/* キャリアセクション */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">💼 キャリア</h3>
+                    <Button
+                      onClick={() => setIsCareerModalOpen(true)}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      追加
+                    </Button>
+                  </div>
 
-                {workStats.totalWorks > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* 総作品数表示 */}
-                    <div className="text-center lg:text-left">
-                      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
-                        <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
-                        <div className="text-4xl font-bold text-indigo-600">{workStats.totalWorks}</div>
-                        <p className="text-gray-600 mt-2">これまでに制作した作品</p>
+                  {profileData?.career && profileData.career.length > 0 ? (
+                    <div className="space-y-4">
+                      {profileData.career.map((careerItem) => (
+                        <div key={careerItem.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-semibold text-gray-900">{careerItem.position}</h4>
+                                {careerItem.isCurrent && (
+                                  <Badge className="bg-green-100 text-green-800 text-xs">現職</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 mb-1">{careerItem.company}</p>
+                              {careerItem.department && (
+                                <p className="text-sm text-gray-500 mb-2">{careerItem.department}</p>
+                              )}
+                              <p className="text-xs text-gray-500 mb-3">
+                                {careerItem.startDate} - {careerItem.isCurrent ? '現在' : careerItem.endDate || '不明'}
+                              </p>
+                              {careerItem.description && (
+                                <p className="text-sm text-gray-700">{careerItem.description}</p>
+                              )}
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => onEditCareer(careerItem)}
+                                className="w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-full flex items-center justify-center transition-colors"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => onDeleteCareerConfirm(careerItem.id)}
+                                className="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-full flex items-center justify-center transition-colors"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-3">💼</div>
+                      <p className="text-gray-500 mb-4">まだキャリア情報が登録されていません</p>
+                      <Button
+                        onClick={() => setIsCareerModalOpen(true)}
+                        variant="outline"
+                        className="border-green-200 text-green-700 hover:bg-green-50"
+                      >
+                        最初のキャリアを追加
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* よく使用するタグ */}
+              {topTags.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6">🏷️ よく使用するタグ</h3>
+                    <div className="space-y-3">
+                      {topTags.map(([tag, count], index) => (
+                        <div key={tag} className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                              {index + 1}
+                            </div>
+                            <Badge variant="outline" className="text-sm">
+                              {tag}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-24 bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" 
+                                style={{ width: `${Math.min((count / Math.max(...topTags.map(([, c]) => c))) * 100, 100)}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium text-gray-600 w-8 text-right">{count}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-700">
+                        💡 作品に設定したタグの使用頻度です。よく使うタグはあなたの得意分野を表しています。
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* 作品統計・役割分布 */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">📊 作品統計・役割分布</h3>
+                  </div>
+
+                  {workStats.totalWorks > 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* 総作品数表示 */}
+                      <div className="text-center lg:text-left">
+                        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                          <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
+                          <div className="text-4xl font-bold text-indigo-600">{workStats.totalWorks}</div>
+                          <p className="text-gray-600 mt-2">これまでに制作した作品</p>
+                        </div>
+                      </div>
+
+                      {/* 役割分布 */}
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
+                        {workStats.roleDistribution.length > 0 ? (
+                          <div className="space-y-3">
+                            {workStats.roleDistribution.map((role, index) => (
+                              <div key={index} className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-gray-700">{role.role}</span>
+                                  <span className="text-sm text-gray-600">{role.count}件 ({role.percentage.toFixed(0)}%)</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="h-2 rounded-full transition-all duration-300" 
+                                    style={{ 
+                                      width: `${role.percentage}%`,
+                                      backgroundColor: role.color
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500">役割データがありません</p>
+                        )}
                       </div>
                     </div>
-
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="text-6xl mb-4">📁</div>
+                      <h4 className="text-lg font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
+                      <p className="text-gray-500 mb-4">最初の作品を追加して、統計情報を表示しましょう</p>
+                      <Link href="/works/new">
                     {/* 役割分布 */}
                     <div>
                       <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
@@ -843,7 +1255,7 @@ export function ProfileTabs({
             )}
 
             {/* インプット記録による興味・関心分析 */}
-            {inputs.length > 0 && inputAnalysis && (
+            {inputInterests.totalInputs > 0 && (
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
@@ -852,7 +1264,7 @@ export function ProfileTabs({
                       <span>興味・関心分析</span>
                     </h3>
                     <div className="text-sm text-gray-500">
-                      {inputs.length}件のインプットから分析
+                      {inputInterests.totalInputs}件のインプットから分析
                     </div>
                   </div>
 
@@ -863,20 +1275,12 @@ export function ProfileTabs({
                         <span>📱</span>
                         <span>好きなメディア</span>
                       </h4>
-                      {inputAnalysis.typeDistribution && Object.keys(inputAnalysis.typeDistribution).length > 0 ? (
+                      {inputInterests.topTypes.length > 0 ? (
                         <div className="space-y-3">
-                          {Object.entries(inputAnalysis.typeDistribution).slice(0, 4).map(([type, count], index) => (
+                          {inputInterests.topTypes.map(([type, count], index) => (
                             <div key={type} className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <span className="text-lg">
-                                  {type === 'book' ? '📚' : 
-                                   type === 'manga' ? '📖' :
-                                   type === 'movie' ? '🎬' :
-                                   type === 'anime' ? '🎭' :
-                                   type === 'tv' ? '📺' :
-                                   type === 'game' ? '🎮' :
-                                   type === 'podcast' ? '🎧' : '📄'}
-                                </span>
+                                <span className="text-lg">{getTypeIcon(type)}</span>
                                 <span className="text-sm font-medium text-gray-700 capitalize">
                                   {type === 'book' ? '書籍' : 
                                    type === 'manga' ? '漫画' :
@@ -892,7 +1296,7 @@ export function ProfileTabs({
                                   <div 
                                     className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300" 
                                     style={{ 
-                                      width: `${Math.min((count / Math.max(...Object.values(inputAnalysis.typeDistribution || {}))) * 100, 100)}%` 
+                                      width: `${Math.min((count / Math.max(...inputInterests.topTypes.map(([, c]) => c))) * 100, 100)}%` 
                                     }}
                                   />
                                 </div>
@@ -912,16 +1316,16 @@ export function ProfileTabs({
                         <span>🎭</span>
                         <span>好きなジャンル</span>
                       </h4>
-                      {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 ? (
+                      {inputInterests.topGenres.length > 0 ? (
                         <div className="space-y-3">
-                          {inputAnalysis.topGenres.slice(0, 5).map((genreItem, index) => (
-                            <div key={index} className="flex items-center justify-between">
+                          {inputInterests.topGenres.map(([genre, count], index) => (
+                            <div key={genre} className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
                                   {index + 1}
                                 </div>
                                 <Badge variant="outline" className="text-xs border-green-300 text-green-700">
-                                  {typeof genreItem === 'string' ? genreItem : genreItem.genre}
+                                  {genre}
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-2">
@@ -929,13 +1333,11 @@ export function ProfileTabs({
                                   <div 
                                     className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300" 
                                     style={{ 
-                                      width: `${Math.min(((typeof genreItem === 'object' && genreItem.count ? genreItem.count : 1) / Math.max(...inputAnalysis.topGenres.map(g => typeof g === 'object' && g.count ? g.count : 1))) * 100, 100)}%` 
+                                      width: `${Math.min((count / Math.max(...inputInterests.topGenres.map(([, c]) => c))) * 100, 100)}%` 
                                     }}
                                   />
                                 </div>
-                                <span className="text-sm font-bold text-green-600 w-6 text-right">
-                                  {typeof genreItem === 'object' && genreItem.count ? genreItem.count : ''}
-                                </span>
+                                <span className="text-sm font-bold text-green-600 w-6 text-right">{count}</span>
                               </div>
                             </div>
                           ))}
@@ -951,16 +1353,16 @@ export function ProfileTabs({
                         <span>🏷️</span>
                         <span>関心キーワード</span>
                       </h4>
-                      {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
+                      {inputInterests.topTags.length > 0 ? (
                         <div className="space-y-3">
-                          {inputAnalysis.topTags.slice(0, 5).map((tagItem, index) => (
-                            <div key={index} className="flex items-center justify-between">
+                          {inputInterests.topTags.map(([tag, count], index) => (
+                            <div key={tag} className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-5 h-5 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
                                   {index + 1}
                                 </div>
                                 <Badge variant="outline" className="text-xs border-purple-300 text-purple-700">
-                                  {typeof tagItem === 'string' ? tagItem : tagItem.tag}
+                                  {tag}
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-2">
@@ -968,13 +1370,11 @@ export function ProfileTabs({
                                   <div 
                                     className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300" 
                                     style={{ 
-                                      width: `${Math.min(((typeof tagItem === 'object' && tagItem.count ? tagItem.count : 1) / Math.max(...inputAnalysis.topTags.map(t => typeof t === 'object' && t.count ? t.count : 1))) * 100, 100)}%` 
+                                      width: `${Math.min((count / Math.max(...inputInterests.topTags.map(([, c]) => c))) * 100, 100)}%` 
                                     }}
                                   />
                                 </div>
-                                <span className="text-sm font-bold text-purple-600 w-6 text-right">
-                                  {typeof tagItem === 'object' && tagItem.count ? tagItem.count : ''}
-                                </span>
+                                <span className="text-sm font-bold text-purple-600 w-6 text-right">{count}</span>
                               </div>
                             </div>
                           ))}
@@ -995,30 +1395,21 @@ export function ProfileTabs({
                           <div>
                             <span className="font-medium">最も消費するメディア:</span>
                             <span className="ml-2 text-blue-600 font-semibold">
-                              {inputAnalysis.typeDistribution ? 
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'book' ? '書籍' : 
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'manga' ? '漫画' :
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'movie' ? '映画' :
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'anime' ? 'アニメ' :
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'tv' ? 'TV番組' :
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'game' ? 'ゲーム' :
-                                Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] === 'podcast' ? 'ポッドキャスト' : 'その他'
+                              {inputInterests.topTypes[0] ? 
+                                (inputInterests.topTypes[0][0] === 'book' ? '書籍' : 
+                                 inputInterests.topTypes[0][0] === 'manga' ? '漫画' :
+                                 inputInterests.topTypes[0][0] === 'movie' ? '映画' :
+                                 inputInterests.topTypes[0][0] === 'anime' ? 'アニメ' :
+                                 inputInterests.topTypes[0][0] === 'tv' ? 'TV番組' :
+                                 inputInterests.topTypes[0][0] === 'game' ? 'ゲーム' :
+                                 inputInterests.topTypes[0][0] === 'podcast' ? 'ポッドキャスト' : 'その他')
                                 : 'データなし'}
                             </span>
                           </div>
                           <div>
                             <span className="font-medium">主要な関心分野:</span>
                             <span className="ml-2 text-green-600 font-semibold">
-                              {inputAnalysis.topGenres && inputAnalysis.topGenres[0] ?
-                                (typeof inputAnalysis.topGenres[0] === 'string' ? inputAnalysis.topGenres[0] : inputAnalysis.topGenres[0].genre)
-                                : 'データなし'}
+                              {inputInterests.topGenres[0]?.[0] || 'データなし'}
                             </span>
                           </div>
                         </div>
@@ -1108,209 +1499,27 @@ export function ProfileTabs({
               </Link>
             </div>
 
-            {/* インプット分析 */}
-            {inputAnalysis && (
-              <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* 興味関心ワード */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-blue-600">🏷️</span>
-                    興味関心ワード
-                  </h3>
-                  {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {inputAnalysis.topTags.slice(0, 12).map((tagItem, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-white text-blue-700 rounded-full text-sm border border-blue-200"
-                        >
-                          {typeof tagItem === 'string' ? tagItem : tagItem.tag} 
-                          {typeof tagItem === 'object' && tagItem.count && (
-                            <span className="ml-1 text-blue-600">({tagItem.count})</span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 text-sm">インプットを追加すると興味関心が分析されます</p>
-                  )}
-                </div>
-
-                {/* ジャンル分析 */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-green-600">📊</span>
-                    ジャンル分析
-                  </h3>
-                  {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 ? (
-                    <div className="space-y-2">
-                      {inputAnalysis.topGenres.slice(0, 5).map((genreItem, index) => (
-                        <div key={index} className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-gray-700">
-                            {typeof genreItem === 'string' ? genreItem : genreItem.genre}
-                          </span>
-                          <span className="text-sm text-green-600 font-semibold">
-                            {typeof genreItem === 'object' && genreItem.count ? `${genreItem.count}件` : ''}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 text-sm">ジャンル情報を追加すると分析されます</p>
-                  )}
-                </div>
-
-                {/* 統計情報 */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-purple-600">📈</span>
-                    統計情報
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">総インプット数</span>
-                      <span className="text-lg font-bold text-purple-600">{inputAnalysis.totalInputs}件</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">お気に入り</span>
-                      <span className="text-lg font-bold text-pink-600">{inputAnalysis.favoriteCount}件</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">平均評価</span>
-                      <span className="text-lg font-bold text-yellow-600">
-                        {inputAnalysis.averageRating ? `${inputAnalysis.averageRating.toFixed(1)}★` : 'なし'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* タイプ分布 */}
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-orange-600">📚</span>
-                    タイプ分布
-                  </h3>
-                  {inputAnalysis.typeDistribution && Object.keys(inputAnalysis.typeDistribution).length > 0 ? (
-                    <div className="space-y-2">
-                      {Object.entries(inputAnalysis.typeDistribution).map(([type, count]) => (
-                        <div key={type} className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-gray-700 capitalize">{type}</span>
-                          <span className="text-sm text-orange-600 font-semibold">{count}件</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 text-sm">タイプ情報がありません</p>
-                  )}
-                </div>
+            {inputAnalysis && inputs.length > 0 ? (
+              <InputsWithCategoryTabs 
+                inputs={inputs}
+                inputAnalysis={inputAnalysis}
+                isLoadingInputs={isLoadingInputs}
+              />
+            ) : (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">📚</div>
+                <h4 className="text-xl font-semibold text-gray-600 mb-2">まだインプットがありません</h4>
+                <p className="text-gray-500 mb-6">最初のインプットを追加して、分析データを蓄積しましょう</p>
+                <Link href="/inputs/new">
+                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    最初のインプットを追加
+                  </Button>
+                </Link>
               </div>
             )}
-
-            {/* インプットリスト */}
-            <div className="space-y-4">
-              {isLoadingInputs ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="text-gray-600 mt-2">インプットを読み込み中...</p>
-                </div>
-              ) : inputs.length > 0 ? (
-                inputs.map((input) => (
-                  <Card key={input.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        {/* カバー画像 */}
-                        {input.coverImageUrl && (
-                          <div className="flex-shrink-0">
-                            <img 
-                              src={input.coverImageUrl} 
-                              alt={input.title}
-                              className="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-lg border border-gray-200"
-                            />
-                          </div>
-                        )}
-                        
-                        {/* コンテンツ */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate">{input.title}</h3>
-                              {input.authorCreator && (
-                                <p className="text-sm text-gray-600 mt-1">{input.authorCreator}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              {input.favorite && (
-                                <span className="text-red-500">❤️</span>
-                              )}
-                              {input.rating && input.rating > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-yellow-500">⭐</span>
-                                  <span className="text-sm font-medium text-gray-700">{input.rating}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* タグとジャンル */}
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <Badge variant="secondary" className="text-xs">
-                              {input.type}
-                            </Badge>
-                            {input.status && (
-                              <Badge variant="outline" className="text-xs">
-                                {input.status}
-                              </Badge>
-                            )}
-                            {input.tags && input.tags.slice(0, 3).map((tag, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                          
-                          {/* 説明文 */}
-                          {(input as any).description && (
-                            <p className="text-sm text-gray-600 line-clamp-2 mb-3">{(input as any).description}</p>
-                          )}
-                          
-                          {/* レビュー */}
-                          {input.review && (
-                            <p className="text-sm text-gray-700 line-clamp-3 bg-gray-50 p-3 rounded-lg">
-                              {input.review}
-                            </p>
-                          )}
-                          
-                          {/* 外部リンク */}
-                          {input.externalUrl && (
-                            <div className="mt-3">
-                              <a 
-                                href={input.externalUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 text-sm underline"
-                              >
-                                詳細を見る →
-                              </a>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📚</div>
-                  <h4 className="text-lg font-semibold text-gray-600 mb-2">まだインプットがありません</h4>
-                  <p className="text-gray-500 mb-4">最初のインプットを追加して、興味関心を分析しましょう</p>
-                  <Link href="/inputs/new">
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
-                      インプットを追加
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
         )}
       </div>

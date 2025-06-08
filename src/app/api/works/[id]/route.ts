@@ -104,16 +104,38 @@ export async function GET(
       )
     }
 
-    // Supabaseから作品を取得（ユーザーIDでフィルタリング）
+    // Supabaseから作品を取得（すべてのユーザーの作品を取得可能）
+    console.log('Attempting to fetch work with ID:', id)
     const { data: work, error } = await supabaseWithAuth
       .from('works')
       .select('*')
       .eq('id', id)
-      .eq('user_id', user.id)
       .single()
     
+    console.log('Supabase query result:', { work, error })
+    
     if (error || !work) {
-      console.error('Supabase error:', error)
+      console.error('Supabase error details:', {
+        error,
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint
+      })
+      
+      // RLSポリシーエラーの場合は特別なメッセージを返す
+      if (error?.code === 'PGRST116' || error?.message?.includes('row-level security')) {
+        return NextResponse.json(
+          { error: '作品の閲覧権限がありません。作品の所有者のみが閲覧できます。' },
+          { 
+            status: 403,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+      }
+      
       return NextResponse.json(
         { error: '作品が見つかりません' },
         { 
@@ -127,6 +149,7 @@ export async function GET(
     
     console.log('Work detail retrieved from Supabase:', {
       id: work.id,
+      user_id: work.user_id,
       title: work.title,
       external_url: work.external_url,
       banner_image_url: work.banner_image_url,

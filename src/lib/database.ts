@@ -544,48 +544,138 @@ export class DatabaseClient {
     }
   }
 
-  // インプット分析（AI機能）
+  // インプット分析（AI機能強化版）
   static async analyzeInputs(userId: string, token?: string) {
     try {
       console.log('DatabaseClient: インプット分析中...', userId)
       
       const inputs = await this.getInputs(userId, token)
       
-      // タグの統計
+      // 基本統計
       const tagFrequency: Record<string, number> = {}
       const genreFrequency: Record<string, number> = {}
       const typeDistribution: Record<string, number> = {}
       const monthlyActivity: Record<string, number> = {}
       
+      // AI分析統合用の新しい統計
+      const aiInsights = {
+        creativeDirections: new Map<string, number>(),
+        inspirationSources: new Map<string, number>(),
+        skillsDevelopment: new Map<string, number>(),
+        personalityTraits: new Map<string, number>(),
+        creativeStyles: new Map<string, number>(),
+        preferredMediums: new Map<string, number>(),
+        themes: new Map<string, number>(),
+        moods: new Map<string, number>(),
+        collaborationOpportunities: new Map<string, number>()
+      }
+      
       inputs.forEach(input => {
-        // タグ統計
+        // 従来の統計処理
         if (input.tags && Array.isArray(input.tags)) {
           input.tags.forEach((tag: string) => {
             tagFrequency[tag] = (tagFrequency[tag] || 0) + 1
           })
         }
         
-        // ジャンル統計
         if (input.genres && Array.isArray(input.genres)) {
           input.genres.forEach((genre: string) => {
             genreFrequency[genre] = (genreFrequency[genre] || 0) + 1
           })
         }
         
-        // タイプ統計
         typeDistribution[input.type] = (typeDistribution[input.type] || 0) + 1
         
-        // 月別活動統計
         if (input.consumption_date) {
-          const month = new Date(input.consumption_date).toISOString().substring(0, 7) // YYYY-MM
+          const month = new Date(input.consumption_date).toISOString().substring(0, 7)
           monthlyActivity[month] = (monthlyActivity[month] || 0) + 1
+        }
+        
+        // AI分析結果の統合処理
+        if (input.ai_analysis_result) {
+          const aiData = typeof input.ai_analysis_result === 'string' 
+            ? JSON.parse(input.ai_analysis_result) 
+            : input.ai_analysis_result
+          
+          try {
+            // クリエイティブな方向性
+            if (aiData.creativeInsights?.creativeDirection) {
+              aiData.creativeInsights.creativeDirection.forEach((direction: string) => {
+                const count = aiInsights.creativeDirections.get(direction) || 0
+                aiInsights.creativeDirections.set(direction, count + 1)
+              })
+            }
+            
+            // インスピレーション源
+            if (aiData.creativeInsights?.inspirationSources) {
+              aiData.creativeInsights.inspirationSources.forEach((source: string) => {
+                const count = aiInsights.inspirationSources.get(source) || 0
+                aiInsights.inspirationSources.set(source, count + 1)
+              })
+            }
+            
+            // スキル開発
+            if (aiData.creativeInsights?.skillDevelopment) {
+              aiData.creativeInsights.skillDevelopment.forEach((skill: string) => {
+                const count = aiInsights.skillsDevelopment.get(skill) || 0
+                aiInsights.skillsDevelopment.set(skill, count + 1)
+              })
+            }
+            
+            // パーソナリティ特性
+            if (aiData.personalityTraits) {
+              aiData.personalityTraits.forEach((trait: string) => {
+                const count = aiInsights.personalityTraits.get(trait) || 0
+                aiInsights.personalityTraits.set(trait, count + 1)
+              })
+            }
+            
+            // 創作スタイル
+            if (aiData.interestProfile?.creativeStyle) {
+              const style = aiData.interestProfile.creativeStyle
+              const count = aiInsights.creativeStyles.get(style) || 0
+              aiInsights.creativeStyles.set(style, count + 1)
+            }
+            
+            // 好みの媒体
+            if (aiData.interestProfile?.preferredMediums) {
+              aiData.interestProfile.preferredMediums.forEach((medium: string) => {
+                const count = aiInsights.preferredMediums.get(medium) || 0
+                aiInsights.preferredMediums.set(medium, count + 1)
+              })
+            }
+            
+            // テーマ
+            if (aiData.themes) {
+              aiData.themes.forEach((theme: string) => {
+                const count = aiInsights.themes.get(theme) || 0
+                aiInsights.themes.set(theme, count + 1)
+              })
+            }
+            
+            // 雰囲気
+            if (aiData.mood) {
+              const count = aiInsights.moods.get(aiData.mood) || 0
+              aiInsights.moods.set(aiData.mood, count + 1)
+            }
+            
+            // コラボレーション機会
+            if (aiData.creativeInsights?.collaborationOpportunities) {
+              aiData.creativeInsights.collaborationOpportunities.forEach((opportunity: string) => {
+                const count = aiInsights.collaborationOpportunities.get(opportunity) || 0
+                aiInsights.collaborationOpportunities.set(opportunity, count + 1)
+              })
+            }
+          } catch (aiParseError) {
+            console.error('AI分析結果の解析エラー:', aiParseError)
+          }
         }
       })
       
-      // トップタグとジャンル（興味関心分析）
+      // 統計結果をランキング形式に変換
       const topTags = Object.entries(tagFrequency)
         .sort(([,a], [,b]) => b - a)
-        .slice(0, 10)
+        .slice(0, 15)
         .map(([tag, count]) => ({ tag, count }))
       
       const topGenres = Object.entries(genreFrequency)
@@ -593,7 +683,43 @@ export class DatabaseClient {
         .slice(0, 10)
         .map(([genre, count]) => ({ genre, count }))
       
+      // AI洞察をランキングに変換
+      const mapToRanking = (map: Map<string, number>, limit: number = 10) => 
+        Array.from(map.entries())
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, limit)
+          .map(([item, count]) => ({ item, count }))
+      
+      // 総合的な興味・関心プロファイル
+      const interestProfile = {
+        dominantTypes: Object.entries(typeDistribution)
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, 3)
+          .map(([type, count]) => ({ type, count, percentage: (count / inputs.length * 100).toFixed(1) })),
+        
+        topCreativeDirections: mapToRanking(aiInsights.creativeDirections, 5),
+        topInspirationSources: mapToRanking(aiInsights.inspirationSources, 8),
+        recommendedSkills: mapToRanking(aiInsights.skillsDevelopment, 6),
+        personalityProfile: mapToRanking(aiInsights.personalityTraits, 8),
+        creativeStyleTrends: mapToRanking(aiInsights.creativeStyles, 5),
+        preferredMediums: mapToRanking(aiInsights.preferredMediums, 6),
+        dominantThemes: mapToRanking(aiInsights.themes, 10),
+        moodDistribution: mapToRanking(aiInsights.moods, 8),
+        collaborationOpportunities: mapToRanking(aiInsights.collaborationOpportunities, 8)
+      }
+      
+      // クリエイター向けインサイト
+      const creativeInsights = {
+        overallCreativeDirection: interestProfile.topCreativeDirections[0]?.item || '多様性重視',
+        primaryInspiration: interestProfile.topInspirationSources[0]?.item || '様々な分野',
+        suggestedFocusAreas: interestProfile.recommendedSkills.slice(0, 3).map(s => s.item),
+        personalityHighlights: interestProfile.personalityProfile.slice(0, 3).map(p => p.item),
+        nextSteps: this.generateCreativeNextSteps(interestProfile),
+        strengthsAnalysis: this.analyzeCreativeStrengths(interestProfile, inputs.length)
+      }
+      
       const analysis = {
+        // 基本統計
         totalInputs: inputs.length,
         tagFrequency,
         genreFrequency,
@@ -603,14 +729,63 @@ export class DatabaseClient {
         topGenres,
         favoriteCount: inputs.filter(input => input.favorite).length,
         averageRating: inputs.filter(input => input.rating).reduce((sum, input) => sum + input.rating, 0) / inputs.filter(input => input.rating).length || 0,
+        
+        // 強化された分析
+        interestProfile,
+        creativeInsights,
+        
+        // メタ情報
+        aiAnalysisCount: inputs.filter(input => input.ai_analysis_result).length,
+        analysisCompleteness: (inputs.filter(input => input.ai_analysis_result).length / inputs.length * 100).toFixed(1),
         lastUpdated: new Date().toISOString()
       }
       
-      console.log('DatabaseClient: インプット分析完了:', analysis)
+      console.log('DatabaseClient: インプット分析完了:', {
+        totalInputs: analysis.totalInputs,
+        aiAnalysisCount: analysis.aiAnalysisCount,
+        topCreativeDirection: analysis.creativeInsights.overallCreativeDirection
+      })
+      
       return analysis
     } catch (error) {
       console.error('DatabaseClient: インプット分析エラー:', error)
       throw error
+    }
+  }
+  
+  // クリエイターの次のステップを生成
+  private static generateCreativeNextSteps(profile: any): string[] {
+    const steps = []
+    
+    if (profile.topCreativeDirections.length > 0) {
+      steps.push(`${profile.topCreativeDirections[0].item}の分野での作品制作を検討`)
+    }
+    
+    if (profile.recommendedSkills.length > 0) {
+      steps.push(`${profile.recommendedSkills[0].item}のスキル向上に集中`)
+    }
+    
+    if (profile.collaborationOpportunities.length > 0) {
+      steps.push(`${profile.collaborationOpportunities[0].item}との連携を模索`)
+    }
+    
+    if (profile.preferredMediums.length > 1) {
+      steps.push(`${profile.preferredMediums[0].item}と${profile.preferredMediums[1].item}を組み合わせた新しい表現を試す`)
+    }
+    
+    steps.push('より多様なジャンルにチャレンジして視野を広げる')
+    
+    return steps.slice(0, 4)
+  }
+  
+  // クリエイターの強みを分析
+  private static analyzeCreativeStrengths(profile: any, totalInputs: number): any {
+    return {
+      diversityScore: Math.min(100, (profile.dominantTypes.length * 25 + profile.dominantThemes.length * 10)),
+      consistencyIndicator: profile.personalityProfile.length > 0 ? profile.personalityProfile[0].count / totalInputs * 100 : 0,
+      explorationTendency: profile.topInspirationSources.length > 5 ? 'high' : profile.topInspirationSources.length > 2 ? 'medium' : 'focused',
+      collaborativePotential: profile.collaborationOpportunities.length > 3 ? 'high' : 'developing',
+      creativeMaturity: totalInputs > 20 ? 'experienced' : totalInputs > 10 ? 'developing' : 'emerging'
     }
   }
 } 

@@ -14,15 +14,17 @@ interface PublicProfileData {
 
 interface PublicProfileContentProps {
   data: PublicProfileData
+  userId: string
 }
 
-export function PublicProfileContent({ data }: PublicProfileContentProps) {
+export function PublicProfileContent({ data, userId }: PublicProfileContentProps) {
   console.log('PublicProfileContent: データ受信', {
     hasData: !!data,
     hasProfile: !!data?.profile,
     worksCount: data?.works?.length || 0,
     inputsCount: data?.inputs?.length || 0,
-    rawData: data
+    rawData: data,
+    userId
   })
   
   const { profile, works, inputs } = data
@@ -84,6 +86,7 @@ export function PublicProfileContent({ data }: PublicProfileContentProps) {
 
         {/* 公開プロフィールヘッダー */}
         <PublicProfileHeader
+          userId={userId}
           displayName={displayName}
           bio={bio}
           location={location}

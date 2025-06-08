@@ -11,10 +11,10 @@ export default function HomePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  // ログイン済みユーザーはプロフィールページにリダイレクト
+  // ログイン済みユーザーはフィードページにリダイレクト
   useEffect(() => {
     if (!loading && user) {
-      router.push('/profile')
+      router.push('/feed')
     }
   }, [user, loading, router])
 
