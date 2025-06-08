@@ -35,8 +35,16 @@ export async function GET(request: NextRequest) {
     console.log('Feed API: フィードデータ取得開始')
 
     // Service roleクライアントを作成（RLS制限を回避）
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kdrnxnorxquxvxutkwnq.supabase.co'
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkcm54bm9yeHF1eHZ4dXRrd25xIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODE4NTkzMSwiZXhwIjoyMDYzNzYxOTMxfQ.Jxq5Pm8vpE8Pm0/pXdvm0vp5ePykr6oSN86v8AoZxX5Z36l0H5bf8ASu7fMgvq9IPyyX02W2D9u5DYbm7gwwhGuHdJQmYlM'
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Feed API: 必要な環境変数が設定されていません')
+      return NextResponse.json(
+        { error: 'サーバー設定エラー' },
+        { status: 500 }
+      )
+    }
     
     // サービスロールキーを使用してRLS制限を回避
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {

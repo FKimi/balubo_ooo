@@ -69,8 +69,8 @@ export default function FeedPage() {
 
   const router = useRouter()
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kdrnxnorxquxvxutkwnq.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkcm54bm9yeHF1eHZ4dXRrd25xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxODU5MzEsImV4cCI6MjA2Mzc2MTkzMX0.tIwl9XnZ9D4gkQP8-8m2QZiVuMGP7E9M1dNJvkQHdZE'
+    process.env.NEXT_PUBLIC_SUPABASE_URL ,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
   )
 
   useEffect(() => {

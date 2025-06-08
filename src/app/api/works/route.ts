@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
     const token = authHeader.split(' ')[1]
     
     // 認証されたSupabaseクライアントを作成
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kdrnxnorxquxvxutkwnq.supabase.co'
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkcm54bm9yeHF1eHZ4dXRrd25xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxODU5MzEsImV4cCI6MjA2Mzc2MTkzMX0.tIwl9XnZ9D4gkQP8-8m2QZiVuMGP7E9M1dNJvkQHdZE'
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL 
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
     
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
@@ -100,8 +100,8 @@ export async function POST(request: NextRequest) {
     
     // 認証されたSupabaseクライアントを作成
     console.log('認証されたSupabaseクライアントを作成中...')
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://kdrnxnorxquxvxutkwnq.supabase.co'
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtkcm54bm9yeHF1eHZ4dXRrd25xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxODU5MzEsImV4cCI6MjA2Mzc2MTkzMX0.tIwl9XnZ9D4gkQP8-8m2QZiVuMGP7E9M1dNJvkQHdZE'
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL 
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
     
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
