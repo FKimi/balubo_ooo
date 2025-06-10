@@ -38,10 +38,17 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1]
+    if (!token) {
+      return NextResponse.json({ error: '認証トークンが無効です' }, { status: 401 })
+    }
     
     // 認証されたSupabaseクライアントを作成
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL 
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
+    }
     
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
@@ -97,11 +104,24 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1]
+    if (!token) {
+      return NextResponse.json({ 
+        error: '認証トークンが無効です', 
+        details: 'Token not found in authorization header' 
+      }, { status: 401 })
+    }
     
     // 認証されたSupabaseクライアントを作成
     console.log('認証されたSupabaseクライアントを作成中...')
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL 
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json({ 
+        error: 'サーバー設定エラー', 
+        details: 'Supabase environment variables not configured' 
+      }, { status: 500 })
+    }
     
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
@@ -175,6 +195,7 @@ export async function POST(request: NextRequest) {
       tags: workData.tags || [],
       roles: workData.roles || [],
       categories: workData.categories || [],
+      content_type: workData.contentType || '', // コンテンツタイプを追加
       production_date: productionDate,
       banner_image_url: workData.bannerImageUrl || '',
       preview_data: workData.previewData || null,

@@ -19,11 +19,27 @@ export async function PUT(
     }
 
     const token = authHeader.split(' ')[1]
+    if (!token) {
+      console.log('認証トークンが見つかりません')
+      return NextResponse.json(
+        { error: '認証トークンが無効です' },
+        { status: 401 }
+      )
+    }
+    
     const workId = params.id
     
     // 認証されたSupabaseクライアントを作成
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL 
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.log('Supabase環境変数が設定されていません')
+      return NextResponse.json(
+        { error: 'サーバー設定エラー' },
+        { status: 500 }
+      )
+    }
     
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
