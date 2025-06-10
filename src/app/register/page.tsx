@@ -127,8 +127,8 @@ export default function RegisterPage() {
         return
       }
 
-      // 成功パス：最後にまとめる
-      router.push('/profile')
+      // 成功パス：メール確認を促すため、ログイン画面に遷移
+      router.push('/login?message=registration_success')
     } catch (error) {
       console.error('Registration error:', error)
       setErrors({ general: getErrorMessage(error) })

@@ -24,14 +24,23 @@ export default function FollowButton({ targetUserId, compact = false }: FollowBu
   const [isLoading, setIsLoading] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
+  // Supabaseクライアントを作成するヘルパー関数
+  const createSupabaseClient = () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Supabase環境変数が設定されていません')
+    }
+    
+    return createClient(supabaseUrl, supabaseAnonKey)
+  }
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         // 現在のユーザーを取得
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
+        const supabase = createSupabaseClient()
         const { data: { user } } = await supabase.auth.getUser()
         
         if (!user) {
@@ -85,10 +94,7 @@ export default function FollowButton({ targetUserId, compact = false }: FollowBu
 
     setIsLoading(true)
     try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
+      const supabase = createSupabaseClient()
       const token = (await supabase.auth.getSession()).data.session?.access_token
       
       if (!token) {
@@ -127,10 +133,7 @@ export default function FollowButton({ targetUserId, compact = false }: FollowBu
 
     setIsLoading(true)
     try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
+      const supabase = createSupabaseClient()
       const token = (await supabase.auth.getSession()).data.session?.access_token
       
       if (!token) {

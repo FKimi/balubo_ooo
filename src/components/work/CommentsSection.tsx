@@ -27,10 +27,14 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase環境変数が設定されていません')
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   useEffect(() => {
     const checkAuthAndFetchComments = async () => {
@@ -55,7 +59,7 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
     }
 
     checkAuthAndFetchComments()
-  }, [workId])
+  }, [workId, supabase.auth])
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()

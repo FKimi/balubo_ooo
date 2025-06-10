@@ -1,6 +1,6 @@
 // インプットデータの型定義
 
-export type InputType = 'book' | 'manga' | 'movie' | 'anime' | 'tv' | 'game' | 'podcast' | 'other'
+export type InputType = 'book' | 'manga' | 'movie' | 'anime' | 'tv' | 'game' | 'podcast' | 'youtube' | 'other'
 
 export type InputStatus = 'completed' | 'reading' | 'watching' | 'playing' | 'listening' | 'planning' | 'paused' | 'dropped'
 
@@ -48,6 +48,7 @@ export const inputTypeLabels: Record<InputType, string> = {
   tv: '📺 TV番組',
   game: '🎮 ゲーム',
   podcast: '🎧 ポッドキャスト',
+  youtube: '🎥 YouTube',
   other: '📝 その他'
 }
 
@@ -67,8 +68,6 @@ export const defaultInputData: Partial<InputData> = {
   type: 'book',
   category: '',
   authorCreator: '',
-  releaseDate: '',
-  consumptionDate: '',
   status: 'completed',
   review: '',
   tags: [],

@@ -208,13 +208,23 @@ export default function NewInputPage() {
         throw new Error('認証が必要です')
       }
       
+      // 現在の日付を自動設定（月の初日に設定）
+      const currentDate = new Date()
+      const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-01`
+      
+      const dataToSave = {
+        ...inputData,
+        consumptionDate: currentYearMonth, // 登録月の初日を自動設定（例：2025-06-01）
+        status: 'completed' // デフォルトステータスを設定
+      }
+      
       const response = await fetch('/api/inputs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify(inputData),
+        body: JSON.stringify(dataToSave),
       })
 
       const data = await response.json()
@@ -352,123 +362,114 @@ export default function NewInputPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="status">ステータス</Label>
-                          <select
-                            id="status"
-                            value={inputData.status || 'completed'}
-                            onChange={(e) => setInputData(prev => ({ ...prev, status: e.target.value as InputStatus }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            {Object.entries(inputStatusLabels).map(([value, label]) => (
-                              <option key={value} value={value}>{label}</option>
-                            ))}
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="rating">評価</Label>
-                          <select
-                            id="rating"
-                            value={inputData.rating || ''}
-                            onChange={(e) => setInputData(prev => ({ 
-                              ...prev, 
-                              rating: e.target.value ? parseInt(e.target.value) : 0 
-                            }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value="">未評価</option>
-                            <option value="5">⭐⭐⭐⭐⭐ 5点</option>
-                            <option value="4">⭐⭐⭐⭐ 4点</option>
-                            <option value="3">⭐⭐⭐ 3点</option>
-                            <option value="2">⭐⭐ 2点</option>
-                            <option value="1">⭐ 1点</option>
-                          </select>
-                        </div>
+                      <div>
+                        <Label htmlFor="rating">評価</Label>
+                        <select
+                          id="rating"
+                          value={inputData.rating || ''}
+                          onChange={(e) => setInputData(prev => ({ 
+                            ...prev, 
+                            rating: e.target.value ? parseInt(e.target.value) : 0 
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">未評価</option>
+                          <option value="5">⭐⭐⭐⭐⭐ 5点</option>
+                          <option value="4">⭐⭐⭐⭐ 4点</option>
+                          <option value="3">⭐⭐⭐ 3点</option>
+                          <option value="2">⭐⭐ 2点</option>
+                          <option value="1">⭐ 1点</option>
+                        </select>
                       </div>
 
-                      {/* レビュー */}
+
+
+                      {/* メモ・感想 */}
                       <div>
-                        <Label htmlFor="review">レビュー・感想</Label>
+                        <Label htmlFor="notes">メモ・感想・レビュー</Label>
                         <textarea
-                          id="review"
-                          value={inputData.review || ''}
-                          onChange={(e) => setInputData(prev => ({ ...prev, review: e.target.value }))}
-                          placeholder="このコンテンツの感想や学んだことを書いてください..."
+                          id="notes"
+                          value={inputData.notes || ''}
+                          onChange={(e) => setInputData(prev => ({ ...prev, notes: e.target.value }))}
+                          placeholder="このコンテンツについてのメモ、感想、レビューを書いてください..."
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                           rows={4}
                         />
                       </div>
 
-                      {/* タグとジャンル */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label>タグ</Label>
-                          <div className="flex flex-wrap gap-2 p-2 border border-gray-300 rounded-md min-h-[40px]">
-                            {inputData.tags?.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center gap-1"
-                              >
-                                {tag}
-                                <button
-                                  type="button"
-                                  onClick={() => removeTag(tag)}
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                          </div>
+                      {/* AI分析によるタグとジャンル */}
+                      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                          <h3 className="font-semibold text-purple-900">🤖 AI分析でタグ・ジャンルを自動生成</h3>
                         </div>
+                        <p className="text-purple-700 text-sm mb-4">
+                          タイトルを入力してAI分析を実行すると、適切なタグとジャンルが自動で追加されます
+                        </p>
                         
-                        <div>
-                          <Label>ジャンル</Label>
-                          <div className="flex flex-wrap gap-2 p-2 border border-gray-300 rounded-md min-h-[40px]">
-                            {inputData.genres?.map((genre, index) => (
-                              <span
-                                key={index}
-                                className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs flex items-center gap-1"
-                              >
-                                {genre}
-                                <button
-                                  type="button"
-                                  onClick={() => removeGenre(genre)}
-                                  className="text-purple-600 hover:text-purple-800"
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-purple-800">タグ</Label>
+                            <div className="flex flex-wrap gap-2 p-3 bg-white border border-purple-200 rounded-md min-h-[50px]">
+                              {inputData.tags && inputData.tags.length > 0 ? (
+                                inputData.tags.map((tag, index) => (
+                                  <span
+                                    key={index}
+                                    className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center gap-1"
+                                  >
+                                    {tag}
+                                    <button
+                                      type="button"
+                                      onClick={() => removeTag(tag)}
+                                      className="text-blue-600 hover:text-blue-800"
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                ))
+                              ) : (
+                                <div className="flex items-center text-gray-400 text-sm">
+                                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                  </svg>
+                                  AI分析でタグが追加されます
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label className="text-purple-800">ジャンル</Label>
+                            <div className="flex flex-wrap gap-2 p-3 bg-white border border-purple-200 rounded-md min-h-[50px]">
+                              {inputData.genres && inputData.genres.length > 0 ? (
+                                inputData.genres.map((genre, index) => (
+                                  <span
+                                    key={index}
+                                    className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs flex items-center gap-1"
+                                  >
+                                    {genre}
+                                    <button
+                                      type="button"
+                                      onClick={() => removeGenre(genre)}
+                                      className="text-purple-600 hover:text-purple-800"
+                                    >
+                                      ×
+                                    </button>
+                                  </span>
+                                ))
+                              ) : (
+                                <div className="flex items-center text-gray-400 text-sm">
+                                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                  </svg>
+                                  AI分析でジャンルが追加されます
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      {/* カバー画像URL */}
-                      <div>
-                        <Label htmlFor="coverImageUrl">カバー画像URL</Label>
-                        <Input
-                          id="coverImageUrl"
-                          value={inputData.coverImageUrl || ''}
-                          onChange={(e) => setInputData(prev => ({ ...prev, coverImageUrl: e.target.value }))}
-                          placeholder="https://..."
-                        />
-                      </div>
-
-                      {/* お気に入り */}
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="favorite"
-                          checked={inputData.favorite || false}
-                          onChange={(e) => setInputData(prev => ({ ...prev, favorite: e.target.checked }))}
-                          className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                        />
-                        <Label htmlFor="favorite" className="text-sm">
-                          ❤️ お気に入りに追加
-                        </Label>
                       </div>
 
                       {/* 送信ボタン */}

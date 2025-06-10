@@ -118,7 +118,7 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
     }
 
     fetchPreview()
-  }, [url, initialPreviewData, bannerImageUrl])
+  }, [url, title, initialPreviewData, bannerImageUrl])
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.currentTarget

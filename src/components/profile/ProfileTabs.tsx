@@ -11,6 +11,7 @@ import { useWorkStatistics } from '@/hooks/useWorkStatistics'
 import { useWorkCategories } from '@/hooks/useWorkCategories'
 import { CategoryDropZone } from '@/components/work/CategoryDropZone'
 import { WorkCard } from '@/components/work/WorkCard'
+import { ContentTypeSelector } from '@/components/works/ContentTypeSelector'
 import {
   DndContext,
   closestCenter,
@@ -63,6 +64,9 @@ export function ProfileTabs({
   // カスタムフックからデータを取得
   const workStats = useWorkStatistics(savedWorks)
   const { categories, addCategory, updateCategory, deleteCategory, updateWorkCategory } = useWorkCategories(savedWorks, setSavedWorks)
+  
+  // コンテンツタイプ選択モーダルの状態
+  const [isContentTypeSelectorOpen, setIsContentTypeSelectorOpen] = useState(false)
 
   // ドラッグアンドドロップ処理
   const handleDragEnd = (event: DragEndEvent) => {
@@ -706,11 +710,12 @@ export function ProfileTabs({
                     <div className="text-6xl mb-4">📁</div>
                     <h4 className="text-lg font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
                     <p className="text-gray-500 mb-4">最初の作品を追加して、統計情報を表示しましょう</p>
-                    <Link href="/works/new">
-                      <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
-                        作品を追加
-                      </Button>
-                    </Link>
+                                    <Button 
+                  onClick={() => setIsContentTypeSelectorOpen(true)}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                >
+                  作品を追加
+                </Button>
                   </div>
                 )}
               </CardContent>
@@ -1051,14 +1056,15 @@ export function ProfileTabs({
                 >
                   📁 カテゴリ追加
                 </Button>
-                <Link href="/works/new">
-                  <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg text-sm sm:text-base w-full sm:w-auto">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    新しい作品を追加
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => setIsContentTypeSelectorOpen(true)}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg text-sm sm:text-base w-full sm:w-auto"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  新しい作品を追加
+                </Button>
               </div>
             </div>
 
@@ -1077,14 +1083,15 @@ export function ProfileTabs({
                 <div className="text-6xl mb-4">🎨</div>
                 <h4 className="text-xl font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
                 <p className="text-gray-500 mb-6">最初の作品を追加して、ポートフォリオを始めましょう</p>
-                <Link href="/works/new">
-                  <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    最初の作品を追加
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => setIsContentTypeSelectorOpen(true)}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  最初の作品を追加
+                </Button>
               </div>
             )}
           </div>
@@ -1206,100 +1213,109 @@ export function ProfileTabs({
               </div>
             )}
 
-            {/* インプットリスト */}
-            <div className="space-y-4">
+            {/* インプットグリッド */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {isLoadingInputs ? (
-                <div className="text-center py-8">
+                <div className="col-span-full text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                   <p className="text-gray-600 mt-2">インプットを読み込み中...</p>
                 </div>
               ) : inputs.length > 0 ? (
                 inputs.map((input) => (
-                  <Card key={input.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        {/* カバー画像 */}
-                        {input.coverImageUrl && (
-                          <div className="flex-shrink-0">
+                  <Link key={input.id} href={`/profile/inputs/${input.id}`}>
+                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer h-full">
+                      <div className="relative">
+                                                {/* カバー画像 */}
+                        <div className="aspect-[3/4] overflow-hidden rounded-t-lg bg-gradient-to-br from-gray-100 to-gray-200">
+                          {(input.coverImageUrl || (input as any).cover_image_url) ? (
                             <img 
-                              src={input.coverImageUrl} 
+                              src={input.coverImageUrl || (input as any).cover_image_url} 
                               alt={input.title}
-                              className="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-lg border border-gray-200"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                              <div className="text-center">
+                                <div className="text-4xl mb-2">
+                                  {input.type === 'book' && '📚'}
+                                  {input.type === 'manga' && '📖'}
+                                  {input.type === 'movie' && '🎬'}
+                                  {input.type === 'anime' && '🎭'}
+                                  {input.type === 'tv' && '📺'}
+                                  {input.type === 'youtube' && '🎥'}
+                                  {input.type === 'game' && '🎮'}
+                                  {input.type === 'podcast' && '🎧'}
+                                  {input.type === 'other' && '📄'}
+                                </div>
+                                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+                                  {input.type}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* お気に入りバッジ */}
+                        {input.favorite && (
+                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md">
+                            <span className="text-red-500 text-sm">❤️</span>
                           </div>
                         )}
                         
-                        {/* コンテンツ */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate">{input.title}</h3>
-                              {input.authorCreator && (
-                                <p className="text-sm text-gray-600 mt-1">{input.authorCreator}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              {input.favorite && (
-                                <span className="text-red-500">❤️</span>
-                              )}
-                              {input.rating && input.rating > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-yellow-500">⭐</span>
-                                  <span className="text-sm font-medium text-gray-700">{input.rating}</span>
-                                </div>
-                              )}
-                            </div>
+                        {/* 評価バッジ */}
+                        {input.rating && input.rating > 0 && (
+                          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 shadow-md flex items-center gap-1">
+                            <span className="text-yellow-500 text-sm">⭐</span>
+                            <span className="text-xs font-medium text-gray-700">{input.rating}</span>
+                          </div>
+                        )}
+                        
+                        {/* ホバー時の詳細ボタン */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center rounded-t-lg">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full px-4 py-2 text-sm font-medium text-gray-900 shadow-lg">
+                            詳細を見る
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* カードコンテンツ */}
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* タイトルと作者 */}
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors leading-tight">
+                              {input.title}
+                            </h3>
+                            {input.authorCreator && (
+                              <p className="text-xs text-gray-600 line-clamp-1">{input.authorCreator}</p>
+                            )}
                           </div>
                           
-                          {/* タグとジャンル */}
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <Badge variant="secondary" className="text-xs">
+                          {/* タグ */}
+                          <div className="flex flex-wrap gap-1">
+                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
                               {input.type}
                             </Badge>
-                            {input.status && (
-                              <Badge variant="outline" className="text-xs">
-                                {input.status}
-                              </Badge>
-                            )}
-                            {input.tags && input.tags.slice(0, 3).map((tag, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                            {input.tags && input.tags.slice(0, 2).map((tag, index) => (
+                              <Badge key={index} variant="outline" className="text-xs px-2 py-0.5">
                                 {tag}
                               </Badge>
                             ))}
                           </div>
                           
-                          {/* 説明文 */}
-                          {(input as any).description && (
-                            <p className="text-sm text-gray-600 line-clamp-2 mb-3">{(input as any).description}</p>
-                          )}
-                          
-                          {/* レビュー */}
-                          {input.review && (
-                            <p className="text-sm text-gray-700 line-clamp-3 bg-gray-50 p-3 rounded-lg">
-                              {input.review}
+                          {/* レビュー/メモ (短縮版) */}
+                          {(input.review || input.notes) && (
+                            <p className="text-xs text-gray-600 line-clamp-2">
+                              {input.review || input.notes}
                             </p>
                           )}
-                          
-                          {/* 外部リンク */}
-                          {input.externalUrl && (
-                            <div className="mt-3">
-                              <a 
-                                href={input.externalUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 text-sm underline"
-                              >
-                                詳細を見る →
-                              </a>
-                            </div>
-                          )}
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))
               ) : (
-                <div className="text-center py-12">
+                <div className="col-span-full text-center py-12">
                   <div className="text-6xl mb-4">📚</div>
                   <h4 className="text-lg font-semibold text-gray-600 mb-2">まだインプットがありません</h4>
                   <p className="text-gray-500 mb-4">最初のインプットを追加して、興味関心を分析しましょう</p>
@@ -1314,6 +1330,12 @@ export function ProfileTabs({
           </div>
         )}
       </div>
+      
+      {/* コンテンツタイプ選択モーダル */}
+      <ContentTypeSelector 
+        isOpen={isContentTypeSelectorOpen}
+        onClose={() => setIsContentTypeSelectorOpen(false)}
+      />
     </div>
   )
 }

@@ -15,7 +15,7 @@ export default function SettingsPage() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'account' | 'notifications' | 'privacy'>('account')
+  const [activeTab, setActiveTab] = useState<'account' | 'privacy'>('account')
 
   // アカウント設定
   const [accountData, setAccountData] = useState({
@@ -26,14 +26,7 @@ export default function SettingsPage() {
     confirmPassword: ''
   })
 
-  // 通知設定
-  const [notificationSettings, setNotificationSettings] = useState({
-    connectionRequests: true,
-    connectionApproved: true,
-    newReviews: true,
-    workComments: true,
-    emailNotifications: false
-  })
+
 
   // プライバシー設定
   const [privacySettings, setPrivacySettings] = useState({
@@ -92,21 +85,7 @@ export default function SettingsPage() {
     }
   }
 
-  const handleNotificationUpdate = async () => {
-    setIsLoading(true)
-    
-    try {
-      // TODO: 通知設定更新API呼び出し
-      console.log('Updating notification settings:', notificationSettings)
-      
-      alert('通知設定を更新しました')
-    } catch (error) {
-      console.error('Notification settings update error:', error)
-      alert('更新に失敗しました')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+
 
   const handlePrivacyUpdate = async () => {
     setIsLoading(true)
@@ -181,16 +160,7 @@ export default function SettingsPage() {
                       >
                         アカウント情報
                       </button>
-                      <button
-                        onClick={() => setActiveTab('notifications')}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                          activeTab === 'notifications'
-                            ? 'bg-accent-dark-blue text-white'
-                            : 'text-text-secondary hover:text-text-primary hover:bg-ui-background-gray'
-                        }`}
-                      >
-                        通知設定
-                      </button>
+
                       <button
                         onClick={() => setActiveTab('privacy')}
                         className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -333,95 +303,7 @@ export default function SettingsPage() {
                   </>
                 )}
 
-                {/* 通知設定タブ */}
-                {activeTab === 'notifications' && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>通知設定</CardTitle>
-                      <CardDescription>
-                        受け取りたい通知の種類を選択してください
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">つながり申請</p>
-                            <p className="text-sm text-text-secondary">新しいつながり申請が届いた時</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={notificationSettings.connectionRequests}
-                            onChange={(e) => setNotificationSettings(prev => ({ ...prev, connectionRequests: e.target.checked }))}
-                            className="rounded border-border-color"
-                          />
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">つながり承認</p>
-                            <p className="text-sm text-text-secondary">つながり申請が承認された時</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={notificationSettings.connectionApproved}
-                            onChange={(e) => setNotificationSettings(prev => ({ ...prev, connectionApproved: e.target.checked }))}
-                            className="rounded border-border-color"
-                          />
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">新しいレビュー</p>
-                            <p className="text-sm text-text-secondary">プロフィールや作品にレビューが投稿された時</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={notificationSettings.newReviews}
-                            onChange={(e) => setNotificationSettings(prev => ({ ...prev, newReviews: e.target.checked }))}
-                            className="rounded border-border-color"
-                          />
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">作品コメント</p>
-                            <p className="text-sm text-text-secondary">作品にコメントが投稿された時</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={notificationSettings.workComments}
-                            onChange={(e) => setNotificationSettings(prev => ({ ...prev, workComments: e.target.checked }))}
-                            className="rounded border-border-color"
-                          />
-                        </div>
-                        
-                        <hr className="border-border-color" />
-                        
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">メール通知</p>
-                            <p className="text-sm text-text-secondary">重要な通知をメールでも受け取る</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={notificationSettings.emailNotifications}
-                            onChange={(e) => setNotificationSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
-                            className="rounded border-border-color"
-                          />
-                        </div>
-                      </div>
-                      
-                      <Button
-                        onClick={handleNotificationUpdate}
-                        disabled={isLoading}
-                        className="bg-accent-dark-blue hover:bg-primary-blue"
-                      >
-                        {isLoading ? '更新中...' : '通知設定を保存'}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
+
 
                 {/* プライバシー設定タブ */}
                 {activeTab === 'privacy' && (

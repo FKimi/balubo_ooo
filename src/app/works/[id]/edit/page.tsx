@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { AIAnalysisDetailModal } from '@/components/works/AIAnalysisDetailModal'
 
 interface LinkPreviewData {
   title: string
@@ -43,7 +44,8 @@ export default function EditWorkPage() {
     productionDate: '',
     tags: [] as string[],
     roles: [] as string[],
-    categories: [] as string[]
+    categories: [] as string[],
+    contentType: '' as string
   })
   
   const [previewData, setPreviewData] = useState<LinkPreviewData | null>(null)
@@ -55,9 +57,20 @@ export default function EditWorkPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
 
   // 定義済みの役割
   const predefinedRoles = ['編集', '撮影', '企画', '取材', '執筆', 'デザイン']
+
+  // コンテンツタイプの定義
+  const contentTypes = [
+    { id: 'article', name: '記事・ライティング', emoji: '📝', description: 'ブログ記事、コラム、ニュース記事など' },
+    { id: 'design', name: 'デザイン', emoji: '🎨', description: 'グラフィックデザイン、UI/UXデザイン、ロゴなど' },
+    { id: 'photo', name: '写真', emoji: '📸', description: '写真撮影、フォトレタッチなど' },
+    { id: 'video', name: '動画', emoji: '🎬', description: '動画制作、映像編集、アニメーションなど' },
+    { id: 'podcast', name: 'ポッドキャスト', emoji: '🎙️', description: '音声コンテンツ、ラジオ番組など' },
+    { id: 'event', name: 'イベント', emoji: '🎪', description: 'イベント企画・運営、カンファレンスなど' }
+  ]
   // 認証ヘッダーを取得する関数
   const getAuthHeaders = useCallback(async (): Promise<Record<string, string>> => {
     if (!user) {
@@ -109,7 +122,8 @@ export default function EditWorkPage() {
             productionDate: data.work.productionDate || '',
             tags: data.work.tags || [],
             roles: data.work.roles || [],
-            categories: data.work.categories || []
+            categories: data.work.categories || [],
+            contentType: data.work.contentType || data.work.content_type || ''
           })
 
           // プレビューデータを設定
@@ -270,6 +284,14 @@ export default function EditWorkPage() {
       return
     }
 
+    // コンテンツタイプが未選択の場合は警告
+    if (!formData.contentType) {
+      const shouldContinue = confirm('コンテンツタイプが選択されていません。汎用的な分析を行いますか？\n\nより精度の高い分析のために、まずコンテンツタイプを選択することをお勧めします。')
+      if (!shouldContinue) {
+        return
+      }
+    }
+
     setIsAnalyzing(true)
     setAnalysisResult(null)
 
@@ -283,7 +305,8 @@ export default function EditWorkPage() {
         body: JSON.stringify({
           title: formData.title,
           description: formData.description,
-          url: formData.externalUrl
+          url: formData.externalUrl,
+          contentType: formData.contentType
         }),
       })
 
@@ -349,6 +372,7 @@ export default function EditWorkPage() {
         headers,
         body: JSON.stringify({
           ...formData,
+          contentType: formData.contentType,
           aiAnalysisResult: analysisResult
         }),
       })
@@ -428,6 +452,66 @@ export default function EditWorkPage() {
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 className="text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-3 focus:border-purple-500 focus:ring-0"
               />
+            </div>
+
+            {/* コンテンツタイプ */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">🎯</span>
+                <h2 className="text-xl font-medium text-gray-800">コンテンツタイプ</h2>
+                <span className="text-sm text-purple-600 bg-purple-50 px-2 py-1 rounded-full">AI分析精度向上</span>
+              </div>
+              <p className="text-gray-600 text-sm">
+                作品の種類を選択すると、AI分析がより精度の高い結果を提供します。
+              </p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {contentTypes.map((type) => (
+                  <Button
+                    key={type.id}
+                    onClick={() => setFormData(prev => ({ ...prev, contentType: type.id }))}
+                    variant="outline"
+                    className={`h-auto p-4 flex flex-col items-center space-y-2 border-2 transition-all hover:border-purple-500 hover:bg-purple-50 ${
+                      formData.contentType === type.id 
+                        ? 'bg-purple-100 border-purple-500 shadow-md' 
+                        : 'border-gray-300'
+                    }`}
+                  >
+                    <span className="text-2xl">{type.emoji}</span>
+                    <span className="text-sm font-medium text-center leading-tight">{type.name}</span>
+                  </Button>
+                ))}
+              </div>
+
+              {formData.contentType && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-lg">
+                      {contentTypes.find(type => type.id === formData.contentType)?.emoji}
+                    </span>
+                    <span className="font-medium text-blue-800">
+                      {contentTypes.find(type => type.id === formData.contentType)?.name}
+                    </span>
+                    <span className="text-sm text-blue-600">を選択中</span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    {contentTypes.find(type => type.id === formData.contentType)?.description}
+                  </p>
+                  <div className="mt-3 flex items-center justify-between bg-blue-100 rounded-lg px-3 py-2">
+                    <span className="text-xs text-blue-600">
+                      💡 この選択により、AI分析では{contentTypes.find(type => type.id === formData.contentType)?.name}に特化した分析を行います
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsAIAnalysisDetailOpen(true)}
+                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-200 text-xs h-auto py-1 px-2"
+                    >
+                      詳細を見る
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 作品URL */}
@@ -805,6 +889,28 @@ export default function EditWorkPage() {
                       </p>
                     </div>
                   )}
+
+                  {/* コンテンツタイプ特化分析 */}
+                  {analysisResult.contentTypeAnalysis && (
+                    <div>
+                      <h3 className="font-medium text-blue-700 mb-2 flex items-center space-x-2">
+                        <span>
+                          {formData.contentType ? 
+                            contentTypes.find(type => type.id === formData.contentType)?.emoji : '🎯'
+                          }
+                        </span>
+                        <span>
+                          {formData.contentType ? 
+                            `${contentTypes.find(type => type.id === formData.contentType)?.name}としての分析` : 
+                            'コンテンツ分析'
+                          }
+                        </span>
+                      </h3>
+                      <p className="text-gray-700 bg-white rounded-lg p-3 border border-blue-100">
+                        {analysisResult.contentTypeAnalysis}
+                      </p>
+                    </div>
+                  )}
                   
                   {analysisResult.strengths && (
                     <div>
@@ -889,6 +995,13 @@ export default function EditWorkPage() {
             </div>
           </div>
         </div>
+        
+        {/* AI分析詳細モーダル */}
+        <AIAnalysisDetailModal
+          isOpen={isAIAnalysisDetailOpen}
+          onClose={() => setIsAIAnalysisDetailOpen(false)}
+          contentType={formData.contentType}
+        />
       </div>
     </ProtectedRoute>
   )

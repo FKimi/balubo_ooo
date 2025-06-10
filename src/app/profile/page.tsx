@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
@@ -91,8 +91,8 @@ function ProfileContent() {
   }, [searchParams])
 
   // プロフィールデータの取得
-  const fetchProfileData = async () => {
-    if (!user) return
+  const fetchProfileData = useCallback(async () => {
+    if (!user?.id) return
 
     try {
       // Supabaseからアクセストークンを取得
@@ -149,11 +149,11 @@ function ProfileContent() {
       console.error('プロフィール取得エラー:', error)
       setProfileData(completeDefaultProfileData)
     }
-  }
+  }, [user?.id])
 
   // 作品データの取得
-  const fetchSavedWorks = async () => {
-    if (!user) return
+  const fetchSavedWorks = useCallback(async () => {
+    if (!user?.id) return
 
     setIsLoadingWorks(true)
     try {
@@ -185,11 +185,11 @@ function ProfileContent() {
     } finally {
       setIsLoadingWorks(false)
     }
-  }
+  }, [user?.id])
 
   // 作品削除
-  const deleteWork = async (workId: string) => {
-    if (!user) return
+  const deleteWork = useCallback(async (workId: string) => {
+    if (!user?.id) return
 
     try {
       // Supabaseからアクセストークンを取得
@@ -219,11 +219,11 @@ function ProfileContent() {
     } catch (error) {
       console.error('作品削除エラー:', error)
     }
-  }
+  }, [user?.id, fetchSavedWorks])
 
   // インプットデータの取得
-  const fetchInputs = async () => {
-    if (!user) return
+  const fetchInputs = useCallback(async () => {
+    if (!user?.id) return
 
     setIsLoadingInputs(true)
     try {
@@ -255,11 +255,11 @@ function ProfileContent() {
     } finally {
       setIsLoadingInputs(false)
     }
-  }
+  }, [user?.id])
 
   // インプット分析の取得
-  const fetchInputAnalysis = async () => {
-    if (!user) return
+  const fetchInputAnalysis = useCallback(async () => {
+    if (!user?.id) return
 
     try {
       // Supabaseからアクセストークンを取得
@@ -288,11 +288,11 @@ function ProfileContent() {
       console.error('インプット分析取得エラー:', error)
       setInputAnalysis(null)
     }
-  }
+  }, [user?.id])
 
   // 初期データ読み込み
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       const loadAllData = async () => {
         await Promise.all([
           fetchProfileData(),
@@ -303,7 +303,7 @@ function ProfileContent() {
       }
       loadAllData()
     }
-  }, [user])
+  }, [user?.id, fetchProfileData, fetchSavedWorks, fetchInputs, fetchInputAnalysis])
 
   // タブ変更時のURL更新
   useEffect(() => {

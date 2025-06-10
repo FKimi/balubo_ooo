@@ -16,10 +16,14 @@ export default function LikeButton({ workId, initialCount = 0, initialIsLiked = 
   const [isLoading, setIsLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase環境変数が設定されていません')
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   useEffect(() => {
     const checkAuthAndFetchLikes = async () => {
@@ -53,7 +57,7 @@ export default function LikeButton({ workId, initialCount = 0, initialIsLiked = 
     }
 
     checkAuthAndFetchLikes()
-  }, [workId])
+  }, [workId, supabase.auth])
 
   const handleLike = async () => {
     if (!isAuthenticated) {

@@ -19,9 +19,17 @@ async function getPublicProfile(userId: string) {
   }
   
   // サーバーサイドアクセス用のSupabaseクライアント（Service Role Key使用してRLSをバイパス）
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('Supabase環境変数が設定されていません')
+    return null
+  }
+  
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    supabaseUrl,
+    supabaseServiceKey,
     {
       auth: {
         autoRefreshToken: false,
