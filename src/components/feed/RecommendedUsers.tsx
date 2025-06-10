@@ -162,7 +162,6 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
             <div className="flex-shrink-0">
               <FollowButton 
                 targetUserId={user.id}
-                displayName={user.display_name}
                 compact={true}
               />
             </div>
