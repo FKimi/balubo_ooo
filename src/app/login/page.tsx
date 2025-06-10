@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -31,7 +31,7 @@ const getErrorMessage = (error: unknown): string => {
   return '予期しないエラーが発生しました'
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -42,6 +42,7 @@ export default function LoginPage() {
   
   const { signIn, signInWithGoogle } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -119,19 +120,23 @@ export default function LoginPage() {
     setIsLoading(true)
     
     try {
+      console.log('[Login] Googleログイン開始')
       const { data, error } = await signInWithGoogle()
 
       // ガード節：エラー時は早期return
       if (error) {
+        console.error('[Login] Googleログインエラー:', error)
         setErrors({ general: `Googleログインに失敗しました: ${getErrorMessage(error)}` })
+        setIsLoading(false)
         return
       }
 
+      console.log('[Login] Googleログイン成功 - リダイレクト待機中')
       // 成功時はコールバックページで処理される
+      // ローディング状態は維持（リダイレクトが発生するため）
     } catch (error) {
-      console.error('Google login error:', error)
+      console.error('[Login] Google login error:', error)
       setErrors({ general: 'Googleログインに失敗しました' })
-    } finally {
       setIsLoading(false)
     }
   }
@@ -157,6 +162,24 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* 新規登録成功メッセージ */}
+              {searchParams.get('message') === 'registration_success' && (
+                <div className="p-3 rounded-lg bg-primary-blue/10 border border-primary-blue/20">
+                  <p className="text-sm text-primary-blue">
+                    ✅ アカウント登録が完了しました！メールに送信された確認リンクをクリックしてから、ログインしてください。
+                  </p>
+                </div>
+              )}
+
+              {/* パスワードリセット成功メッセージ */}
+              {searchParams.get('message') === 'password_reset_success' && (
+                <div className="p-3 rounded-lg bg-primary-blue/10 border border-primary-blue/20">
+                  <p className="text-sm text-primary-blue">
+                    ✅ パスワードが正常に更新されました。新しいパスワードでログインしてください。
+                  </p>
+                </div>
+              )}
+
               {/* 全般的なエラー */}
               {errors.general && (
                 <div className="p-3 rounded-lg bg-error-red/10 border border-error-red/20">
@@ -260,5 +283,29 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-base-light-gray flex items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <Link href="/">
+              <h1 className="text-3xl font-bold text-accent-dark-blue">balubo</h1>
+            </Link>
+            <p className="text-text-secondary mt-2">クリエイターのためのキャリアSNS</p>
+          </div>
+          <Card>
+            <CardContent className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue"></div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 } 

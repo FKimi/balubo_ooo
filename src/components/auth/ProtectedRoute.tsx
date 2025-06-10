@@ -18,12 +18,19 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     const hasOAuthFragment = typeof window !== 'undefined' && 
       (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'))
     
+    console.log('[ProtectedRoute] 初期化:', {
+      hasOAuthFragment,
+      currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド',
+      hashFragment: typeof window !== 'undefined' ? window.location.hash.substring(0, 50) + '...' : 'サーバーサイド'
+    })
+    
     if (hasOAuthFragment) {
       console.log('[ProtectedRoute] OAuth認証フラグメント検出 - セッション確立を待機')
-      // OAuth認証後は少し待ってからリダイレクト判定を行う
+      // OAuth認証後は少し長めに待ってからリダイレクト判定を行う
       const timer = setTimeout(() => {
+        console.log('[ProtectedRoute] 待機期間終了 - 認証チェック開始')
         setIsInitialLoad(false)
-      }, 2000) // 2秒待つ
+      }, 3000) // 3秒待つ（より確実にするため）
       
       return () => clearTimeout(timer)
     } else {

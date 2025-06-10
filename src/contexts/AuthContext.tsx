@@ -95,11 +95,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             hasFragment: typeof window !== 'undefined' && window.location.hash.length > 0
           })
 
-          // /profileにいるかどうかチェック
-          if (typeof window !== 'undefined' && window.location.pathname === '/profile') {
-            console.log('[AuthContext] 既に/profileページにいます - リダイレクト不要')
-          } else {
-            console.log('[AuthContext] /profileページ以外にいます:', window.location.pathname)
+          // OAuth認証後の自動リダイレクト処理
+          if (typeof window !== 'undefined') {
+            const currentPath = window.location.pathname
+            const hasOAuthFragment = window.location.hash.includes('access_token')
+            
+            // OAuth認証後で、ログインページまたはコールバックページにいる場合
+            if (hasOAuthFragment && (currentPath === '/login' || currentPath === '/auth/callback')) {
+              console.log('[AuthContext] OAuth認証完了 - プロフィールページにリダイレクト')
+              // 少し遅延させてからリダイレクト（セッション確立を確実にするため）
+              setTimeout(() => {
+                window.location.href = '/profile'
+              }, 500)
+            } else if (currentPath === '/profile') {
+              console.log('[AuthContext] 既に/profileページにいます - リダイレクト不要')
+            } else {
+              console.log('[AuthContext] その他のページにいます:', currentPath)
+            }
           }
         } else if (event === 'SIGNED_OUT') {
           console.log('[AuthContext] SIGNED_OUT イベント検出')

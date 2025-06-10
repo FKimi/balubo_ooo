@@ -10,23 +10,73 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession()
+        // URLのハッシュフラグメントからトークンを確認
+        const hashParams = new URLSearchParams(
+          typeof window !== 'undefined' ? window.location.hash.substring(1) : ''
+        )
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
         
-        if (error) {
-          console.error('認証エラー:', error)
+        console.log('[AuthCallback] URL解析:', {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          currentUrl: typeof window !== 'undefined' ? window.location.href : 'サーバーサイド'
+        })
+
+        // OAuth認証のトークンがある場合、少し長めに待機
+        const waitTime = (accessToken && refreshToken) ? 2000 : 1000
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+        
+        // セッション取得を複数回試行
+        let sessionData = null
+        let sessionError = null
+        
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          console.log(`[AuthCallback] セッション取得試行 ${attempt}/3`)
+          const { data, error } = await supabase.auth.getSession()
+          
+          if (data.session) {
+            sessionData = data
+            break
+          }
+          
+          if (error) {
+            sessionError = error
+            console.warn(`[AuthCallback] セッション取得エラー (試行${attempt}):`, error)
+          }
+          
+          // 次の試行まで待機
+          if (attempt < 3) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+          }
+        }
+        
+        if (sessionError && !sessionData) {
+          console.error('[AuthCallback] 最終的な認証エラー:', sessionError)
           router.push('/login?error=auth_failed')
           return
         }
 
-        if (data.session) {
+        if (sessionData?.session) {
           // 認証成功 - プロフィールページにリダイレクト
-          router.push('/profile')
+          console.log('[AuthCallback] セッション確認済み、プロフィールページに遷移:', {
+            userEmail: sessionData.session.user.email,
+            sessionId: sessionData.session.access_token?.substring(0, 10) + '...'
+          })
+          
+          // より確実なリダイレクト（router.pushよりもwindow.location.hrefの方が確実）
+          if (typeof window !== 'undefined') {
+            window.location.href = '/profile'
+          } else {
+            router.push('/profile')
+          }
         } else {
           // セッションがない場合はログインページにリダイレクト
+          console.log('[AuthCallback] セッションなし、ログインページに遷移')
           router.push('/login')
         }
       } catch (error) {
-        console.error('認証処理エラー:', error)
+        console.error('[AuthCallback] 認証処理例外:', error)
         router.push('/login?error=auth_failed')
       }
     }

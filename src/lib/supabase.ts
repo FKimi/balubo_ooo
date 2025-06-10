@@ -65,12 +65,19 @@ export const auth = {
       return { data: null, error: { message: 'Supabase is not configured' } }
     }
     
-    // サイトのオリジンを取得（クライアントサイドでのみ利用可能）
-    const siteUrl = typeof window !== 'undefined' 
-      ? window.location.origin 
-      : process.env.NEXT_PUBLIC_SITE_URL || 'https://balubo-ooo.vercel.app'
+    // サイトのオリジンを取得（本番環境対応）
+    let siteUrl: string
+    if (typeof window !== 'undefined') {
+      // クライアントサイドの場合、現在のオリジンを使用
+      siteUrl = window.location.origin
+    } else {
+      // サーバーサイドの場合、環境変数またはヘッダーから取得
+      siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+                'https://balubo-ooo.vercel.app'
+    }
 
-    const redirectURL = `${siteUrl}/profile`
+    const redirectURL = `${siteUrl}/auth/callback`
 
     // ★★★ デバッグログ ★★★
     console.log('[Supabase Auth] Googleサインイン試行開始:', {
@@ -78,6 +85,7 @@ export const auth = {
       redirectURL,
       windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'サーバーサイド',
       envSiteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+      vercelUrl: process.env.VERCEL_URL,
       currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド'
     })
 
@@ -94,9 +102,18 @@ export const auth = {
     })
     
     if (error) {
-      console.error('[Supabase Auth] Googleサインインエラー:', error)
+      console.error('[Supabase Auth] Googleサインインエラー:', {
+        error,
+        code: error.code,
+        message: error.message,
+        details: error
+      })
     } else {
-      console.log('[Supabase Auth] Googleサインイン成功:', { data })
+      console.log('[Supabase Auth] Googleサインイン成功:', { 
+        hasData: !!data,
+        dataUrl: data?.url,
+        dataProvider: data?.provider
+      })
     }
     
     return { data, error }
