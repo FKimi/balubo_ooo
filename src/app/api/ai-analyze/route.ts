@@ -8,8 +8,8 @@ if (!GEMINI_API_KEY) {
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
 // コンテンツタイプ別のプロンプト設定
-const getContentTypePrompt = (contentType: string) => {
-  const prompts = {
+// コンテンツタイプの型定義
+const prompts = {
     article: {
       focus: '記事・ライティング',
       specificAnalysis: `
@@ -95,8 +95,17 @@ const getContentTypePrompt = (contentType: string) => {
   * impact: 参加者満足度、ネットワーキング効果、知識・価値の共有など`
      }
   }
-  
-  return prompts[contentType] || prompts.event
+
+// promptsのキーから型を生成
+type ContentType = keyof typeof prompts
+
+const getContentTypePrompt = (contentType: string) => {
+  // contentTypeがpromptsのキーかどうかをチェック
+  const validContentType = contentType as ContentType
+  if (validContentType in prompts) {
+    return prompts[validContentType]
+  }
+  return prompts.event
 }
 
 export async function POST(request: NextRequest) {

@@ -187,7 +187,7 @@ export default function FeedPage() {
     }
 
     checkAuthAndFetchFeed()
-  }, [])
+  }, [supabase.auth])
 
   const filteredItems = feedItems.filter(item => {
     if (activeTab === 'all') return true

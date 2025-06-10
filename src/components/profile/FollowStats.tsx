@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Users, UserCheck } from 'lucide-react'
 
 interface FollowStatsProps {
@@ -16,7 +16,7 @@ export function FollowStats({ userId }: FollowStatsProps) {
   const [stats, setStats] = useState<FollowStatsData>({ followerCount: 0, followingCount: 0 })
   const [loading, setLoading] = useState(true)
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!userId) return
 
     try {
@@ -30,17 +30,17 @@ export function FollowStats({ userId }: FollowStatsProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId])
 
   useEffect(() => {
     fetchStats()
-  }, [userId])
+  }, [userId, fetchStats])
 
   // 5秒ごとに統計を更新（リアルタイム更新の簡易版）
   useEffect(() => {
     const interval = setInterval(fetchStats, 5000)
     return () => clearInterval(interval)
-  }, [userId])
+  }, [fetchStats])
 
   if (loading) {
     return (
