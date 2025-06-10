@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// 動的レンダリングを強制
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)

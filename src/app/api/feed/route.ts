@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// 動的レンダリングを強制
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 interface Profile {
   user_id: string
   display_name: string
@@ -35,8 +39,8 @@ export async function GET(request: NextRequest) {
     console.log('Feed API: フィードデータ取得開始')
 
     // Service roleクライアントを作成（RLS制限を回避）
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Feed API: 必要な環境変数が設定されていません')

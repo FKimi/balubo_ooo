@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
 
+// 動的レンダリングを強制
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // Service Role Keyでクライアント作成
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

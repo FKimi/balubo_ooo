@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// 動的レンダリングを強制
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 import { supabase } from '@/lib/supabase'
 import { DatabaseClient } from '@/lib/database'
 
