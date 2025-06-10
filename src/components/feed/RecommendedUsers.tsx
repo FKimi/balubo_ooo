@@ -33,11 +33,16 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
 
         // 認証されている場合はトークンを追加
         if (isAuthenticated && currentUserId) {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+          const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          
+          if (!supabaseUrl || !supabaseAnonKey) {
+            console.error('Supabase環境変数が設定されていません')
+            return
+          }
+          
           const { createClient } = await import('@supabase/supabase-js')
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL ,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-          )
+          const supabase = createClient(supabaseUrl, supabaseAnonKey)
           
           const { data: { session } } = await supabase.auth.getSession()
           if (session?.access_token) {
