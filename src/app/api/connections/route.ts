@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// 動的レンダリングを強制
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+// 環境変数を事前に取得・検証
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_URL environment variable is required')
+}
+
+if (!supabaseAnonKey) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable is required')
+}
+
+if (!supabaseServiceKey) {
+  throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required')
+}
+
 // フォロー作成
 export async function POST(request: NextRequest) {
   try {
@@ -14,8 +35,8 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.split(' ')[1]
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl!,
+      supabaseAnonKey!,
       {
         global: { headers: { 'Authorization': `Bearer ${token}` } }
       }
@@ -33,8 +54,8 @@ export async function POST(request: NextRequest) {
 
     // Service roleクライアントでfollowsテーブルにアクセス
     const serviceSupabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      supabaseUrl!,
+      supabaseServiceKey!,
       {
         auth: { autoRefreshToken: false, persistSession: false }
       }
@@ -102,8 +123,8 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.split(' ')[1]
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl!,
+      supabaseAnonKey!,
       {
         global: { headers: { 'Authorization': `Bearer ${token}` } }
       }
@@ -116,8 +137,8 @@ export async function GET(request: NextRequest) {
 
     // Service roleクライアントでフォロー状態をチェック
     const serviceSupabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      supabaseUrl!,
+      supabaseServiceKey!,
       {
         auth: { autoRefreshToken: false, persistSession: false }
       }
@@ -167,8 +188,8 @@ export async function DELETE(request: NextRequest) {
 
     const token = authHeader.split(' ')[1]
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl!,
+      supabaseAnonKey!,
       {
         global: { headers: { 'Authorization': `Bearer ${token}` } }
       }
@@ -181,8 +202,8 @@ export async function DELETE(request: NextRequest) {
 
     // Service roleクライアントで操作
     const serviceSupabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      supabaseUrl!,
+      supabaseServiceKey!,
       {
         auth: { autoRefreshToken: false, persistSession: false }
       }
