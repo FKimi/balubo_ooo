@@ -36,6 +36,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     } else {
       setIsInitialLoad(false)
     }
+    
+    // 明示的にundefinedを返す（クリーンアップ関数がない場合）
+    return undefined
   }, [])
 
   useEffect(() => {
