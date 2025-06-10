@@ -52,17 +52,6 @@ export default function NewWorkPage() {
     duration: ''
   })
   
-  // URLパラメータからコンテンツタイプを設定
-  useEffect(() => {
-    const typeParam = searchParams.get('type')
-    if (typeParam && contentTypes.find(ct => ct.id === typeParam)) {
-      setFormData(prev => ({
-        ...prev,
-        contentType: typeParam
-      }))
-    }
-  }, [searchParams])
-  
   const [previewData, setPreviewData] = useState<LinkPreviewData | null>(null)
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
   const [previewError, setPreviewError] = useState('')
@@ -87,6 +76,16 @@ export default function NewWorkPage() {
     { id: 'event', name: 'イベント', emoji: '🎪', description: 'イベント企画・運営、カンファレンスなど' }
   ]
 
+  useEffect(() => {
+    const typeParam = searchParams.get('type')
+    if (typeParam && contentTypes.some(ct => ct.id === typeParam)) {
+      setFormData(prev => ({
+        ...prev,
+        contentType: typeParam
+      }))
+    }
+  }, [searchParams, contentTypes])
+  
   // URLプレビューを取得する関数
   const fetchLinkPreview = async (url: string) => {
     if (!url.trim()) return

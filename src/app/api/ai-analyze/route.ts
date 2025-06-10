@@ -101,9 +101,8 @@ type ContentType = keyof typeof prompts
 
 const getContentTypePrompt = (contentType: string) => {
   // contentTypeがpromptsのキーかどうかをチェック
-  const validContentType = contentType as ContentType
-  if (validContentType in prompts) {
-    return prompts[validContentType]
+  if (contentType in prompts) {
+    return prompts[contentType as ContentType]
   }
   return prompts.event
 }

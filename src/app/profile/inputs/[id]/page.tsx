@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -40,16 +40,7 @@ export default function InputDetailPage({ params }: { params: { id: string } }) 
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/login')
-      return
-    }
-    
-    fetchInputDetail()
-  }, [user, params.id])
-
-  const fetchInputDetail = async () => {
+  const fetchInputDetail = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -78,7 +69,16 @@ export default function InputDetailPage({ params }: { params: { id: string } }) 
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login')
+      return
+    }
+    
+    fetchInputDetail()
+  }, [user, params.id, fetchInputDetail, router])
 
   const handleDelete = async () => {
     if (!input) return

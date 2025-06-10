@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -53,16 +53,7 @@ export default function EditInputPage({ params }: { params: { id: string } }) {
   const [newTag, setNewTag] = useState('')
   const [newGenre, setNewGenre] = useState('')
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/login')
-      return
-    }
-    
-    fetchInputData()
-  }, [user, params.id])
-
-  const fetchInputData = async () => {
+  const fetchInputData = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -110,7 +101,16 @@ export default function EditInputPage({ params }: { params: { id: string } }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/auth')
+      return
+    }
+    
+    fetchInputData()
+  }, [user, params.id, fetchInputData, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

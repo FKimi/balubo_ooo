@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export interface Profile {
@@ -29,7 +29,7 @@ export function useProfile() {
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) {
       setProfile(null)
       setLoading(false)
@@ -68,11 +68,11 @@ export function useProfile() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   useEffect(() => {
     fetchProfile()
-  }, [user])
+  }, [fetchProfile])
 
   return {
     profile,
