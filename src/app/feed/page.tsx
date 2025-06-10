@@ -68,9 +68,19 @@ export default function FeedPage() {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
   const router = useRouter()
+  
+  // Supabase環境変数の確認
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase環境変数が設定されていません')
+    // フォールバック処理または早期リターン
+  }
+  
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
+    supabaseUrl || '',
+    supabaseAnonKey || ''
   )
 
   useEffect(() => {
