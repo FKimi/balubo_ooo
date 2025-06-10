@@ -124,6 +124,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
               onClick={() => handleUserClick(user.id)}
             >
               {user.avatar_image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={user.avatar_image_url}
                   alt={user.display_name}

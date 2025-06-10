@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
@@ -32,7 +32,7 @@ interface LinkPreviewData {
   locale: string
 }
 
-export default function NewWorkPage() {
+function NewWorkForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
@@ -67,6 +67,7 @@ export default function NewWorkPage() {
   const predefinedRoles = ['編集', '撮影', '企画', '取材', '執筆', 'デザイン']
 
   // コンテンツタイプの定義
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const contentTypes = [
     { id: 'article', name: '記事・ライティング', emoji: '📝', description: 'ブログ記事、コラム、ニュース記事など' },
     { id: 'design', name: 'デザイン', emoji: '🎨', description: 'グラフィックデザイン、UI/UXデザイン、ロゴなど' },
@@ -745,5 +746,23 @@ export default function NewWorkPage() {
         )}
       </div>
     </ProtectedRoute>
+  )
+}
+
+export default function NewWorkPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-base-light-gray">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue mx-auto"></div>
+            <p className="mt-4 text-text-secondary">読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <NewWorkForm />
+    </Suspense>
   )
 } 

@@ -79,16 +79,21 @@ export default function LikeButton({ workId, initialCount = 0, initialIsLiked = 
 
       const url = isLiked ? `/api/likes?workId=${workId}` : '/api/likes'
       const method = isLiked ? 'DELETE' : 'POST'
-      const body = isLiked ? undefined : JSON.stringify({ workId })
-
-      const response = await fetch(url, {
+      
+      const fetchOptions: RequestInit = {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
-        },
-        body
-      })
+        }
+      }
+
+      // DELETEリクエストの場合はbodyを含めない
+      if (!isLiked) {
+        fetchOptions.body = JSON.stringify({ workId })
+      }
+
+      const response = await fetch(url, fetchOptions)
 
       if (response.ok) {
         // 楽観的更新

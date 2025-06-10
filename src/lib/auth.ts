@@ -3,7 +3,7 @@ import { User } from '@supabase/supabase-js'
 
 export interface DecodedToken {
   uid: string
-  email?: string
+  email: string | undefined
 }
 
 /**
