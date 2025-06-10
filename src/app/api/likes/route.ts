@@ -21,6 +21,11 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1]
+    if (!token) {
+      console.log('いいねAPI POST: トークンが見つかりません')
+      return NextResponse.json({ error: '認証トークンが無効です' }, { status: 401 })
+    }
+    
     const decoded = jwt.decode(token) as any
     console.log('いいねAPI POST: トークンデコード結果:', { 
       hasToken: !!token, 
@@ -98,6 +103,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1]
+    if (!token) {
+      return NextResponse.json({ error: '認証トークンが無効です' }, { status: 401 })
+    }
+    
     const decoded = jwt.decode(token) as any
     if (!decoded?.sub) {
       return NextResponse.json({ error: '無効なトークンです' }, { status: 401 })
@@ -145,8 +154,10 @@ export async function GET(request: NextRequest) {
     let userId = null
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1]
-      const decoded = jwt.decode(token) as any
-      userId = decoded?.sub
+      if (token) {
+        const decoded = jwt.decode(token) as any
+        userId = decoded?.sub
+      }
     }
 
     // いいね数取得
