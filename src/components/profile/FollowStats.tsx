@@ -36,9 +36,9 @@ export function FollowStats({ userId }: FollowStatsProps) {
     fetchStats()
   }, [userId, fetchStats])
 
-  // 5秒ごとに統計を更新（リアルタイム更新の簡易版）
+  // 30秒ごとに統計を更新（軽量化）
   useEffect(() => {
-    const interval = setInterval(fetchStats, 5000)
+    const interval = setInterval(fetchStats, 30000)
     return () => clearInterval(interval)
   }, [fetchStats])
 

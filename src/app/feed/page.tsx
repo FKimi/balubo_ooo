@@ -89,7 +89,7 @@ export default function FeedPage() {
         setLoading(true)
         setError(null)
 
-        // 認証状態を確認（エラーを無視）
+        // 認証状態を確認（軽量化、エラーを無視）
         let authToken = null
         try {
           const { data: { session }, error: sessionError } = await supabase.auth.getSession()
@@ -139,7 +139,7 @@ export default function FeedPage() {
         console.error('フィード取得エラー:', error)
         setError(error instanceof Error ? error.message : 'フィードの取得中にエラーが発生しました')
         
-        // エラーが発生した場合のフォールバック（デモデータ）
+        // エラーが発生した場合のフォールバック（デモデータ、画像なし）
         const fallbackItems: FeedItem[] = [
           {
             id: 'fallback-work-1',
@@ -148,12 +148,12 @@ export default function FeedPage() {
             description: 'ユーザー体験を重視したモバイルファーストなプロダクトデザインを制作しました。',
             tags: ['プロダクトデザイン', 'UI/UX', 'モバイル'],
             roles: ['プロダクトデザイナー'],
-            banner_image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+            banner_image_url: undefined,
             created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
             user: {
               id: 'fallback-user-1',
               display_name: 'サンプルデザイナー',
-              avatar_image_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80'
+              avatar_image_url: undefined
             }
           },
           {
@@ -164,12 +164,12 @@ export default function FeedPage() {
             author_creator: 'Jon Yablonski',
             rating: 5,
             tags: ['UXデザイン', '読書', 'デザイン'],
-            cover_image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
+            cover_image_url: undefined,
             created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
             user: {
               id: 'fallback-user-2',
               display_name: 'サンプル読書家',
-              avatar_image_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&q=80'
+              avatar_image_url: undefined
             }
           }
         ]
