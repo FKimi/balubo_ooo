@@ -320,86 +320,111 @@ export function PublicProfileTabs({
 
             {/* インプット一覧 */}
             {inputs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {inputs.map((input) => (
-                  <Card key={input.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
-                        {/* サムネイル */}
-                        <div className="w-16 h-20 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center">
-                          {input.cover_image_url ? (
-                            <img 
-                              src={input.cover_image_url} 
-                              alt={input.title}
-                              className="w-full h-full object-cover rounded"
-                            />
-                          ) : (
-                            <span className="text-gray-400 text-xs">
-                              {input.type === '書籍' ? '📚' : 
-                               input.type === '映画' ? '🎬' : 
-                               input.type === 'アニメ' ? '📺' : 
-                               input.type === 'ゲーム' ? '🎮' : '📖'}
-                            </span>
-                          )}
+                  <div key={input.id} className="group bg-white rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1">
+                    {/* インプット画像またはプレースホルダー */}
+                    <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                      {input.cover_image_url ? (
+                        <img
+                          src={input.cover_image_url}
+                          alt={input.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">
+                              {input.type === 'book' && '📚'}
+                              {input.type === 'manga' && '📖'}
+                              {input.type === 'movie' && '🎬'}
+                              {input.type === 'anime' && '🎭'}
+                              {input.type === 'tv' && '📺'}
+                              {input.type === 'youtube' && '🎥'}
+                              {input.type === 'game' && '🎮'}
+                              {input.type === 'podcast' && '🎧'}
+                              {input.type === 'other' && '📄'}
+                            </div>
+                            <p className="text-gray-500 text-sm">{input.type}</p>
+                          </div>
                         </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate">{input.title}</h3>
-                              {input.author_creator && (
-                                <p className="text-sm text-gray-600 mt-1">{input.author_creator}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              {input.favorite && (
-                                <span className="text-red-500">❤️</span>
-                              )}
-                              {input.rating && input.rating > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-yellow-500">⭐</span>
-                                  <span className="text-sm font-medium text-gray-700">{input.rating}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* タグとジャンル */}
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            <Badge variant="outline" className="text-xs">
-                              {input.type}
-                            </Badge>
-                            {input.genres && (
-                              <Badge variant="outline" className="text-xs">
-                                {Array.isArray(input.genres) ? input.genres.join(', ') : input.genres}
-                              </Badge>
-                            )}
-                          </div>
-
-                          {input.notes && (
-                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{input.notes}</p>
-                          )}
-
-                          <div className="text-xs text-gray-500">
-                            {new Date(input.created_at).toLocaleDateString('ja-JP')}
-                          </div>
-
-                          {input.external_url && (
-                            <div className="mt-3">
-                              <a 
-                                href={input.external_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 text-sm underline"
-                              >
-                                詳細を見る →
-                              </a>
-                            </div>
-                          )}
+                      )}
+                      
+                      {/* お気に入りアイコン */}
+                      {input.favorite && (
+                        <div className="absolute top-2 left-2 w-8 h-8 bg-red-500/80 text-white rounded-full flex items-center justify-center opacity-100">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                          </svg>
                         </div>
+                      )}
+
+                      {/* 評価アイコン */}
+                      {input.rating && input.rating > 0 && (
+                        <div className="absolute top-2 right-2 w-8 h-8 bg-yellow-500/80 text-white rounded-full flex items-center justify-center opacity-100">
+                          <span className="text-sm font-bold">{input.rating}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* インプット情報 */}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {input.title}
+                      </h3>
+                      
+                      {/* 作者・制作者 */}
+                      {input.author_creator && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm text-gray-600 font-medium">{input.author_creator}</span>
+                        </div>
+                      )}
+                      
+                      {/* ノート */}
+                      {input.notes && (
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          {input.notes}
+                        </p>
+                      )}
+
+                      {/* タイプとジャンル */}
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        <Badge variant="outline" className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800">
+                          {input.type}
+                        </Badge>
+                        {input.genres && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5">
+                            {Array.isArray(input.genres) ? input.genres.slice(0, 2).join(', ') : input.genres}
+                          </Badge>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
+
+                      {/* 外部リンクと日付 */}
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        {input.external_url && (
+                          <a 
+                            href={input.external_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            詳細を見る
+                          </a>
+                        )}
+                        <span>{new Date(input.created_at).toLocaleDateString('ja-JP')}</span>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (

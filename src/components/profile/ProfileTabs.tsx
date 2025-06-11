@@ -1116,57 +1116,8 @@ export function ProfileTabs({
             </div>
 
             {/* インプット分析 */}
-            {inputAnalysis && (
-              <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* 興味関心ワード */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-blue-600">🏷️</span>
-                    興味関心ワード
-                  </h3>
-                  {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {inputAnalysis.topTags.slice(0, 12).map((tagItem, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-white text-blue-700 rounded-full text-sm border border-blue-200"
-                        >
-                          {typeof tagItem === 'string' ? tagItem : tagItem.tag} 
-                          {typeof tagItem === 'object' && tagItem.count && (
-                            <span className="ml-1 text-blue-600">({tagItem.count})</span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 text-sm">インプットを追加すると興味関心が分析されます</p>
-                  )}
-                </div>
-
-                {/* ジャンル分析 */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-green-600">📊</span>
-                    ジャンル分析
-                  </h3>
-                  {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 ? (
-                    <div className="space-y-2">
-                      {inputAnalysis.topGenres.slice(0, 5).map((genreItem, index) => (
-                        <div key={index} className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-gray-700">
-                            {typeof genreItem === 'string' ? genreItem : genreItem.genre}
-                          </span>
-                          <span className="text-sm text-green-600 font-semibold">
-                            {typeof genreItem === 'object' && genreItem.count ? `${genreItem.count}件` : ''}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600 text-sm">ジャンル情報を追加すると分析されます</p>
-                  )}
-                </div>
-
+            {inputAnalysis && inputs.length > 0 && (
+              <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 {/* 統計情報 */}
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -1199,7 +1150,7 @@ export function ProfileTabs({
                   </h3>
                   {inputAnalysis.typeDistribution && Object.keys(inputAnalysis.typeDistribution).length > 0 ? (
                     <div className="space-y-2">
-                      {Object.entries(inputAnalysis.typeDistribution).map(([type, count]) => (
+                      {Object.entries(inputAnalysis.typeDistribution).slice(0, 4).map(([type, count]) => (
                         <div key={type} className="flex justify-between items-center">
                           <span className="text-sm font-medium text-gray-700 capitalize">{type}</span>
                           <span className="text-sm text-orange-600 font-semibold">{count}件</span>
@@ -1208,6 +1159,52 @@ export function ProfileTabs({
                     </div>
                   ) : (
                     <p className="text-gray-600 text-sm">タイプ情報がありません</p>
+                  )}
+                </div>
+
+                {/* 興味関心ワード */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="text-blue-600">🏷️</span>
+                    興味関心ワード
+                  </h3>
+                  {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {inputAnalysis.topTags.slice(0, 6).map((tagItem, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-white text-blue-700 rounded-full text-xs border border-blue-200"
+                        >
+                          {typeof tagItem === 'string' ? tagItem : tagItem.tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">タグを追加すると分析されます</p>
+                  )}
+                </div>
+
+                {/* ジャンル分析 */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="text-green-600">📊</span>
+                    ジャンル分析
+                  </h3>
+                  {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 ? (
+                    <div className="space-y-2">
+                      {inputAnalysis.topGenres.slice(0, 4).map((genreItem, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-700 text-xs">
+                            {typeof genreItem === 'string' ? genreItem : genreItem.genre}
+                          </span>
+                          <span className="text-sm text-green-600 font-semibold text-xs">
+                            {typeof genreItem === 'object' && genreItem.count ? `${genreItem.count}` : ''}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">ジャンル情報を追加すると分析されます</p>
                   )}
                 </div>
               </div>
@@ -1223,95 +1220,121 @@ export function ProfileTabs({
               ) : inputs.length > 0 ? (
                 inputs.map((input) => (
                   <Link key={input.id} href={`/profile/inputs/${input.id}`}>
-                    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer h-full">
-                      <div className="relative">
-                                                {/* カバー画像 */}
-                        <div className="aspect-[3/4] overflow-hidden rounded-t-lg bg-gradient-to-br from-gray-100 to-gray-200">
-                          {(input.coverImageUrl || (input as any).cover_image_url) ? (
-                            <img 
-                              src={input.coverImageUrl || (input as any).cover_image_url} 
-                              alt={input.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                              <div className="text-center">
-                                <div className="text-4xl mb-2">
-                                  {input.type === 'book' && '📚'}
-                                  {input.type === 'manga' && '📖'}
-                                  {input.type === 'movie' && '🎬'}
-                                  {input.type === 'anime' && '🎭'}
-                                  {input.type === 'tv' && '📺'}
-                                  {input.type === 'youtube' && '🎥'}
-                                  {input.type === 'game' && '🎮'}
-                                  {input.type === 'podcast' && '🎧'}
-                                  {input.type === 'other' && '📄'}
-                                </div>
-                                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
-                                  {input.type}
-                                </p>
+                    <div className="group bg-white rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1">
+                      {/* インプット画像またはプレースホルダー */}
+                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                        {(input.coverImageUrl || (input as any).cover_image_url) ? (
+                          <img
+                            src={input.coverImageUrl || (input as any).cover_image_url}
+                            alt={input.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="text-4xl mb-2">
+                                {input.type === 'book' && '📚'}
+                                {input.type === 'manga' && '📖'}
+                                {input.type === 'movie' && '🎬'}
+                                {input.type === 'anime' && '🎭'}
+                                {input.type === 'tv' && '📺'}
+                                {input.type === 'youtube' && '🎥'}
+                                {input.type === 'game' && '🎮'}
+                                {input.type === 'podcast' && '🎧'}
+                                {input.type === 'other' && '📄'}
                               </div>
+                              <p className="text-gray-500 text-sm">{input.type}</p>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                         
-                        {/* お気に入りバッジ */}
+                        {/* お気に入りアイコン */}
                         {input.favorite && (
-                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md">
-                            <span className="text-red-500 text-sm">❤️</span>
+                          <div className="absolute top-2 left-2 w-8 h-8 bg-red-500/80 text-white rounded-full flex items-center justify-center opacity-100">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
                           </div>
                         )}
-                        
-                        {/* 評価バッジ */}
+
+                        {/* 評価アイコン */}
                         {input.rating && input.rating > 0 && (
-                          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 shadow-md flex items-center gap-1">
-                            <span className="text-yellow-500 text-sm">⭐</span>
-                            <span className="text-xs font-medium text-gray-700">{input.rating}</span>
+                          <div className="absolute top-2 right-2 w-8 h-8 bg-yellow-500/80 text-white rounded-full flex items-center justify-center opacity-100">
+                            <span className="text-sm font-bold">{input.rating}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* インプット情報 */}
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {input.title}
+                        </h3>
+                        
+                        {/* 作者・制作者 */}
+                        {input.authorCreator && (
+                          <div className="flex items-center gap-1 mb-2">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span className="text-sm text-gray-600 font-medium">{input.authorCreator}</span>
                           </div>
                         )}
                         
-                        {/* ホバー時の詳細ボタン */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center rounded-t-lg">
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full px-4 py-2 text-sm font-medium text-gray-900 shadow-lg">
-                            詳細を見る
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* カードコンテンツ */}
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          {/* タイトルと作者 */}
-                          <div>
-                            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors leading-tight">
-                              {input.title}
-                            </h3>
-                            {input.authorCreator && (
-                              <p className="text-xs text-gray-600 line-clamp-1">{input.authorCreator}</p>
-                            )}
-                          </div>
-                          
-                          {/* タグ */}
-                          <div className="flex flex-wrap gap-1">
-                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                              {input.type}
-                            </Badge>
-                            {input.tags && input.tags.slice(0, 2).map((tag, index) => (
-                              <Badge key={index} variant="outline" className="text-xs px-2 py-0.5">
+                        {/* レビュー/ノート */}
+                        {(input.review || input.notes) && (
+                          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                            {input.review || input.notes}
+                          </p>
+                        )}
+
+                        {/* タグ */}
+                        {input.tags && input.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {input.tags.slice(0, 3).map((tag, index) => (
+                              <Badge key={`tag-${index}`} variant="secondary" className="text-xs">
                                 {tag}
                               </Badge>
                             ))}
+                            {input.tags.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{input.tags.length - 3}
+                              </Badge>
+                            )}
                           </div>
-                          
-                          {/* レビュー/メモ (短縮版) */}
-                          {(input.review || input.notes) && (
-                            <p className="text-xs text-gray-600 line-clamp-2">
-                              {input.review || input.notes}
-                            </p>
-                          )}
+                        )}
+
+                        {/* タイプとジャンル */}
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          <Badge className="text-xs bg-blue-100 text-blue-800">
+                            {input.type}
+                          </Badge>
+                          {input.genres && input.genres.length > 0 && input.genres.slice(0, 2).map((genre, index) => (
+                            <Badge key={`genre-${index}`} variant="outline" className="text-xs">
+                              {genre}
+                            </Badge>
+                          ))}
                         </div>
-                      </CardContent>
-                    </Card>
+
+                                                 {/* 外部リンクと日付 */}
+                         <div className="flex items-center justify-between text-sm text-gray-500">
+                           {(input.externalUrl || (input as any).external_url) && (
+                             <span className="flex items-center gap-1">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002 2v-4M14 4h6m0 0v6m0-6L10 14" />
+                               </svg>
+                               詳細を見る
+                             </span>
+                           )}
+                           <span>
+                             {input.createdAt ? new Date(input.createdAt).toLocaleDateString('ja-JP') : ''}
+                           </span>
+                         </div>
+                      </div>
+                    </div>
                   </Link>
                 ))
               ) : (
