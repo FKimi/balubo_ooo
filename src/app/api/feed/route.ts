@@ -281,7 +281,7 @@ async function processFeedRequest(request: NextRequest) {
       total: validFeedItems.length,
       works: validFeedItems.filter(item => item.type === 'work').length,
       inputs: validFeedItems.filter(item => item.type === 'input').length,
-      unique_users: new Set(validFeedItems.map(item => item.user.id)).size
+      unique_users: new Set(validFeedItems.map(item => item.user?.id).filter(Boolean)).size
     }
 
     console.log('Feed API: フィードデータ取得成功', {
