@@ -240,9 +240,9 @@ async function processFeedRequest(request: NextRequest) {
 
     const itemIds = allItemIds.map(item => item.id)
     
-    let likesMap = new Map<string, number>()
-    let commentsMap = new Map<string, number>()
-    let userLikesSet = new Set<string>()
+    const likesMap = new Map<string, number>()
+    const commentsMap = new Map<string, number>()
+    const userLikesSet = new Set<string>()
 
     if (itemIds.length > 0) {
       console.log('Feed API: Step 5 - 統計情報取得開始')
