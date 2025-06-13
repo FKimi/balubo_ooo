@@ -79,24 +79,37 @@ export default function FeedPage() {
 
   useEffect(() => {
     async function checkAuthAndFetchFeed() {
+      const startTime = Date.now()
+      
       try {
         setLoading(true)
         setError(null)
+        console.log('=== フィード画面: データ取得開始 ===')
 
-        // 認証状態を確認（軽量化、エラーを無視）
+        // 認証状態を確認（タイムアウト付き）
         let authToken = null
         try {
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+          const authPromise = supabase.auth.getSession()
+          const authTimeout = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('認証確認タイムアウト')), 5000)
+          })
+          
+          const { data: { session }, error: sessionError } = await Promise.race([
+            authPromise, 
+            authTimeout
+          ]) as any
+          
           if (session && session.access_token && !sessionError) {
             setIsAuthenticated(true)
             setCurrentUser(session.user)
             authToken = session.access_token
+            console.log('フィード画面: 認証ユーザー確認済み')
           }
         } catch (authError) {
-          console.log('認証確認エラー（続行）:', authError)
+          console.log('フィード画面: 認証確認エラー（続行）:', authError)
         }
 
-        // フィードデータを取得
+        // フィードデータを取得（タイムアウト付き）
         const headers: HeadersInit = {
           'Content-Type': 'application/json'
         }
@@ -105,10 +118,16 @@ export default function FeedPage() {
           headers['Authorization'] = `Bearer ${authToken}`
         }
 
-        const response = await fetch('/api/feed', {
+        const fetchPromise = fetch('/api/feed', {
           method: 'GET',
           headers
         })
+        
+        const fetchTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('フィード取得タイムアウト')), 15000)
+        })
+
+        const response = await Promise.race([fetchPromise, fetchTimeout]) as Response
 
         if (!response.ok) {
           throw new Error(`フィードの取得に失敗しました: ${response.status} ${response.statusText}`)
@@ -120,53 +139,29 @@ export default function FeedPage() {
           throw new Error(data.error)
         }
 
-        console.log('フィードデータ取得成功:', {
+        const processingTime = Date.now() - startTime
+        console.log('=== フィード画面: データ取得成功 ===', {
           items: data.items?.length || 0,
-          debug: data.debug
+          debug: data.debug,
+          processingTime: `${processingTime}ms`
         })
 
+        // データが空でも正常として扱う（エラーではない）
         setFeedItems(data.items || [])
         
+        if (!data.items || data.items.length === 0) {
+          console.log('フィード画面: データが空です - 新しい作品・インプットを追加してください')
+        }
+        
       } catch (error) {
-        console.error('フィード取得エラー:', error)
+        const processingTime = Date.now() - startTime
+        console.error('フィード画面: データ取得エラー:', error)
+        console.error('処理時間:', `${processingTime}ms`)
+        
         setError(error instanceof Error ? error.message : 'フィードの取得中にエラーが発生しました')
         
-        // エラーが発生した場合のフォールバック（デモデータ、画像なし）
-        const fallbackItems: FeedItem[] = [
-          {
-            id: 'fallback-work-1',
-            type: 'work',
-            title: '🚀 新しいプロダクトデザイン',
-            description: 'ユーザー体験を重視したモバイルファーストなプロダクトデザインを制作しました。',
-            tags: ['プロダクトデザイン', 'UI/UX', 'モバイル'],
-            roles: ['プロダクトデザイナー'],
-            banner_image_url: '',
-            created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: 'fallback-user-1',
-              display_name: 'サンプルデザイナー',
-              avatar_image_url: ''
-            }
-          },
-          {
-            id: 'fallback-input-1',
-            type: 'input',
-            title: '📖 UXデザインの法則',
-            description: 'ユーザビリティとアクセシビリティについて深く学べる良書でした。',
-            author_creator: 'Jon Yablonski',
-            rating: 5,
-            tags: ['UXデザイン', '読書', 'デザイン'],
-            cover_image_url: '',
-            created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-            user: {
-              id: 'fallback-user-2',
-              display_name: 'サンプル読書家',
-              avatar_image_url: ''
-            }
-          }
-        ]
-        
-        setFeedItems(fallbackItems)
+        // エラー時は空の配列を設定（フォールバックデータは削除）
+        setFeedItems([])
       } finally {
         setLoading(false)
       }
@@ -801,21 +796,38 @@ export default function FeedPage() {
             <div className="mb-6">
               <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                 <span className="text-2xl">
-                  {activeTab === 'works' ? '🎨' : activeTab === 'inputs' ? '📚' : '📱'}
+                  {error ? '⚠️' : activeTab === 'works' ? '🎨' : activeTab === 'inputs' ? '📚' : '📱'}
                 </span>
               </div>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {activeTab === 'works' ? '作品がまだありません' : 
+              {error ? 'データの取得に失敗しました' :
+               activeTab === 'works' ? '作品がまだありません' : 
                activeTab === 'inputs' ? 'インプットがまだありません' : 
                'フィードが空です'}
             </h3>
             <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-              {activeTab === 'works' ? 'クリエイターの作品が投稿されるとここに表示されます。' : 
+              {error ? 'サーバーに接続できませんでした。しばらくしてから再度お試しください。' :
+               !isAuthenticated ? 'ログインすると、クリエイターのポートフォリオを閲覧できます。' :
+               activeTab === 'works' ? 'クリエイターの作品が投稿されるとここに表示されます。' : 
                activeTab === 'inputs' ? 'クリエイターのインプットが投稿されるとここに表示されます。' : 
                'まだ投稿がありません。'}
             </p>
-            {isAuthenticated && (
+            {error ? (
+              <button 
+                onClick={() => window.location.reload()}
+                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors text-sm font-semibold"
+              >
+                再読み込み
+              </button>
+            ) : !isAuthenticated ? (
+              <button 
+                onClick={() => router.push('/auth')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors text-sm font-semibold"
+              >
+                ログイン
+              </button>
+            ) : (
               <div className="flex gap-2 justify-center">
                 <button 
                   onClick={() => router.push('/works/new')}
