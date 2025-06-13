@@ -3,6 +3,18 @@ import { createClient } from '@supabase/supabase-js'
 // データベース操作のヘルパー関数（認証対応版）
 export class DatabaseClient {
   
+  // プロフィールキャッシュ（5分間有効）
+  private static profileCache = new Map<string, { data: any, timestamp: number }>()
+  private static readonly CACHE_DURATION = 5 * 60 * 1000 // 5分
+  
+  // 進行中のリクエストを追跡して重複防止
+  private static pendingProfileRequests = new Map<string, Promise<any>>()
+  
+  // レート制限用のトラッキング
+  private static recentRequests = new Map<string, number[]>()
+  private static readonly RATE_LIMIT_WINDOW = 10000 // 10秒
+  private static readonly MAX_REQUESTS_PER_WINDOW = 5 // 10秒間に最大5回
+
   // 認証されたSupabaseクライアントを作成するヘルパー
   private static createAuthenticatedClient(token?: string) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -25,14 +37,84 @@ export class DatabaseClient {
   // プロフィール関連操作
   static async getProfile(userId: string, token?: string) {
     try {
+      // 基本的な検証
+      if (!userId || typeof userId !== 'string') {
+        console.error('DatabaseClient: 無効なuserId:', userId)
+        return null
+      }
+
+      // キャッシュをチェック
+      const cacheKey = `${userId}-${token ? 'auth' : 'anon'}`
+      const cached = this.profileCache.get(cacheKey)
+      const now = Date.now()
+      
+      if (cached && (now - cached.timestamp < this.CACHE_DURATION)) {
+        console.log('DatabaseClient: プロフィールキャッシュヒット:', userId)
+        return cached.data
+      }
+
+      // 進行中のリクエストがある場合は、それを待つ
+      const pendingRequest = this.pendingProfileRequests.get(cacheKey)
+      if (pendingRequest) {
+        console.log('DatabaseClient: プロフィール取得待機中...', userId)
+        try {
+          return await pendingRequest
+        } catch (error) {
+          // 進行中のリクエストがエラーの場合、それを削除して再試行
+          this.pendingProfileRequests.delete(cacheKey)
+          console.log('DatabaseClient: 待機中のリクエストでエラー、再試行します:', error)
+        }
+      }
+
+      // レート制限チェック
+      const userRequests = this.recentRequests.get(userId) || []
+      const recentRequests = userRequests.filter(time => now - time < this.RATE_LIMIT_WINDOW)
+      
+      if (recentRequests.length >= this.MAX_REQUESTS_PER_WINDOW) {
+        console.warn(`DatabaseClient: レート制限に達しました: ${userId}`)
+        // キャッシュがあれば古くても返す
+        if (cached) {
+          console.log('DatabaseClient: レート制限のため古いキャッシュを返します:', userId)
+          return cached.data
+        }
+        throw new Error('プロフィール取得のレート制限に達しました')
+      }
+
+      // リクエスト履歴を更新
+      recentRequests.push(now)
+      this.recentRequests.set(userId, recentRequests)
+
       console.log('DatabaseClient: プロフィール取得中...', userId)
       
-      const supabase = this.createAuthenticatedClient(token)
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single()
+      // リクエストを作成してpendingに追加
+      const requestPromise = (async () => {
+        try {
+          const supabase = this.createAuthenticatedClient(token)
+          
+          // プロフィール取得にタイムアウトを設定（5秒）
+          const profilePromise = supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+          
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 5000)
+          })
+          
+          const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any
+          
+          return { data, error }
+        } finally {
+          // 完了後に進行中リクエストから削除
+          this.pendingProfileRequests.delete(cacheKey)
+        }
+      })()
+      
+      // 進行中のリクエストとして登録
+      this.pendingProfileRequests.set(cacheKey, requestPromise)
+      
+      const { data, error } = await requestPromise
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -43,8 +125,24 @@ export class DatabaseClient {
       }
 
       console.log('DatabaseClient: プロフィール取得成功')
+      
+      // キャッシュに保存
+      this.profileCache.set(cacheKey, { data, timestamp: now })
+      
+      // キャッシュサイズが大きくなりすぎないよう制限
+      if (this.profileCache.size > 50) {
+        const oldestKey = Array.from(this.profileCache.keys())[0]
+        if (oldestKey) {
+          this.profileCache.delete(oldestKey)
+        }
+      }
+      
       return data
     } catch (error) {
+      if (error instanceof Error && error.message === 'プロフィール取得タイムアウト') {
+        console.error('DatabaseClient: プロフィール取得タイムアウト:', userId)
+        throw new Error('プロフィールの取得に時間がかかりすぎています')
+      }
       console.error('DatabaseClient: プロフィール取得エラー:', error)
       throw error
     }

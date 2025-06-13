@@ -674,6 +674,17 @@ export function ProfileTabs({
                         <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
                         <div className="text-4xl font-bold text-indigo-600">{workStats.totalWorks}</div>
                         <p className="text-gray-600 mt-2">これまでに制作した作品</p>
+                        
+                        {/* 総文字数（記事作品がある場合のみ表示） */}
+                        {workStats.totalWordCount > 0 && (
+                          <div className="mt-4 pt-4 border-t border-indigo-200">
+                            <h5 className="text-sm font-medium text-gray-600 mb-1">総文字数</h5>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {workStats.totalWordCount.toLocaleString('ja-JP')}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">記事・ライティング作品の合計</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 

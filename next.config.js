@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
+  
+  // 開発時の設定
+  webpack: (config, { dev }) => {
+    return config
+  },
+  
+  // 画像最適化設定
   images: {
     domains: [
       'localhost',
@@ -19,7 +28,8 @@ const nextConfig = {
       'picsum.photos',
       // ユーザーがアップロードする可能性のあるホスト
       'storage.googleapis.com',
-      'cdn.example.com'
+      'cdn.example.com',
+      'kdrnxnorxquxvxutkwnq.supabase.co'
     ],
     // より安全で柔軟な設定（Next.js 12.3+）
     remotePatterns: [
@@ -66,6 +76,30 @@ const nextConfig = {
         pathname: '/**',
       }
     ],
+    unoptimized: true
+  },
+  
+  // ヘッダー設定
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ]
   },
 }
 

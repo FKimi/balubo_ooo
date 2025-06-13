@@ -38,96 +38,177 @@ interface Input {
 }
 
 export async function GET(request: NextRequest) {
+  console.log('Feed API: フィードデータ取得開始')
+  
+  // リクエストタイムアウトを10秒に設定
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('リクエストタイムアウト')), 10000)
+  })
+
   try {
-    console.log('Feed API: 軽量フィードデータ取得開始')
-
-    // Service roleクライアントを作成
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Feed API: 必要な環境変数が設定されていません')
-      return NextResponse.json(
-        { error: 'サーバー設定エラー' },
-        { status: 500 }
-      )
-    }
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
+    return await Promise.race([
+      timeoutPromise,
+      processFeedRequest(request)
+    ]) as NextResponse
+  } catch (error) {
+    console.error('Feed API: タイムアウトまたはエラー:', error)
+    // エラー時はデモデータを返却
+    return NextResponse.json({
+      items: getDemoFeedItems(),
+      stats: { total: 5, works: 3, inputs: 2, unique_users: 3 },
+      total: 5,
+      debug: { message: 'エラー回避でデモデータ使用', error: true, errorMessage: error instanceof Error ? error.message : String(error) }
     })
+  }
+}
 
-    // 認証されたユーザーの取得（簡素化）
-    const authHeader = request.headers.get('authorization')
-    let currentUserId = null
-    
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1]
-      try {
-        const userSupabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '', {
-          global: {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        })
-        const { data: { user } } = await userSupabase.auth.getUser(token)
-        if (user) {
-          currentUserId = user.id
-        }
-      } catch (authError) {
-        console.log('Feed API: 認証処理エラー（続行）:', authError)
-      }
-    }
-
-    // 軽量化：アクティブなプロフィールのみ取得（50件に制限）
-    const { data: activeProfiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('user_id, display_name, avatar_image_url')
-      .eq('portfolio_visibility', 'public')
-      .limit(50)
-
-    if (profilesError || !activeProfiles || activeProfiles.length === 0) {
-      console.log('Feed API: アクティブプロフィールなし - デモデータ返却')
-      return NextResponse.json({
-        items: getDemoFeedItems(),
-        stats: { total: 5, works: 3, inputs: 2, unique_users: 3 },
-        total: 5,
-        debug: { message: 'デモデータ使用', isDemoData: true }
-      })
-    }
-
-    const userIds = activeProfiles.map(p => p.user_id)
-    const profileMap = new Map(
-      activeProfiles.map(p => [p.user_id, {
-        id: p.user_id,
-        display_name: p.display_name || 'ユーザー',
-        avatar_image_url: p.avatar_image_url
-      }])
+async function processFeedRequest(request: NextRequest) {
+  // Service roleクライアントを作成
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('Feed API: 必要な環境変数が設定されていません')
+    return NextResponse.json(
+      { error: 'サーバー設定エラー' },
+      { status: 500 }
     )
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
 
-    // 最新の作品を20件のみ取得（軽量化）
-    const { data: works } = await supabase
-      .from('works')
-      .select('id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at')
-      .in('user_id', userIds)
-      .order('created_at', { ascending: false })
-      .limit(20)
+  // 認証されたユーザーの取得（簡素化・タイムアウト設定）
+  const authHeader = request.headers.get('authorization')
+  let currentUserId = null
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1]
+    try {
+      const userSupabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '', {
+        global: {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      })
+      
+      // 認証チェックにもタイムアウトを設定
+      const authPromise = userSupabase.auth.getUser(token)
+      const authTimeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('認証タイムアウト')), 3000)
+      })
+      
+      const { data: { user } } = await Promise.race([authPromise, authTimeout]) as any
+      if (user) {
+        currentUserId = user.id
+      }
+    } catch (authError) {
+      console.log('Feed API: 認証処理エラー（続行）:', authError)
+    }
+  }
 
-    // 最新のインプットを20件のみ取得（軽量化）
-    const { data: inputs } = await supabase
-      .from('inputs')
-      .select('id, user_id, title, author_creator, rating, tags, cover_image_url, created_at')
-      .in('user_id', userIds)
-      .order('created_at', { ascending: false })
-      .limit(20)
+  // 軽量化：アクティブなプロフィールのみ取得（30件に制限し、タイムアウト追加）
+  const profilesPromise = supabase
+    .from('profiles')
+    .select('user_id, display_name, avatar_image_url')
+    .eq('portfolio_visibility', 'public')
+    .limit(30)
+  
+  const profilesTimeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 5000)
+  })
 
-    // フィードアイテムを統合（いいね・コメント情報は簡素化）
-    const feedItems = [
-      ...(works || []).map((work: Work) => ({
+  const { data: activeProfiles, error: profilesError } = await Promise.race([
+    profilesPromise,
+    profilesTimeout
+  ]) as any
+
+  if (profilesError || !activeProfiles || activeProfiles.length === 0) {
+    console.log('Feed API: アクティブプロフィールなし - デモデータ返却')
+    return NextResponse.json({
+      items: getDemoFeedItems(),
+      stats: { total: 5, works: 3, inputs: 2, unique_users: 3 },
+      total: 5,
+      debug: { message: 'デモデータ使用', isDemoData: true, reason: 'プロフィールなし' }
+    })
+  }
+
+  const userIds = activeProfiles.map((p: Profile) => p.user_id)
+  const profileMap = new Map(
+    activeProfiles.map((p: Profile) => [p.user_id, {
+      id: p.user_id,
+      display_name: p.display_name || 'ユーザー',
+      avatar_image_url: p.avatar_image_url
+    }])
+  )
+
+  // 並列でworksとinputsを取得（タイムアウト設定）
+  const worksPromise = supabase
+    .from('works')
+    .select('id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at')
+    .in('user_id', userIds)
+    .order('created_at', { ascending: false })
+    .limit(15) // さらに軽量化
+
+  const inputsPromise = supabase
+    .from('inputs')
+    .select('id, user_id, title, author_creator, rating, tags, cover_image_url, created_at')
+    .in('user_id', userIds)
+    .order('created_at', { ascending: false })
+    .limit(15) // さらに軽量化
+
+  const dataTimeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('データ取得タイムアウト')), 5000)
+  })
+
+  try {
+    const [worksResult, inputsResult] = await Promise.all([
+      Promise.race([worksPromise, dataTimeout]),
+      Promise.race([inputsPromise, dataTimeout])
+    ]) as any
+
+    const works = worksResult.data || []
+    const inputs = inputsResult.data || []
+
+    // フィードアイテムを統合（いいね・コメント情報を実際のDBから取得）
+    const feedItems = []
+
+    // 作品のいいね・コメント数を取得
+    for (const work of works) {
+      // いいね数を取得
+      const { count: likesCount } = await supabase
+        .from('likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('target_type', 'work')
+        .eq('target_id', work.id)
+
+      // コメント数を取得
+      const { count: commentsCount } = await supabase
+        .from('comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('target_type', 'work')
+        .eq('target_id', work.id)
+
+      // ユーザーのいいね状態を取得（ログイン時のみ）
+      let userHasLiked = false
+      if (currentUserId) {
+        const { data: userLike } = await supabase
+          .from('likes')
+          .select('id')
+          .eq('user_id', currentUserId)
+          .eq('target_type', 'work')
+          .eq('target_id', work.id)
+          .single()
+
+        userHasLiked = !!userLike
+      }
+
+      feedItems.push({
         id: work.id,
         type: 'work' as const,
         title: work.title,
@@ -138,11 +219,43 @@ export async function GET(request: NextRequest) {
         banner_image_url: work.banner_image_url,
         created_at: work.created_at,
         user: profileMap.get(work.user_id)!,
-        likes_count: Math.floor(Math.random() * 20), // 簡易的な値
-        comments_count: Math.floor(Math.random() * 5),
-        user_has_liked: false
-      })),
-      ...(inputs || []).map((input: Input) => ({
+        likes_count: likesCount || 0,
+        comments_count: commentsCount || 0,
+        user_has_liked: userHasLiked
+      })
+    }
+
+    // インプットのいいね・コメント数を取得
+    for (const input of inputs) {
+      // いいね数を取得
+      const { count: likesCount } = await supabase
+        .from('likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('target_type', 'input')
+        .eq('target_id', input.id)
+
+      // コメント数を取得
+      const { count: commentsCount } = await supabase
+        .from('comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('target_type', 'input')
+        .eq('target_id', input.id)
+
+      // ユーザーのいいね状態を取得（ログイン時のみ）
+      let userHasLiked = false
+      if (currentUserId) {
+        const { data: userLike } = await supabase
+          .from('likes')
+          .select('id')
+          .eq('user_id', currentUserId)
+          .eq('target_type', 'input')
+          .eq('target_id', input.id)
+          .single()
+
+        userHasLiked = !!userLike
+      }
+
+      feedItems.push({
         id: input.id,
         type: 'input' as const,
         title: input.title,
@@ -152,46 +265,51 @@ export async function GET(request: NextRequest) {
         cover_image_url: input.cover_image_url,
         created_at: input.created_at,
         user: profileMap.get(input.user_id)!,
-        likes_count: Math.floor(Math.random() * 15),
-        comments_count: Math.floor(Math.random() * 3),
-        user_has_liked: false
-      }))
-    ].filter(item => item.user)
+        likes_count: likesCount || 0,
+        comments_count: commentsCount || 0,
+        user_has_liked: userHasLiked
+      })
+    }
 
     // 作成日時でソート
     feedItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-    // 最大30件に制限
-    const limitedFeedItems = feedItems.slice(0, 30)
+    // userが存在するアイテムのみをフィルタリング
+    const validFeedItems = feedItems.filter(item => item.user)
 
     const stats = {
-      total: limitedFeedItems.length,
-      works: limitedFeedItems.filter(item => item.type === 'work').length,
-      inputs: limitedFeedItems.filter(item => item.type === 'input').length,
-      unique_users: new Set(limitedFeedItems.map(item => item.user.id)).size
+      total: validFeedItems.length,
+      works: validFeedItems.filter(item => item.type === 'work').length,
+      inputs: validFeedItems.filter(item => item.type === 'input').length,
+      unique_users: new Set(validFeedItems.map(item => item.user.id)).size
     }
 
-    return NextResponse.json({ 
-      items: limitedFeedItems,
+    console.log('Feed API: フィードデータ取得成功', {
+      total: validFeedItems.length,
+      stats
+    })
+
+    return NextResponse.json({
+      items: validFeedItems,
       stats,
-      total: limitedFeedItems.length,
-      debug: {
+      total: validFeedItems.length,
+      debug: { 
+        message: 'フィード取得成功', 
+        currentUserId: currentUserId ? 'あり' : 'なし',
         profilesCount: activeProfiles.length,
-        worksCount: works?.length || 0,
-        inputsCount: inputs?.length || 0,
-        currentUser: currentUserId || 'anonymous',
-        isOptimized: true
+        worksCount: works.length,
+        inputsCount: inputs.length
       }
     })
 
-  } catch (error) {
-    console.error('Feed API: エラー:', error)
-    // エラー時はデモデータを返却
+  } catch (dataError) {
+    console.error('Feed API: データ取得エラー:', dataError)
+    // データ取得エラー時もデモデータを返却
     return NextResponse.json({
       items: getDemoFeedItems(),
       stats: { total: 5, works: 3, inputs: 2, unique_users: 3 },
       total: 5,
-      debug: { message: 'エラー回避でデモデータ使用', error: true }
+      debug: { message: 'データ取得エラーでデモデータ使用', error: true }
     })
   }
 }
@@ -233,6 +351,60 @@ function getDemoFeedItems() {
       },
       likes_count: 8,
       comments_count: 2,
+      user_has_liked: false
+    },
+    {
+      id: 'demo-work-2',
+      type: 'work' as const,
+      title: '🚀 モバイルアプリプロトタイプ',
+      description: 'ユーザーフレンドリーなモバイルアプリのプロトタイプを作成しました。',
+      tags: ['アプリデザイン', 'プロトタイプ'],
+      roles: ['UXデザイナー'],
+      banner_image_url: null,
+      created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+      user: {
+        id: 'demo-user-3',
+        display_name: '佐藤クリエイター',
+        avatar_image_url: null
+      },
+      likes_count: 15,
+      comments_count: 4,
+      user_has_liked: false
+    },
+    {
+      id: 'demo-input-2',
+      type: 'input' as const,
+      title: '🎬 映画「ブレードランナー2049」',
+      author_creator: 'ドゥニ・ヴィルヌーヴ',
+      rating: 4,
+      tags: ['映画', 'SF', 'デザイン'],
+      cover_image_url: null,
+      created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+      user: {
+        id: 'demo-user-4',
+        display_name: '鈴木映像作家',
+        avatar_image_url: null
+      },
+      likes_count: 6,
+      comments_count: 1,
+      user_has_liked: false
+    },
+    {
+      id: 'demo-work-3',
+      type: 'work' as const,
+      title: '✨ ブランディングプロジェクト',
+      description: 'スタートアップ企業のブランドアイデンティティを構築しました。',
+      tags: ['ブランディング', 'ロゴデザイン'],
+      roles: ['グラフィックデザイナー'],
+      banner_image_url: null,
+      created_at: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(),
+      user: {
+        id: 'demo-user-5',
+        display_name: '高橋デザイナー',
+        avatar_image_url: null
+      },
+      likes_count: 20,
+      comments_count: 7,
       user_has_liked: false
     }
   ]

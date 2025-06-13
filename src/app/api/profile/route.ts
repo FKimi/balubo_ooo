@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
     const token = authHeader.split(' ')[1]
     
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+      // 認証にタイムアウトを設定
+      const authPromise = supabase.auth.getUser(token)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('認証タイムアウト')), 8000) // 8秒でタイムアウト
+      })
+      
+      const { data: { user }, error: userError } = await Promise.race([authPromise, timeoutPromise]) as any
       
       if (userError || !user) {
         return NextResponse.json(
@@ -30,23 +36,70 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      // 軽量化：基本的なプロフィール情報のみ取得
-      const profile = await DatabaseClient.getProfile(user.id)
+      // プロフィール取得にもタイムアウトを設定
+      const profilePromise = DatabaseClient.getProfile(user.id)
+      const profileTimeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 5000) // 5秒でタイムアウト
+      })
+      
+      const profile = await Promise.race([profilePromise, profileTimeoutPromise])
 
       return NextResponse.json({ profile: profile || null })
 
     } catch (authError) {
       console.log('認証処理エラー:', authError)
+      
+      if (authError instanceof Error) {
+        if (authError.message.includes('タイムアウト')) {
+          console.log('認証またはプロフィール取得がタイムアウトしました')
+          return NextResponse.json(
+            { error: 'サーバーの応答に時間がかかっています', profile: null },
+            { status: 408 } // Request Timeout
+          )
+        }
+        
+        if (authError.message.includes('Connect Timeout') || authError.message.includes('fetch failed')) {
+          console.log('Supabase接続問題が発生しました')
+          return NextResponse.json(
+            { error: 'データベース接続エラーが発生しました', profile: null },
+            { status: 503 } // Service Unavailable
+          )
+        }
+      }
+      
       return NextResponse.json(
-        { error: '認証処理でエラーが発生しました' },
+        { error: '認証処理でエラーが発生しました', profile: null },
         { status: 401 }
       )
     }
 
   } catch (error) {
     console.error('プロフィール取得エラー:', error)
-    // エラー時は空のプロフィールを返却（アプリを壊さない）
-    return NextResponse.json({ profile: null })
+    
+    // エラーの種類に応じてより適切なレスポンスを返す
+    if (error instanceof Error) {
+      if (error.message.includes('Connect Timeout') || error.message.includes('fetch failed')) {
+        console.log('Supabase接続問題によるエラー')
+        return NextResponse.json(
+          { error: 'データベース接続エラー', profile: null },
+          { status: 503 }
+        )
+      }
+      
+      if (error.message.includes('レート制限')) {
+        console.log('レート制限によるエラー')
+        return NextResponse.json(
+          { error: 'アクセス頻度が高すぎます', profile: null },
+          { status: 429 } // Too Many Requests
+        )
+      }
+    }
+    
+    // その他のエラーは空のプロフィールを返却（アプリを壊さない）
+    return NextResponse.json({ 
+      error: 'プロフィール取得中にエラーが発生しました', 
+      profile: null 
+    }, { status: 500 })
   }
 }
 

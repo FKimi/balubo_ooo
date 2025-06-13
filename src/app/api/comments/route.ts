@@ -39,18 +39,21 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = decoded.sub
-    const { workId, content } = await request.json()
+    const { workId, content, targetType } = await request.json()
 
     if (!workId || !content?.trim()) {
       return NextResponse.json({ error: 'workIdとcontentが必要です' }, { status: 400 })
     }
+
+    // target_typeを決定（デフォルトは'work'）
+    const finalTargetType = targetType || 'work'
 
     // コメント追加
     const { data: newComment, error } = await supabase
       .from('comments')
       .insert({
         user_id: userId,
-        target_type: 'work',
+        target_type: finalTargetType,
         target_id: workId,
         content: content.trim()
       })

@@ -48,16 +48,24 @@ export default function LikeButton({ workId, initialCount = 0, initialIsLiked = 
 
         if (response.ok) {
           const data = await response.json()
-          setLikeCount(data.count)
-          setIsLiked(data.isLiked)
+          setLikeCount(data.count || 0)
+          setIsLiked(data.isLiked || false)
+        } else {
+          console.error('いいね取得エラー:', response.status)
+          setLikeCount(0)
+          setIsLiked(false)
         }
       } catch (error) {
         console.error('いいね取得エラー:', error)
+        setLikeCount(0)
+        setIsLiked(false)
       }
     }
 
-    checkAuthAndFetchLikes()
-  }, [workId, supabase.auth])
+    if (workId) {
+      checkAuthAndFetchLikes()
+    }
+  }, [workId])
 
   const handleLike = async () => {
     if (!isAuthenticated) {
@@ -90,7 +98,10 @@ export default function LikeButton({ workId, initialCount = 0, initialIsLiked = 
 
       // DELETEリクエストの場合はbodyを含めない
       if (!isLiked) {
-        fetchOptions.body = JSON.stringify({ workId })
+        fetchOptions.body = JSON.stringify({ 
+          workId,
+          targetType: 'work' // 作品詳細画面では常に'work'
+        })
       }
 
       const response = await fetch(url, fetchOptions)

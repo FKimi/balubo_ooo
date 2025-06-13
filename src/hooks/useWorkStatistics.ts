@@ -17,6 +17,7 @@ interface YearlyActivity {
 
 interface WorkStatistics {
   totalWorks: number
+  totalWordCount: number // 総文字数を追加
   roleDistribution: {
     role: string
     count: number
@@ -47,6 +48,18 @@ const ROLE_COLORS = [
 export function useWorkStatistics(works: WorkData[]): WorkStatistics {
   return useMemo(() => {
     const totalWorks = works.length
+
+    // 総文字数の計算（記事タイプの作品のみ）
+    const totalWordCount = works
+      .filter(work => work.content_type === 'article' && work.article_word_count)
+      .reduce((sum, work) => sum + (work.article_word_count || 0), 0)
+    
+    // フォールバック: article_word_countが設定されていない場合はdescriptionの文字数で推定
+    const fallbackWordCount = totalWordCount === 0 
+      ? works
+          .filter(work => work.description && work.description.length > 10)
+          .reduce((sum, work) => sum + (work.description?.length || 0), 0)
+      : totalWordCount
 
     // 役割分布の計算
     const roleCount: { [key: string]: number } = {}
@@ -141,6 +154,7 @@ export function useWorkStatistics(works: WorkData[]): WorkStatistics {
 
     return {
       totalWorks,
+      totalWordCount: fallbackWordCount,
       roleDistribution,
       monthlyActivity,
       yearlyActivity,

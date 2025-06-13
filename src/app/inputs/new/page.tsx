@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { Header } from '@/components/layout/header'
+import { ShareSuccessToast } from '@/components/social/ShareModal'
+import { shareToTwitter } from '@/utils/socialShare'
 import { InputType, InputStatus, InputData, inputTypeLabels, inputStatusLabels, defaultInputData } from '@/types/input'
 
 interface PreviewData {
@@ -56,6 +58,8 @@ export default function NewInputPage() {
     ...defaultInputData,
     userId: user?.id || ''
   })
+  const [showShareToast, setShowShareToast] = useState(false)
+  const [savedInputData, setSavedInputData] = useState<any>(null)
 
   // URL自動取得機能
   const fetchPreviewData = async () => {
@@ -234,7 +238,15 @@ export default function NewInputPage() {
       }
 
       console.log('インプット保存成功:', data)
-      router.push('/profile?tab=inputs')
+      
+      // 共有トーストを表示
+      setSavedInputData(dataToSave)
+      setShowShareToast(true)
+
+      // 3秒後にプロフィールページに遷移
+      setTimeout(() => {
+        router.push('/profile?tab=inputs')
+      }, 3000)
 
     } catch (error) {
       console.error('インプット保存エラー:', error)
@@ -606,6 +618,20 @@ export default function NewInputPage() {
             </div>
           </div>
         </main>
+
+        {/* 共有トースト */}
+        <ShareSuccessToast
+          isOpen={showShareToast}
+          onClose={() => setShowShareToast(false)}
+          type="input"
+          onShare={() => {
+            if (savedInputData) {
+              shareToTwitter('input', savedInputData)
+              setShowShareToast(false)
+              router.push('/profile?tab=inputs')
+            }
+          }}
+        />
       </div>
     </ProtectedRoute>
   )

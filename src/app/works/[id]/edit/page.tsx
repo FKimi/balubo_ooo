@@ -12,6 +12,27 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { AIAnalysisDetailModal } from '@/components/works/AIAnalysisDetailModal'
+import ReactMarkdown from 'react-markdown'
+import { ArrowLeft, X, Sparkles } from 'lucide-react'
+
+interface AnalysisResult {
+  summary?: string
+  genre?: string[]
+  topic?: string[]
+  keyword?: string[]
+  sentiment?: string[]
+  style?: string[]
+  target?: string[]
+  strengths?: {
+    creativity?: string[]
+    expertise?: string[]
+    impact?: string[]
+  }
+  tags?: string[]
+  tagClassification?: {
+    [key: string]: string[]
+  }
+}
 
 interface LinkPreviewData {
   title: string
@@ -55,9 +76,23 @@ export default function EditWorkPage() {
   const [newRole, setNewRole] = useState('')
   const [newCategory, setNewCategory] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<any>(null)
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
+  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [previewContent, setPreviewContent] = useState<{
+    title: string;
+    content: string;
+    tags: string[];
+  }>({
+    title: '',
+    content: '',
+    tags: []
+  })
+  const [useFullContent, setUseFullContent] = useState(false)
+  const [articleContent, setArticleContent] = useState('')
 
   // 定義済みの役割
   const predefinedRoles = ['編集', '撮影', '企画', '取材', '執筆', 'デザイン']
@@ -221,6 +256,14 @@ export default function EditWorkPage() {
     }
   }
 
+  // Enterキーでタグ追加
+  const handleTagKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      addTag()
+    }
+  }
+
   // タグ削除
   const removeTag = (tagToRemove: string) => {
     setFormData(prev => ({
@@ -352,14 +395,17 @@ export default function EditWorkPage() {
   // フォーム送信処理
   const handleSubmit = async () => {
     try {
+      setIsSaving(true)
+      setError(null)
+
       // バリデーション
       if (!formData.title.trim()) {
-        alert('タイトルを入力してください')
+        setError('タイトルを入力してください')
         return
       }
 
       if (formData.roles.length === 0) {
-        alert('役割を選択してください')
+        setError('役割を選択してください')
         return
       }
 
@@ -390,7 +436,9 @@ export default function EditWorkPage() {
       
     } catch (error) {
       console.error('更新エラー:', error)
-      alert(error instanceof Error ? error.message : '更新に失敗しました。もう一度お試しください。')
+      setError(error instanceof Error ? error.message : '更新に失敗しました。もう一度お試しください。')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -411,597 +459,389 @@ export default function EditWorkPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-white">
-        {/* ヘッダー */}
-        <div className="border-b border-gray-200">
-          <div className="max-w-4xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link href="/profile" className="flex items-center text-gray-600 hover:text-gray-800">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                ポートフォリオに戻る
-              </Link>
-              <Button 
-                onClick={handleSubmit}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-2 rounded-full"
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* ヘッダー */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                variant="ghost"
+                onClick={() => router.back()}
+                className="text-gray-600 hover:text-gray-900"
               >
-                更新
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                戻る
               </Button>
             </div>
-          </div>
-        </div>
-
-        {/* メインコンテンツ */}
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">作品を編集</h1>
-            <p className="text-gray-600">作品の情報を編集してください</p>
-          </div>
-
-          <div className="space-y-8">
-            {/* タイトル */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">📝</span>
-                <h2 className="text-xl font-medium text-gray-800">タイトル</h2>
-              </div>
-              <Input
-                placeholder="作品のタイトルを入力"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                className="text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-3 focus:border-purple-500 focus:ring-0"
-              />
-            </div>
-
-            {/* コンテンツタイプ */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">🎯</span>
-                <h2 className="text-xl font-medium text-gray-800">コンテンツタイプ</h2>
-                <span className="text-sm text-purple-600 bg-purple-50 px-2 py-1 rounded-full">AI分析精度向上</span>
-              </div>
-              <p className="text-gray-600 text-sm">
-                作品の種類を選択すると、AI分析がより精度の高い結果を提供します。
+            
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {formData.contentType === 'article' ? '記事作品を編集' : 
+                 formData.contentType === 'design' ? 'デザイン作品を編集' :
+                 formData.contentType === 'photo' ? '写真作品を編集' :
+                 formData.contentType === 'video' ? '動画作品を編集' :
+                 formData.contentType === 'podcast' ? 'ポッドキャスト作品を編集' :
+                 formData.contentType === 'event' ? 'イベント作品を編集' : '作品を編集'}
+              </h1>
+              <p className="text-gray-600">
+                {formData.contentType === 'article' ? 'あなたの記事・ライティング作品を編集しましょう' :
+                 formData.contentType === 'design' ? 'あなたのデザイン作品を編集しましょう' :
+                 formData.contentType === 'photo' ? 'あなたの写真作品を編集しましょう' :
+                 formData.contentType === 'video' ? 'あなたの動画・映像作品を編集しましょう' :
+                 formData.contentType === 'podcast' ? 'あなたのポッドキャスト作品を編集しましょう' :
+                 formData.contentType === 'event' ? 'あなたのイベント作品を編集しましょう' : 'あなたの作品を編集しましょう'}
               </p>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {contentTypes.map((type) => (
-                  <Button
-                    key={type.id}
-                    onClick={() => setFormData(prev => ({ ...prev, contentType: type.id }))}
-                    variant="outline"
-                    className={`h-auto p-4 flex flex-col items-center space-y-2 border-2 transition-all hover:border-purple-500 hover:bg-purple-50 ${
-                      formData.contentType === type.id 
-                        ? 'bg-purple-100 border-purple-500 shadow-md' 
-                        : 'border-gray-300'
-                    }`}
-                  >
-                    <span className="text-2xl">{type.emoji}</span>
-                    <span className="text-sm font-medium text-center leading-tight">{type.name}</span>
-                  </Button>
-                ))}
-              </div>
-
-              {formData.contentType && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-lg">
-                      {contentTypes.find(type => type.id === formData.contentType)?.emoji}
-                    </span>
-                    <span className="font-medium text-blue-800">
-                      {contentTypes.find(type => type.id === formData.contentType)?.name}
-                    </span>
-                    <span className="text-sm text-blue-600">を選択中</span>
-                  </div>
-                  <p className="text-sm text-blue-700">
-                    {contentTypes.find(type => type.id === formData.contentType)?.description}
-                  </p>
-                  <div className="mt-3 flex items-center justify-between bg-blue-100 rounded-lg px-3 py-2">
-                    <span className="text-xs text-blue-600">
-                      💡 この選択により、AI分析では{contentTypes.find(type => type.id === formData.contentType)?.name}に特化した分析を行います
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsAIAnalysisDetailOpen(true)}
-                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-200 text-xs h-auto py-1 px-2"
-                    >
-                      詳細を見る
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
+          </div>
 
-            {/* 作品URL */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">🔗</span>
-                <h2 className="text-xl font-medium text-gray-800">作品URL</h2>
-              </div>
-              <p className="text-gray-600 text-sm">URLを入力すると、タイトル・説明・タグを自動取得します。</p>
-              <div className="relative">
+          {/* 2カラム構成 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            {/* 左カラム: 基本情報 */}
+            <div className="space-y-6">
+              {/* 作品名 */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  作品名 <span className="text-red-500">*</span>
+                </h2>
                 <Input
-                  type="url"
-                  placeholder="https://example.com/your-work"
-                  value={formData.externalUrl}
-                  onChange={(e) => handleUrlChange(e.target.value)}
-                  className="text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-3 focus:border-purple-500 focus:ring-0"
+                  placeholder="ここにタイトルが入ります"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  className="h-12"
                 />
-                {isLoadingPreview && (
-                  <div className="absolute right-0 top-3">
-                    <svg className="w-5 h-5 animate-spin text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </div>
-                )}
               </div>
-              {previewError && (
-                <p className="text-red-500 text-sm">{previewError}</p>
-              )}
 
-              {/* OGP/バナー画像プレビュー */}
-              {previewData && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
-                  {previewData.image && (
-                    <div className="w-full h-48 bg-gray-100 relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={previewData.image}
-                        alt="OGP画像"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.currentTarget
-                          target.style.display = 'none'
-                          // 画像読み込み失敗時のフォールバック表示
-                          const fallback = target.parentElement?.querySelector('.fallback-bg')
-                          if (fallback) {
-                            fallback.classList.remove('hidden')
-                          }
-                        }}
+              {/* 詳細 */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">詳細</h2>
+                <Textarea
+                  placeholder="詳細説明を入力..."
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  className="min-h-[120px] resize-none"
+                />
+              </div>
+
+              {/* 記事本文（記事タイプの場合のみ表示） */}
+              {formData.contentType === 'article' && (
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">記事本文</h2>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="useFullContent"
+                        checked={useFullContent}
+                        onChange={(e) => setUseFullContent(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <div className="fallback-bg absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                        <div className="text-center">
-                          <span className="text-4xl mb-2 block">🖼️</span>
-                          <p className="text-sm text-gray-500">画像を読み込めませんでした</p>
-                        </div>
-                      </div>
+                      <label htmlFor="useFullContent" className="text-sm text-gray-700">
+                        AI分析に本文を含める
+                      </label>
                     </div>
-                  )}
-                  <div className="p-4">
-                    {/* サイト情報 */}
-                    {(previewData.siteName || previewData.icon) && (
-                      <div className="flex items-center space-x-2 mb-3">
-                        {previewData.icon && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={previewData.icon}
-                            alt="サイトアイコン"
-                            className="w-4 h-4 rounded"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                            }}
-                          />
-                        )}
-                        {previewData.siteName && (
-                          <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-                            {previewData.siteName}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-gray-900 line-clamp-2 flex-1 text-lg leading-tight">
-                        {previewData.title || 'タイトルなし'}
-                      </h4>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (previewData?.title && !formData.title) {
-                            setFormData(prev => ({ ...prev, title: previewData.title }))
-                          }
-                          if (previewData?.description && !formData.description) {
-                            setFormData(prev => ({ ...prev, description: previewData.description }))
-                          }
-                        }}
-                        className="ml-3 text-xs px-3 py-1 text-purple-600 border-purple-300 hover:bg-purple-50 flex-shrink-0 font-medium"
-                      >
-                        反映
-                      </Button>
-                    </div>
-                    <p className="text-sm text-gray-600 line-clamp-3 mb-3 leading-relaxed">
-                      {previewData.description || '説明なし'}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate font-mono">
-                      {previewData.url}
-                    </p>
-                    
-                    {/* 画像情報 */}
-                    {previewData?.image && previewData?.imageWidth > 0 && (
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <p className="text-xs text-gray-400">
-                          📐 {previewData.imageWidth} × {previewData.imageHeight}px
-                          {previewData?.imageSize > 0 && ` • 📁 ${Math.round(previewData.imageSize / 1024)}KB`}
+                  </div>
+                  
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-600 text-sm">💡</span>
+                      <div>
+                        <p className="text-blue-800 text-sm font-medium">記事本文の活用について</p>
+                        <p className="text-blue-700 text-xs leading-relaxed mt-1">
+                          記事の本文をここに貼り付けることで、より詳細で正確なAI分析が可能になります。
+                          文章構成、表現力、専門知識の活用度など、より深い観点から分析できます。
+                          <br />
+                          <strong>※ 著作権に配慮し、自分が執筆した記事のみ入力してください。</strong>
                         </p>
                       </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 説明文 */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl">💬</span>
-                  <h2 className="text-xl font-medium text-gray-800">説明文</h2>
-                </div>
-                <Button
-                  onClick={analyzeWithAI}
-                  variant="outline"
-                  disabled={isAnalyzing}
-                  className="text-purple-600 border-purple-300 hover:bg-purple-50 disabled:opacity-50"
-                >
-                  {isAnalyzing ? (
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      <span>分析中...</span>
                     </div>
-                  ) : (
-                    'AI分析する'
+                  </div>
+
+                  <Textarea
+                    placeholder="記事の本文をここに貼り付けてください（任意）&#10;&#10;より詳細なAI分析のために本文を入力すると、以下の分析が可能になります：&#10;• 文章構成と論理的な組み立ての評価&#10;• 専門用語の適切な使用度&#10;• 読者に分かりやすい表現の工夫&#10;• 情報の整理と伝達技術の分析"
+                    value={articleContent}
+                    onChange={(e) => setArticleContent(e.target.value)}
+                    className="min-h-[200px] resize-y"
+                    disabled={!useFullContent}
+                  />
+                  
+                  {articleContent && useFullContent && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      文字数: {articleContent.length}文字
+                      {articleContent.length > 3000 && (
+                        <span className="text-amber-600 ml-2">
+                          ※ 3,000文字以上の場合、分析時に一部省略されます
+                        </span>
+                      )}
+                    </div>
                   )}
-                </Button>
-              </div>
-              <Textarea
-                placeholder="作品の説明を入力"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                className="min-h-[120px] border-2 border-gray-200 rounded-lg p-4 focus:border-purple-500 focus:ring-0 resize-none"
-              />
-            </div>
+                </div>
+              )}
 
-            {/* 掲載月 */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">📆</span>
-                <h2 className="text-xl font-medium text-gray-800">掲載月</h2>
-              </div>
-              <Input
-                type="month"
-                value={formData.productionDate}
-                onChange={(e) => handleInputChange('productionDate', e.target.value)}
-                className="text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-3 focus:border-purple-500 focus:ring-0 w-48"
-              />
-            </div>
-
-            {/* タグ */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">🏷️</span>
-                <h2 className="text-xl font-medium text-gray-800">タグ</h2>
-              </div>
-              <div className="flex space-x-2">
+              {/* 制作時期 */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">制作時期</h2>
                 <Input
-                  placeholder="タグを入力して Enter"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  className="flex-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-purple-500 focus:ring-0"
+                  type="date"
+                  value={formData.productionDate}
+                  onChange={(e) => handleInputChange('productionDate', e.target.value)}
+                  className="h-12"
                 />
-                <Button
-                  onClick={addTag}
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg"
-                >
-                  追加
-                </Button>
               </div>
 
-              {/* AI分析による推奨タグ */}
-              {analysisResult && analysisResult.tags && analysisResult.tags.length > 0 && (
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm">🤖</span>
-                    <span className="text-sm font-medium text-purple-800">AI推奨タグ</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {analysisResult.tags.map((tag: string, index: number) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          if (!formData.tags.includes(tag)) {
-                            setFormData(prev => ({
-                              ...prev,
-                              tags: [...prev.tags, tag]
-                            }))
-                          }
-                        }}
-                        className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                          formData.tags.includes(tag)
-                            ? 'bg-purple-200 text-purple-800 cursor-default'
-                            : 'bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer border-2 border-dashed border-purple-300'
-                        }`}
-                        disabled={formData.tags.includes(tag)}
-                      >
-                        {tag} {!formData.tags.includes(tag) && '+'}
-                      </button>
-                    ))}
-                  </div>
+              {/* タグ */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">タグ</h2>
+                <div className="flex gap-2 mb-3">
+                  <Input
+                    placeholder="タグを入力..."
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyDown={handleTagKeyPress}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={addTag}
+                    disabled={!newTag.trim()}
+                    variant="outline"
+                  >
+                    追加
+                  </Button>
                 </div>
-              )}
-
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
-                    >
-                      <span>{tag}</span>
-                      <button
-                        onClick={() => removeTag(tag)}
-                        className="text-purple-600 hover:text-purple-800"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* あなたの役割 */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">🧑‍💻</span>
-                <h2 className="text-xl font-medium text-gray-800">あなたの役割</h2>
-                <span className="text-red-500">*</span>
-              </div>
-              
-              {formData.roles.length > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 mb-2">ここに選択した役割が表示されます</p>
+                
+                {formData.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {formData.roles.map((role, index) => (
+                    {formData.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
+                        className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                       >
-                        <span>{role}</span>
+                        #{tag}
                         <button
-                          onClick={() => removeRole(role)}
-                          className="text-blue-600 hover:text-blue-800"
+                          onClick={() => removeTag(tag)}
+                          className="ml-2 text-gray-500 hover:text-red-500"
                         >
-                          ×
+                          <X className="w-3 h-3" />
                         </button>
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-2">
-                {predefinedRoles.map((role) => (
-                  <Button
-                    key={role}
-                    onClick={() => addRole(role)}
-                    variant="outline"
-                    className={`border-2 border-dashed border-gray-300 hover:border-purple-500 hover:bg-purple-50 ${
-                      formData.roles.includes(role) ? 'bg-purple-100 border-purple-500' : ''
-                    }`}
-                  >
-                    {role} ＋
-                  </Button>
-                ))}
+                )}
               </div>
 
-              <div className="flex space-x-2">
+              {/* あなたの役割 */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  あなたの役割は何でしたか？ <span className="text-red-500">*</span>
+                </h2>
                 <Input
-                  placeholder="その他の役割を入力"
+                  placeholder="クレジットを書く"
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomRole())}
-                  className="flex-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-purple-500 focus:ring-0"
+                  className="mb-3"
                 />
-                <Button
-                  onClick={addCustomRole}
-                  className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg"
-                >
-                  追加
-                </Button>
-              </div>
-            </div>
-
-            {/* カテゴリ */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">📂</span>
-                <h2 className="text-xl font-medium text-gray-800">カテゴリ（複数選択可）</h2>
-              </div>
-              
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="新しいカテゴリ名を入力"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
-                  className="flex-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-purple-500 focus:ring-0"
-                />
-                <Button
-                  onClick={addCategory}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
-                >
-                  追加
-                </Button>
-              </div>
-
-              {formData.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.categories.map((category, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center space-x-1"
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {predefinedRoles.map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => addRole(role)}
+                      disabled={formData.roles.includes(role)}
+                      className="px-3 py-1 border border-gray-300 rounded-full text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500"
                     >
-                      <span>{category}</span>
-                      <button
-                        onClick={() => removeCategory(category)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        ×
-                      </button>
-                    </span>
+                      {role} +
+                    </button>
                   ))}
-                </div>
-              )}
-
-              <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                💡 カテゴリを使って作品を整理しましょう。例：「Webデザイン」「ロゴ制作」「写真撮影」など
-              </div>
-            </div>
-
-            {/* AI分析結果：要約と作品の強み */}
-            {analysisResult && (analysisResult.summary || (analysisResult.strengths && (
-              analysisResult.strengths.creativity?.length > 0 || 
-              analysisResult.strengths.expertise?.length > 0 || 
-              analysisResult.strengths.impact?.length > 0
-            ))) && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
-                <div className="flex items-center space-x-2 mb-4">
-                  <span className="text-2xl">🤖</span>
-                  <h2 className="text-xl font-medium text-blue-800">AI分析結果</h2>
+                  <button
+                    onClick={addCustomRole}
+                    className="px-3 py-1 border border-gray-300 rounded-full text-sm hover:bg-gray-50"
+                  >
+                    ライター +
+                  </button>
                 </div>
                 
-                <div className="space-y-4">
-                  {analysisResult.summary && (
-                    <div>
-                      <h3 className="font-medium text-blue-700 mb-2 flex items-center space-x-2">
-                        <span>📝</span>
-                        <span>要約</span>
-                      </h3>
-                      <p className="text-gray-700 bg-white rounded-lg p-3 border border-blue-100">
-                        {analysisResult.summary}
-                      </p>
-                    </div>
-                  )}
+                {formData.roles.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {formData.roles.map((role, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                      >
+                        {role}
+                        <button
+                          onClick={() => removeRole(role)}
+                          className="ml-2 text-blue-500 hover:text-red-500"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
 
-                  {/* コンテンツタイプ特化分析 */}
-                  {analysisResult.contentTypeAnalysis && (
-                    <div>
-                      <h3 className="font-medium text-blue-700 mb-2 flex items-center space-x-2">
-                        <span>
-                          {formData.contentType ? 
-                            contentTypes.find(type => type.id === formData.contentType)?.emoji : '🎯'
-                          }
-                        </span>
-                        <span>
-                          {formData.contentType ? 
-                            `${contentTypes.find(type => type.id === formData.contentType)?.name}としての分析` : 
-                            'コンテンツ分析'
-                          }
-                        </span>
-                      </h3>
-                      <p className="text-gray-700 bg-white rounded-lg p-3 border border-blue-100">
-                        {analysisResult.contentTypeAnalysis}
-                      </p>
+            {/* 右カラム: AI分析 */}
+            <div className="space-y-6">
+              {/* AI分析セクション */}
+              {(formData.description || articleContent) && (
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <span className="text-white text-xl">🤖</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {formData.contentType === 'article' ? '記事AI分析エンジン' :
+                           formData.contentType === 'design' ? 'デザインAI分析エンジン' :
+                           formData.contentType === 'photo' ? '写真AI分析エンジン' :
+                           formData.contentType === 'video' ? '動画AI分析エンジン' :
+                           formData.contentType === 'podcast' ? 'ポッドキャストAI分析エンジン' :
+                           formData.contentType === 'event' ? 'イベントAI分析エンジン' : 'AI分析エンジン'}
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          {formData.contentType === 'article' ? '記事の専門性・文章力・読者への価値提供を多角的に分析' :
+                           formData.contentType === 'design' ? 'デザインの美的センス・技術力・ブランド価値向上を多角的に分析' :
+                           formData.contentType === 'photo' ? '写真の技術力・表現力・視覚的インパクトを多角的に分析' :
+                           formData.contentType === 'video' ? '動画の演出力・技術力・視聴者エンゲージメントを多角的に分析' :
+                           formData.contentType === 'podcast' ? 'ポッドキャストの企画力・音響技術・リスナー価値提供を多角的に分析' :
+                           formData.contentType === 'event' ? 'イベントの企画力・運営力・参加者満足度を多角的に分析' : '作品の創造性・専門性・影響力を多角的に分析'}
+                        </p>
+                      </div>
                     </div>
-                  )}
+                    <Button 
+                      onClick={analyzeWithAI}
+                      disabled={isAnalyzing || (!formData.description && !articleContent)}
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2 font-medium"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {isAnalyzing ? '分析実行中...' : 'AI分析実行'}
+                    </Button>
+                  </div>
                   
-                  {analysisResult.strengths && (
-                    <div>
-                      <h3 className="font-medium text-blue-700 mb-2 flex items-center space-x-2">
-                        <span>💪</span>
-                        <span>作品の強み</span>
-                      </h3>
-                      <div className="bg-white rounded-lg p-3 border border-blue-100">
-                        {/* 創造性 */}
-                        {analysisResult.strengths.creativity && analysisResult.strengths.creativity.length > 0 && (
-                          <div className="mb-4">
-                            <h4 className="font-medium text-purple-600 mb-2 flex items-center space-x-2">
-                              <span>🎨</span>
-                              <span>創造性</span>
-                            </h4>
-                            <ul className="space-y-1">
-                              {analysisResult.strengths.creativity.map((strength: string, index: number) => (
-                                <li key={index} className="flex items-start space-x-2 text-gray-700 text-sm">
-                                  <span className="text-purple-500 mt-1">✓</span>
-                                  <span>{strength}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* 専門性 */}
-                        {analysisResult.strengths.expertise && analysisResult.strengths.expertise.length > 0 && (
-                          <div className="mb-4">
-                            <h4 className="font-medium text-blue-600 mb-2 flex items-center space-x-2">
-                              <span>🔧</span>
-                              <span>専門性</span>
-                            </h4>
-                            <ul className="space-y-1">
-                              {analysisResult.strengths.expertise.map((strength: string, index: number) => (
-                                <li key={index} className="flex items-start space-x-2 text-gray-700 text-sm">
-                                  <span className="text-blue-500 mt-1">✓</span>
-                                  <span>{strength}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* 影響力 */}
-                        {analysisResult.strengths.impact && analysisResult.strengths.impact.length > 0 && (
-                          <div>
-                            <h4 className="font-medium text-green-600 mb-2 flex items-center space-x-2">
-                              <span>🌟</span>
-                              <span>影響力</span>
-                            </h4>
-                            <ul className="space-y-1">
-                              {analysisResult.strengths.impact.map((strength: string, index: number) => (
-                                <li key={index} className="flex items-start space-x-2 text-gray-700 text-sm">
-                                  <span className="text-green-500 mt-1">✓</span>
-                                  <span>{strength}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                  {isAnalyzing && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div>
+                          <p className="text-purple-800 font-medium">高度AI分析を実行中...</p>
+                          <p className="text-purple-600 text-sm">創造性・専門性・影響力の観点から詳細分析しています</p>
+                        </div>
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
-            )}
+                  
+                  {analysisResult && (
+                    <div className="space-y-6">
+                      {/* 分析概要 */}
+                      {analysisResult.summary && (
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-5">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-blue-600 text-lg">📊</span>
+                            <h4 className="font-semibold text-blue-900">分析概要</h4>
+                          </div>
+                          <p className="text-blue-800 leading-relaxed">{analysisResult.summary}</p>
+                        </div>
+                      )}
 
-            {/* 下部のアクションボタン */}
-            <div className="flex justify-center space-x-4 pt-8">
-              <Link href="/profile">
-                <Button variant="outline" className="px-8 py-3 rounded-full border-gray-300 text-gray-600 hover:bg-gray-50">
-                  キャンセル
-                </Button>
-              </Link>
-              <Button 
-                onClick={handleSubmit}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full"
-              >
-                更新
-              </Button>
+                      {/* 分析結果 */}
+                      {analysisResult.genre && analysisResult.genre.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 mb-2">ジャンル</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.genre?.map((genre, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                              >
+                                {genre}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {analysisResult.topic && analysisResult.topic.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 mb-2">トピック</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.topic?.map((topic, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                              >
+                                {topic}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {analysisResult.keyword && analysisResult.keyword.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 mb-2">キーワード</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.keyword?.map((keyword, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                              >
+                                {keyword}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {analysisResult.sentiment && analysisResult.sentiment.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 mb-2">感情分析</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.sentiment?.map((sentiment, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                              >
+                                {sentiment}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {analysisResult.style && analysisResult.style.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 mb-2">文体</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.style?.map((style, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800"
+                              >
+                                {style}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {analysisResult.target && analysisResult.target.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 mb-2">ターゲット読者</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysisResult.target?.map((target, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                              >
+                                {target}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
-        
-        {/* AI分析詳細モーダル */}
-        <AIAnalysisDetailModal
-          isOpen={isAIAnalysisDetailOpen}
-          onClose={() => setIsAIAnalysisDetailOpen(false)}
-          contentType={formData.contentType}
-        />
       </div>
     </ProtectedRoute>
   )

@@ -191,15 +191,15 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       title: workData.title || '',
       description: workData.description || '',
-      external_url: workData.externalUrl || '',
+      external_url: workData.externalUrl || '', // フロントエンドのexternalUrlを変換
       tags: workData.tags || [],
       roles: workData.roles || [],
       categories: workData.categories || [],
-      content_type: workData.contentType || '', // コンテンツタイプを追加
+      content_type: workData.contentType || '', // フロントエンドのcontentTypeを変換
       production_date: productionDate,
-      banner_image_url: workData.bannerImageUrl || '',
-      preview_data: workData.previewData || null,
-      ai_analysis_result: workData.aiAnalysisResult || null,
+      banner_image_url: workData.bannerImageUrl || '', // フロントエンドのbannerImageUrlを変換
+      preview_data: workData.previewData || null, // フロントエンドのpreviewDataを変換
+      ai_analysis_result: workData.aiAnalysisResult || null, // フロントエンドのaiAnalysisResultを変換
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }

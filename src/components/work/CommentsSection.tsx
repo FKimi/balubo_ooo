@@ -45,21 +45,40 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
         setIsAuthenticated(!!session?.access_token)
 
         // コメント一覧を取得
-        const response = await fetch(`/api/comments?workId=${workId}`)
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json'
+        }
+        
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`
+        }
+
+        const response = await fetch(`/api/comments?workId=${workId}`, {
+          headers
+        })
+        
         if (response.ok) {
           const data = await response.json()
-          setComments(data.comments)
-          setCommentCount(data.count)
+          setComments(data.comments || [])
+          setCommentCount(data.count || 0)
+        } else {
+          console.error('コメント取得エラー:', response.status)
+          setComments([])
+          setCommentCount(0)
         }
       } catch (error) {
         console.error('コメント取得エラー:', error)
+        setComments([])
+        setCommentCount(0)
       } finally {
         setIsLoading(false)
       }
     }
 
-    checkAuthAndFetchComments()
-  }, [workId, supabase.auth])
+    if (workId) {
+      checkAuthAndFetchComments()
+    }
+  }, [workId])
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -89,7 +108,8 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
         },
         body: JSON.stringify({
           workId,
-          content: newComment.trim()
+          content: newComment.trim(),
+          targetType: 'work'
         })
       })
 

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { initializeMCPSupabase } from '@/lib/mcp-supabase'
+import { ErrorFilter } from '@/components/utils/ErrorFilter'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,6 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
+        <ErrorFilter />
         <AuthProvider>
           {children}
         </AuthProvider>

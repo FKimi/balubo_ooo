@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { User, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -22,17 +22,51 @@ interface RecommendedUsersProps {
 export function RecommendedUsers({ currentUserId, isAuthenticated }: RecommendedUsersProps) {
   const [users, setUsers] = useState<RecommendedUser[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  // useCallbackでコールバック関数をメモ化
+  const handleUserClick = useCallback((userId: string) => {
+    router.push(`/share/profile/${userId}`)
+  }, [router])
+
+  const handleFollowClick = useCallback((userId: string, displayName: string) => {
+    if (!isAuthenticated) {
+      router.push('/auth')
+      return
+    }
+    // フォロー機能は実際のプロフィールページで実装されているため、プロフィールページへ遷移
+    router.push(`/share/profile/${userId}`)
+  }, [isAuthenticated, router])
+
+  // メモ化された検索パラメータ
+  const searchParams = useMemo(() => ({
+    currentUserId,
+    isAuthenticated
+  }), [currentUserId, isAuthenticated])
+
   useEffect(() => {
+    let isMounted = true
+    let timeoutId: NodeJS.Timeout
+    
+    // 短時間での重複実行を防ぐ
+    const lastFetch = sessionStorage.getItem('lastRecommendedUsersFetch')
+    const now = Date.now()
+    if (lastFetch && (now - parseInt(lastFetch)) < 30000) { // 30秒以内は実行しない
+      setLoading(false)
+      return
+    }
+
     const fetchRecommendedUsers = async () => {
       try {
+        setError(null)
+        
         const headers: HeadersInit = {
           'Content-Type': 'application/json'
         }
 
-        // 認証されている場合はトークンを追加
-        if (isAuthenticated && currentUserId) {
+        // 認証されている場合はトークンを追加（タイムアウト設定）
+        if (searchParams.isAuthenticated && searchParams.currentUserId) {
           const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
           const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
           
@@ -41,45 +75,88 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
             return
           }
           
-          const { createClient } = await import('@supabase/supabase-js')
-          const supabase = createClient(supabaseUrl, supabaseAnonKey)
-          
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session?.access_token) {
-            headers['Authorization'] = `Bearer ${session.access_token}`
+          try {
+            const { createClient } = await import('@supabase/supabase-js')
+            const supabase = createClient(supabaseUrl, supabaseAnonKey)
+            
+            // 認証取得にタイムアウトを設定
+            const authPromise = supabase.auth.getSession()
+            const authTimeout = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('認証タイムアウト')), 3000)
+            })
+            
+            const { data: { session } } = await Promise.race([authPromise, authTimeout]) as any
+            if (session?.access_token && isMounted) {
+              headers['Authorization'] = `Bearer ${session.access_token}`
+            }
+          } catch (authError) {
+            console.log('認証取得エラー（続行）:', authError)
           }
         }
 
+        if (!isMounted) return
+
+        // API呼び出しにタイムアウトを設定
+        const controller = new AbortController()
+        timeoutId = setTimeout(() => {
+          controller.abort()
+        }, 8000) // 8秒でタイムアウト
+
         const response = await fetch('/api/users/recommended?limit=3', {
-          headers
+          headers,
+          signal: controller.signal
         })
+
+        if (!isMounted) return
 
         if (response.ok) {
           const data = await response.json()
           setUsers(data.users || [])
+          // 成功時に最後の取得時刻を保存
+          sessionStorage.setItem('lastRecommendedUsersFetch', Date.now().toString())
+        } else {
+          throw new Error(`API呼び出しエラー: ${response.status}`)
         }
       } catch (error) {
-        console.error('おすすめユーザー取得エラー:', error)
+        if (!isMounted) return
+
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            console.error('おすすめユーザー取得タイムアウト')
+            setError('読み込みに時間がかかっています')
+          } else {
+            console.error('おすすめユーザー取得エラー:', error)
+            setError('ユーザー情報の取得に失敗しました')
+          }
+        } else {
+          console.error('予期しないエラー:', error)
+          setError('予期しないエラーが発生しました')
+        }
+        // エラー時はユーザーを空配列に設定
+        setUsers([])
       } finally {
-        setLoading(false)
+        if (timeoutId) {
+          clearTimeout(timeoutId)
+        }
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchRecommendedUsers()
-  }, [currentUserId, isAuthenticated])
 
-  const handleUserClick = (userId: string) => {
-    router.push(`/share/profile/${userId}`)
-  }
-
-  const handleFollowClick = (userId: string, displayName: string) => {
-    if (!isAuthenticated) {
-      router.push('/auth')
-      return
+    // クリーンアップ関数
+    return () => {
+      isMounted = false
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
     }
-    // フォロー機能は実際のプロフィールページで実装されているため、プロフィールページへ遷移
-    router.push(`/share/profile/${userId}`)
-  }
+  }, [searchParams]) // searchParamsをメモ化して依存配列に使用
+
+  // メモ化されたユーザーリスト
+  const memoizedUsers = useMemo(() => users, [users])
 
   if (loading) {
     return (
@@ -104,8 +181,40 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
     )
   }
 
-  if (users.length === 0) {
-    return null
+  if (error) {
+    return (
+      <div className="bg-gray-50 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <UserPlus className="w-5 h-5 text-gray-600" />
+          <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
+        </div>
+        <div className="text-center py-4">
+          <p className="text-sm text-gray-500 mb-3">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+          >
+            再試行
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (memoizedUsers.length === 0) {
+    return (
+      <div className="bg-gray-50 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <UserPlus className="w-5 h-5 text-gray-600" />
+          <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
+        </div>
+        <div className="text-center py-4">
+          <p className="text-sm text-gray-500">
+            現在おすすめできるユーザーがいません
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -116,7 +225,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
       </div>
       
       <div className="space-y-3">
-        {users.map((user) => (
+        {memoizedUsers.map((user) => (
           <div key={user.id} className="flex items-start gap-3">
             {/* アバター */}
             <div 

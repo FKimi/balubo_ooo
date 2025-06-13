@@ -51,18 +51,21 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = decoded.sub
-    const { workId } = await request.json()
+    const { workId, targetType } = await request.json()
 
     if (!workId) {
       return NextResponse.json({ error: 'workIdが必要です' }, { status: 400 })
     }
+
+    // target_typeを決定（デフォルトは'work'）
+    const finalTargetType = targetType || 'work'
 
     // 既にいいねしているかチェック
     const { data: existingLike } = await supabase
       .from('likes')
       .select('id')
       .eq('user_id', userId)
-      .eq('target_type', 'work')
+      .eq('target_type', finalTargetType)
       .eq('target_id', workId)
       .single()
 
@@ -70,14 +73,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '既にいいねしています' }, { status: 409 })
     }
 
-    console.log('いいね追加処理:', { userId, workId })
+    console.log('いいね追加処理:', { userId, workId, targetType: finalTargetType })
 
     // いいね追加
     const { data: newLike, error } = await supabase
       .from('likes')
       .insert({
         user_id: userId,
-        target_type: 'work',
+        target_type: finalTargetType,
         target_id: workId
       })
       .select()

@@ -11,6 +11,7 @@ interface ContentType {
   description: string
   color: string
   icon: string
+  enabled?: boolean // 有効/無効フラグを追加
 }
 
 interface ContentTypeSelectorProps {
@@ -25,7 +26,8 @@ const contentTypes: ContentType[] = [
     emoji: '📝', 
     description: 'ブログ記事、コラム、ニュース記事など',
     color: 'bg-blue-500',
-    icon: '✍️'
+    icon: '✍️',
+    enabled: true // 記事のみ有効
   },
   { 
     id: 'design', 
@@ -33,7 +35,8 @@ const contentTypes: ContentType[] = [
     emoji: '🎨', 
     description: 'グラフィックデザイン、UI/UXデザイン、ロゴなど',
     color: 'bg-purple-500',
-    icon: '🎨'
+    icon: '🎨',
+    enabled: false
   },
   { 
     id: 'photo', 
@@ -41,7 +44,8 @@ const contentTypes: ContentType[] = [
     emoji: '📸', 
     description: '写真撮影、フォトレタッチなど',
     color: 'bg-green-500',
-    icon: '📷'
+    icon: '📷',
+    enabled: false
   },
   { 
     id: 'video', 
@@ -49,7 +53,8 @@ const contentTypes: ContentType[] = [
     emoji: '🎬', 
     description: '動画制作、映像編集、アニメーションなど',
     color: 'bg-red-500',
-    icon: '🎥'
+    icon: '🎥',
+    enabled: false
   },
   { 
     id: 'podcast', 
@@ -57,7 +62,8 @@ const contentTypes: ContentType[] = [
     emoji: '🎙️', 
     description: '音声コンテンツ、ラジオ番組など',
     color: 'bg-orange-500',
-    icon: '🔊'
+    icon: '🔊',
+    enabled: false
   },
   { 
     id: 'event', 
@@ -65,7 +71,8 @@ const contentTypes: ContentType[] = [
     emoji: '🎪', 
     description: 'イベント企画・運営、カンファレンスなど',
     color: 'bg-pink-500',
-    icon: '🎊'
+    icon: '🎊',
+    enabled: false
   }
 ]
 
@@ -109,36 +116,77 @@ export function ContentTypeSelector({ isOpen, onClose }: ContentTypeSelectorProp
             {contentTypes.map((type) => (
               <button
                 key={type.id}
-                onClick={() => handleSelect(type.id)}
-                className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-lg bg-white"
+                onClick={() => type.enabled && handleSelect(type.id)}
+                disabled={!type.enabled}
+                className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-200 text-left ${
+                  type.enabled 
+                    ? 'border-gray-200 hover:border-gray-300 hover:shadow-lg bg-white cursor-pointer' 
+                    : 'border-gray-100 bg-gray-50 cursor-not-allowed'
+                }`}
               >
-                <div className="p-6 text-left">
+                <div className="p-6">
                   {/* アイコン部分 */}
-                  <div className={`w-12 h-12 ${type.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200`}>
-                    <span className="text-2xl text-white">{type.icon}</span>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform duration-200 ${
+                    type.enabled 
+                      ? `${type.color} group-hover:scale-110` 
+                      : 'bg-gray-300'
+                  }`}>
+                    <span className={`text-2xl ${type.enabled ? 'text-white' : 'text-gray-500'}`}>
+                      {type.icon}
+                    </span>
                   </div>
                   
                   {/* タイトル */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  <h3 className={`text-lg font-bold mb-2 transition-colors ${
+                    type.enabled 
+                      ? 'text-gray-900 group-hover:text-blue-600' 
+                      : 'text-gray-400'
+                  }`}>
                     {type.name}
                   </h3>
                   
                   {/* 説明 */}
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    {type.description}
+                  <p className={`text-sm leading-relaxed ${
+                    type.enabled ? 'text-gray-600' : 'text-gray-400'
+                  }`}>
+                    {type.enabled ? type.description : '近日公開予定です。しばらくお待ちください。'}
                   </p>
+
+                  {/* 無効状態の追加表示 */}
+                  {!type.enabled && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                      <span className="text-xs text-gray-400 font-medium">準備中</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* ホバー時のオーバーレイ */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-30 transition-opacity duration-200"></div>
+                {/* ホバー時のオーバーレイ（有効な場合のみ） */}
+                {type.enabled && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-30 transition-opacity duration-200"></div>
+                )}
+
+                {/* 無効状態のオーバーレイ */}
+                {!type.enabled && (
+                  <div className="absolute inset-0 bg-gray-50 bg-opacity-50"></div>
+                )}
               </button>
             ))}
           </div>
 
           {/* フッター */}
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center space-y-3">
             <p className="text-gray-500 text-sm">
               💡 コンテンツタイプを選択すると、専用のフォームとAI分析が利用できます
+            </p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-blue-700 text-sm font-medium">
+                現在は記事・ライティング作品の追加が可能です
+              </span>
+            </div>
+            <p className="text-gray-400 text-xs">
+              他のコンテンツタイプは順次対応予定です
             </p>
           </div>
         </div>

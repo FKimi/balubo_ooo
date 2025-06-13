@@ -12,10 +12,8 @@ import {
   Calendar,
   Tag,
   Users,
-  TrendingUp,
   Edit,
   BookOpen,
-  BarChart3,
   Users2,
   User,
   LogIn,
@@ -47,12 +45,7 @@ interface FeedItem {
   user_has_liked?: boolean
 }
 
-interface FeedStats {
-  total: number
-  works: number
-  inputs: number
-  unique_users: number
-}
+
 
 export default function FeedPage() {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([])
@@ -60,12 +53,13 @@ export default function FeedPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'all' | 'works' | 'inputs'>('works')
   const [selectedItem, setSelectedItem] = useState<FeedItem | null>(null)
-  const [stats, setStats] = useState<FeedStats>({ total: 0, works: 0, inputs: 0, unique_users: 0 })
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [showCommentModal, setShowCommentModal] = useState<string | null>(null)
   const [newComment, setNewComment] = useState('')
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+  const [comments, setComments] = useState<any[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
 
   const router = useRouter()
   
@@ -128,12 +122,10 @@ export default function FeedPage() {
 
         console.log('フィードデータ取得成功:', {
           items: data.items?.length || 0,
-          stats: data.stats,
           debug: data.debug
         })
 
         setFeedItems(data.items || [])
-        setStats(data.stats || { total: 0, works: 0, inputs: 0, unique_users: 0 })
         
       } catch (error) {
         console.error('フィード取得エラー:', error)
@@ -148,12 +140,12 @@ export default function FeedPage() {
             description: 'ユーザー体験を重視したモバイルファーストなプロダクトデザインを制作しました。',
             tags: ['プロダクトデザイン', 'UI/UX', 'モバイル'],
             roles: ['プロダクトデザイナー'],
-            banner_image_url: undefined,
+            banner_image_url: '',
             created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
             user: {
               id: 'fallback-user-1',
               display_name: 'サンプルデザイナー',
-              avatar_image_url: undefined
+              avatar_image_url: ''
             }
           },
           {
@@ -164,30 +156,24 @@ export default function FeedPage() {
             author_creator: 'Jon Yablonski',
             rating: 5,
             tags: ['UXデザイン', '読書', 'デザイン'],
-            cover_image_url: undefined,
+            cover_image_url: '',
             created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
             user: {
               id: 'fallback-user-2',
               display_name: 'サンプル読書家',
-              avatar_image_url: undefined
+              avatar_image_url: ''
             }
           }
         ]
         
         setFeedItems(fallbackItems)
-        setStats({
-          total: fallbackItems.length,
-          works: fallbackItems.filter(item => item.type === 'work').length,
-          inputs: fallbackItems.filter(item => item.type === 'input').length,
-          unique_users: new Set(fallbackItems.map(item => item.user.id)).size
-        })
       } finally {
         setLoading(false)
       }
     }
 
     checkAuthAndFetchFeed()
-  }, [supabase.auth])
+  }, [])
 
   const filteredItems = feedItems.filter(item => {
     if (activeTab === 'all') return true
@@ -209,10 +195,125 @@ export default function FeedPage() {
     return date.toLocaleDateString('ja-JP')
   }
 
-  // いいね機能
+  // 特定アイテムの最新データ（いいね数・コメント数・いいね状態）を取得
+  const fetchItemStats = async (itemId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const authToken = session?.access_token
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      // いいね数・状態を取得
+      const likesResponse = await fetch(`/api/likes?workId=${itemId}`, {
+        headers
+      })
+
+      if (likesResponse.ok) {
+        const likesData = await likesResponse.json()
+        
+        // フィードアイテムの状態を更新
+        setFeedItems(prev => prev.map(item => 
+          item.id === itemId 
+            ? { 
+                ...item, 
+                likes_count: likesData.count || 0,
+                user_has_liked: likesData.isLiked || false
+              }
+            : item
+        ))
+
+        // 選択中のアイテムも更新
+        if (selectedItem && selectedItem.id === itemId) {
+          setSelectedItem(prev => prev ? {
+            ...prev,
+            likes_count: likesData.count || 0,
+            user_has_liked: likesData.isLiked || false
+          } : null)
+        }
+      }
+
+      // コメント数を取得
+      const commentsResponse = await fetch(`/api/comments?workId=${itemId}`, {
+        headers
+      })
+
+      if (commentsResponse.ok) {
+        const commentsData = await commentsResponse.json()
+        
+        // フィードアイテムのコメント数を更新
+        setFeedItems(prev => prev.map(item => 
+          item.id === itemId 
+            ? { 
+                ...item, 
+                comments_count: commentsData.count || 0
+              }
+            : item
+        ))
+
+        // 選択中のアイテムも更新
+        if (selectedItem && selectedItem.id === itemId) {
+          setSelectedItem(prev => prev ? {
+            ...prev,
+            comments_count: commentsData.count || 0
+          } : null)
+        }
+      }
+    } catch (error) {
+      console.error('アイテム統計取得エラー:', error)
+    }
+  }
+
+  // コメント一覧を取得
+  const fetchComments = async (itemId: string) => {
+    setLoadingComments(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const authToken = session?.access_token
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      const response = await fetch(`/api/comments?workId=${itemId}`, {
+        headers
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setComments(data.comments || [])
+      } else {
+        console.error('コメント取得エラー:', response.status)
+        setComments([])
+      }
+    } catch (error) {
+      console.error('コメント取得ネットワークエラー:', error)
+      setComments([])
+    } finally {
+      setLoadingComments(false)
+    }
+  }
+
+  // いいね機能（修正版）
   const handleLike = async (itemId: string, isCurrentlyLiked: boolean) => {
     if (!isAuthenticated) {
       router.push('/auth')
+      return
+    }
+
+    // 対象アイテムの情報を取得
+    const targetItem = feedItems.find(item => item.id === itemId)
+    if (!targetItem) {
+      alert('対象のアイテムが見つかりません')
       return
     }
 
@@ -237,7 +338,10 @@ export default function FeedPage() {
       }
 
       if (!isCurrentlyLiked) {
-        fetchOptions.body = JSON.stringify({ workId: itemId })
+        fetchOptions.body = JSON.stringify({ 
+          workId: itemId,
+          targetType: targetItem.type // 'work' または 'input'
+        })
       }
 
       const response = await fetch(url, fetchOptions)
@@ -253,8 +357,19 @@ export default function FeedPage() {
               }
             : item
         ))
+
+        // 選択中のアイテムも更新
+        if (selectedItem && selectedItem.id === itemId) {
+          setSelectedItem(prev => prev ? {
+            ...prev,
+            user_has_liked: !isCurrentlyLiked,
+            likes_count: (prev.likes_count || 0) + (isCurrentlyLiked ? -1 : 1)
+          } : null)
+        }
+
+        // 最新データを取得して正確な数値に更新
+        setTimeout(() => fetchItemStats(itemId), 500)
       } else {
-        // エラーレスポンスの詳細を取得
         const errorData = await response.json()
         console.error('いいねAPIエラー:', {
           status: response.status,
@@ -270,7 +385,7 @@ export default function FeedPage() {
     }
   }
 
-  // コメント投稿
+  // コメント投稿（修正版）
   const handleSubmitComment = async (itemId: string) => {
     if (!isAuthenticated) {
       router.push('/auth')
@@ -278,6 +393,13 @@ export default function FeedPage() {
     }
 
     if (!newComment.trim() || isSubmittingComment) return
+
+    // 対象アイテムの情報を取得
+    const targetItem = feedItems.find(item => item.id === itemId)
+    if (!targetItem) {
+      alert('対象のアイテムが見つかりません')
+      return
+    }
 
     setIsSubmittingComment(true)
     try {
@@ -297,21 +419,35 @@ export default function FeedPage() {
         },
         body: JSON.stringify({
           workId: itemId,
-          content: newComment.trim()
+          content: newComment.trim(),
+          targetType: targetItem.type // 'work' または 'input'
         })
       })
 
       if (response.ok) {
-        // コメント数を更新
+        // 楽観的更新
         setFeedItems(prev => prev.map(item => 
           item.id === itemId 
             ? { ...item, comments_count: (item.comments_count || 0) + 1 }
             : item
         ))
+
+        // 選択中のアイテムも更新
+        if (selectedItem && selectedItem.id === itemId) {
+          setSelectedItem(prev => prev ? {
+            ...prev,
+            comments_count: (prev.comments_count || 0) + 1
+          } : null)
+        }
+
         setNewComment('')
-        setShowCommentModal(null)
+        
+        // コメント一覧を再取得
+        await fetchComments(itemId)
+        
+        // 最新のコメント数を取得
+        setTimeout(() => fetchItemStats(itemId), 500)
       } else {
-        // エラーレスポンスの詳細を取得
         const errorData = await response.json()
         console.error('コメントAPIエラー:', {
           status: response.status,
@@ -326,6 +462,19 @@ export default function FeedPage() {
     } finally {
       setIsSubmittingComment(false)
     }
+  }
+
+  // コメントモーダルを開く
+  const openCommentModal = async (itemId: string) => {
+    setShowCommentModal(itemId)
+    await fetchComments(itemId)
+  }
+
+  // コメントモーダルを閉じる
+  const closeCommentModal = () => {
+    setShowCommentModal(null)
+    setComments([])
+    setNewComment('')
   }
 
   // シェア機能
@@ -375,10 +524,10 @@ export default function FeedPage() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="flex">
-          {/* メインフィード */}
-          <div className="flex-1 max-w-2xl border-x border-gray-200">
+          {/* メインフィード - 横幅を広げて中央配置 */}
+          <div className="flex-1 max-w-4xl mx-auto border-x border-gray-200">
         {/* タブナビゲーション */}
         <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 mb-0">
           <div className="flex">
@@ -606,7 +755,7 @@ export default function FeedPage() {
                     className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors group p-2 rounded-full hover:bg-blue-50"
                     onClick={(e) => {
                       e.stopPropagation()
-                      setShowCommentModal(item.id)
+                      openCommentModal(item.id)
                     }}
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -776,7 +925,7 @@ export default function FeedPage() {
                 <div className="flex items-center space-x-8">
                   <button 
                     className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors"
-                    onClick={() => setShowCommentModal(selectedItem.id)}
+                    onClick={() => openCommentModal(selectedItem.id)}
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
@@ -836,16 +985,13 @@ export default function FeedPage() {
 
       {/* コメントモーダル */}
       {showCommentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">コメントを投稿</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">コメント</h3>
                 <button
-                  onClick={() => {
-                    setShowCommentModal(null)
-                    setNewComment('')
-                  }}
+                  onClick={closeCommentModal}
                   className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -853,61 +999,115 @@ export default function FeedPage() {
                   </svg>
                 </button>
               </div>
-
-              {!isAuthenticated ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600 mb-4">コメントするにはログインが必要です</p>
-                  <button
-                    onClick={() => router.push('/auth')}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors"
-                  >
-                    ログイン
-                  </button>
+            </div>
+            
+            {/* コメント一覧 */}
+            <div className="flex-1 overflow-y-auto max-h-96 p-4">
+              {loadingComments ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-200 border-t-blue-600"></div>
+                  <span className="ml-2 text-gray-600">読み込み中...</span>
+                </div>
+              ) : comments.length > 0 ? (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="flex space-x-3">
+                      <div className="flex-shrink-0">
+                        {comment.user?.avatar_image_url ? (
+                          <img
+                            src={comment.user.avatar_image_url}
+                            alt={comment.user.display_name || 'User'}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                            <span className="text-white text-xs font-medium">
+                              {(comment.user?.display_name || 'U').charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {comment.user?.display_name || 'Unknown User'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatTimeAgo(comment.created_at)}
+                          </p>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {comment.content}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
-                <form onSubmit={(e) => {
-                  e.preventDefault()
-                  handleSubmitComment(showCommentModal)
-                }}>
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-sm">まだコメントがありません</p>
+                  <p className="text-gray-400 text-xs mt-1">最初のコメントを投稿してみましょう</p>
+                </div>
+              )}
+            </div>
+
+            {/* コメント投稿フォーム */}
+            {isAuthenticated ? (
+              <div className="p-4 border-t border-gray-200">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    if (showCommentModal) {
+                      handleSubmitComment(showCommentModal)
+                    }
+                  }}
+                  className="space-y-3"
+                >
                   <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="感想やアドバイスを書いてみませんか..."
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    rows={4}
+                    placeholder="コメントを入力..."
+                    className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={3}
                     disabled={isSubmittingComment}
                   />
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="text-sm text-gray-500">
-                      {newComment.length}/280
-                    </span>
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowCommentModal(null)
-                          setNewComment('')
-                        }}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                      >
-                        キャンセル
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={!newComment.trim() || isSubmittingComment || newComment.length > 280}
-                        className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                          newComment.trim() && !isSubmittingComment && newComment.length <= 280
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        }`}
-                      >
-                        {isSubmittingComment ? '投稿中...' : '投稿'}
-                      </button>
-                    </div>
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={closeCommentModal}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      キャンセル
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!newComment.trim() || isSubmittingComment}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {isSubmittingComment ? '投稿中...' : '投稿'}
+                    </button>
                   </div>
                 </form>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="p-4 border-t border-gray-200 text-center">
+                <p className="text-gray-600 text-sm mb-3">コメントを投稿するにはログインが必要です</p>
+                <button
+                  onClick={() => {
+                    closeCommentModal()
+                    router.push('/auth')
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                >
+                  ログイン
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

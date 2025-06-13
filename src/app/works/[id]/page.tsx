@@ -280,14 +280,50 @@ export default function WorkDetailPage() {
                         <div className="mb-6">
                           <h3 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
                             <span className="text-xl">🏷️</span>
-                            <span className="text-lg">AI推奨タグ</span>
+                            <span className="text-lg">AI推奨タグ ({aiAnalysis.tags.length}個)</span>
                           </h3>
-                          <div className="flex flex-wrap gap-2">
-                            {aiAnalysis.tags.map((tag: string, index: number) => (
-                              <span key={index} className="px-3 py-2 bg-white text-blue-700 text-sm rounded-lg border border-blue-200 shadow-sm">
-                                {tag}
-                              </span>
-                            ))}
+                          
+                          {/* タグの分類表示 */}
+                          {aiAnalysis.tagClassification && (
+                            <div className="space-y-3 mb-4">
+                              {Object.entries(aiAnalysis.tagClassification).map(([category, tags]: [string, any]) => (
+                                tags && tags.length > 0 && (
+                                  <div key={category} className="bg-white rounded-lg p-3 border border-blue-100">
+                                    <h4 className="text-xs font-medium text-blue-800 mb-2 uppercase tracking-wide">
+                                      {category === 'genre' ? 'ジャンル・分野' :
+                                       category === 'style' ? '文体・表現' :
+                                       category === 'audience' ? '対象読者' :
+                                       category === 'format' ? '記事形式' :
+                                       category === 'purpose' ? '機能・価値' :
+                                       category === 'technique' ? '技術・手法' :
+                                       category === 'quality' ? '品質・レベル' :
+                                       category === 'unique' ? '個別特徴' : category}
+                                    </h4>
+                                    <div className="flex flex-wrap gap-1">
+                                      {tags.map((tag: string, idx: number) => (
+                                        <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded border border-blue-200">
+                                          #{tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
+                              ))}
+                            </div>
+                          )}
+                          
+                          {/* 全タグ一覧 */}
+                          <div className="bg-white rounded-lg p-3 border border-blue-100">
+                            <h4 className="text-xs font-medium text-blue-800 mb-2 uppercase tracking-wide">
+                              全AI推奨タグ
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {aiAnalysis.tags.map((tag: string, index: number) => (
+                                <span key={index} className="px-3 py-2 bg-blue-100 text-blue-800 text-sm rounded-lg border border-blue-200 shadow-sm font-medium">
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
