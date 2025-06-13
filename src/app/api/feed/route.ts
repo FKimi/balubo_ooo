@@ -14,6 +14,33 @@ interface Profile {
   avatar_image_url?: string
 }
 
+interface FeedUser {
+  id: string
+  display_name: string
+  avatar_image_url?: string
+}
+
+interface FeedItem {
+  id: string
+  type: 'work' | 'input'
+  title: string
+  created_at: string
+  user: FeedUser
+  likes_count: number
+  comments_count: number
+  user_has_liked: boolean
+  // work specific
+  description?: string
+  external_url?: string
+  tags?: string[]
+  roles?: string[]
+  banner_image_url?: string
+  // input specific
+  author_creator?: string
+  rating?: number
+  cover_image_url?: string
+}
+
 interface Work {
   id: string
   user_id: string
@@ -139,7 +166,7 @@ async function processFeedRequest(request: NextRequest) {
   }
 
   const userIds = activeProfiles.map((p: Profile) => p.user_id)
-  const profileMap = new Map(
+  const profileMap = new Map<string, FeedUser>(
     activeProfiles.map((p: Profile) => [p.user_id, {
       id: p.user_id,
       display_name: p.display_name || 'ユーザー',
@@ -176,7 +203,7 @@ async function processFeedRequest(request: NextRequest) {
     const inputs = inputsResult.data || []
 
     // フィードアイテムを統合（いいね・コメント情報を実際のDBから取得）
-    const feedItems = []
+    const feedItems: FeedItem[] = []
 
     // 作品のいいね・コメント数を取得
     for (const work of works) {
@@ -208,21 +235,24 @@ async function processFeedRequest(request: NextRequest) {
         userHasLiked = !!userLike
       }
 
-      feedItems.push({
-        id: work.id,
-        type: 'work' as const,
-        title: work.title,
-        description: work.description,
-        external_url: work.external_url,
-        tags: work.tags,
-        roles: work.roles,
-        banner_image_url: work.banner_image_url,
-        created_at: work.created_at,
-        user: profileMap.get(work.user_id)!,
-        likes_count: likesCount || 0,
-        comments_count: commentsCount || 0,
-        user_has_liked: userHasLiked
-      })
+      const userProfile = profileMap.get(work.user_id)
+      if (userProfile) {
+        feedItems.push({
+          id: work.id,
+          type: 'work' as const,
+          title: work.title,
+          description: work.description,
+          external_url: work.external_url,
+          tags: work.tags,
+          roles: work.roles,
+          banner_image_url: work.banner_image_url,
+          created_at: work.created_at,
+          user: userProfile,
+          likes_count: likesCount || 0,
+          comments_count: commentsCount || 0,
+          user_has_liked: userHasLiked
+        })
+      }
     }
 
     // インプットのいいね・コメント数を取得
@@ -255,44 +285,44 @@ async function processFeedRequest(request: NextRequest) {
         userHasLiked = !!userLike
       }
 
-      feedItems.push({
-        id: input.id,
-        type: 'input' as const,
-        title: input.title,
-        author_creator: input.author_creator,
-        rating: input.rating,
-        tags: input.tags,
-        cover_image_url: input.cover_image_url,
-        created_at: input.created_at,
-        user: profileMap.get(input.user_id)!,
-        likes_count: likesCount || 0,
-        comments_count: commentsCount || 0,
-        user_has_liked: userHasLiked
-      })
+      const userProfile = profileMap.get(input.user_id)
+      if (userProfile) {
+        feedItems.push({
+          id: input.id,
+          type: 'input' as const,
+          title: input.title,
+          author_creator: input.author_creator,
+          rating: input.rating,
+          tags: input.tags,
+          cover_image_url: input.cover_image_url,
+          created_at: input.created_at,
+          user: userProfile,
+          likes_count: likesCount || 0,
+          comments_count: commentsCount || 0,
+          user_has_liked: userHasLiked
+        })
+      }
     }
 
     // 作成日時でソート
     feedItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-    // userが存在するアイテムのみをフィルタリング
-    const validFeedItems = feedItems.filter(item => item.user)
-
     const stats = {
-      total: validFeedItems.length,
-      works: validFeedItems.filter(item => item.type === 'work').length,
-      inputs: validFeedItems.filter(item => item.type === 'input').length,
-      unique_users: new Set(validFeedItems.map(item => item.user?.id).filter(Boolean)).size
+      total: feedItems.length,
+      works: feedItems.filter(item => item.type === 'work').length,
+      inputs: feedItems.filter(item => item.type === 'input').length,
+      unique_users: new Set(feedItems.map(item => item.user.id)).size
     }
 
     console.log('Feed API: フィードデータ取得成功', {
-      total: validFeedItems.length,
+      total: feedItems.length,
       stats
     })
 
     return NextResponse.json({
-      items: validFeedItems,
+      items: feedItems,
       stats,
-      total: validFeedItems.length,
+      total: feedItems.length,
       debug: { 
         message: 'フィード取得成功', 
         currentUserId: currentUserId ? 'あり' : 'なし',
