@@ -25,7 +25,7 @@ export function ShareModal({ isOpen, onClose, type, data, userDisplayName }: Sha
   // クリップボードにコピー
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(shareData.message)
+      await navigator.clipboard.writeText(shareData.text)
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000)
     } catch (error) {
@@ -93,7 +93,7 @@ export function ShareModal({ isOpen, onClose, type, data, userDisplayName }: Sha
                   {userDisplayName || 'あなた'}
                 </div>
                 <div className="text-gray-700 text-sm whitespace-pre-line leading-relaxed">
-                  {shareData.message}
+                  {shareData.text}
                 </div>
                 {shareData.url && (
                   <div className="mt-3 flex items-center gap-2 text-blue-600 text-sm">
