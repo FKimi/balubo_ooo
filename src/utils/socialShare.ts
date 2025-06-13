@@ -80,11 +80,16 @@ export function generateWorkShareMessage(work: WorkData, userDisplayName: string
     })
   }
 
-  return {
+  const result: ShareData = {
     text: message,
-    url: work.external_url || undefined,
     hashtags: hashtags.slice(0, 10) // 最大10個まで
   }
+
+  if (work.external_url) {
+    result.url = work.external_url
+  }
+
+  return result
 }
 
 // インプット共有用メッセージ生成
@@ -94,11 +99,10 @@ export function generateInputShareMessage(input: InputData, userDisplayName: str
     'movie': '映画',
     'anime': 'アニメ',
     'manga': '漫画',
+    'tv': 'TV番組',
     'game': 'ゲーム',
     'podcast': 'ポッドキャスト',
     'youtube': 'YouTube',
-    'article': '記事',
-    'course': '講座',
     'other': 'コンテンツ'
   }
 
@@ -155,11 +159,11 @@ export function generateInputShareMessage(input: InputData, userDisplayName: str
     case 'youtube':
       hashtags.push('YouTube', '動画学習')
       break
-    case 'article':
-      hashtags.push('記事', 'ニュース', '情報収集')
+    case 'tv':
+      hashtags.push('TV番組', 'テレビ', '視聴記録')
       break
-    case 'course':
-      hashtags.push('オンライン学習', '講座', 'スキルアップ')
+    case 'other':
+      hashtags.push('その他', 'コンテンツ')
       break
   }
 
@@ -177,11 +181,16 @@ export function generateInputShareMessage(input: InputData, userDisplayName: str
     hashtags.push(input.category)
   }
 
-  return {
+  const result: ShareData = {
     text: message,
-    url: input.url || undefined,
     hashtags: hashtags.slice(0, 10) // 最大10個まで
   }
+
+  if (input.externalUrl) {
+    result.url = input.externalUrl
+  }
+
+  return result
 }
 
 // X共有URL生成
