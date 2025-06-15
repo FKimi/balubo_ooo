@@ -322,7 +322,7 @@ export async function PUT(
     })
 
     // production_notesカラムが存在しない場合に備えて、まず基本フィールドのみで更新を試行
-    let updateData: any = {
+    const updateData: any = {
       title: title.trim(),
       description: description?.trim() || '',
       external_url: externalUrl?.trim() || '',

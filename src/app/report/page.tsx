@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ import { supabase } from '@/lib/supabase'
 import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
 
-export default function ReportPage() {
+function ReportContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const targetUserId = searchParams.get('userId') // URLパラメータからuserIdを取得
@@ -618,5 +618,22 @@ export default function ReportPage() {
 
       <MobileBottomNavigation />
     </div>
+  )
+}
+
+export default function ReportPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-base-light-gray">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue mx-auto mb-4"></div>
+            <p className="text-gray-600">レポートを読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ReportContent />
+    </Suspense>
   )
 } 
