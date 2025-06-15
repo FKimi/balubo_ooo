@@ -63,6 +63,7 @@ export default function EditWorkPage() {
     description: '',
     externalUrl: '',
     productionDate: '',
+    productionNotes: '',
     tags: [] as string[],
     roles: [] as string[],
     categories: [] as string[],
@@ -150,30 +151,39 @@ export default function EditWorkPage() {
         const data = await response.json()
 
         if (response.ok) {
+          // データ構造を統一
+          const workData = {
+            ...data.work,
+            externalUrl: data.work.external_url || data.work.externalUrl,
+            productionDate: data.work.production_date || data.work.productionDate,
+            previewData: data.work.previewData || data.work.preview_data,
+          }
+          
           setFormData({
-            title: data.work.title || '',
-            description: data.work.description || '',
-            externalUrl: data.work.externalUrl || '',
-            productionDate: data.work.productionDate || '',
-            tags: data.work.tags || [],
-            roles: data.work.roles || [],
-            categories: data.work.categories || [],
-            contentType: data.work.contentType || data.work.content_type || ''
+            title: workData.title || '',
+            description: workData.description || '',
+            externalUrl: workData.externalUrl || '',
+            productionDate: workData.productionDate || '',
+            productionNotes: workData.production_notes || '',
+            tags: workData.tags || [],
+            roles: workData.roles || [],
+            categories: workData.categories || [],
+            contentType: workData.contentType || workData.content_type || ''
           })
 
           // プレビューデータを設定
-          if (data.work.previewData || data.work.preview_data) {
-            setPreviewData(data.work.previewData || data.work.preview_data)
+          if (workData.previewData) {
+            setPreviewData(workData.previewData)
           }
 
           // AI分析データを設定
-          if (data.work.ai_analysis_result) {
-            setAnalysisResult(data.work.ai_analysis_result)
+          if (workData.ai_analysis_result) {
+            setAnalysisResult(workData.ai_analysis_result)
           }
 
           // URLがある場合はプレビューを取得
-          if (data.work.externalUrl && !data.work.previewData && !data.work.preview_data) {
-            fetchLinkPreview(data.work.externalUrl)
+          if (workData.externalUrl && !workData.previewData) {
+            fetchLinkPreview(workData.externalUrl)
           }
         } else {
           alert('作品データの取得に失敗しました')
@@ -413,24 +423,56 @@ export default function EditWorkPage() {
       const headers = await getAuthHeaders()
 
       // APIに送信
+      console.log('送信データ:', {
+        ...formData,
+        contentType: formData.contentType,
+        productionNotes: formData.productionNotes,
+        previewData: previewData,
+        aiAnalysisResult: analysisResult
+      })
+
       const response = await fetch(`/api/works/${workId}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({
           ...formData,
           contentType: formData.contentType,
+          productionNotes: formData.productionNotes,
+          previewData: previewData,
           aiAnalysisResult: analysisResult
         }),
       })
 
-      const data = await response.json()
+      console.log('レスポンス状態:', response.status, response.statusText)
 
-      if (!response.ok) {
-        throw new Error(data.error || '更新に失敗しました')
+      let data
+      try {
+        data = await response.json()
+        console.log('レスポンスデータ:', data)
+      } catch (parseError) {
+        console.error('JSONパースエラー:', parseError)
+        throw new Error(`サーバーエラー: ${response.status} ${response.statusText}`)
       }
 
-      alert('作品を更新しました！')
-      
+      if (!response.ok) {
+        console.error('APIエラー詳細:', data)
+        
+        // エラーの詳細情報を含めたメッセージを作成
+        let errorMessage = data.error || data.message || `更新に失敗しました (${response.status})`
+        
+        if (data.details) {
+          console.error('エラー詳細:', data.details)
+          errorMessage += `\n詳細: ${data.details}`
+        }
+        
+        if (data.code) {
+          console.error('エラーコード:', data.code)
+          errorMessage += `\nエラーコード: ${data.code}`
+        }
+        
+        throw new Error(errorMessage)
+      }
+
       // プロフィール画面にリダイレクト
       router.push('/profile')
       
@@ -521,6 +563,38 @@ export default function EditWorkPage() {
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   className="min-h-[120px] resize-none"
                 />
+              </div>
+
+              {/* 制作メモ */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="text-2xl">📝</span>
+                  制作メモ
+                </h2>
+                <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600 text-sm">💡</span>
+                    <div>
+                      <p className="text-amber-800 text-sm font-medium">制作メモについて</p>
+                      <p className="text-amber-700 text-xs leading-relaxed mt-1">
+                        制作過程、作品の背景、狙い、こだわりポイントなどを記録できます。
+                        <br />
+                        クライアントや閲覧者に制作意図を伝える際に活用されます。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Textarea
+                  placeholder="制作過程や背景、狙い、こだわりなどを記入してください...&#10;&#10;例：&#10;• この記事では○○の課題に焦点を当て、実体験を交えて解決策を提示しました&#10;• 読者が最後まで読み進められるよう、見出し構成に特に配慮しました&#10;• 専門用語は分かりやすい表現に置き換え、初心者でも理解できるよう工夫しました"
+                  value={formData.productionNotes}
+                  onChange={(e) => handleInputChange('productionNotes', e.target.value)}
+                  className="min-h-[150px] resize-y"
+                />
+                {formData.productionNotes && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    文字数: {formData.productionNotes.length}文字
+                  </div>
+                )}
               </div>
 
               {/* 記事本文（記事タイプの場合のみ表示） */}
@@ -841,6 +915,44 @@ export default function EditWorkPage() {
               )}
             </div>
           </div>
+
+          {/* 保存ボタン */}
+          <div className="mt-8 flex justify-end space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => router.back()}
+              disabled={isSaving}
+            >
+              キャンセル
+            </Button>
+            <Button 
+              onClick={handleSubmit}
+              disabled={!formData.title.trim() || formData.roles.length === 0 || isSaving}
+              className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isSaving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  更新中...
+                </>
+              ) : (
+                '作品を更新'
+              )}
+            </Button>
+          </div>
+
+          {/* エラー表示 */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-800 font-medium">エラーが発生しました</p>
+              </div>
+              <p className="text-red-700 text-sm mt-1">{error}</p>
+            </div>
+          )}
         </div>
       </div>
     </ProtectedRoute>

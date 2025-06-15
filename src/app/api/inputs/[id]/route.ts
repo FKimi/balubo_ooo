@@ -8,38 +8,66 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log('個別インプット取得APIが呼び出されました:', params.id)
+    console.log('=== インプット詳細取得API開始 ===')
+    console.log('インプットID:', params.id)
     
-    // 認証確認
+    // 認証確認（オプション）
     const authHeader = request.headers.get('authorization')
+    let userId: string | null = null
+    let token: string | null = null
+    
     console.log('Authorization ヘッダー:', !!authHeader)
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: '認証が必要です' },
-        { status: 401 }
-      )
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        token = authHeader.substring(7)
+        console.log('認証トークンを確認中...')
+        const decodedToken = await verifyFirebaseToken(token)
+        userId = decodedToken.uid
+        console.log('認証成功、ユーザーID:', userId)
+      } catch (authError) {
+        console.log('認証エラー（続行）:', authError)
+      }
+    } else {
+      console.log('認証なしでアクセス')
     }
-    
-    const token = authHeader.substring(7)
-    console.log('認証トークンを確認中...')
-    
-    const decodedToken = await verifyFirebaseToken(token)
-    const userId = decodedToken.uid
-    console.log('認証成功、ユーザーID:', userId)
     
     // インプット取得
     console.log('DatabaseClientでインプットを取得中...')
-    const input = await DatabaseClient.getInput(params.id, userId, token)
+    const input = await DatabaseClient.getInputWithUser(params.id, userId, token)
     
     if (!input) {
+      console.log('インプットが見つかりません:', params.id)
       return NextResponse.json(
         { error: 'インプットが見つかりません' },
         { status: 404 }
       )
     }
     
-    console.log('インプット取得成功:', input.id)
+    console.log('インプット取得成功:', {
+      id: input.id,
+      title: input.title,
+      user_id: input.user_id,
+      hasUser: !!input.user
+    })
+    
+    // 他のユーザーのプライベートインプットの場合はアクセス拒否
+    // 注意: is_privateフィールドが実装されていない場合は、すべて公開として扱う
+    /*
+    if (input.user_id !== userId && input.is_private) {
+      console.log('プライベートインプットへのアクセス拒否:', {
+        inputUserId: input.user_id,
+        currentUserId: userId,
+        isPrivate: input.is_private
+      })
+      return NextResponse.json(
+        { error: 'このインプットを閲覧する権限がありません' },
+        { status: 403 }
+      )
+    }
+    */
+    
+    console.log('=== インプット詳細取得API成功 ===')
     
     return NextResponse.json({
       success: true,
@@ -47,7 +75,13 @@ export async function GET(
     })
     
   } catch (error) {
-    console.error('個別インプット取得エラー:', error)
+    console.error('=== インプット詳細取得API エラー ===')
+    console.error('エラー詳細:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      inputId: params.id
+    })
+    
     return NextResponse.json(
       { 
         error: 'インプットの取得に失敗しました',

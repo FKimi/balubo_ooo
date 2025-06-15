@@ -47,6 +47,7 @@ function NewWorkForm() {
     description: '',
     externalUrl: '',
     productionDate: '',
+    productionNotes: '',
     tags: [] as string[],
     roles: [] as string[]
   })
@@ -818,6 +819,38 @@ function NewWorkForm() {
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 className="min-h-[120px] resize-none"
               />
+            </div>
+
+            {/* 制作メモ */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="text-2xl">📝</span>
+                制作メモ
+              </h2>
+              <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <span className="text-amber-600 text-sm">💡</span>
+                  <div>
+                    <p className="text-amber-800 text-sm font-medium">制作メモについて</p>
+                    <p className="text-amber-700 text-xs leading-relaxed mt-1">
+                      制作過程、作品の背景、狙い、こだわりポイントなどを記録できます。
+                      <br />
+                      クライアントや閲覧者に制作意図を伝える際に活用されます。
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <Textarea
+                placeholder="制作過程や背景、狙い、こだわりなどを記入してください...&#10;&#10;例：&#10;• この記事では○○の課題に焦点を当て、実体験を交えて解決策を提示しました&#10;• 読者が最後まで読み進められるよう、見出し構成に特に配慮しました&#10;• 専門用語は分かりやすい表現に置き換え、初心者でも理解できるよう工夫しました"
+                value={formData.productionNotes}
+                onChange={(e) => handleInputChange('productionNotes', e.target.value)}
+                className="min-h-[150px] resize-y"
+              />
+              {formData.productionNotes && (
+                <div className="mt-2 text-sm text-gray-600">
+                  文字数: {formData.productionNotes.length}文字
+                </div>
+              )}
             </div>
 
             {/* 記事本文（記事タイプの場合のみ表示） */}

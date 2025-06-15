@@ -170,4 +170,87 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// プロフィール部分更新 (PUT)
+export async function PUT(request: NextRequest) {
+  try {
+    // 認証ヘッダーからユーザー情報を取得
+    const authHeader = request.headers.get('authorization')
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.split(' ')[1]
+    
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+      
+      if (userError || !user) {
+        return NextResponse.json(
+          { error: '認証に失敗しました' },
+          { status: 401 }
+        )
+      }
+
+      // リクエストボディを取得
+      const updateData = await request.json()
+      console.log('PUT リクエストデータ:', updateData)
+
+      // 現在のプロフィールデータを取得
+      const currentProfile = await DatabaseClient.getProfile(user.id, token)
+      
+      // 部分更新用のデータを準備
+      const updatedProfileData = {
+        ...currentProfile,
+        ...updateData,
+        // userIdは更新対象から除外
+        userId: undefined
+      }
+
+      // DatabaseClientを使用してプロフィールデータを更新
+      const result = await DatabaseClient.saveProfile(user.id, updatedProfileData, token)
+
+      return NextResponse.json({
+        success: true,
+        profile: result,
+        message: 'プロフィールを更新しました'
+      })
+
+    } catch (authError) {
+      console.error('PUT認証エラー:', authError)
+      
+      // RLSエラーかどうかを判定
+      if ((authError as any)?.code === '42501') {
+        return NextResponse.json({
+          error: 'データベース権限エラーが発生しました',
+          details: 'プロフィールテーブルのRLSポリシー設定に問題があります'
+        }, { status: 403 })
+      }
+      
+      return NextResponse.json(
+        { error: '認証処理でエラーが発生しました' },
+        { status: 401 }
+      )
+    }
+
+  } catch (error) {
+    console.error('プロフィール更新エラー:', error)
+    
+    // RLSエラーかどうかを判定
+    if ((error as any)?.code === '42501') {
+      return NextResponse.json({
+        error: 'データベース権限エラーが発生しました'
+      }, { status: 403 })
+    }
+    
+    return NextResponse.json(
+      { error: 'プロフィールデータの更新に失敗しました' },
+      { status: 500 }
+    )
+  }
 } 

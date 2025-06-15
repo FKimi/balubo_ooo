@@ -268,8 +268,10 @@ export class DatabaseClient {
       const supabase = this.createAuthenticatedClient(token)
       const { data, error } = await supabase
         .from('works')
-        .select('*')
+        .select('*, is_featured, featured_order')
         .eq('user_id', userId)
+        .order('is_featured', { ascending: false })
+        .order('featured_order', { ascending: true })
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -520,6 +522,64 @@ export class DatabaseClient {
       return data
     } catch (error) {
       console.error('DatabaseClient: インプット取得エラー:', error)
+      throw error
+    }
+  }
+
+  static async getInputWithUser(inputId: string, currentUserId?: string | null, token?: string | null) {
+    try {
+      console.log('DatabaseClient: ユーザー情報付きインプット取得中...', inputId)
+      
+      const supabase = this.createAuthenticatedClient(token || undefined)
+      
+      // まずインプットを取得
+      const { data: inputData, error: inputError } = await supabase
+        .from('inputs')
+        .select('*')
+        .eq('id', inputId)
+        .single()
+
+      if (inputError) {
+        if (inputError.code === 'PGRST116') {
+          console.log('DatabaseClient: インプットが見つかりません')
+          return null
+        }
+        console.error('DatabaseClient: インプット取得エラー:', inputError)
+        throw inputError
+      }
+
+      // ユーザー情報を取得
+      let userData = null
+      if (inputData.user_id) {
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, avatar_image_url')
+            .eq('user_id', inputData.user_id)
+            .single()
+
+          if (!profileError && profileData) {
+            userData = {
+              id: profileData.user_id,
+              display_name: profileData.display_name,
+              avatar_image_url: profileData.avatar_image_url
+            }
+          }
+        } catch (profileError) {
+          console.warn('DatabaseClient: ユーザー情報取得エラー（続行）:', profileError)
+        }
+      }
+
+      // 結果を整形
+      const result = {
+        ...inputData,
+        user: userData
+      }
+
+      console.log('DatabaseClient: ユーザー情報付きインプット取得成功')
+      return result
+    } catch (error) {
+      console.error('DatabaseClient: ユーザー情報付きインプット取得エラー:', error)
       throw error
     }
   }

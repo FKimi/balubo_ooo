@@ -1,6 +1,8 @@
 'use client'
 
 import FollowButton from './FollowButton'
+import MessageButton from './MessageButton'
+import { FollowStats } from './FollowStats'
 
 interface PublicProfileHeaderProps {
   userId: string
@@ -30,27 +32,47 @@ export function PublicProfileHeader({
   professions
 }: PublicProfileHeaderProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-      {/* 背景画像 */}
-      <div className="relative h-32 sm:h-48 md:h-56">
+    <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl mb-6 sm:mb-8">
+      {/* 背景画像またはグラデーション */}
+      <div className="relative h-32 sm:h-40 md:h-48 lg:h-56">
         {hasCustomBackground ? (
-          <img 
-            src={backgroundImageUrl} 
-            alt="背景画像" 
-            className="w-full h-full object-cover"
-          />
+          <div className="absolute inset-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={backgroundImageUrl} 
+              alt="プロフィール背景画像" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+          </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
-            {/* 装飾的な要素 */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent"></div>
-            <div className="absolute top-4 right-4 w-12 h-12 bg-white/20 rounded-full"></div>
-            <div className="absolute top-8 right-16 w-6 h-6 bg-white/15 rounded-full"></div>
-            <div className="absolute bottom-4 left-4 w-8 h-8 bg-white/10 rounded-full"></div>
-            <div className="absolute bottom-8 left-16 w-4 h-4 bg-white/20 rounded-full"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 overflow-hidden">
+            {/* 装飾的なパターン */}
+            <div className="absolute inset-0">
+              <div className="absolute top-4 sm:top-8 left-4 sm:left-8 w-12 sm:w-20 h-12 sm:h-20 bg-white/10 rounded-full"></div>
+              <div className="absolute top-8 sm:top-16 right-8 sm:right-16 w-8 sm:w-12 h-8 sm:h-12 bg-white/8 rounded-full"></div>
+              <div className="absolute bottom-6 sm:bottom-12 left-1/4 w-10 sm:w-16 h-10 sm:h-16 bg-white/5 rounded-full"></div>
+              <div className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-6 sm:w-8 h-6 sm:h-8 bg-white/12 rounded-full"></div>
+            </div>
+            
+            {/* 新規ユーザー向けメッセージ */}
+            {isProfileEmpty && (
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="text-center text-white/90 max-w-md">
+                  <svg className="w-8 sm:w-12 h-8 sm:h-12 mx-auto mb-2 sm:mb-3 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">素敵なポートフォリオです</h3>
+                  <p className="text-xs sm:text-sm text-white/80">クリエイターの個性が表現されています</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
+      
+      {/* プロフィール情報コンテンツ */}
       <div className="relative bg-white px-4 sm:px-6 md:px-8 pt-12 sm:pt-16 pb-4 sm:pb-6">
         {/* プロフィール画像 - 背景画像に重ねて配置 */}
         <div className="absolute -top-10 sm:-top-16 left-4 sm:left-6 md:left-8">
@@ -89,13 +111,23 @@ export function PublicProfileHeader({
           </div>
         </div>
 
+        {/* フォローボタンとメッセージボタン - 右上に配置 */}
+        <div className="absolute -top-8 sm:-top-12 right-4 sm:right-6 md:right-8 flex gap-2">
+          <MessageButton targetUserId={userId} />
+          <FollowButton targetUserId={userId} />
+        </div>
+
         {/* プロフィール詳細 */}
-        <div className="space-y-3 sm:space-y-4">
-          {/* 名前と職種、フォローボタン */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 break-words">
-                {displayName}
+        <div className="mt-2 sm:mt-4">
+          <div className="flex flex-col md:flex-row md:items-start justify-between mb-3 sm:mb-4">
+            {/* 名前とメール */}
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                {displayName === 'ユーザー' ? (
+                  <span className="text-gray-500">表示名を設定してください</span>
+                ) : (
+                  displayName
+                )}
               </h1>
               {professions && professions.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -110,29 +142,61 @@ export function PublicProfileHeader({
                 </div>
               )}
             </div>
-            
-            {/* フォローボタン */}
-            <div className="flex-shrink-0 sm:mt-2">
-                          <FollowButton 
-              targetUserId={userId}
-            />
-            </div>
           </div>
 
           {/* 自己紹介 */}
-          {bio ? (
-            <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {bio}
-            </p>
-          ) : (
-            !isProfileEmpty && (
-              <p className="text-sm sm:text-base text-gray-500 italic">
-                まだ自己紹介が設定されていません。
-              </p>
-            )
-          )}
+          <div className="mb-4 sm:mb-6">
+            {bio ? (
+              <div>
+                <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-4">
+                  {bio}
+                </p>
+                {/* 詳細レポートボタン */}
+                <div className="flex justify-end">
+                  <a 
+                    href={`/report?userId=${userId}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    詳細レポートを見る
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                  <svg className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span className="text-blue-900 font-medium text-xs sm:text-sm">素敵な自己紹介ですね</span>
+                </div>
+                <p className="text-blue-700 text-xs sm:text-sm leading-relaxed mb-3">
+                  このクリエイターはまだ自己紹介を設定していませんが、作品を通じて魅力を表現しています。
+                </p>
+                {/* 詳細レポートボタン */}
+                <div className="flex justify-end">
+                  <a 
+                    href={`/report?userId=${userId}`}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    詳細レポートを見る
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
 
-          {/* 所在地・ウェブサイト */}
+          {/* フォロー統計 */}
+          <div className="mb-4 sm:mb-6">
+            <FollowStats userId={userId} />
+          </div>
+
+          {/* 詳細情報 */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
             {location && (
               <div className="flex items-center gap-1 sm:gap-2">

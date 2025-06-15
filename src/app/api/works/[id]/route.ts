@@ -13,6 +13,7 @@ interface WorkData {
   roles: string[]
   banner_image_url?: string
   preview_data?: any
+  production_notes?: string
   created_at: string
   updated_at: string
 }
@@ -108,7 +109,12 @@ export async function GET(
     console.log('Attempting to fetch work with ID:', id)
     const { data: work, error } = await supabaseWithAuth
       .from('works')
-      .select('*')
+      .select(`
+        *,
+        production_notes,
+        is_featured,
+        featured_order
+      `)
       .eq('id', id)
       .single()
     
@@ -184,7 +190,7 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const { title, description, externalUrl, tags, roles, categories, productionDate, previewData, aiAnalysisResult } = body
+    const { title, description, externalUrl, tags, roles, categories, productionDate, previewData, aiAnalysisResult, productionNotes } = body
 
     // バリデーション
     if (!title || !title.trim()) {
@@ -237,6 +243,7 @@ export async function PUT(
             roles: roles || [],
             categories: categories || [],
             productionDate: productionDate || '',
+            productionNotes: productionNotes?.trim() || '',
             previewData: previewData || null,
             aiAnalysisResult: aiAnalysisResult || null,
             updatedAt: new Date().toISOString()
@@ -270,29 +277,145 @@ export async function PUT(
       )
     }
 
+    // 認証トークンを取得してSupabaseクライアントを作成
+    const token = authHeader.replace('Bearer ', '')
+    const supabaseWithAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    )
+
+    // 現在のユーザーを取得
+    const { data: { user }, error: userError } = await supabaseWithAuth.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
     // Supabaseで作品を更新
-    const { data: work, error } = await supabase
+    console.log('Supabase更新データ:', {
+      title: title.trim(),
+      description: description?.trim() || '',
+      external_url: externalUrl?.trim() || '',
+      tags: tags || [],
+      roles: roles || [],
+      categories: categories || [],
+      production_date: productionDate || null,
+      production_notes: productionNotes?.trim() || null,
+      banner_image_url: previewData?.image || null,
+      preview_data: previewData || null,
+      ai_analysis_result: aiAnalysisResult || null
+    })
+
+    // production_notesカラムが存在しない場合に備えて、まず基本フィールドのみで更新を試行
+    let updateData: any = {
+      title: title.trim(),
+      description: description?.trim() || '',
+      external_url: externalUrl?.trim() || '',
+      tags: tags || [],
+      roles: roles || [],
+      categories: categories || [],
+      production_date: productionDate || null,
+      banner_image_url: previewData?.image || null,
+      preview_data: previewData || null,
+      ai_analysis_result: aiAnalysisResult || null
+    }
+
+    // production_notesが提供されている場合のみ追加
+    if (productionNotes !== undefined) {
+      updateData.production_notes = productionNotes?.trim() || null
+    }
+
+    const { data: work, error } = await supabaseWithAuth
       .from('works')
-      .update({
-        title: title.trim(),
-        description: description?.trim() || '',
-        external_url: externalUrl?.trim() || '',
-        tags: tags || [],
-        roles: roles || [],
-        categories: categories || [],
-        production_date: productionDate || null,
-        banner_image_url: previewData?.image || null,
-        preview_data: previewData || null,
-        ai_analysis_result: aiAnalysisResult || null
-      })
+      .update(updateData)
       .eq('id', id)
+      .eq('user_id', user.id)  // ユーザーIDでフィルタリング
       .select()
       .single()
 
     if (error || !work) {
-      console.error('Supabase error:', error)
+      console.error('Supabase error詳細:', {
+        error,
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint
+      })
+
+      // production_notesカラムが存在しない場合の再試行
+      if (error?.code === '42703' || error?.message?.includes('production_notes')) {
+        console.log('production_notesカラムが存在しないため、除外して再試行します')
+        
+        const retryUpdateData = {
+          title: title.trim(),
+          description: description?.trim() || '',
+          external_url: externalUrl?.trim() || '',
+          tags: tags || [],
+          roles: roles || [],
+          categories: categories || [],
+          production_date: productionDate || null,
+          banner_image_url: previewData?.image || null,
+          preview_data: previewData || null,
+          ai_analysis_result: aiAnalysisResult || null
+        }
+
+        const { data: retryWork, error: retryError } = await supabaseWithAuth
+          .from('works')
+          .update(retryUpdateData)
+          .eq('id', id)
+          .eq('user_id', user.id)  // ユーザーIDでフィルタリング
+          .select()
+          .single()
+
+        if (retryError || !retryWork) {
+          console.error('再試行でもエラー:', retryError)
+          return NextResponse.json(
+            { 
+              error: '作品の更新に失敗しました',
+              details: retryError?.message || 'Unknown error',
+              code: retryError?.code
+            },
+            { 
+              status: 500,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        }
+
+        return NextResponse.json({
+          success: true,
+          work: retryWork,
+          message: '作品を更新しました（制作メモは保存されませんでした）'
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+      }
+
       return NextResponse.json(
-        { error: '作品の更新に失敗しました' },
+        { 
+          error: '作品の更新に失敗しました',
+          details: error?.message || 'Unknown error',
+          code: error?.code
+        },
         { 
           status: 500,
           headers: {
@@ -314,8 +437,22 @@ export async function PUT(
 
   } catch (error) {
     console.error('作品更新エラー:', error)
+    
+    // エラーの詳細情報を含める
+    let errorMessage = '作品の更新に失敗しました'
+    let errorDetails = null
+    
+    if (error instanceof Error) {
+      errorMessage = error.message
+      errorDetails = error.stack
+    }
+    
     return NextResponse.json(
-      { error: '作品の更新に失敗しました' },
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        timestamp: new Date().toISOString()
+      },
       { 
         status: 500,
         headers: {

@@ -197,6 +197,7 @@ export async function POST(request: NextRequest) {
       categories: workData.categories || [],
       content_type: workData.contentType || '', // フロントエンドのcontentTypeを変換
       production_date: productionDate,
+      production_notes: workData.productionNotes || null, // 制作メモを追加
       banner_image_url: workData.bannerImageUrl || '', // フロントエンドのbannerImageUrlを変換
       preview_data: workData.previewData || null, // フロントエンドのpreviewDataを変換
       ai_analysis_result: workData.aiAnalysisResult || null, // フロントエンドのaiAnalysisResultを変換

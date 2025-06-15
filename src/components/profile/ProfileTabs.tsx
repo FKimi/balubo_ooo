@@ -12,6 +12,7 @@ import { useWorkCategories } from '@/hooks/useWorkCategories'
 import { CategoryDropZone } from '@/components/work/CategoryDropZone'
 import { WorkCard } from '@/components/work/WorkCard'
 import { ContentTypeSelector } from '@/components/works/ContentTypeSelector'
+import { FeaturedWorksSection } from '@/components/work/FeaturedWorksSection'
 import {
   DndContext,
   closestCenter,
@@ -1080,15 +1081,25 @@ export function ProfileTabs({
             </div>
 
             {savedWorks.length > 0 ? (
-              <WorksWithCategoryTabs
-                savedWorks={savedWorks}
-                categories={categories}
-                addCategory={addCategory}
-                updateCategory={updateCategory}
-                deleteCategory={deleteCategory}
-                deleteWork={deleteWork}
-                updateWorkCategory={updateWorkCategory}
-              />
+              <div>
+                {/* 代表作セクション */}
+                <FeaturedWorksSection
+                  savedWorks={savedWorks}
+                  setSavedWorks={setSavedWorks}
+                  deleteWork={deleteWork}
+                />
+                
+                {/* 通常の作品一覧 */}
+                <WorksWithCategoryTabs
+                  savedWorks={savedWorks}
+                  categories={categories}
+                  addCategory={addCategory}
+                  updateCategory={updateCategory}
+                  deleteCategory={deleteCategory}
+                  deleteWork={deleteWork}
+                  updateWorkCategory={updateWorkCategory}
+                />
+              </div>
             ) : (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🎨</div>

@@ -25,6 +25,7 @@ interface WorkData {
   preview_data?: any
   banner_image_url?: string
   ai_analysis_result?: any
+  production_notes?: string
   createdAt: string
   updatedAt: string
 }
@@ -58,19 +59,31 @@ export default function WorkDetailPage() {
         const data = await response.json()
 
         if (response.ok) {
+          // データ構造を統一（APIから返されるデータをフロントエンド用に変換）
+          const workData = {
+            ...data.work,
+            // external_url -> externalUrl への変換
+            externalUrl: data.work.external_url || data.work.externalUrl,
+            // preview_data -> previewData への変換（既存のpreviewDataがない場合）
+            previewData: data.work.previewData || data.work.preview_data,
+            // production_date -> productionDate への変換
+            productionDate: data.work.production_date || data.work.productionDate,
+          }
+          
           console.log('Work detail data received:', {
-            id: data.work.id,
-            title: data.work.title,
-            user_id: data.work.user_id,
-            externalUrl: data.work.externalUrl,
-            banner_image_url: data.work.banner_image_url,
-            hasPreviewData: !!data.work.previewData,
-            hasPreview_data: !!data.work.preview_data,
-            previewDataImage: data.work.previewData?.image,
-            preview_dataImage: data.work.preview_data?.image,
-            hasAiAnalysis: !!data.work.ai_analysis_result
+            id: workData.id,
+            title: workData.title,
+            user_id: workData.user_id,
+            externalUrl: workData.externalUrl,
+            banner_image_url: workData.banner_image_url,
+            hasPreviewData: !!workData.previewData,
+            hasPreview_data: !!workData.preview_data,
+            previewDataImage: workData.previewData?.image,
+            preview_dataImage: workData.preview_data?.image,
+            hasAiAnalysis: !!workData.ai_analysis_result,
+            hasProductionNotes: !!workData.production_notes
           })
-          setWork(data.work)
+          setWork(workData)
         } else {
           console.error('API Error:', data.error)
           setError(data.error || '作品データの取得に失敗しました')
@@ -246,6 +259,26 @@ export default function WorkDetailPage() {
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
                       <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
                         {work.description}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 制作メモ */}
+                {work.production_notes && (
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
+                      <span className="text-3xl">📝</span>
+                      制作メモ
+                    </h2>
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+                      <div className="mb-3">
+                        <span className="text-sm text-amber-700 font-medium bg-amber-100 px-3 py-1 rounded-full">
+                          制作過程・背景・こだわり
+                        </span>
+                      </div>
+                      <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
+                        {work.production_notes}
                       </p>
                     </div>
                   </div>

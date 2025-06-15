@@ -9,6 +9,9 @@ export interface WorkData {
   categories: string[]
   production_date?: string
   banner_image_url?: string
+  production_notes?: string  // 制作メモ: 制作過程、作品の背景、狙い、こだわりなど
+  is_featured?: boolean      // 代表作フラグ
+  featured_order?: number    // 代表作の表示順序
   // 記事統計フィールド
   content_type?: string
   article_word_count?: number

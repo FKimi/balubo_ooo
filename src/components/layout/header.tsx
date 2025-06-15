@@ -49,6 +49,7 @@ export function Header() {
             </svg>
             <span className="font-medium">ポートフォリオ</span>
           </Link>
+
           <Link 
             href="/report" 
             className="flex items-center space-x-2 px-3 py-2 rounded-lg text-text-secondary hover:text-accent-dark-blue hover:bg-ui-background-gray/50 transition-all duration-200 group"
@@ -116,6 +117,16 @@ export function Header() {
                   </svg>
                   <span className="font-medium">プロフィール</span>
                 </Link>
+                <Link 
+                  href="/messages" 
+                  className="flex items-center space-x-3 px-4 py-3 text-sm text-text-secondary hover:bg-ui-background-gray/70 hover:text-text-primary transition-colors duration-150 group"
+                  onClick={() => setShowProfileMenu(false)}
+                >
+                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
+                  </svg>
+                  <span className="font-medium">メッセージ</span>
+                </Link>
                 <hr className="my-1 border-border-color/50" />
                 <button
                   onClick={handleSignOut}
@@ -159,11 +170,11 @@ export function MobileBottomNavigation() {
           <span className="text-xs font-medium">作品</span>
         </Link>
 
-        <Link href="/report" className="flex flex-col items-center py-2 px-3 text-text-secondary hover:text-accent-dark-blue transition-all duration-200 group">
+        <Link href="/messages" className="flex flex-col items-center py-2 px-3 text-text-secondary hover:text-accent-dark-blue transition-all duration-200 group">
           <svg className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
           </svg>
-          <span className="text-xs font-medium">レポート</span>
+          <span className="text-xs font-medium">メッセージ</span>
         </Link>
       </div>
     </nav>

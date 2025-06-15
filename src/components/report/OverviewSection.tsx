@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { SimpleProgress } from './SimpleProgress'
 import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
 
@@ -16,16 +15,11 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
   const articleWorks = works.filter(work => work.content_type === 'article')
   const totalArticleWordCount = articleWorks.reduce((sum, work) => sum + (work.article_word_count || 0), 0)
   
-  // 本文付き記事の割合
-  const articlesWithContent = articleWorks.filter(work => work.article_has_content).length
-  const articleContentRate = articleWorks.length > 0 ? (articlesWithContent / articleWorks.length) * 100 : 0
-  
-  // インプット評価統計
+  // インプット統計
   const inputsWithRating = inputs.filter(input => input.rating && input.rating > 0)
   const averageInputRating = inputsWithRating.length > 0 
     ? inputsWithRating.reduce((sum, input) => sum + (input.rating || 0), 0) / inputsWithRating.length 
     : 0
-  const ratedInputsRate = inputs.length > 0 ? (inputsWithRating.length / inputs.length) * 100 : 0
 
   const hasInputs = inputs.length > 0
 
@@ -40,30 +34,7 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
     return '新進クリエイター'
   }
 
-  // 品質スコアの計算
-  const qualityScore = () => {
-    let score = 0
-    if (articleContentRate >= 80) score += 25
-    else if (articleContentRate >= 60) score += 20
-    else if (articleContentRate >= 40) score += 15
-    
-    if (averageInputRating >= 4.0) score += 25
-    else if (averageInputRating >= 3.5) score += 20
-    else if (averageInputRating >= 3.0) score += 15
-    
-    if (workStats.roleDistribution.length >= 3) score += 25
-    else if (workStats.roleDistribution.length >= 2) score += 20
-    else score += 10
-    
-    if (works.length >= 10) score += 25
-    else if (works.length >= 5) score += 20
-    else if (works.length >= 3) score += 15
-    
-    return Math.min(score, 100)
-  }
-
   const expertise = getExpertiseLevel()
-  const quality = qualityScore()
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -79,8 +50,8 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold">{quality}</div>
-                <div className="text-sm text-blue-100">品質スコア</div>
+                <div className="text-2xl font-bold">{workStats.roleDistribution.length}</div>
+                <div className="text-sm text-blue-100">対応可能役割</div>
               </div>
             </div>
           </CardContent>
@@ -180,12 +151,6 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900 text-sm sm:text-base">🚀 期待できる成果</h4>
                 <ul className="space-y-2 text-sm text-gray-700">
-                  {articleContentRate >= 80 && (
-                    <li className="flex items-start space-x-2">
-                      <span className="text-blue-500 mt-1">•</span>
-                      <span>高品質なコンテンツ制作（品質率{articleContentRate.toFixed(0)}%）</span>
-                    </li>
-                  )}
                   {avgWordCount >= 2000 && (
                     <li className="flex items-start space-x-2">
                       <span className="text-green-500 mt-1">•</span>
@@ -204,6 +169,10 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
                       <span>継続的な学習による品質向上</span>
                     </li>
                   )}
+                  <li className="flex items-start space-x-2">
+                    <span className="text-blue-500 mt-1">•</span>
+                    <span>安定した品質でのコンテンツ制作</span>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -211,60 +180,15 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
         </Card>
       )}
 
-      {/* 活動分析 */}
+      {/* 実績サマリー */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
             <span>📊</span>
-            <span>活動分析</span>
+            <span>実績サマリー</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6">
-          <div className={`grid gap-4 sm:gap-6 ${hasInputs ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
-            {/* コンテンツ品質分析 */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">記事コンテンツ品質</h4>
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs sm:text-sm text-gray-600">本文付き記事率</span>
-                    <span className="text-xs sm:text-sm font-medium">{articleContentRate.toFixed(1)}%</span>
-                  </div>
-                  <SimpleProgress value={articleContentRate} />
-                </div>
-                {articleWorks.length > 0 && (
-                  <div className="text-xs text-gray-500">
-                    記事作品 {articleWorks.length}件中 {articlesWithContent}件が本文あり
-                  </div>
-                )}
-                {articleWorks.length === 0 && (
-                  <div className="text-xs text-gray-500">
-                    記事作品がまだありません
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* インプット評価分析 - インプットがある場合のみ表示 */}
-            {hasInputs && (
-              <div>
-                <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">インプット評価習慣</h4>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs sm:text-sm text-gray-600">評価済みインプット率</span>
-                      <span className="text-xs sm:text-sm font-medium">{ratedInputsRate.toFixed(1)}%</span>
-                    </div>
-                    <SimpleProgress value={ratedInputsRate} />
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    インプット {inputs.length}件中 {inputsWithRating.length}件を評価済み
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* 役割分布 */}
           {workStats.roleDistribution.length > 0 && (
             <div>
@@ -290,6 +214,54 @@ export function OverviewSection({ works, inputs, workStats }: OverviewSectionPro
               </div>
             </div>
           )}
+
+          {/* 最近の活動状況 */}
+          <div>
+            <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">最近の活動状況</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="text-blue-500 text-xl">🎨</div>
+                  <div>
+                    <div className="font-medium text-blue-900">作品制作</div>
+                    <div className="text-sm text-blue-700">
+                      {(() => {
+                        const recentWorks = works.filter(work => 
+                          work.created_at && 
+                          new Date(work.created_at) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                        ).length
+                        return recentWorks > 0 
+                          ? `最近30日で${recentWorks}件の作品を制作`
+                          : '継続的な制作活動を実施'
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {hasInputs && (
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-purple-500 text-xl">📚</div>
+                    <div>
+                      <div className="font-medium text-purple-900">学習活動</div>
+                      <div className="text-sm text-purple-700">
+                        {(() => {
+                          const recentInputs = inputs.filter(input => 
+                            input.createdAt && 
+                            new Date(input.createdAt) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                          ).length
+                          return recentInputs > 0 
+                            ? `最近30日で${recentInputs}件のインプット`
+                            : '継続的な学習活動を実施'
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* インプットがない場合の案内 */}
           {!hasInputs && (

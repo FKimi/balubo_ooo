@@ -90,103 +90,6 @@ function ProfileContent() {
     }
   }, [searchParams])
 
-  // プロフィールデータの取得
-  const fetchProfileData = useCallback(async () => {
-    if (!user?.id) return
-
-    try {
-      // Supabaseからアクセストークンを取得
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-
-      const response = await fetch(`/api/profile?userId=${user.id}`, {
-        headers
-      })
-      
-      if (!response.ok) {
-        throw new Error('プロフィール取得エラー')
-      }
-      
-      const data = await response.json()
-      console.log('プロフィールAPI応答:', data)
-      
-      if (data.profile) {
-        // データベースのsnake_caseフィールドをcamelCaseに変換
-        const convertedProfile = {
-          ...completeDefaultProfileData,
-          displayName: data.profile.display_name || data.profile.displayName || '',
-          bio: data.profile.bio || '',
-          professions: data.profile.professions || [],
-          skills: data.profile.skills || [],
-          location: data.profile.location || '',
-          websiteUrl: data.profile.website_url || data.profile.websiteUrl || '',
-          portfolioVisibility: data.profile.portfolio_visibility || data.profile.portfolioVisibility || 'public',
-          backgroundImageUrl: data.profile.background_image_url || data.profile.backgroundImageUrl || '',
-          avatarImageUrl: data.profile.avatar_image_url || data.profile.avatarImageUrl || '',
-          desiredRate: data.profile.desired_rate || data.profile.desiredRate || '',
-          jobChangeIntention: data.profile.job_change_intention || data.profile.jobChangeIntention || 'not_considering',
-          sideJobIntention: data.profile.side_job_intention || data.profile.sideJobIntention || 'not_considering',
-          projectRecruitmentStatus: data.profile.project_recruitment_status || data.profile.projectRecruitmentStatus || 'not_recruiting',
-          workingHours: data.profile.working_hours || data.profile.workingHours || '',
-          career: data.profile.career || []
-        }
-        
-        setProfileData(convertedProfile)
-        console.log('変換後プロフィールデータ設定完了:', convertedProfile)
-      } else {
-        console.log('プロフィールデータが空、デフォルト値を設定')
-        setProfileData(completeDefaultProfileData)
-      }
-    } catch (error) {
-      console.error('プロフィール取得エラー:', error)
-      setProfileData(completeDefaultProfileData)
-    }
-  }, [user?.id])
-
-  // 作品データの取得
-  const fetchSavedWorks = useCallback(async () => {
-    if (!user?.id) return
-
-    setIsLoadingWorks(true)
-    try {
-      // Supabaseからアクセストークンを取得
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-
-      const response = await fetch(`/api/works?userId=${user.id}`, {
-        headers
-      })
-      
-      if (!response.ok) {
-        throw new Error('作品取得エラー')
-      }
-      
-      const data = await response.json()
-      setSavedWorks(data.works || [])
-    } catch (error) {
-      console.error('作品取得エラー:', error)
-      setSavedWorks([])
-    } finally {
-      setIsLoadingWorks(false)
-    }
-  }, [user?.id])
-
   // 作品削除
   const deleteWork = useCallback(async (workId: string) => {
     if (!user?.id) return
@@ -215,95 +118,114 @@ function ProfileContent() {
       }
 
       // 削除成功後、作品一覧を再取得
-      await fetchSavedWorks()
+      const worksResponse = await fetch(`/api/works?userId=${user.id}`, { headers })
+      if (worksResponse.ok) {
+        const worksData = await worksResponse.json()
+        setSavedWorks(worksData.works || [])
+      }
     } catch (error) {
       console.error('作品削除エラー:', error)
-    }
-  }, [user?.id, fetchSavedWorks])
-
-  // インプットデータの取得
-  const fetchInputs = useCallback(async () => {
-    if (!user?.id) return
-
-    setIsLoadingInputs(true)
-    try {
-      // Supabaseからアクセストークンを取得
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-
-      const response = await fetch(`/api/inputs?userId=${user.id}`, {
-        headers
-      })
-      
-      if (!response.ok) {
-        throw new Error('インプット取得エラー')
-      }
-      
-      const data = await response.json()
-      setInputs(data.inputs || [])
-    } catch (error) {
-      console.error('インプット取得エラー:', error)
-      setInputs([])
-    } finally {
-      setIsLoadingInputs(false)
-    }
-  }, [user?.id])
-
-  // インプット分析の取得
-  const fetchInputAnalysis = useCallback(async () => {
-    if (!user?.id) return
-
-    try {
-      // Supabaseからアクセストークンを取得
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-
-      const response = await fetch(`/api/inputs/analysis?userId=${user.id}`, {
-        headers
-      })
-      
-      if (!response.ok) {
-        throw new Error('インプット分析取得エラー')
-      }
-      
-      const data = await response.json()
-      setInputAnalysis(data.analysis || null)
-    } catch (error) {
-      console.error('インプット分析取得エラー:', error)
-      setInputAnalysis(null)
     }
   }, [user?.id])
 
   // 初期データ読み込み
   useEffect(() => {
-    if (user?.id) {
-      const loadAllData = async () => {
-        await Promise.all([
-          fetchProfileData(),
-          fetchSavedWorks(),
-          fetchInputs(),
-          fetchInputAnalysis()
+    if (!user?.id) return
+
+    const loadAllData = async () => {
+      // ローディング状態を設定
+      setIsLoadingWorks(true)
+      setIsLoadingInputs(true)
+      
+      try {
+        // プロフィールデータの取得
+        const { supabase } = await import('@/lib/supabase')
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        }
+        
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`
+        }
+
+        // 並列でデータを取得
+        const [profileResponse, worksResponse, inputsResponse, analysisResponse] = await Promise.all([
+          fetch(`/api/profile?userId=${user.id}`, { headers }),
+          fetch(`/api/works?userId=${user.id}`, { headers }),
+          fetch(`/api/inputs?userId=${user.id}`, { headers }),
+          fetch(`/api/inputs/analysis?userId=${user.id}`, { headers })
         ])
+
+        // プロフィールデータの処理
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json()
+          if (profileData.profile) {
+            const convertedProfile = {
+              ...completeDefaultProfileData,
+              displayName: profileData.profile.display_name || profileData.profile.displayName || '',
+              bio: profileData.profile.bio || '',
+              professions: profileData.profile.professions || [],
+              skills: profileData.profile.skills || [],
+              location: profileData.profile.location || '',
+              websiteUrl: profileData.profile.website_url || profileData.profile.websiteUrl || '',
+              portfolioVisibility: profileData.profile.portfolio_visibility || profileData.profile.portfolioVisibility || 'public',
+              backgroundImageUrl: profileData.profile.background_image_url || profileData.profile.backgroundImageUrl || '',
+              avatarImageUrl: profileData.profile.avatar_image_url || profileData.profile.avatarImageUrl || '',
+              desiredRate: profileData.profile.desired_rate || profileData.profile.desiredRate || '',
+              jobChangeIntention: profileData.profile.job_change_intention || profileData.profile.jobChangeIntention || 'not_considering',
+              sideJobIntention: profileData.profile.side_job_intention || profileData.profile.sideJobIntention || 'not_considering',
+              projectRecruitmentStatus: profileData.profile.project_recruitment_status || profileData.profile.projectRecruitmentStatus || 'not_recruiting',
+              workingHours: profileData.profile.working_hours || profileData.profile.workingHours || '',
+              career: profileData.profile.career || []
+            }
+            setProfileData(convertedProfile)
+          } else {
+            setProfileData(completeDefaultProfileData)
+          }
+        } else {
+          setProfileData(completeDefaultProfileData)
+        }
+
+        // 作品データの処理
+        if (worksResponse.ok) {
+          const worksData = await worksResponse.json()
+          setSavedWorks(worksData.works || [])
+        } else {
+          setSavedWorks([])
+        }
+
+        // インプットデータの処理
+        if (inputsResponse.ok) {
+          const inputsData = await inputsResponse.json()
+          setInputs(inputsData.inputs || [])
+        } else {
+          setInputs([])
+        }
+
+        // 分析データの処理
+        if (analysisResponse.ok) {
+          const analysisData = await analysisResponse.json()
+          setInputAnalysis(analysisData.analysis || null)
+        } else {
+          setInputAnalysis(null)
+        }
+
+      } catch (error) {
+        console.error('データ読み込みエラー:', error)
+        setProfileData(completeDefaultProfileData)
+        setSavedWorks([])
+        setInputs([])
+        setInputAnalysis(null)
+      } finally {
+        setIsLoadingWorks(false)
+        setIsLoadingInputs(false)
       }
-      loadAllData()
     }
-  }, [user?.id, fetchProfileData, fetchSavedWorks, fetchInputs, fetchInputAnalysis])
+
+    loadAllData()
+  }, [user?.id])
 
   // タブ変更時のURL更新
   useEffect(() => {
@@ -327,9 +249,12 @@ function ProfileContent() {
       setProfileData(updatedProfile)
       setNewSkill('')
       setIsSkillModalOpen(false)
+      
+      // 成功メッセージを表示（オプション）
+      console.log('スキルを追加しました')
     } catch (error) {
       console.error('スキル追加エラー:', error)
-      setSkillError('スキルの追加に失敗しました')
+      setSkillError('スキルの追加に失敗しました。もう一度お試しください。')
     } finally {
       setIsUpdatingSkills(false)
     }
@@ -348,9 +273,12 @@ function ProfileContent() {
       
       await saveSkillsToDatabase(updatedProfile)
       setProfileData(updatedProfile)
+      
+      // 成功メッセージを表示（オプション）
+      console.log('スキルを削除しました')
     } catch (error) {
       console.error('スキル削除エラー:', error)
-      setSkillError('スキルの削除に失敗しました')
+      setSkillError('スキルの削除に失敗しました。もう一度お試しください。')
     } finally {
       setIsUpdatingSkills(false)
     }
@@ -418,8 +346,12 @@ function ProfileContent() {
         isCurrent: false
       })
       setIsCareerModalOpen(false)
+      
+      // 成功メッセージを表示（オプション）
+      console.log('キャリア情報を追加しました')
     } catch (error) {
       console.error('キャリア追加エラー:', error)
+      alert('キャリア情報の追加に失敗しました。もう一度お試しください。')
     } finally {
       setIsUpdatingCareer(false)
     }
@@ -447,8 +379,12 @@ function ProfileContent() {
       setProfileData(updatedProfile)
       setEditingCareer(null)
       setIsEditCareerModalOpen(false)
+      
+      // 成功メッセージを表示（オプション）
+      console.log('キャリア情報を更新しました')
     } catch (error) {
       console.error('キャリア更新エラー:', error)
+      alert('キャリア情報の更新に失敗しました。もう一度お試しください。')
     } finally {
       setIsUpdatingCareer(false)
     }
@@ -474,8 +410,12 @@ function ProfileContent() {
       setProfileData(updatedProfile)
       setDeletingCareerId(null)
       setIsDeleteConfirmOpen(false)
+      
+      // 成功メッセージを表示（オプション）
+      console.log('キャリア情報を削除しました')
     } catch (error) {
       console.error('キャリア削除エラー:', error)
+      alert('キャリア情報の削除に失敗しました。もう一度お試しください。')
     } finally {
       setIsUpdatingCareer(false)
     }

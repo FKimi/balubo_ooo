@@ -654,7 +654,7 @@ export default function FeedPage() {
                       if (item.type === 'work') {
                         router.push(`/works/${item.id}`)
                       } else {
-                        setSelectedItem(item)
+                        router.push(`/inputs/${item.id}`)
                       }
                     }}
                   >
@@ -737,7 +737,7 @@ export default function FeedPage() {
                         if (item.type === 'work') {
                           router.push(`/works/${item.id}`)
                         } else {
-                          setSelectedItem(item)
+                          router.push(`/inputs/${item.id}`)
                         }
                       }}
                     />

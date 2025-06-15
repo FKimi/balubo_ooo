@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Header, MobileBottomNavigation } from '@/components/layout/header'
 import { useWorkStatistics } from '@/hooks/useWorkStatistics'
@@ -16,6 +17,8 @@ import type { InputData } from '@/types/input'
 
 export default function ReportPage() {
   const { user } = useAuth()
+  const searchParams = useSearchParams()
+  const targetUserId = searchParams.get('userId') // URLパラメータからuserIdを取得
   const [activeSection, setActiveSection] = useState<string>('overview')
   const [works, setWorks] = useState<WorkData[]>([])
   const [inputs, setInputs] = useState<InputData[]>([])
@@ -79,6 +82,33 @@ export default function ReportPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // targetUserIdが指定されている場合は公開プロフィールデータを取得
+      if (targetUserId) {
+        try {
+          setLoading(true)
+          setError(null)
+
+          const response = await fetch(`/api/public-profile?userId=${targetUserId}`)
+          
+          if (!response.ok) {
+            throw new Error('公開プロフィールデータの取得に失敗しました')
+          }
+
+          const data = await response.json()
+          setProfile(data.profile)
+          setWorks(data.works || [])
+          setInputs(data.inputs || [])
+
+        } catch (error) {
+          console.error('公開プロフィールデータ取得エラー:', error)
+          setError(error instanceof Error ? error.message : '公開プロフィールデータの取得に失敗しました')
+        } finally {
+          setLoading(false)
+        }
+        return
+      }
+
+      // 通常の認証ユーザー向けデータ取得
       if (!user) return
 
       try {
@@ -126,7 +156,7 @@ export default function ReportPage() {
     }
 
     fetchData()
-  }, [user])
+  }, [user, targetUserId])
 
   // 包括的なレポートデータを準備する関数
   const prepareComprehensiveReportData = () => {
@@ -405,8 +435,8 @@ export default function ReportPage() {
     }
   }
 
-  // 認証チェック
-  if (!user) {
+  // 認証チェック（他のユーザーのレポートを見る場合は認証不要）
+  if (!user && !targetUserId) {
     return (
       <div className="min-h-screen bg-base-light-gray">
         <Header />
@@ -464,9 +494,14 @@ export default function ReportPage() {
           <div className="mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">📊 活動レポート</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  📊 {targetUserId ? `${profile?.display_name || 'クリエイター'}の活動レポート` : '活動レポート'}
+                </h1>
                 <p className="text-gray-600 text-sm sm:text-base">
-                  {profile?.display_name || user?.user_metadata?.display_name || 'あなた'}の創作活動とインプットの総合分析
+                  {targetUserId 
+                    ? `${profile?.display_name || 'このクリエイター'}の創作活動とインプットの総合分析`
+                    : `${profile?.display_name || user?.user_metadata?.display_name || 'あなた'}の創作活動とインプットの総合分析`
+                  }
                 </p>
               </div>
               
@@ -551,8 +586,11 @@ export default function ReportPage() {
                   🎯 クリエイター推薦レポート
                 </h2>
                 <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                  このレポートは、{profile?.display_name || user?.user_metadata?.display_name || 'このクリエイター'}の実績と能力を
-                  データに基づいて分析したものです。プロジェクトやコラボレーションのご参考にご活用ください。
+                  このレポートは、{targetUserId 
+                    ? (profile?.display_name || 'このクリエイター')
+                    : (profile?.display_name || user?.user_metadata?.display_name || 'このクリエイター')
+                  }の実績と能力をデータに基づいて分析したものです。
+                  {targetUserId ? 'プロジェクトやコラボレーションのご参考にご活用ください。' : ''}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
                   <div className="bg-white rounded-lg p-4 shadow-sm">

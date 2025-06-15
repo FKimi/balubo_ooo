@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Users, UserCheck } from 'lucide-react'
+import { FollowModal } from './FollowModal'
 
 interface FollowStatsProps {
   userId: string
@@ -15,6 +16,8 @@ interface FollowStatsData {
 export function FollowStats({ userId }: FollowStatsProps) {
   const [stats, setStats] = useState<FollowStatsData>({ followerCount: 0, followingCount: 0 })
   const [loading, setLoading] = useState(true)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalTab, setModalTab] = useState<'followers' | 'following'>('followers')
 
   const fetchStats = useCallback(async () => {
     if (!userId) return
@@ -57,25 +60,46 @@ export function FollowStats({ userId }: FollowStatsProps) {
     )
   }
 
+  const openModal = (tab: 'followers' | 'following') => {
+    setModalTab(tab)
+    setModalOpen(true)
+  }
+
   return (
-    <div className="flex gap-6 text-sm">
-      {/* フォロワー数 */}
-      <div className="flex items-center gap-2">
-        <Users className="w-4 h-4 text-gray-500" />
-        <div>
-          <div className="font-semibold text-gray-900">{stats.followerCount}</div>
-          <div className="text-xs text-gray-600">フォロワー</div>
-        </div>
+    <>
+      <div className="flex gap-6 text-sm">
+        {/* フォロワー数 */}
+        <button
+          onClick={() => openModal('followers')}
+          className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
+        >
+          <Users className="w-4 h-4 text-gray-500" />
+          <div>
+            <div className="font-semibold text-gray-900">{stats.followerCount}</div>
+            <div className="text-xs text-gray-600">フォロワー</div>
+          </div>
+        </button>
+
+        {/* フォロー中数 */}
+        <button
+          onClick={() => openModal('following')}
+          className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
+        >
+          <UserCheck className="w-4 h-4 text-gray-500" />
+          <div>
+            <div className="font-semibold text-gray-900">{stats.followingCount}</div>
+            <div className="text-xs text-gray-600">フォロー中</div>
+          </div>
+        </button>
       </div>
 
-      {/* フォロー中数 */}
-      <div className="flex items-center gap-2">
-        <UserCheck className="w-4 h-4 text-gray-500" />
-        <div>
-          <div className="font-semibold text-gray-900">{stats.followingCount}</div>
-          <div className="text-xs text-gray-600">フォロー中</div>
-        </div>
-      </div>
-    </div>
+      {/* フォローモーダル */}
+      <FollowModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        userId={userId}
+        initialTab={modalTab}
+      />
+    </>
   )
 } 
