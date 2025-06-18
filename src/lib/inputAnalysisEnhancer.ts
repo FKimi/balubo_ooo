@@ -33,8 +33,8 @@ export class InputAnalysisEnhancer {
    */
   static async fetchBookDetails(title: string, author?: string): Promise<any> {
     try {
-      // Google Books API（APIキー付き）
-      const apiKey = 'AIzaSyAEqD9Fityh1kJsaXYGn6ku8W2sT-FJ7yQ'
+      // Google Books API（環境変数から取得）
+      const apiKey = process.env.GOOGLE_BOOKS_API_KEY
       console.log('Google Books API キー確認:', !!apiKey)
       console.log('Google Books API キー（最初の10文字）:', apiKey?.substring(0, 10))
       
