@@ -7,11 +7,10 @@ export default function VoicesSection() {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            すでにbaluboを体験した<br />
-            <span className="text-accent-dark-blue">クリエイターの声</span>
+            挑戦を形にしたクリエイターの声
           </h2>
           <p className="text-lg text-text-secondary">
-            実際に使ってみた方々の、リアルな体験談をお聞きください
+            baluboで努力の軌跡を可視化したクリエイターのリアルな声をご紹介します
           </p>
         </div>
 

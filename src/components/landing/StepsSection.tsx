@@ -10,8 +10,7 @@ export default function StepsSection() {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            最短1分！<span className="text-accent-dark-blue">balubo</span>で<br />
-            新しいキャリアを始めよう
+            3ステップで、あなたの挑戦の軌跡を世界へ
           </h2>
           <p className="text-lg text-text-secondary">
             必要なのは<span className="font-semibold text-accent-dark-blue">メールアドレスだけ</span>。カンタン3ステップで完了！
@@ -42,8 +41,8 @@ export default function StepsSection() {
               num={2}
               color="success-green"
               gradient="from-primary-blue to-primary-light-blue"
-              title="プロフィール&作品投稿"
-              description="基本情報を入力して、お気に入りの作品をアップロード。"
+              title="作品アップロード & ストーリー入力"
+              description="インプット質問に答えて、挑戦の背景を記録しながら作品をアップロード。"
               icon={
                 <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

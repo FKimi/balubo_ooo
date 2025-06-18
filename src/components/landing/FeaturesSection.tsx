@@ -13,10 +13,10 @@ export default function FeaturesSection() {
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-            baluboだけの、<span className="text-accent-dark-blue">AI体験</span>をあなたに
+            あなたの挑戦を後押しする <span className="text-accent-dark-blue">4 つの機能</span>
           </h2>
           <p className="text-lg text-text-secondary">
-            これまでにない新しい機能で、あなたのクリエイティビティを最大限に引き出します
+            インプットとアウトプットの両面から、努力の軌跡を可視化します
           </p>
         </div>
 
@@ -34,8 +34,8 @@ export default function FeaturesSection() {
                 />
               </svg>
             }
-            title="あなたの作品、AIが徹底解剖！"
-            description="アップロードするだけで、色使いの傾向から表現スタイル、得意とするテーマまでAIが多角的に分析。自分では言語化できなかった作品の魅力を再発見できます。"
+            title="AI作品分析 & ストーリー抽出"
+            description="作品をアップロードすると、AI が作風・得意分野・挑戦の背景まで多角的に分析。言語化しづらい魅力を発見できます。"
             details={[
               "作風：“温かみのある親しみやすいトーン”",
               "得意分野：“ライフスタイル・グルメ系コンテンツ”",
@@ -56,8 +56,8 @@ export default function FeaturesSection() {
                 />
               </svg>
             }
-            title="AIがあなたの“キャッチコピー”を生成"
-            description="経歴や作品から、あなたのユニークな強みをAIが発見し、魅力的な自己紹介文やスキルタグを提案。もう自己PRに悩む必要はありません。"
+            title="AIが強みを言語化・キャッチコピー生成"
+            description="経歴や作品、回答したインプット情報から強みを抽出し、魅力的な自己紹介文・スキルタグを提案します。"
             customDetails={
               <div className="text-sm text-text-secondary">
                 <p className="mb-2">“読者の心に響く、ストーリーテリングのスペシャリスト”</p>
@@ -83,8 +83,8 @@ export default function FeaturesSection() {
                 />
               </svg>
             }
-            title="信頼できるクリエイターコミュニティ"
-            description="他のクリエイターの作品から刺激を受けたり、フィードバックを交換したり、自分の作品を気軽にシェアできる場。質の高いつながりを築けます。"
+            title="承認型SNSで質の高いつながり"
+            description="双方向承認のSNSで、共感し合えるクリエイターや企業とつながり、次の挑戦の機会を広げます。"
             details={["双方向承認でのつながり形成", "タグベースでの相互レビュー", "他クリエイターの活動をフィードで確認"]}
           />
 
@@ -101,8 +101,8 @@ export default function FeaturesSection() {
                 />
               </svg>
             }
-            title="AI統合型スマートポートフォリオ"
-            description="作品を投稿・整理しやすく、AI分析結果も統合された、見やすく魅力的なポートフォリオが簡単に作成・管理できます。"
+            title="スマートポートフォリオ"
+            description="AI分析結果を自動統合したポートフォリオで、努力の軌跡と成果を一目で伝えられます。"
             details={["レスポンシブ対応の美しいレイアウト", "AI分析結果の自動統合表示", "カスタマイズ可能な公開設定"]}
           />
         </div>
