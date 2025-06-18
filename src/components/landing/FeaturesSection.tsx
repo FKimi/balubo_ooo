@@ -45,6 +45,7 @@ export default function FeaturesSection() {
 
           {/* 機能2: AI強み言語化 */}
           <FeatureCard
+            reverse
             gradient="from-primary-blue to-primary-light-blue"
             icon={
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,6 +91,7 @@ export default function FeaturesSection() {
 
           {/* 機能4: スマートポートフォリオ */}
           <FeatureCard
+            reverse
             gradient="from-warning-yellow to-info-blue"
             icon={
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,17 +137,19 @@ function FeatureCard({
   description,
   details,
   customDetails,
+  reverse = false,
 }: {
   gradient: string;
   icon: React.ReactNode;
   title: string;
   description: string;
+  reverse?: boolean;
   details?: string[];
   customDetails?: React.ReactNode;
 }) {
   return (
     <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
-      <div className="flex items-start space-x-6">
+      <div className={`flex items-start gap-6 ${reverse ? 'lg:flex-row-reverse lg:text-right' : ''}`}>
         <div className={`w-16 h-16 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center flex-shrink-0`}>
           {icon}
         </div>
