@@ -14,7 +14,7 @@ export default function VoicesSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto snap-x snap-mandatory pb-4">
           {/* Card 1 */}
           <VoiceCard
             gradient="from-accent-dark-blue to-primary-blue"
@@ -94,7 +94,7 @@ function VoiceCard({
 }) {
   return (
     <div
-      className={`bg-gradient-to-br from-base-light-gray to-primary-light-blue/10 rounded-2xl p-8 hover:shadow-lg transition-all duration-300`}
+      className="bg-gradient-to-br from-base-light-gray to-primary-light-blue/10 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 snap-center md:snap-align-none"
     >
       <div className="flex items-center mb-6">
         <div className={`w-16 h-16 bg-gradient-to-br ${gradient} rounded-full flex items-center justify-center mr-4`}>
