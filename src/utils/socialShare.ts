@@ -131,7 +131,7 @@ export function generateInputShareMessage(input: InputData, userDisplayName: str
     message += `\n\n💭 ${note}`
   }
 
-  message += '\n\n#インプット #学習記録'
+  message += '\n\n#balubo #コンテンツ'
 
   // ハッシュタグ生成
   const hashtags = ['インプット', '学習記録']

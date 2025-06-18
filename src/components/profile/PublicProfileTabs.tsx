@@ -298,10 +298,18 @@ export function PublicProfileTabs({
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-700">
-                        💡 作品に設定したタグの使用頻度です。よく使うタグはこのクリエイターの得意分野を表しています。
-                      </p>
+                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                          💡
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-blue-900 mb-1">タグ分析について</h5>
+                          <p className="text-sm text-blue-700">
+                            作品に設定したタグの使用頻度を分析しています。よく使用するタグは、このクリエイターの専門分野や得意領域を表しており、ポートフォリオの特色を示す重要な指標です。
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

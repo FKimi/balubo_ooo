@@ -627,34 +627,108 @@ export function ProfileTabs({
             {topTags.length > 0 && (
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">🏷️ よく使用するタグ</h3>
-                  <div className="space-y-3">
-                    {topTags.map(([tag, count], index) => (
-                      <div key={tag} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                            {index + 1}
-                          </div>
-                          <Badge variant="outline" className="text-sm">
-                            {tag}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" 
-                              style={{ width: `${Math.min((count / Math.max(...topTags.map(([, c]) => c))) * 100, 100)}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium text-gray-600 w-8 text-right">{count}</span>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <span>🏷️</span>
+                      <span>アウトプット作品のタグ分析</span>
+                    </h3>
+                    <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                      全{topTags.reduce((sum, [, count]) => sum + count, 0)}回使用
+                    </div>
                   </div>
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-700">
-                      💡 作品に設定したタグの使用頻度です。よく使うタグはあなたの得意分野を表しています。
-                    </p>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* トップ3タグ（特別表示） */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <span>🏆</span>
+                        <span>トップ3タグ</span>
+                      </h4>
+                      <div className="space-y-3">
+                        {topTags.slice(0, 3).map(([tag, count], index) => {
+                          const colors = [
+                            'from-yellow-400 to-orange-500',
+                            'from-gray-300 to-gray-500', 
+                            'from-amber-400 to-orange-600'
+                          ]
+                          const bgColors = [
+                            'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200',
+                            'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200',
+                            'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200'
+                          ]
+                          return (
+                            <div key={tag} className={`${bgColors[index]} p-4 rounded-xl border`}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 bg-gradient-to-r ${colors[index]} text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm`}>
+                                    {index + 1}
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold text-gray-900">{tag}</div>
+                                    <div className="text-sm text-gray-600">{count}回使用</div>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-2xl font-bold text-gray-800">{count}</div>
+                                  <div className="text-xs text-gray-500">
+                                    {Math.round((count / topTags.reduce((sum, [, c]) => sum + c, 0)) * 100)}%
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 全タグリスト */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <span>📊</span>
+                        <span>使用頻度ランキング</span>
+                      </h4>
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {topTags.map(([tag, count], index) => {
+                          const maxCount = Math.max(...topTags.map(([, c]) => c))
+                          const percentage = (count / maxCount) * 100
+                          return (
+                            <div key={tag} className="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100 hover:border-blue-200 transition-colors">
+                              <div className="flex items-center gap-3">
+                                <div className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold">
+                                  {index + 1}
+                                </div>
+                                <Badge variant="outline" className="text-sm font-medium">
+                                  {tag}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500" 
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
+                                <span className="text-sm font-bold text-gray-700 w-6 text-right">{count}</span>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                        💡
+                      </div>
+                      <div>
+                        <h5 className="font-semibold text-blue-900 mb-1">タグ分析について</h5>
+                        <p className="text-sm text-blue-700">
+                          作品に設定したタグの使用頻度を分析しています。よく使用するタグは、あなたの専門分野や得意領域を表しており、ポートフォリオの特色を示す重要な指標です。
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
