@@ -18,7 +18,7 @@ export default function StepsSection() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto snap-x snap-mandatory pb-4">
             <StepCard
               num={1}
               color="warning-yellow"
@@ -122,7 +122,7 @@ function StepCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="text-center group">
+    <div className="text-center group snap-center md:snap-align-none">
       <div className="relative mb-8">
         <div
           className={`w-24 h-24 bg-gradient-to-br ${gradient} rounded-full flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105`}
