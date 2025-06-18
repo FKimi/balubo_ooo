@@ -38,10 +38,10 @@ export default function ReasonsSection() {
               </div>
             </div>
 
-            <h3 className="text-2xl font-bold text-text-primary mb-4">AIがあなたの&ldquo;隠れた強み&rdquo;を発見</h3>
+            <h3 className="text-2xl font-bold text-text-primary mb-4">AIがあなたの挑戦ストーリーを深掘り</h3>
 
             <p className="text-text-secondary leading-relaxed mb-6">
-              作品をアップするだけで、AIがあなたの作風、得意分野、潜在的なスキルまで客観的に分析。今まで気づかなかった自分の価値に、きっと驚くはず。
+              インプット質問フォームに答えるだけで、AI が過去の努力や成長プロセスを分析し、隠れた強みを抽出します。
             </p>
 
             <div className="bg-base-light-gray rounded-lg p-4">
@@ -72,7 +72,7 @@ export default function ReasonsSection() {
             </h3>
 
             <p className="text-text-secondary leading-relaxed mb-6">
-              AI分析が加わることで、あなたの作品はただの作品集ではなく、あなたの思考やスキルを雄弁に語る強力なツールに進化します。
+              AI分析が加わることで、あなたの作品はただの作品集ではなく、挑戦の背景まで語る強力なツールに進化します。
             </p>
 
             <div className="bg-base-light-gray rounded-lg p-4">
@@ -101,7 +101,7 @@ export default function ReasonsSection() {
             </div>
 
             <h3 className="text-2xl font-bold text-text-primary mb-4">
-              もう&ldquo;待ち&rdquo;の姿勢は終わり。<br /> 質の高い&ldquo;出会い&rdquo;を引き寄せる
+              質の高い&ldquo;出会い&rdquo;を引き寄せ、次の挑戦へ
             </h3>
 
             <p className="text-text-secondary leading-relaxed mb-6">

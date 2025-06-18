@@ -22,14 +22,14 @@ export default function HeroSection() {
 
         {/* メインキャッチコピー */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
-          その才能、<span className="text-accent-dark-blue">AIが言語化</span>。<br />
-          <span className="text-primary-blue">balubo</span>で、まだ見ぬキャリアへ。
+          あなたの挑戦の軌跡を、<span className="text-accent-dark-blue">AIが言語化</span>し世界へ。<br />
+          <span className="text-primary-blue">balubo</span> — ライター・編集者のためのキャリアSNS
         </h1>
 
         {/* サブキャッチコピー */}
         <p className="text-lg md:text-xl text-text-secondary mb-12 leading-relaxed max-w-3xl mx-auto">
-          作品をアップするだけで、AIがあなたの強みを発見し言語化。<br />
-          ポートフォリオが進化し、新しい仕事と仲間との出会いが始まります。
+          これまで積み重ねてきた作品と努力を、AIが強みとして可視化。<br />
+          ポートフォリオと SNS 機能で、新しい仲間とチャンスが広がります。
         </p>
 
         {/* CTAボタン */}
