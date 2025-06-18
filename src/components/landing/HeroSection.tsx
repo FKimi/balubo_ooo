@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -10,30 +11,30 @@ import { Button } from "@/components/ui/button";
  */
 export default function HeroSection() {
   return (
-    <section className="py-24 px-4 bg-gradient-to-br from-base-white via-base-light-gray to-primary-light-blue/10">
-      <div className="container mx-auto text-center max-w-5xl">
+    <section className="relative min-h-[80vh] flex items-center overflow-hidden px-4 bg-gradient-to-br from-base-white via-base-light-gray to-primary-light-blue/10">
+      <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* 共感・課題提起 */}
         <div className="mb-8">
-          <p className="text-lg text-text-secondary font-medium mb-2">
+          <p className="text-lg text-text-secondary font-medium mb-2 md:text-left text-center">
             &ldquo;私の強み、もっと伝わればいいのに…&rdquo;
           </p>
-          <p className="text-base text-text-tertiary">そう感じていませんか？</p>
+          <p className="text-base text-text-tertiary md:text-left text-center">そう感じていませんか？</p>
         </div>
 
         {/* メインキャッチコピー */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight md:text-left text-center">
           あなたの挑戦の軌跡を、<span className="text-accent-dark-blue">AIが言語化</span>し世界へ。<br />
           <span className="text-primary-blue">balubo</span> — ライター・編集者のためのキャリアSNS
         </h1>
 
         {/* サブキャッチコピー */}
-        <p className="text-lg md:text-xl text-text-secondary mb-12 leading-relaxed max-w-3xl mx-auto">
+        <p className="text-lg md:text-xl text-text-secondary mb-12 leading-relaxed max-w-3xl md:mx-0 mx-auto md:text-left text-center">
           これまで積み重ねてきた作品と努力を、AIが強みとして可視化。<br />
           ポートフォリオと SNS 機能で、新しい仲間とチャンスが広がります。
         </p>
 
         {/* CTAボタン */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+        <div className="flex flex-col sm:flex-row gap-4 md:justify-start justify-center mb-12">
           <Link href="/register">
             <Button
               size="lg"
@@ -52,7 +53,7 @@ export default function HeroSection() {
         </div>
 
         {/* メインビジュアル（アイコンによる表現） */}
-        <div className="flex justify-center items-center space-x-8 opacity-70">
+        <div className="hidden md:block">
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 bg-primary-light-blue/20 rounded-full flex items-center justify-center mb-2">
               <svg
@@ -117,6 +118,7 @@ export default function HeroSection() {
             <span className="text-sm text-text-tertiary">新たな出会い</span>
           </div>
         </div>
+        <Image src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=764&q=80" alt="balubo mockup" width={764} height={510} className="w-full rounded-xl shadow-lg" priority />
       </div>
     </section>
   );
