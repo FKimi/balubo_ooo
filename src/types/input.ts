@@ -11,6 +11,7 @@ export interface InputData {
   type: InputType
   category: string
   authorCreator: string
+  description?: string
   releaseDate?: string
   consumptionDate?: string
   status: InputStatus

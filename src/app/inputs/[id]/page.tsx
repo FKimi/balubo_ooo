@@ -466,14 +466,139 @@ export default function InputDetailPage({ params }: { params: { id: string } }) 
                     {/* AI分析結果 */}
                     {input.ai_analysis_result && (
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                           <SparklesIcon className="h-5 w-5 mr-2 text-purple-500" />
                           AI分析結果
                         </h3>
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                          <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
-                            {JSON.stringify(input.ai_analysis_result, null, 2)}
-                          </pre>
+                        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-6">
+                          <div className="space-y-4">
+                            {/* 魅力ポイント */}
+                            {input.ai_analysis_result.appealPoints && (
+                              <div>
+                                <h4 className="text-sm font-medium text-purple-800 mb-3 flex items-center gap-2">
+                                  <span className="text-green-600">✨</span>
+                                  魅力ポイント
+                                </h4>
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                                  <div className="space-y-2">
+                                    {input.ai_analysis_result.appealPoints.map((point: string, index: number) => (
+                                      <div key={index} className="text-sm text-green-800 flex items-start gap-2">
+                                        <span className="text-green-500 mt-0.5">✓</span>
+                                        <span className="leading-relaxed">{point}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* ターゲット層 */}
+                            {input.ai_analysis_result.targetAudience && (
+                              <div>
+                                <h4 className="text-sm font-medium text-purple-800 mb-3 flex items-center gap-2">
+                                  <span className="text-orange-600">🎯</span>
+                                  ターゲット層
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {input.ai_analysis_result.targetAudience.map((audience: string, index: number) => (
+                                    <span key={index} className="px-3 py-1.5 text-sm bg-orange-50 text-orange-800 rounded-full border border-orange-200">
+                                      {audience}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* パーソナリティ特性 */}
+                            {input.ai_analysis_result.personalityTraits && (
+                              <div>
+                                <h4 className="text-sm font-medium text-purple-800 mb-3 flex items-center gap-2">
+                                  <span className="text-pink-600">🧠</span>
+                                  パーソナリティ特性
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {input.ai_analysis_result.personalityTraits.map((trait: string, index: number) => (
+                                    <span key={index} className="px-3 py-1.5 text-sm bg-pink-50 text-pink-800 rounded-full border border-pink-200">
+                                      {trait}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 興味カテゴリ */}
+                            {input.ai_analysis_result.interestCategories && (
+                              <div>
+                                <h4 className="text-sm font-medium text-purple-800 mb-3 flex items-center gap-2">
+                                  <span className="text-indigo-600">🔍</span>
+                                  興味カテゴリ
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {input.ai_analysis_result.interestCategories.map((category: string, index: number) => (
+                                    <span key={index} className="px-3 py-1.5 text-sm bg-indigo-50 text-indigo-800 rounded-full border border-indigo-200">
+                                      {category}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 主要テーマ */}
+                            {input.ai_analysis_result.themes && (
+                              <div>
+                                <h4 className="text-sm font-medium text-purple-800 mb-3 flex items-center gap-2">
+                                  <span className="text-gray-600">📖</span>
+                                  主要テーマ
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {input.ai_analysis_result.themes.map((theme: string, index: number) => (
+                                    <span key={index} className="px-3 py-1.5 text-sm bg-gray-100 text-gray-800 rounded-full border border-gray-200">
+                                      {theme}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 作品の雰囲気 */}
+                            {input.ai_analysis_result.mood && (
+                              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                                <h4 className="text-sm font-medium text-purple-800 mb-2 flex items-center gap-2">
+                                  <span className="text-gray-600">🌟</span>
+                                  作品の雰囲気
+                                </h4>
+                                <p className="text-sm text-gray-700 leading-relaxed">{input.ai_analysis_result.mood}</p>
+                              </div>
+                            )}
+
+                            {/* 創作への影響 */}
+                            {input.ai_analysis_result.creativeInfluence && (
+                              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
+                                <h4 className="text-sm font-medium text-yellow-800 mb-3 flex items-center gap-2">
+                                  <span className="text-yellow-600">🎨</span>
+                                  創作への影響・インスピレーション
+                                </h4>
+                                <div className="space-y-2">
+                                  {input.ai_analysis_result.creativeInfluence.map((influence: string, index: number) => (
+                                    <div key={index} className="text-sm text-yellow-800 flex items-start gap-2">
+                                      <span className="text-yellow-500 mt-0.5">💡</span>
+                                      <span className="leading-relaxed">{influence}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 分析精度表示 */}
+                            <div className="text-center pt-4 border-t border-purple-200">
+                              <div className="text-sm text-purple-700 font-medium">
+                                🤖 AI分析完了
+                              </div>
+                              <div className="text-xs text-purple-600 mt-1">
+                                {input.ai_analysis_result.suggestedTags?.length || 0}個のタグを自動追加済み
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}

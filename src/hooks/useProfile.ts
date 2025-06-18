@@ -71,8 +71,10 @@ export function useProfile() {
   }, [user])
 
   useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+    if (user) {
+      fetchProfile()
+    }
+  }, [user?.id]) // user.idの変更時のみ実行
 
   return {
     profile,

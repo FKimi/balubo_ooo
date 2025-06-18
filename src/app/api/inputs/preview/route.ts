@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { JSDOM } from 'jsdom'
+import { InputAnalysisEnhancer } from '@/lib/inputAnalysisEnhancer'
 
 interface InputPreviewData {
   title: string
@@ -13,6 +14,20 @@ interface InputPreviewData {
   tags: string[]
   rating?: number
   url: string
+  // 強化された情報（非破壊的追加）
+  enhancedData?: {
+    accuracy: number
+    confidence: number
+    externalSources: string[]
+    isbn?: string
+    pageCount?: number
+    publishedDate?: string
+    averageRating?: number
+    ratingsCount?: number
+    keywords?: string[]
+    similarWorks?: string[]
+    detailedGenres?: string[]
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -100,8 +115,29 @@ export async function POST(request: NextRequest) {
     else if (normalizedUrl.includes('animestore.docomo.ne.jp')) {
       previewData = extractDAnimeData(document, previewData)
     }
+    // BookWalker
+    else if (normalizedUrl.includes('bookwalker.jp')) {
+      previewData = extractBookWalkerData(document, previewData)
+    }
 
-    console.log('プレビューデータ取得成功:', previewData)
+    // 外部APIで情報を強化（非同期、失敗してもメイン処理継続）
+    try {
+      const enhancedData = await enhanceWithExternalAPIs(previewData)
+      if (enhancedData) {
+        previewData = mergeEnhancedData(previewData, enhancedData)
+      }
+    } catch (apiError) {
+      console.warn('外部API強化でエラーが発生しましたが、メイン処理は継続します:', apiError)
+    }
+
+    console.log('プレビューデータ取得成功:', {
+      title: previewData.title,
+      author: previewData.author,
+      type: previewData.type,
+      category: previewData.category,
+      hasEnhancedData: !!previewData.enhancedData,
+      externalSources: previewData.enhancedData?.externalSources || []
+    })
 
     return NextResponse.json({ 
       success: true, 
@@ -232,5 +268,205 @@ function extractDAnimeData(document: Document, data: InputPreviewData): InputPre
     type: 'anime',
     category: 'アニメ',
     tags: ['dアニメストア', 'アニメ']
+  }
+}
+
+// BookWalker用データ抽出
+function extractBookWalkerData(document: Document, data: InputPreviewData): InputPreviewData {
+  console.log('🔍 BookWalker処理開始:', { originalTitle: data.title })
+  
+  // BookWalkerの場合、タイトルから作者情報を抽出
+  const title = data.title || ''
+  let author = ''
+  
+  // HTMLから作者情報を抽出を試行
+  const authorSelectors = [
+    '.author-name',
+    '.book-author',
+    '.creator-name',
+    '[data-testid="author"]',
+    '.product-author'
+  ]
+  
+  for (const selector of authorSelectors) {
+    const authorElement = document.querySelector(selector)
+    if (authorElement?.textContent?.trim()) {
+      author = authorElement.textContent.trim()
+      console.log(`📖 HTMLから作者抽出成功 (${selector}):`, author)
+      break
+    }
+  }
+  
+  // HTMLから抽出できない場合、タイトルから作者名を抽出
+  if (!author) {
+    const authorMatch = title.match(/著[：:]?\s*([^（）\s]+)/) || 
+                       title.match(/作[：:]?\s*([^（）\s]+)/) ||
+                       title.match(/([^（）]+)\s*著/) ||
+                       title.match(/([^（）]+)\s*作/)
+    
+    if (authorMatch && authorMatch[1]) {
+      author = authorMatch[1].trim()
+      console.log('📝 タイトルから作者抽出:', author)
+    }
+  }
+  
+  // 特定の作品の場合、作者を推測（データベース的アプローチ）
+  const knownWorks: Record<string, string> = {
+    '国宝': '吉田修一',
+    'パーク・ライフ': '吉田修一',
+    '悪人': '吉田修一',
+    '横道世之介': '吉田修一',
+    'アヒルと鴨のコインロッカー': '伊坂幸太郎',
+    'ゴールデンスランバー': '伊坂幸太郎',
+    '重力ピエロ': '伊坂幸太郎'
+  }
+  
+  if (!author) {
+    for (const [workTitle, workAuthor] of Object.entries(knownWorks)) {
+      if (title.includes(workTitle)) {
+        author = workAuthor
+        console.log(`🎯 既知作品から作者推測: ${workTitle} → ${workAuthor}`)
+        break
+      }
+    }
+  }
+  
+  // 最終的に作者が見つからない場合のフォールバック
+  if (!author) {
+    console.log('⚠️ 作者情報を抽出できませんでした')
+    author = '' // 空文字列のまま
+  }
+  
+  const result = {
+    ...data,
+    title: title,
+    author: author,
+    type: 'book',
+    category: title.includes('文庫') ? '文庫本' : title.includes('マンガ') || title.includes('漫画') ? '漫画' : '書籍',
+    tags: ['BookWalker', '電子書籍', ...(title.includes('文庫') ? ['文庫本'] : []), ...(title.includes('マンガ') || title.includes('漫画') ? ['漫画'] : [])]
+  }
+  
+  console.log('📚 BookWalker処理完了:', {
+    type: result.type,
+    category: result.category,
+    title: result.title,
+    author: result.author,
+    hasAuthor: !!result.author
+  })
+  
+  return result
+}
+
+/**
+ * 外部APIで情報を補完・強化
+ */
+async function enhanceWithExternalAPIs(baseData: InputPreviewData) {
+  const enhancements: any = {
+    accuracy: 0.7,
+    confidence: 0.6,
+    externalSources: [],
+    detailedGenres: [...baseData.genre],
+    keywords: [...baseData.tags]
+  }
+
+  // 書籍の場合：Google Books APIで強化
+  console.log('📚 書籍データ確認:', { 
+    type: baseData.type, 
+    category: baseData.category, 
+    title: baseData.title, 
+    author: baseData.author 
+  })
+  
+  // 環境変数確認
+  const googleBooksApiKey = process.env.GOOGLE_BOOKS_API_KEY
+  console.log('🔑 API Route環境変数確認:', {
+    hasApiKey: !!googleBooksApiKey,
+    apiKeyLength: googleBooksApiKey?.length,
+    apiKeyStart: googleBooksApiKey?.substring(0, 10)
+  })
+  
+  if (baseData.type === 'book' || baseData.category.includes('書籍') || baseData.category.includes('漫画')) {
+    console.log('🔍 Google Books API呼び出し開始:', { title: baseData.title, author: baseData.author })
+    try {
+      const bookDetails = await InputAnalysisEnhancer.fetchBookDetails(baseData.title, baseData.author)
+      console.log('📖 Google Books API結果:', !!bookDetails)
+      if (bookDetails) {
+        enhancements.externalSources.push('Google Books')
+        enhancements.accuracy += 0.2
+        enhancements.confidence += 0.3
+        
+        // 詳細情報をマージ
+        enhancements.isbn = bookDetails.isbn
+        enhancements.pageCount = bookDetails.pageCount
+        enhancements.publishedDate = bookDetails.publishedDate
+        enhancements.averageRating = bookDetails.averageRating
+        enhancements.ratingsCount = bookDetails.ratingsCount
+        
+        // ジャンル情報を強化
+        if (bookDetails.categories && bookDetails.categories.length > 0) {
+          enhancements.detailedGenres = [...new Set([...enhancements.detailedGenres, ...bookDetails.categories])]
+        }
+      }
+    } catch (error) {
+      console.warn('Google Books API エラー:', error)
+    }
+  }
+
+  // 映画・TV番組の場合：TMDb APIで強化（APIキーがある場合のみ）
+  if ((baseData.type === 'movie' || baseData.type === 'anime') && process.env.TMDB_API_KEY) {
+    try {
+      // リリース年を抽出
+      const yearMatch = baseData.releaseDate?.match(/(\d{4})/)
+      const year = yearMatch ? yearMatch[1] : undefined
+      
+      const movieDetails = await InputAnalysisEnhancer.fetchMovieDetails(baseData.title, year)
+      if (movieDetails) {
+        enhancements.externalSources.push('TMDb')
+        enhancements.accuracy += 0.2
+        enhancements.confidence += 0.25
+        
+        // 詳細情報をマージ
+        enhancements.averageRating = movieDetails.voteAverage
+        enhancements.ratingsCount = movieDetails.voteCount
+        enhancements.keywords = [...enhancements.keywords, ...movieDetails.keywords.slice(0, 8)]
+        enhancements.similarWorks = movieDetails.similar
+        
+        // ジャンル情報を強化
+        if (movieDetails.genres && movieDetails.genres.length > 0) {
+          enhancements.detailedGenres = [...new Set([...enhancements.detailedGenres, ...movieDetails.genres])]
+        }
+      }
+    } catch (error) {
+      console.warn('TMDb API エラー:', error)
+    }
+  }
+
+  return enhancements
+}
+
+/**
+ * 基本データと強化データをマージ
+ */
+function mergeEnhancedData(baseData: InputPreviewData, enhanced: any): InputPreviewData {
+  return {
+    ...baseData,
+    // より詳細なジャンル情報で上書き
+    genre: enhanced.detailedGenres.slice(0, 6),
+    // 強化されたタグ情報で上書き
+    tags: [...new Set([...baseData.tags, ...enhanced.keywords])].slice(0, 12),
+    // 強化データを追加
+    enhancedData: {
+      accuracy: enhanced.accuracy,
+      confidence: enhanced.confidence,
+      externalSources: enhanced.externalSources,
+      isbn: enhanced.isbn,
+      pageCount: enhanced.pageCount,
+      publishedDate: enhanced.publishedDate,
+      averageRating: enhanced.averageRating,
+      ratingsCount: enhanced.ratingsCount,
+      keywords: enhanced.keywords,
+      similarWorks: enhanced.similarWorks,
+      detailedGenres: enhanced.detailedGenres
+    }
   }
 } 

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import AIAnalysisEnhancer from '@/lib/aiAnalysisEnhancer'
 
 // Gemini APIクライアントの初期化
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 interface InputAIAnalysis {
-  // 基本分析
-  suggestedTags: string[]
+  // 基本分析（作家名を含む）
+  suggestedTags: string[]        // 作家名を含むタグ
   suggestedGenres: string[]
   targetAudience: string[]
   appealPoints: string[]
@@ -23,16 +24,15 @@ interface InputAIAnalysis {
   socialElements: string[]
   creativeInfluence: string[]
   
-  // 新機能: クリエイター向け洞察
-  creativeInsights: {
+  // 拡張機能（オプショナル - 後方互換性のため）
+  creativeInsights?: {
     inspirationSources: string[]
     skillDevelopment: string[]
     creativeDirection: string[]
     collaborationOpportunities: string[]
   }
   
-  // 新機能: 総合的な興味分析
-  interestProfile: {
+  interestProfile?: {
     primaryInterests: string[]
     secondaryInterests: string[]
     emergingInterests: string[]
@@ -40,14 +40,21 @@ interface InputAIAnalysis {
     preferredMediums: string[]
   }
   
-  // 新機能: タグの詳細分類
-  tagClassification: {
+  tagClassification?: {
+    creator: string[]
     genre: string[]
     mood: string[]
     theme: string[]
     technique: string[]
     audience: string[]
     medium: string[]
+  }
+  
+  creatorAnalysis?: {
+    primaryCreator: string[]
+    similarCreators: string[]
+    influentialCreators: string[]
+    collaborationSuggestions: string[]
   }
 }
 
@@ -72,9 +79,34 @@ export async function POST(request: NextRequest) {
 
     console.log('AI分析対象:', inputData.title)
 
-    // 強化されたAI分析プロンプト
+    // 強化されたAI分析を実行（強化機能は一時的に無効化）
+    console.log('⚠️ 強化AI分析は一時的に無効化されています - 基本分析を実行します')
+    // TODO: 無限ループ問題解決後に有効化
+    /*
+    try {
+      const enhancedAnalysis = await AIAnalysisEnhancer.performIntegratedAnalysis(
+        inputData, 
+        inputData.enhancedData
+      )
+      
+      return NextResponse.json({
+        success: true,
+        analysis: enhancedAnalysis,
+        enhancedData: {
+          confidenceScore: enhancedAnalysis.confidenceScore,
+          analysisSource: enhancedAnalysis.analysisSource,
+          accuracy: 'enhanced'
+        }
+      })
+
+    } catch (enhancedError) {
+      console.warn('⚠️ 強化AI分析失敗、基本分析に切り替え:', enhancedError)
+    }
+    */
+
+    // 超高精度クリエイター向けAI分析プロンプト（作家名重視版）
     const analysisPrompt = `
-あなたはクリエイター向けのコンテンツ分析専門家です。以下のコンテンツを詳細に分析し、クリエイティブな洞察を提供してください。
+あなたは、クリエイター向けポートフォリオサービス「balubo」専属の超高性能なAIコンテンツアナリストです。
 
 【分析対象】
 タイトル: ${inputData.title}
@@ -82,89 +114,59 @@ export async function POST(request: NextRequest) {
 作者/制作者: ${inputData.authorCreator || '不明'}
 カテゴリ: ${inputData.category || '不明'}
 説明: ${inputData.description || ''}
-既存タグ: ${inputData.tags?.join(', ') || 'なし'}
-既存ジャンル: ${inputData.genres?.join(', ') || 'なし'}
+
+【🎯 最重要指示：作家名をタグに含めること】
+- suggestedTagsには必ず作家名・クリエイター名を含めてください
+- 類似作家・影響を受けた作家も推測してタグに含めてください
+- 作家名は最初の方に配置してください
 
 【分析要求】
-ライター・クリエイター向けのポートフォリオサイトのユーザーが、自分の興味・関心・創作の傾向を理解できるよう、以下の詳細分析を行ってください：
+以下のJSON形式で回答してください。余計な説明文は一切含めないでください。
 
-1. **基本分析**
-   - suggestedTags: 追加すべき具体的なタグ（8-12個、創作に役立つもの）
-   - suggestedGenres: 詳細なジャンル分類（3-6個）
-   - targetAudience: ターゲット層の詳細（年代、職業、趣味、ライフスタイル）
-   - appealPoints: このコンテンツの魅力（創作者視点で3-6個）
+1. **suggestedTags**: 作家名を含む作品タグ（8-12個）
+   - 必ず作家名を最初の数個に含める
+   - 類似作家名も含める
+   - 作品の性質を表すタグも含める
 
-2. **パーソナリティ分析**
-   - personalityTraits: このコンテンツを好む人の性格特徴（3-6個）
-   - interestCategories: 関連する興味カテゴリ（3-6個）
-   - mood: 作品の雰囲気（具体的で感情的な表現）
-   - themes: 主要テーマ（創作に活かせる抽象的概念3-6個）
+2. **suggestedGenres**: 詳細なジャンル分類（3-6個）
 
-3. **詳細分析**
-   - difficulty: 理解・習得難易度
-   - timeCommitment: 所要時間
-   - socialElements: 社交性
-   - creativeInfluence: 創作への影響
+3. **targetAudience**: ターゲット層（3-5個）
 
-4. **クリエイター向け洞察**
-   - creativeInsights.inspirationSources: インスピレーション源（3-5個）
-   - creativeInsights.skillDevelopment: 向上できるスキル（3-5個）
-   - creativeInsights.creativeDirection: 創作方向性のヒント（3-5個）
-   - creativeInsights.collaborationOpportunities: コラボの可能性（3-5個）
+4. **appealPoints**: 魅力ポイント（3-6個）
 
-5. **総合的な興味分析**
-   - interestProfile.primaryInterests: 主要興味（3-4個）
-   - interestProfile.secondaryInterests: 副次的興味（3-4個）
-   - interestProfile.emergingInterests: 新興分野（2-3個）
-   - interestProfile.creativeStyle: 創作スタイル（1つの具体的表現）
-   - interestProfile.preferredMediums: 好みの媒体（3-5個）
+5. **personalityTraits**: 性格特徴（3-6個）
 
-6. **タグの詳細分類**
-   - tagClassification.genre: ジャンル系タグ（2-4個）
-   - tagClassification.mood: 雰囲気系タグ（2-4個）
-   - tagClassification.theme: テーマ系タグ（2-4個）
-   - tagClassification.technique: 技法系タグ（2-4個）
-   - tagClassification.audience: 対象者系タグ（2-3個）
-   - tagClassification.medium: 媒体系タグ（2-3個）
+6. **interestCategories**: 興味カテゴリ（3-6個）
 
-【重要】必ずJSON形式で回答し、クリエイターの成長と創作活動に実用的な洞察を提供してください。
+7. **mood**: 作品の雰囲気（1つの文章）
 
-回答例：
+8. **themes**: 主要テーマ（3-6個）
+
+9. **difficulty**: 難易度（1つの文章）
+
+10. **timeCommitment**: 時間投資（1つの文章）
+
+11. **socialElements**: 社交性（1-3個）
+
+12. **creativeInfluence**: 創作への影響（1-3個）
+
+【回答例】
 {
-  "suggestedTags": ["心理サスペンス", "親子関係", "社会派", "現代ドラマ", "人間ドラマ", "Netflix", "ストリーミング", "韓国文化"],
-  "suggestedGenres": ["サスペンス", "ヒューマンドラマ", "社会派ドラマ"],
-  "targetAudience": ["20-40代", "親世代", "社会問題に関心ある人", "心理ドラマ好き"],
-  "appealPoints": ["リアルな人間描写", "社会問題への鋭い視点", "緊迫感のある演出"],
-  "personalityTraits": ["共感性が高い", "社会問題に敏感", "心理的洞察力"],
-  "interestCategories": ["社会問題", "心理学", "ファミリードラマ", "ドキュメンタリー"],
-  "mood": "緊張感のある現実的",
-  "themes": ["家族の絆", "社会の偏見", "真実の追求", "母性愛"],
-  "difficulty": "中級者向け",
-  "timeCommitment": "中程度",
-  "socialElements": ["家族と"],
-  "creativeInfluence": ["社会派ストーリーテリング"],
-  "creativeInsights": {
-    "inspirationSources": ["実際の社会問題", "家族関係の複雑さ", "メディアの影響力"],
-    "skillDevelopment": ["心理描写", "社会問題の取材", "緊張感のある展開"],
-    "creativeDirection": ["リアリティのある人間ドラマ", "社会派作品", "心理サスペンス"],
-    "collaborationOpportunities": ["ジャーナリスト", "社会活動家", "心理カウンセラー"]
-  },
-  "interestProfile": {
-    "primaryInterests": ["人間ドラマ", "社会問題", "心理分析"],
-    "secondaryInterests": ["ドキュメンタリー", "ニュース", "ファミリーコンテンツ"],
-    "emergingInterests": ["調査報道", "社会派創作"],
-    "creativeStyle": "リアリティ重視の社会派",
-    "preferredMediums": ["映像", "ドラマ", "記事", "ドキュメンタリー"]
-  },
-  "tagClassification": {
-    "genre": ["サスペンス", "ヒューマンドラマ"],
-    "mood": ["緊張感", "現実的"],
-    "theme": ["家族", "社会問題", "真実"],
-    "technique": ["心理描写", "社会派演出"],
-    "audience": ["大人向け", "親世代"],
-    "medium": ["ストリーミング", "映像"]
-  }
+  "suggestedTags": ["吉田修一", "伊坂幸太郎", "重松清", "芸道小説", "青春", "歌舞伎", "極道", "人間ドラマ", "師弟関係", "成長物語", "葛藤", "友情"],
+  "suggestedGenres": ["現代小説", "青春小説", "人間ドラマ", "芸道小説"],
+  "targetAudience": ["20～40代", "小説愛好家", "現代文学ファン", "人間ドラマ好き"],
+  "appealPoints": ["複雑な人間関係の描写", "伝統芸能の世界観", "登場人物の成長過程", "社会問題への洞察"],
+  "personalityTraits": ["繊細", "共感力が高い", "洞察力がある", "思慮深い"],
+  "interestCategories": ["現代文学", "社会問題", "人間関係", "伝統文化"],
+  "mood": "切なくも希望に満ちた青春の輝きと、複雑な人間関係の緊張感",
+  "themes": ["成長", "葛藤", "師弟関係", "芸術への献身"],
+  "difficulty": "中級者向け - 深い人間描写を理解できる読解力が必要",
+  "timeCommitment": "中程度 - じっくりと味わって読むのに適している",
+  "socialElements": ["読書会での議論", "文学サークル"],
+  "creativeInfluence": ["人間描写技法", "対比構造の活用", "心理描写の深化"]
 }
+
+必ずこの形式のJSONで回答してください。作家名をタグの最初に必ず含めてください。
 `;
 
     console.log('Gemini APIを呼び出し中...')
@@ -202,7 +204,7 @@ export async function POST(request: NextRequest) {
         
         // JSONパースに失敗した場合の強化されたフォールバック
         analysis = {
-          suggestedTags: ['AI分析', 'エンターテインメント', 'コンテンツ', 'メディア'],
+          suggestedTags: [inputData.authorCreator || 'クリエイター', 'AI分析', 'エンターテインメント', 'コンテンツ', 'メディア'],
           suggestedGenres: ['その他', 'エンターテインメント'],
           targetAudience: ['一般', 'コンテンツ愛好者'],
           appealPoints: ['ユニークなコンテンツ', '興味深い題材'],
@@ -228,12 +230,19 @@ export async function POST(request: NextRequest) {
             preferredMediums: ['デジタル']
           },
           tagClassification: {
+            creator: [inputData.authorCreator || 'クリエイター'],
             genre: ['エンターテインメント'],
             mood: ['興味深い'],
             theme: ['文化'],
             technique: ['観察'],
             audience: ['一般'],
             medium: ['デジタル']
+          },
+          creatorAnalysis: {
+            primaryCreator: [inputData.authorCreator || 'クリエイター'],
+            similarCreators: ['類似クリエイター'],
+            influentialCreators: ['影響を受けたクリエイター'],
+            collaborationSuggestions: ['他分野のクリエイター']
           }
         }
       }

@@ -153,7 +153,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
         clearTimeout(timeoutId)
       }
     }
-  }, [searchParams]) // searchParamsをメモ化して依存配列に使用
+  }, [searchParams.isAuthenticated, searchParams.currentUserId]) // 具体的なプロパティのみ依存配列に設定
 
   // メモ化されたユーザーリスト
   const memoizedUsers = useMemo(() => users, [users])

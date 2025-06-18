@@ -39,6 +39,7 @@ export function ProfileHeader({
       <div className="relative h-32 sm:h-40 md:h-48 lg:h-56">
         {hasCustomBackground ? (
           <div className="absolute inset-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={backgroundImageUrl} 
               alt="プロフィール背景画像" 

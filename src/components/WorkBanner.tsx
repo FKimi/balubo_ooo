@@ -29,8 +29,8 @@ interface LinkPreviewData {
 }
 
 export function WorkBanner({ url, title, previewData: initialPreviewData, bannerImageUrl, useProxy = true }: WorkBannerProps) {
-  const [previewData, setPreviewData] = useState<LinkPreviewData | null>(initialPreviewData || null)
-  const [isLoading, setIsLoading] = useState(!initialPreviewData)
+  const [previewData, setPreviewData] = useState<LinkPreviewData | null>(() => initialPreviewData || null)
+  const [isLoading, setIsLoading] = useState(() => !initialPreviewData && !bannerImageUrl)
   const [hasError, setHasError] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [imageLoadAttempts, setImageLoadAttempts] = useState(0)
@@ -45,8 +45,11 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
   })
 
   useEffect(() => {
+    // 重複実行防止のための参照保持
+    let isMounted = true
+    
     // 既にプレビューデータがある場合は何もしない
-    if (initialPreviewData?.image) {
+    if (initialPreviewData?.image && isMounted) {
       console.log('Using existing preview data with image:', initialPreviewData.image)
       setPreviewData(initialPreviewData)
       setIsLoading(false)
@@ -54,7 +57,7 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
     }
 
     // bannerImageUrlがある場合は、それを使用してプレビューデータを作成
-    if (bannerImageUrl && !initialPreviewData) {
+    if (bannerImageUrl && !initialPreviewData && isMounted) {
       console.log('Using banner image URL:', bannerImageUrl)
       const syntheticPreviewData: LinkPreviewData = {
         title: title,
@@ -79,9 +82,9 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
     }
 
     const fetchPreview = async () => {
-      if (!url) {
-        console.log('No URL provided for preview')
-        setIsLoading(false)
+      if (!url || !isMounted) {
+        console.log('No URL provided for preview or component unmounted')
+        if (isMounted) setIsLoading(false)
         return
       }
 
@@ -95,6 +98,8 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
           body: JSON.stringify({ url }),
         })
 
+        if (!isMounted) return
+
         const data = await response.json()
         console.log('Preview API response:', { 
           ok: response.ok, 
@@ -102,23 +107,35 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
           imageUrl: data.image 
         })
 
-        if (response.ok && data.image) {
+        if (response.ok && data.image && isMounted) {
           console.log('Preview data received with image:', data.image)
           setPreviewData(data)
-        } else {
+        } else if (isMounted) {
           console.log('No preview image available from API')
           setHasError(true)
         }
       } catch (error) {
-        console.error('Preview fetch error:', error)
-        setHasError(true)
+        if (isMounted) {
+          console.error('Preview fetch error:', error)
+          setHasError(true)
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
-    fetchPreview()
-  }, [url, title, initialPreviewData, bannerImageUrl])
+    // URLが変更され、既存のデータがない場合のみfetchを実行
+    if (!previewData && !bannerImageUrl && url && isMounted) {
+      fetchPreview()
+    }
+
+    // クリーンアップ関数
+    return () => {
+      isMounted = false
+    }
+  }, [url]) // 依存配列をurlのみに限定
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.currentTarget

@@ -60,6 +60,7 @@ export default function NewInputPage() {
   })
   const [showShareToast, setShowShareToast] = useState(false)
   const [savedInputData, setSavedInputData] = useState<any>(null)
+  const [aiAnalysisExecuted, setAiAnalysisExecuted] = useState(false)
 
   // URL自動取得機能
   const fetchPreviewData = async () => {
@@ -84,25 +85,38 @@ export default function NewInputPage() {
         throw new Error(data.error || 'プレビューデータの取得に失敗しました')
       }
 
-      console.log('プレビューデータ取得成功:', data.previewData)
+      console.log('✅ プレビューデータ取得成功:', data.previewData)
+      console.log('👤 取得された作者情報:', data.previewData.author)
+      
       setPreviewData(data.previewData)
       setShowPreview(true)
 
       // プレビューデータを入力フォームに自動入力
       if (data.previewData) {
-        setInputData(prev => ({
-          ...prev,
-          title: data.previewData.title || '',
-          type: (data.previewData.type as InputType) || 'other',
-          category: data.previewData.category || '',
-          authorCreator: data.previewData.author || '',
-          description: data.previewData.description || '',
-          tags: data.previewData.tags || [],
-          genres: data.previewData.genre || [],
-          externalUrl: data.previewData.url || urlInput,
-          coverImageUrl: data.previewData.image || '',
-          rating: data.previewData.rating || undefined
-        }))
+        setInputData(prev => {
+          const updatedData = {
+            ...prev,
+            title: data.previewData.title || '',
+            type: (data.previewData.type as InputType) || 'other',
+            category: data.previewData.category || '',
+            authorCreator: data.previewData.author || '',
+            description: data.previewData.description || '',
+            tags: data.previewData.tags || [],
+            genres: data.previewData.genre || [],
+            externalUrl: data.previewData.url || urlInput,
+            coverImageUrl: data.previewData.image || '',
+            rating: data.previewData.rating || undefined
+          }
+          
+          console.log('📝 フォームに設定されるデータ:', {
+            title: updatedData.title,
+            authorCreator: updatedData.authorCreator,
+            type: updatedData.type,
+            category: updatedData.category
+          })
+          
+          return updatedData
+        })
       }
 
     } catch (error) {
@@ -120,8 +134,25 @@ export default function NewInputPage() {
       return
     }
 
+    // 重複実行を防ぐ
+    if (isLoadingAI || aiAnalysisExecuted) {
+      console.log('⚠️ AI分析は既に実行済みまたは実行中です')
+      return
+    }
+
     setIsLoadingAI(true)
+    setAiAnalysisExecuted(true)
+    
     try {
+      // デバッグ: 送信するデータをログ出力
+      console.log('🔍 AI分析に送信するデータ:', {
+        title: inputData.title,
+        authorCreator: inputData.authorCreator,
+        type: inputData.type,
+        category: inputData.category,
+        description: inputData.description
+      })
+
       const response = await fetch('/api/inputs/ai-analyze', {
         method: 'POST',
         headers: {
@@ -136,23 +167,34 @@ export default function NewInputPage() {
         throw new Error(data.error || 'AI分析に失敗しました')
       }
 
-      console.log('AI分析取得成功:', data.analysis)
+      console.log('✅ AI分析取得成功:', data.analysis)
+      console.log('🏷️ 生成されたタグ:', data.analysis.suggestedTags)
+      
       setAiAnalysis(data.analysis)
       setShowAI(true)
 
       // AI分析結果を入力フォームに自動入力
       if (data.analysis) {
+        // 提案タグを全て追加（重複除去）
+        const newTags = [...(inputData.tags || []), ...data.analysis.suggestedTags].filter((tag, index, arr) => arr.indexOf(tag) === index)
+        const newGenres = [...(inputData.genres || []), ...data.analysis.suggestedGenres].filter((genre, index, arr) => arr.indexOf(genre) === index)
+        
+        console.log('🔄 フォームに追加されるタグ:', newTags)
+        console.log('🔄 フォームに追加されるジャンル:', newGenres)
+        
         setInputData(prev => ({
           ...prev,
-          tags: [...(prev.tags || []), ...data.analysis.suggestedTags.slice(0, 5)].filter((tag, index, arr) => arr.indexOf(tag) === index),
-          genres: [...(prev.genres || []), ...data.analysis.suggestedGenres.slice(0, 3)].filter((genre, index, arr) => arr.indexOf(genre) === index),
+          tags: newTags,
+          genres: newGenres,
           aiAnalysisResult: data.analysis
         }))
       }
 
     } catch (error) {
-      console.error('AI分析エラー:', error)
+      console.error('❌ AI分析エラー:', error)
       alert(error instanceof Error ? error.message : 'AI分析に失敗しました')
+      // エラー時は実行フラグをリセット
+      setAiAnalysisExecuted(false)
     } finally {
       setIsLoadingAI(false)
     }
@@ -332,7 +374,15 @@ export default function NewInputPage() {
                           <Input
                             id="title"
                             value={inputData.title || ''}
-                            onChange={(e) => setInputData(prev => ({ ...prev, title: e.target.value }))}
+                            onChange={(e) => {
+                              setInputData(prev => ({ ...prev, title: e.target.value }))
+                              // タイトルが変更されたらAI分析フラグをリセット
+                              if (aiAnalysisExecuted) {
+                                setAiAnalysisExecuted(false)
+                                setAiAnalysis(null)
+                                setShowAI(false)
+                              }
+                            }}
                             required
                           />
                         </div>
@@ -522,10 +572,10 @@ export default function NewInputPage() {
                     <Button
                       type="button"
                       onClick={fetchAIAnalysis}
-                      disabled={isLoadingAI || !inputData.title}
-                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      disabled={isLoadingAI || !inputData.title || aiAnalysisExecuted}
+                      className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
                     >
-                      {isLoadingAI ? '分析中...' : '🔮 AI分析を実行'}
+                      {isLoadingAI ? '分析中...' : aiAnalysisExecuted ? '✅ 分析完了' : '🔮 AI分析を実行'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -569,45 +619,126 @@ export default function NewInputPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {/* 提案タグ */}
-                        <div>
-                          <h5 className="font-medium text-sm mb-2">提案タグ</h5>
-                          <div className="flex flex-wrap gap-1">
-                            {aiAnalysis.suggestedTags.slice(0, 6).map((tag, index) => (
-                              <button
-                                key={index}
-                                type="button"
-                                onClick={() => addTag(tag)}
-                                className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs border border-blue-200 transition-colors"
-                              >
-                                + {tag}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
                         {/* 魅力ポイント */}
                         <div>
-                          <h5 className="font-medium text-sm mb-2">魅力ポイント</h5>
-                          <div className="space-y-1">
-                            {aiAnalysis.appealPoints.slice(0, 3).map((point, index) => (
-                              <div key={index} className="text-xs text-gray-600 flex items-start gap-1">
-                                <span className="text-green-500">✓</span>
-                                <span>{point}</span>
-                              </div>
-                            ))}
+                          <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
+                            <span className="text-green-600">✨</span>
+                            魅力ポイント
+                          </h5>
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div className="space-y-2">
+                              {aiAnalysis.appealPoints.map((point, index) => (
+                                <div key={index} className="text-sm text-green-800 flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">✓</span>
+                                  <span className="leading-relaxed">{point}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
                         {/* ターゲット層 */}
                         <div>
-                          <h5 className="font-medium text-sm mb-2">ターゲット層</h5>
-                          <div className="flex flex-wrap gap-1">
-                            {aiAnalysis.targetAudience.slice(0, 3).map((audience, index) => (
-                              <span key={index} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                          <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
+                            <span className="text-orange-600">🎯</span>
+                            ターゲット層
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {aiAnalysis.targetAudience.map((audience, index) => (
+                              <span key={index} className="bg-orange-50 text-orange-700 px-3 py-1.5 rounded-full text-sm border border-orange-200">
                                 {audience}
                               </span>
                             ))}
+                          </div>
+                        </div>
+
+                        {/* パーソナリティ特性 */}
+                        {aiAnalysis.personalityTraits && aiAnalysis.personalityTraits.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
+                              <span className="text-pink-600">🧠</span>
+                              パーソナリティ特性
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                              {aiAnalysis.personalityTraits.map((trait, index) => (
+                                <span key={index} className="bg-pink-50 text-pink-700 px-3 py-1.5 rounded-full text-sm border border-pink-200">
+                                  {trait}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 興味カテゴリ */}
+                        {aiAnalysis.interestCategories && aiAnalysis.interestCategories.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
+                              <span className="text-indigo-600">🔍</span>
+                              興味カテゴリ
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                              {aiAnalysis.interestCategories.map((category, index) => (
+                                <span key={index} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-sm border border-indigo-200">
+                                  {category}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 作品の雰囲気 */}
+                        {aiAnalysis.mood && (
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h5 className="font-medium text-sm mb-2 flex items-center gap-2">
+                              <span className="text-gray-600">🌟</span>
+                              作品の雰囲気
+                            </h5>
+                            <p className="text-sm text-gray-700 leading-relaxed">{aiAnalysis.mood}</p>
+                          </div>
+                        )}
+
+                        {/* 主要テーマ */}
+                        {aiAnalysis.themes && aiAnalysis.themes.length > 0 && (
+                          <div>
+                            <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
+                              <span className="text-gray-600">📖</span>
+                              主要テーマ
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                              {aiAnalysis.themes.map((theme, index) => (
+                                <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full text-sm border border-gray-200">
+                                  {theme}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 創作への影響・インスピレーション */}
+                        {aiAnalysis.creativeInfluence && aiAnalysis.creativeInfluence.length > 0 && (
+                          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
+                            <h5 className="font-medium text-sm mb-3 flex items-center gap-2">
+                              <span className="text-yellow-600">🎨</span>
+                              創作への影響・インスピレーション
+                            </h5>
+                            <div className="space-y-2">
+                              {aiAnalysis.creativeInfluence.map((influence, index) => (
+                                <div key={index} className="text-sm text-yellow-800 flex items-start gap-2">
+                                  <span className="text-yellow-500 mt-0.5">💡</span>
+                                  <span className="leading-relaxed">{influence}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* AI分析精度表示 */}
+                        <div className="text-center pt-4 border-t border-gray-200">
+                          <div className="text-sm text-gray-600 font-medium">
+                            🤖 AI分析完了
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {aiAnalysis.suggestedTags?.length || 0}個のタグを自動追加しました
                           </div>
                         </div>
                       </div>

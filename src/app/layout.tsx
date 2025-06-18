@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <ErrorFilter />
+        {/* <ErrorFilter /> */}
         <AuthProvider>
           {children}
         </AuthProvider>
