@@ -144,4 +144,9 @@ export const auth = {
     }
     return supabase.auth.onAuthStateChange(callback)
   },
+}
+
+// ブラウザから利用する際に共通インスタンスを返すヘルパー
+export function getSupabaseBrowserClient() {
+  return supabase
 } 

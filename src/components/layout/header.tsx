@@ -38,7 +38,7 @@ export function Header() {
             <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0" />
             </svg>
-            <span className="font-medium">ホーム</span>
+            <span className="font-medium">フィード</span>
           </Link>
           <Link 
             href="/profile" 
@@ -155,7 +155,7 @@ export function MobileBottomNavigation() {
           <svg className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0" />
           </svg>
-          <span className="text-xs font-medium">ホーム</span>
+          <span className="text-xs font-medium">フィード</span>
         </Link>
         <Link href="/profile" className="flex flex-col items-center py-2 px-3 text-text-secondary hover:text-accent-dark-blue transition-all duration-200 group">
           <svg className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

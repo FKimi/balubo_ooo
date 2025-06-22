@@ -1,0 +1,5 @@
+export { InputsSection } from '@/features/report/components/InputsSection'
+export { InsightsSection } from '@/features/report/components/InsightsSection'
+export { OverviewSection } from '@/features/report/components/OverviewSection'
+export { SimpleProgress } from '@/features/report/components/SimpleProgress'
+export { WorksSection } from '@/features/report/components/WorksSection'

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeftIcon, PencilIcon, TrashIcon, SparklesIcon, UserIcon } from '@heroicons/react/24/outline'
 import { HeartIcon } from '@heroicons/react/24/solid'
 import { Header, MobileBottomNavigation } from '@/components/layout/header'
@@ -37,7 +38,7 @@ interface InputDetail {
   }
 }
 
-export default function InputDetailPage({ params }: { params: { id: string } }) {
+export default function InputDetailPage({ params }: any) {
   const router = useRouter()
   const { user } = useAuth()
   const [input, setInput] = useState<InputDetail | null>(null)
@@ -320,10 +321,12 @@ export default function InputDetailPage({ params }: { params: { id: string } }) 
                 <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
                   <div className="flex-shrink-0">
                     {input.user.avatar_image_url ? (
-                      <img
+                      <Image
                         src={input.user.avatar_image_url}
                         alt={input.user.display_name}
-                        className="w-10 h-10 rounded-full object-cover"
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
@@ -346,15 +349,17 @@ export default function InputDetailPage({ params }: { params: { id: string } }) 
                 {input.cover_image_url && (
                   <div className="lg:col-span-1">
                     <div className="aspect-[3/4] relative rounded-lg overflow-hidden shadow-md">
-                      <img
+                      <Image
                         src={input.cover_image_url}
                         alt={input.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="100vw"
+                        className="object-cover"
                       />
                     </div>
                   </div>
                 )}
-
+                
                 {/* 右側: 詳細情報 */}
                 <div className={input.cover_image_url ? 'lg:col-span-2' : 'lg:col-span-3'}>
                   <div className="space-y-6">

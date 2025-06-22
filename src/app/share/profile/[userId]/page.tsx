@@ -3,12 +3,6 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from './public-profile-content'
 
-interface PageProps {
-  params: {
-    userId: string
-  }
-}
-
 async function getPublicProfile(userId: string) {
   console.log('公開プロフィール取得開始:', userId)
   
@@ -165,7 +159,7 @@ async function getPublicProfile(userId: string) {
   }
 }
 
-export default async function PublicProfilePage({ params }: PageProps) {
+export default async function PublicProfilePage({ params }: any) {
   const data = await getPublicProfile(params.userId)
   
   if (!data) {
@@ -182,7 +176,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
 }
 
 // メタデータの生成
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: any) {
   const data = await getPublicProfile(params.userId)
   
   if (!data) {

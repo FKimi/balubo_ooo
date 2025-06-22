@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ShareSuccessToast } from '@/components/social/ShareModal'
 import { shareToTwitter } from '@/utils/socialShare'
@@ -592,9 +593,11 @@ export default function NewInputPage() {
                     <CardContent>
                       <div className="space-y-3">
                         {previewData.image && (
-                          <img 
-                            src={previewData.image} 
+                          <Image
+                            src={previewData.image}
                             alt="カバー画像"
+                            width={512}
+                            height={128}
                             className="w-full h-32 object-cover rounded"
                           />
                         )}

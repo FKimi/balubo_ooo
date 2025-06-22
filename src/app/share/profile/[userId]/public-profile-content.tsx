@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { PublicProfileHeader } from '../../../../components/profile/PublicProfileHeader'
-import { PublicProfileTabs } from '../../../../components/profile/PublicProfileTabs'
+import { PublicProfileHeader } from '@/features/profile/components/PublicProfileHeader'
+import { PublicProfileTabs } from '@/features/profile/components/PublicProfileTabs'
 import { Button } from '@/components/ui/button'
 
 interface PublicProfileData {

@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
-import { RecommendedUsers } from '@/components/feed/RecommendedUsers'
+import { RecommendedUsers } from '@/features/feed'
 import { 
   Heart, 
   Share, 
@@ -603,10 +604,12 @@ export default function FeedPage() {
                     }}
                   >
                     {item.user.avatar_image_url ? (
-                      <img
+                      <Image
                         src={item.user.avatar_image_url}
                         alt={item.user.display_name}
-                        className="w-10 h-10 rounded-full object-cover hover:opacity-90 transition-opacity"
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover hover:opacity-90 transition-opacity"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center hover:opacity-90 transition-opacity">
@@ -728,19 +731,21 @@ export default function FeedPage() {
                 {/* 画像 */}
                 {(item.banner_image_url || item.cover_image_url) && (
                   <div className="ml-12 mb-3">
-                    <img
-                      src={item.banner_image_url || item.cover_image_url}
-                      alt={item.title}
-                      className="w-full max-w-lg h-64 object-cover rounded-2xl cursor-pointer hover:opacity-95 transition-opacity border border-gray-200"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (item.type === 'work') {
-                          router.push(`/works/${item.id}`)
-                        } else {
-                          router.push(`/inputs/${item.id}`)
-                        }
-                      }}
-                    />
+                    <Image
+                       src={(item.banner_image_url || item.cover_image_url) as string}
+                       alt={item.title}
+                       width={800}
+                       height={256}
+                       className="w-full max-w-lg h-64 object-cover rounded-2xl cursor-pointer hover:opacity-95 transition-opacity border border-gray-200"
+                       onClick={(e) => {
+                         e.stopPropagation()
+                         if (item.type === 'work') {
+                           router.push(`/works/${item.id}`)
+                         } else {
+                           router.push(`/inputs/${item.id}`)
+                         }
+                       }}
+                     />
                   </div>
                 )}
 
@@ -880,11 +885,13 @@ export default function FeedPage() {
                     }}
                   >
                     {selectedItem.user.avatar_image_url ? (
-                      <img
-                        src={selectedItem.user.avatar_image_url}
-                        alt={selectedItem.user.display_name}
-                        className="w-10 h-10 rounded-full object-cover hover:ring-2 hover:ring-blue-300 transition-all duration-200"
-                      />
+                      <Image
+                         src={selectedItem.user.avatar_image_url as string}
+                         alt={selectedItem.user.display_name}
+                         width={40}
+                         height={40}
+                         className="rounded-full object-cover hover:ring-2 hover:ring-blue-300 transition-all duration-200"
+                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center hover:ring-2 hover:ring-blue-300 transition-all duration-200">
                         <User className="h-5 w-5 text-white" />
@@ -925,11 +932,13 @@ export default function FeedPage() {
               )}
 
               {(selectedItem.banner_image_url || selectedItem.cover_image_url) && (
-                <img
-                  src={selectedItem.banner_image_url || selectedItem.cover_image_url}
-                  alt={selectedItem.title}
-                  className="w-full h-80 object-cover rounded-xl mb-6 shadow-lg"
-                />
+                <Image
+                   src={(selectedItem.banner_image_url || selectedItem.cover_image_url) as string}
+                   alt={selectedItem.title}
+                   width={1000}
+                   height={320}
+                   className="w-full h-80 object-cover rounded-xl mb-6 shadow-lg"
+                 />
               )}
 
               {/* アクションボタン */}
@@ -1026,11 +1035,13 @@ export default function FeedPage() {
                     <div key={comment.id} className="flex space-x-3">
                       <div className="flex-shrink-0">
                         {comment.user?.avatar_image_url ? (
-                          <img
-                            src={comment.user.avatar_image_url}
-                            alt={comment.user.display_name || 'User'}
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
+                          <Image
+                             src={comment.user.avatar_image_url as string}
+                             alt={comment.user.display_name || 'User'}
+                             width={32}
+                             height={32}
+                             className="rounded-full object-cover"
+                           />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                             <span className="text-white text-xs font-medium">

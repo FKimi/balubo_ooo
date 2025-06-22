@@ -7,8 +7,8 @@ import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { WorkBanner } from '@/components/WorkBanner'
-import LikeButton from '@/components/work/LikeButton'
-import CommentsSection from '@/components/work/CommentsSection'
+import LikeButton from '@/features/work/components/LikeButton'
+import CommentsSection from '@/features/work/components/CommentsSection'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 interface WorkData {

@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { AIAnalysisDetailModal } from '@/components/works/AIAnalysisDetailModal'
+import { AIAnalysisDetailModal } from '@/features/work/components/AIAnalysisDetailModal'
 import ReactMarkdown from 'react-markdown'
 import { ArrowLeft, X, Sparkles } from 'lucide-react'
 

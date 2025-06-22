@@ -169,6 +169,7 @@ export class DatabaseClient {
         user_id: userId,
         display_name: profileData.displayName || '',
         bio: profileData.bio || '',
+        introduction: profileData.introduction || '', // 詳細な自己紹介フィールドを追加
         professions: profileData.professions || [],
         skills: profileData.skills || [],
         location: profileData.location || '',
@@ -202,6 +203,12 @@ export class DatabaseClient {
         }
         result = data
         console.log('DatabaseClient: プロフィール更新成功')
+        // キャッシュを即時更新
+        const authCacheKey = `${userId}-${token ? 'auth' : 'anon'}`
+        this.profileCache.set(authCacheKey, { data, timestamp: Date.now() })
+        // anon側キャッシュも更新
+        const anonCacheKey = `${userId}-anon`
+        this.profileCache.set(anonCacheKey, { data, timestamp: Date.now() })
       } else {
         // 新規作成
         const profileToCreate = {
@@ -237,6 +244,11 @@ export class DatabaseClient {
         }
         result = data
         console.log('DatabaseClient: プロフィール作成成功')
+        // キャッシュを即時更新
+        const authCacheKey = `${userId}-${token ? 'auth' : 'anon'}`
+        this.profileCache.set(authCacheKey, { data, timestamp: Date.now() })
+        const anonCacheKey = `${userId}-anon`
+        this.profileCache.set(anonCacheKey, { data, timestamp: Date.now() })
       }
 
       return result

@@ -21,10 +21,10 @@ interface WorkData {
 // GET: 特定の作品を取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
-    const { id } = await params
+    const { id } = context.params
     const authHeader = request.headers.get('authorization')
     
     console.log('GET /api/works/[id] - ID:', id, 'Auth:', !!authHeader)
@@ -185,10 +185,10 @@ export async function GET(
 // PUT: 作品を更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
-    const { id } = await params
+    const { id } = context.params
     const body = await request.json()
     const { title, description, externalUrl, tags, roles, categories, productionDate, previewData, aiAnalysisResult, productionNotes } = body
 
@@ -466,10 +466,10 @@ export async function PUT(
 // DELETE: 作品を削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
-    const { id } = await params
+    const { id } = context.params
     const authHeader = request.headers.get('authorization')
     
     // 認証なしの場合は既存のJSONファイルから削除（開発用）

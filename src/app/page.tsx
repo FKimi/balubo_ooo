@@ -6,13 +6,17 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
-import HeroSection from '@/components/landing/HeroSection'
-import ReasonsSection from '@/components/landing/ReasonsSection'
-import FeaturesSection from '@/components/landing/FeaturesSection'
-import VoicesSection from '@/components/landing/VoicesSection'
-import StepsSection from '@/components/landing/StepsSection'
-import DeveloperSection from '@/components/landing/DeveloperSection'
-import FaqSection from '@/components/landing/FaqSection'
+import {
+  HeroSection,
+  ReasonsSection,
+  HighlightsSection,
+  PainPointsSection,
+  SolutionSection,
+  ElementsSection,
+  StepsSection,
+} from '@/components/landing'
+
+
 
 export default function HomePage() {
   const { user, loading } = useAuth()
@@ -72,22 +76,22 @@ export default function HomePage() {
       {/* 新3つの理由セクション */}
       <ReasonsSection />
 
-      {/* 新主要機能セクション */}
-      <FeaturesSection />
+      {/* 悩みセクション */}
+      <PainPointsSection />
 
-      {/* 利用者の声セクション */}
-      <VoicesSection />
+      {/* AIで解決セクション */}
+      <SolutionSection />
+
+      {/* AI要素分析セクション */}
+      <ElementsSection />
+
+      {/* balubo の特徴セクション */}
+      <HighlightsSection />
+
+      
 
       {/* 利用開始ステップセクション */}
       <StepsSection />
-
-      {/* 開発者メッセージセクション */}
-      <DeveloperSection />
-
-      {/* FAQセクション */}
-      <FaqSection />
-
-
 
 
 

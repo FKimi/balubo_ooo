@@ -20,10 +20,10 @@ if (!supabaseAnonKey) {
 // メッセージ一覧取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  context: any
 ) {
   try {
-    const { conversationId } = params
+    const { conversationId } = context.params
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
@@ -171,10 +171,10 @@ export async function GET(
 // メッセージ送信
 export async function POST(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  context: any
 ) {
   try {
-    const { conversationId } = params
+    const { conversationId } = context.params
     const { content, messageType = 'text' } = await request.json()
 
     if (!content || content.trim().length === 0) {
@@ -302,10 +302,10 @@ export async function POST(
 // メッセージ編集
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  context: any
 ) {
   try {
-    const { conversationId } = params
+    const { conversationId } = context.params
     const { messageId, content } = await request.json()
 
     if (!messageId || !content || content.trim().length === 0) {
@@ -434,10 +434,10 @@ export async function PUT(
 // メッセージ削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  context: any
 ) {
   try {
-    const { conversationId } = params
+    const { conversationId } = context.params
     const { searchParams } = new URL(request.url)
     const messageId = searchParams.get('messageId')
 

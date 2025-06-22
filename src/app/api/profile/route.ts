@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       }
 
       // プロフィール取得にもタイムアウトを設定
-      const profilePromise = DatabaseClient.getProfile(user.id)
+      const profilePromise = DatabaseClient.getProfile(user.id, token)
       const profileTimeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 5000) // 5秒でタイムアウト
       })

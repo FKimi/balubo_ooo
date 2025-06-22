@@ -31,7 +31,7 @@ interface InputDetail {
   updated_at: string
 }
 
-export default function InputDetailPage({ params }: { params: { id: string } }) {
+export default function InputDetailPage({ params }: any) {
   const router = useRouter()
   const { user } = useAuth()
   const [input, setInput] = useState<InputDetail | null>(null)

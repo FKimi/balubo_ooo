@@ -5,10 +5,10 @@ import { createClient } from '@supabase/supabase-js'
 // PUT: 代表作情報を更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: any
 ) {
   try {
-    const { id } = await params
+    const { id } = context.params
     const body = await request.json()
     const { is_featured, featured_order } = body
 

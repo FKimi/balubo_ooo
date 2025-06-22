@@ -26,7 +26,7 @@ interface InputData {
   favorite: boolean
 }
 
-export default function EditInputPage({ params }: { params: { id: string } }) {
+export default function EditInputPage({ params }: any) {
   const router = useRouter()
   const { user } = useAuth()
   const [formData, setFormData] = useState<InputData>({

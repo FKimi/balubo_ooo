@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 interface WorkBannerProps {
   url: string
@@ -214,10 +215,12 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
 
   return (
     <div className="w-full h-full relative">
-      <img
+      <Image
         src={imageUrl}
         alt={title || previewData.title || 'バナー画像'}
-        className="w-full h-full object-cover"
+        fill
+        sizes="100vw"
+        className="object-cover"
         onError={handleImageError}
         onLoad={handleImageLoad}
       />

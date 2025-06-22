@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
@@ -411,20 +412,24 @@ ${result.details ? `詳細: ${result.details}` : ''}
                       >
                         {formData.backgroundImageUrl ? (
                           <>
-                            <img 
-                              src={formData.backgroundImageUrl} 
-                              alt="背景画像プレビュー" 
-                              className="w-full h-full object-cover"
+                            <Image
+                              src={formData.backgroundImageUrl}
+                              alt="背景画像プレビュー"
+                              fill
+                              sizes="100vw"
+                              className="object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                             {/* プロフィール画像プレビュー */}
                             <div className="absolute -bottom-8 left-4">
                               <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center border-3 border-white shadow-lg">
                                 {formData.avatarImageUrl ? (
-                                  <img 
-                                    src={formData.avatarImageUrl} 
-                                    alt="プロフィール画像プレビュー" 
-                                    className="w-full h-full object-cover rounded-full"
+                                  <Image
+                                    src={formData.avatarImageUrl}
+                                    alt="プロフィール画像プレビュー"
+                                    width={64}
+                                    height={64}
+                                    className="rounded-full object-cover"
                                   />
                                 ) : (
                                   <span className="text-white font-bold text-xl">
@@ -518,10 +523,12 @@ ${result.details ? `詳細: ${result.details}` : ''}
                   >
                     <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-lg">
                       {formData.avatarImageUrl ? (
-                        <img 
-                          src={formData.avatarImageUrl} 
-                          alt="プロフィール画像" 
-                          className="w-full h-full object-cover rounded-full"
+                        <Image
+                          src={formData.avatarImageUrl}
+                          alt="プロフィール画像"
+                          width={80}
+                          height={80}
+                          className="rounded-full object-cover"
                         />
                       ) : (
                         <span className="text-white font-bold text-2xl">

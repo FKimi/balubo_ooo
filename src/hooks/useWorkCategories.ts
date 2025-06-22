@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import { fetcher } from '@/utils/fetcher'
 import type { WorkData, WorkCategory } from '@/types/work'
 
 // デフォルトカテゴリは削除し、空の配列から開始
@@ -84,7 +86,7 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
             cat === oldName ? newName : cat
           ) || []
 
-          const response = await fetch(`/api/works/${work.id}/category`, {
+          await fetcher(`/api/works/${work.id}/category`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -92,10 +94,6 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
             },
             body: JSON.stringify({ categories: updatedCategories }),
           })
-
-          if (!response.ok) {
-            throw new Error(`作品${work.title}のカテゴリ更新に失敗しました`)
-          }
         }
 
         // ローカル状態の更新
@@ -143,7 +141,7 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
         for (const work of category.works) {
           const updatedCategories = work.categories?.filter(cat => cat !== category.name) || []
 
-          const response = await fetch(`/api/works/${work.id}/category`, {
+          await fetcher(`/api/works/${work.id}/category`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -151,10 +149,6 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
             },
             body: JSON.stringify({ categories: updatedCategories }),
           })
-
-          if (!response.ok) {
-            throw new Error(`作品${work.title}のカテゴリ更新に失敗しました`)
-          }
         }
 
         // ローカル状態の更新
@@ -189,20 +183,12 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
         throw new Error('認証が必要です')
       }
 
-      const response = await fetch(`/api/works/${workId}/category`, {
+      await fetcher(`/api/works/${workId}/category`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ 
-          categories: newCategoryName === '未分類' || newCategoryName === '' ? [] : [newCategoryName]
+        body: JSON.stringify({
+          categories: newCategoryName === '未分類' || newCategoryName === '' ? [] : [newCategoryName],
         }),
       })
-
-      if (!response.ok) {
-        throw new Error('カテゴリの更新に失敗しました')
-      }
 
       // ローカル状態を更新
       const updatedWorks = savedWorks.map(work => 

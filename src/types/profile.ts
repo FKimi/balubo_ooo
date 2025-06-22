@@ -1,6 +1,7 @@
 export interface ProfileData {
   displayName: string
   bio: string
+  introduction?: string // 詳細な自己紹介
   professions: string[]
   skills: string[]
   location: string
@@ -45,6 +46,7 @@ export interface Work {
 export const defaultProfileData: Partial<ProfileData> = {
   displayName: '',
   bio: '',
+  introduction: '',
   professions: [],
   skills: [],
   location: '',

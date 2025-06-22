@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { fetcher } from '@/utils/fetcher'
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -40,27 +42,7 @@ export function useProfile() {
       setLoading(true)
       setError(null)
 
-      // 認証トークンを取得
-      const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
-      const token = session?.access_token
-
-      if (!token) {
-        throw new Error('認証トークンが見つかりません')
-      }
-
-      const response = await fetch('/api/profile', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('プロフィールの取得に失敗しました')
-      }
-
-      const data = await response.json()
+      const data = await fetcher<{ profile: Profile }>('/api/profile')
       setProfile(data.profile)
     } catch (err) {
       console.error('プロフィール取得エラー:', err)

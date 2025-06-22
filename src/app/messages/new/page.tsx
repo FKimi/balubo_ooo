@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Send, User, Search } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
@@ -30,10 +31,7 @@ export default function NewMessagePage() {
 
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-  useEffect(() => {
-    fetchFollowingUsers()
-  }, [])
-
+  
   useEffect(() => {
     // 検索フィルタリング
     const filtered = users.filter(user =>
@@ -45,7 +43,7 @@ export default function NewMessagePage() {
     setFilteredUsers(filtered)
   }, [users, searchQuery])
 
-  const fetchFollowingUsers = async () => {
+  const fetchFollowingUsers = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -77,7 +75,12 @@ export default function NewMessagePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase, router])
+
+  // フォロー中ユーザーの取得（初回）
+  useEffect(() => {
+    fetchFollowingUsers()
+  }, [fetchFollowingUsers])
 
   const handleStartConversation = async () => {
     if (!selectedUser || sending) return
@@ -199,9 +202,11 @@ export default function NewMessagePage() {
                           {/* アバター */}
                           <div className="flex-shrink-0">
                             {user.avatar_image_url ? (
-                              <img
+                              <Image
                                 src={user.avatar_image_url}
                                 alt={user.display_name}
+                                width={48}
+                                height={48}
                                 className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm"
                               />
                             ) : (

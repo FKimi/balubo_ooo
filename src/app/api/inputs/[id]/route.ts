@@ -2,15 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseClient } from '@/lib/database'
 import { verifyFirebaseToken } from '@/lib/auth'
 
+
 // 個別インプットの取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
+  const { id } = context.params;
   try {
     console.log('=== インプット詳細取得API開始 ===')
-    console.log('インプットID:', params.id)
-    
+    console.log('インプットID:', id)
+  
     // 認証確認（オプション）
     const authHeader = request.headers.get('authorization')
     let userId: string | null = null
@@ -34,10 +36,10 @@ export async function GET(
     
     // インプット取得
     console.log('DatabaseClientでインプットを取得中...')
-    const input = await DatabaseClient.getInputWithUser(params.id, userId, token)
+    const input = await DatabaseClient.getInputWithUser(id, userId, token)
     
     if (!input) {
-      console.log('インプットが見つかりません:', params.id)
+      console.log('インプットが見つかりません:', id)
       return NextResponse.json(
         { error: 'インプットが見つかりません' },
         { status: 404 }
@@ -79,7 +81,7 @@ export async function GET(
     console.error('エラー詳細:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
-      inputId: params.id
+      inputId: id
     })
     
     return NextResponse.json(
@@ -95,10 +97,11 @@ export async function GET(
 // インプットの更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
+  const { id } = context.params;
   try {
-    console.log('インプット更新APIが呼び出されました:', params.id)
+    console.log('インプット更新APIが呼び出されました:', id)
     
     // 認証確認
     const authHeader = request.headers.get('authorization')
@@ -121,7 +124,7 @@ export async function PUT(
     
     // データベース更新
     console.log('DatabaseClientでインプットを更新中...')
-    const updatedInput = await DatabaseClient.updateInput(params.id, userId, updateData, token)
+    const updatedInput = await DatabaseClient.updateInput(id, userId, updateData, token)
     
     console.log('インプット更新成功:', updatedInput.id)
     
@@ -131,7 +134,12 @@ export async function PUT(
     })
     
   } catch (error) {
-    console.error('インプット更新エラー:', error)
+    console.error('=== インプット更新API エラー ===')
+    console.error('エラー詳細:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      inputId: id
+    })
     return NextResponse.json(
       { 
         error: 'インプットの更新に失敗しました',
@@ -145,10 +153,11 @@ export async function PUT(
 // インプットの削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
+  const { id } = context.params;
   try {
-    console.log('インプット削除APIが呼び出されました:', params.id)
+    console.log('インプット削除APIが呼び出されました:', id)
     
     // 認証確認
     const authHeader = request.headers.get('authorization')
@@ -167,9 +176,9 @@ export async function DELETE(
     
     // データベースから削除
     console.log('DatabaseClientでインプットを削除中...')
-    await DatabaseClient.deleteInput(params.id, userId, token)
+    await DatabaseClient.deleteInput(id, userId, token)
     
-    console.log('インプット削除成功:', params.id)
+    console.log(`インプット(ID: ${id}) の削除に成功しました。`)
     
     return NextResponse.json({
       success: true,
@@ -177,7 +186,12 @@ export async function DELETE(
     })
     
   } catch (error) {
-    console.error('インプット削除エラー:', error)
+    console.error('=== インプット削除API エラー ===')
+    console.error('エラー詳細:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      inputId: id
+    })
     return NextResponse.json(
       { 
         error: 'インプットの削除に失敗しました',

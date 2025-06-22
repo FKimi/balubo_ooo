@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface ProfileAvatarProps {
   avatarUrl?: string | null
@@ -23,6 +24,12 @@ export function ProfileAvatar({
     lg: 'w-12 h-12 text-base'
   }
 
+  const sizePixels = {
+    sm: 24,
+    md: 32,
+    lg: 48
+  } as const
+
   const hasValidImage = avatarUrl && !imageError && avatarUrl.trim() !== ''
 
   const getInitial = () => {
@@ -34,10 +41,13 @@ export function ProfileAvatar({
 
   if (hasValidImage) {
     return (
-      <img
-        src={avatarUrl}
+      <Image
+        src={avatarUrl!}
         alt={`${displayName}のプロフィール画像`}
+        width={sizePixels[size]}
+        height={sizePixels[size]}
         className={`${sizeClasses[size]} rounded-full object-cover border-2 border-white shadow-sm ${className}`}
+        sizes={`${sizePixels[size]}px`}
         onError={() => setImageError(true)}
         onLoad={() => setImageError(false)}
       />

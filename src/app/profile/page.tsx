@@ -8,14 +8,15 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { ProfileData, CareerItem } from '@/types/profile'
 import type { InputData, InputAnalysis } from '@/types/input'
 import type { WorkData } from '@/types/work'
-import { ProfileHeader } from '@/components/profile/ProfileHeader'
-import { ProfileTabs } from '@/components/profile/ProfileTabs'
-import { ProfileModals } from '@/components/profile/ProfileModals'
+import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
+import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
+import { ProfileModals } from '@/features/profile/components/ProfileModals'
 
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
   displayName: '',
   bio: '',
+  introduction: '',
   professions: [],
   skills: [],
   location: '',
@@ -54,6 +55,20 @@ function ProfileContent() {
   const [newSkill, setNewSkill] = useState('')
   const [isUpdatingSkills, setIsUpdatingSkills] = useState(false)
   const [skillError, setSkillError] = useState<string | null>(null)
+  
+  // 自己紹介管理用のstate
+  const [isIntroductionModalOpen, setIsIntroductionModalOpen] = useState(false)
+  const [currentIntroduction, setCurrentIntroduction] = useState('')
+  const [isUpdatingIntroduction, setIsUpdatingIntroduction] = useState(false)
+
+  // 自己紹介モーダルが開かれた時に現在の内容を設定
+  useEffect(() => {
+    if (isIntroductionModalOpen && profileData?.introduction) {
+      setCurrentIntroduction(profileData.introduction)
+    } else if (isIntroductionModalOpen) {
+      setCurrentIntroduction('')
+    }
+  }, [isIntroductionModalOpen, profileData?.introduction])
   
   // キャリア管理用のstate
   const [isCareerModalOpen, setIsCareerModalOpen] = useState(false)
@@ -166,6 +181,7 @@ function ProfileContent() {
               ...completeDefaultProfileData,
               displayName: profileData.profile.display_name || profileData.profile.displayName || '',
               bio: profileData.profile.bio || '',
+              introduction: profileData.profile.introduction || '',
               professions: profileData.profile.professions || [],
               skills: profileData.profile.skills || [],
               location: profileData.profile.location || '',
@@ -450,6 +466,58 @@ function ProfileContent() {
     }
   }
 
+  // 自己紹介更新
+  const handleUpdateIntroduction = async (introduction: string) => {
+    if (!profileData) return
+
+    try {
+      setIsUpdatingIntroduction(true)
+      
+      const updatedProfile = { ...profileData, introduction }
+      
+      await saveIntroductionToDatabase(updatedProfile)
+      setProfileData(updatedProfile)
+      setIsIntroductionModalOpen(false)
+      
+      // 成功メッセージを表示（オプション）
+      console.log('自己紹介を更新しました')
+    } catch (error) {
+      console.error('自己紹介更新エラー:', error)
+      alert('自己紹介の更新に失敗しました。もう一度お試しください。')
+    } finally {
+      setIsUpdatingIntroduction(false)
+    }
+  }
+
+  // 自己紹介をデータベースに保存
+  const saveIntroductionToDatabase = async (updatedProfile: ProfileData) => {
+    if (!user) throw new Error('認証が必要です')
+
+    const { supabase } = await import('@/lib/supabase')
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`
+    }
+
+    const response = await fetch('/api/profile', {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        userId: user.id,
+        introduction: updatedProfile.introduction
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('自己紹介の保存に失敗しました')
+    }
+  }
+
   if (!profileData) {
     return <ProfileLoadingFallback />
   }
@@ -503,6 +571,8 @@ function ProfileContent() {
             onEditCareer={handleEditCareer}
             onDeleteCareerConfirm={handleDeleteCareerConfirm}
             setIsCareerModalOpen={setIsCareerModalOpen}
+            onUpdateIntroduction={handleUpdateIntroduction}
+            setIsIntroductionModalOpen={setIsIntroductionModalOpen}
           />
           
           {/* モーダル群 */}
@@ -515,6 +585,12 @@ function ProfileContent() {
             isUpdatingSkills={isUpdatingSkills}
             skillError={skillError}
             setSkillError={setSkillError}
+            isIntroductionModalOpen={isIntroductionModalOpen}
+            setIsIntroductionModalOpen={setIsIntroductionModalOpen}
+            currentIntroduction={currentIntroduction}
+            setCurrentIntroduction={setCurrentIntroduction}
+            isUpdatingIntroduction={isUpdatingIntroduction}
+            onUpdateIntroduction={handleUpdateIntroduction}
             isCareerModalOpen={isCareerModalOpen}
             setIsCareerModalOpen={setIsCareerModalOpen}
             newCareer={newCareer}

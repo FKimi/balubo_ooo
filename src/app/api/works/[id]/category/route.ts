@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   try {
     console.log('作品カテゴリ更新APIが呼び出されました')
@@ -27,7 +27,7 @@ export async function PUT(
       )
     }
     
-    const workId = params.id
+    const workId = context.params.id
     
     // 認証されたSupabaseクライアントを作成
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL

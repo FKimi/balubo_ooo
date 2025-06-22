@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,8 +12,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { AIAnalysisDetailModal } from '@/components/works/AIAnalysisDetailModal'
-import { ArticleForm, DesignForm, DefaultContentForm } from '@/components/works/ContentTypeForm'
+import { AIAnalysisDetailModal } from '@/features/work/components/AIAnalysisDetailModal'
+import { ArticleForm, DesignForm, DefaultContentForm } from '@/features/work/components/ContentTypeForm'
 import { ShareSuccessToast } from '@/components/social/ShareModal'
 import { shareToTwitter } from '@/utils/socialShare'
 import { ArrowLeft, Link2, Sparkles, Plus, X, Upload } from 'lucide-react'
@@ -511,14 +512,14 @@ function NewWorkForm() {
                     {/* バナー画像 */}
                     {previewData.image && (
                       <div className="relative aspect-video bg-gray-100">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={previewData.image}
                           alt={previewData.title}
+                          fill
+                          sizes="100vw"
                           className="w-full h-full object-contain"
                           onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
+                            (e.currentTarget as HTMLImageElement).style.display = 'none'
                           }}
                         />
                       </div>

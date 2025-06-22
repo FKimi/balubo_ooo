@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -76,9 +77,11 @@ export function EnhancedPreviewCard({ previewData, onApplyData, onClose }: Enhan
         {/* 基本情報 */}
         <div className="flex gap-4">
           {previewData.image && (
-            <img 
-              src={previewData.image} 
+            <Image
+              src={previewData.image}
               alt={previewData.title}
+              width={80}
+              height={112}
               className="w-20 h-28 object-cover rounded-lg shadow-sm"
             />
           )}

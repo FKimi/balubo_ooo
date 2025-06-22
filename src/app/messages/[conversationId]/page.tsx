@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Send, User, MoreVertical, Edit3, Trash2, Check, X } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 // アニメーション用のスタイル
 const fadeInStyle = `
@@ -17,9 +18,6 @@ const fadeInStyle = `
     animation: fadeIn 0.3s ease-out;
   }
 `
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 interface Message {
   id: string
@@ -46,6 +44,9 @@ interface OtherParticipant {
   professions: string[]
 }
 
+// 共有インスタンスをモジュールスコープで確保
+const supabase = getSupabaseBrowserClient()
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -60,20 +61,11 @@ export default function ChatPage() {
   const params = useParams()
   const conversationId = params.conversationId as string
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  // スクロール維持
+  // (messages 変更時に最下部へ)
+  
 
-  useEffect(() => {
-    if (conversationId) {
-      fetchMessages()
-      setupRealtimeSubscription()
-    }
-  }, [conversationId])
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -122,9 +114,9 @@ export default function ChatPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [conversationId, supabase, router]);
 
-  const setupRealtimeSubscription = () => {
+  const setupRealtimeSubscription = useCallback(() => {
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -148,11 +140,24 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }
+  }, [conversationId, supabase, fetchMessages]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  }, [])
+
+  // データ取得とリアルタイム購読
+  useEffect(() => {
+    if (conversationId) {
+      fetchMessages()
+      setupRealtimeSubscription()
+    }
+  }, [conversationId, fetchMessages, setupRealtimeSubscription])
+
+  // メッセージ更新時に自動スクロール
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, scrollToBottom])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -385,16 +390,17 @@ export default function ChatPage() {
               >
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
               </button>
-              
               {otherParticipant && (
                 <>
                   <div className="relative">
                     {otherParticipant.avatar_image_url ? (
-                      <img
-                        src={otherParticipant.avatar_image_url}
-                        alt={otherParticipant.display_name}
-                        className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
-                      />
+                      <Image
+                         src={otherParticipant.avatar_image_url}
+                         alt={otherParticipant.display_name}
+                         width={48}
+                         height={48}
+                         className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
+                       />
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center ring-2 ring-white shadow-md">
                         <User className="h-6 w-6 text-white" />
@@ -446,11 +452,13 @@ export default function ChatPage() {
                                 <div className="flex-shrink-0">
                                   {!isConsecutive ? (
                                     message.sender.avatar_image_url ? (
-                                      <img
-                                        src={message.sender.avatar_image_url}
-                                        alt={message.sender.display_name}
-                                        className="w-8 h-8 rounded-full object-cover shadow-sm"
-                                      />
+                                      <Image
+                                         src={message.sender.avatar_image_url}
+                                         alt={message.sender.display_name}
+                                         width={32}
+                                         height={32}
+                                         className="w-8 h-8 rounded-full object-cover shadow-sm"
+                                       />
                                     ) : (
                                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center shadow-sm">
                                         <User className="h-4 w-4 text-white" />

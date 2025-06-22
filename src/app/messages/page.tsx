@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { MessageCircle, User, Search, Plus } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+import { supabase } from '@/lib/supabase'
 
 interface Conversation {
   id: string
@@ -34,13 +32,7 @@ export default function MessagesPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-  useEffect(() => {
-    fetchConversations()
-  }, [])
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -69,7 +61,11 @@ export default function MessagesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    fetchConversations()
+  }, [fetchConversations])
 
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date()
@@ -182,9 +178,11 @@ export default function MessagesPage() {
                         {/* アバター */}
                         <div className="flex-shrink-0">
                           {conversation.otherParticipant.avatar_image_url ? (
-                            <img
+                            <Image
                               src={conversation.otherParticipant.avatar_image_url}
                               alt={conversation.otherParticipant.display_name}
+                              width={48}
+                              height={48}
                               className="w-12 h-12 rounded-full object-cover"
                             />
                           ) : (
