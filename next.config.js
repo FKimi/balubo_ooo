@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   
   // 開発時の設定
   webpack: (config, { dev }) => {
@@ -29,7 +28,14 @@ const nextConfig = {
       // ユーザーがアップロードする可能性のあるホスト
       'storage.googleapis.com',
       'cdn.example.com',
-      'kdrnxnorxquxvxutkwnq.supabase.co'
+      'kdrnxnorxquxvxutkwnq.supabase.co',
+      'avatars.githubusercontent.com',
+      'visitor-badge.laobi.icu',
+      'images.unsplash.com',
+      'assets.aceternity.com',
+      'source.unsplash.com',
+      'images.pexels.com',
+      'lh3.googleusercontent.com'
     ],
     // より安全で柔軟な設定（Next.js 12.3+）
     remotePatterns: [

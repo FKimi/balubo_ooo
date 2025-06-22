@@ -4,6 +4,9 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { initializeMCPSupabase } from '@/lib/mcp-supabase'
 import { ErrorFilter } from '@/components/utils/ErrorFilter'
+import { ErrorBoundary } from 'react-error-boundary'
+import { Toaster } from 'react-hot-toast'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,10 +29,12 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        {/* <ErrorFilter /> */}
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <Toaster position="top-right" />
+        <ErrorBoundary FallbackComponent={ErrorFilter}>
+          <AuthProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )
