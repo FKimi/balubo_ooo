@@ -58,7 +58,7 @@ export default function ProfileEditPage() {
           // データベースから取得したデータをフォームに設定
           const convertedProfile: ProfileData = {
             displayName: dbProfile.display_name || user?.user_metadata?.display_name || '',
-            bio: dbProfile.bio || '',
+            bio: dbProfile.bio || dbProfile.introduction || '',
             professions: dbProfile.professions || [],
             skills: dbProfile.skills || [],
             location: dbProfile.location || '',
@@ -642,8 +642,6 @@ ${result.details ? `詳細: ${result.details}` : ''}
                   </div>
                 </CardContent>
               </Card>
-
-
 
               {/* 保存ボタン */}
               <div className="flex gap-4 pt-4">

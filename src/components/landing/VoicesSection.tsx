@@ -6,42 +6,65 @@ interface Voice {
   name: string
   role: string
   comment: string
-  avatar: string // emoji for now
+  avatarInitial: string
+  bgColor: string
 }
 
 const voices: Voice[] = [
   {
-    name: '彩 S.',
+    name: 'Aya S.',
     role: 'フリーライター',
-    comment: 'AI構成分析で苦手な文章構造を改善。クライアントからのリピート率が上がりました！',
-    avatar: '🎨',
+    comment: '自分の文章の強みやクセを客観的に分析してくれるなんて画期的。自分の成長が楽しみです。',
+    avatarInitial: 'A',
+    bgColor: 'bg-blue-100 text-blue-800'
   },
   {
-    name: '遼 K.',
-    role: '編集者',
-    comment: '見出し提案機能でタイトル作りが劇的に楽に。スピード校了が実現しました。',
-    avatar: '🛠️',
+    name: 'Ryo K.',
+    role: 'Webメディア編集長',
+    comment: 'ライターさんのスキルを定量的に把握できるのは非常に魅力的。採用のミスマッチが減ることに期待しています。',
+    avatarInitial: 'R',
+    bgColor: 'bg-indigo-100 text-indigo-800'
   },
   {
-    name: '美香 T.',
-    role: 'Webメディア運営',
-    comment: 'balubo経由で優秀なライターと出会え、コンテンツ品質が向上しました。',
-    avatar: '🎮',
+    name: 'Mika T.',
+    role: 'コンテンツマーケター',
+    comment: 'ポートフォリオが自動でリッチになるのは嬉しい。提案資料作成の手間が省け、本来の業務に集中できそうです。',
+    avatarInitial: 'M',
+    bgColor: 'bg-purple-100 text-purple-800'
   },
 ]
 
 export default function VoicesSection() {
   return (
-    <section className="py-20 px-4 bg-white">
-      <div className="container mx-auto text-center max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-accent-dark-blue">利用者の声</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {voices.map((v) => (
-            <div key={v.name} className="bg-base-light-gray rounded-2xl p-8 shadow">
-              <div className="text-5xl mb-4">{v.avatar}</div>
-              <p className="text-text-secondary italic mb-6 leading-relaxed">“{v.comment}”</p>
-              <div className="font-semibold text-text-primary">{v.name}</div>
-              <div className="text-sm text-text-secondary">{v.role}</div>
+    <section className="bg-slate-50 py-20 px-4 md:py-2">
+      <div className="container mx-auto max-w-4xl">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-slate-800 md:text-5xl">
+            先行ユーザーからの期待の声
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
+            すでに多くの方々から、baluboが提供する新しい価値にご期待いただいています。
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
+          {voices.map((voice) => (
+            <div key={voice.name} className="flex flex-col rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm">
+              <div className="flex-grow">
+                <p className="relative text-lg leading-relaxed text-slate-700">
+                  <span className="absolute -left-4 -top-2 text-6xl font-bold text-slate-100">“</span>
+                  <span className="relative">{voice.comment}</span>
+                </p>
+              </div>
+              <div className="mt-6 flex items-center pt-6 border-t border-slate-200">
+                <div className={`mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${voice.bgColor} text-xl font-bold`}>
+                  {voice.avatarInitial}
+                </div>
+                <div>
+                  <div className="font-semibold text-slate-800">{voice.name}</div>
+                  <div className="text-sm text-slate-500">{voice.role}</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>

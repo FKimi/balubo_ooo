@@ -3,55 +3,99 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
-interface Step {
-  icon: string
-  title: string
-  description: string
-}
-
-const steps: Step[] = [
+const steps = [
   {
-    icon: '📝',
-    title: '無料登録',
-    description: 'メールアドレスだけで今すぐスタート。SNS連携も可能です。',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-blue-600"><path d="M18 9v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/><path d="M12 15v3"/><path d="M12 3v10"/></svg>
+    ),
+    title: '無料アカウント登録',
+    description: 'メールアドレスやSNSアカウントで、わずか30秒で登録完了。すぐに利用を開始できます。',
   },
   {
-    icon: '📄',
-    title: '記事・実績をアップロード',
-    description: '過去記事や執筆サンプルをドラッグ＆ドロップで追加。',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+    ),
+    title: '作品を登録',
+    description: '過去の作品URLやファイルをドラッグ＆ドロップで簡単に追加。AIが自動で内容を読み取ります。',
   },
   {
-    icon: '🤖',
-    title: 'AI構成分析',
-    description: '構成・語彙・トーンをAIが瞬時に診断し改善案を提案。',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-blue-600"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+    ),
+    title: 'AI分析レポートを確認',
+    description: 'AIがあなたの作品を多角的に分析し、強みや特徴を可視化したレポートを自動生成します。',
   },
   {
-    icon: '🚀',
-    title: '編集案件に応募',
-    description: 'おすすめの媒体募集にワンクリックでエントリー。',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-blue-600"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    ),
+    title: '価値を証明し、繋がる',
+    description: '完成したポートフォリオを公開し、最適なクライアントや案件と出会う準備が整います。',
+    isComingSoon: true,
   },
 ]
 
 export default function StepsSection() {
   return (
-    <section className="py-20 px-4 bg-primary-light-blue/50">
-      <div className="container mx-auto text-center max-w-4xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-accent-dark-blue">始め方はカンタン</h2>
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
-          {steps.map((step, idx) => (
-            <div key={step.title} className="bg-white rounded-2xl p-6 shadow flex flex-col items-center">
-              <div className="text-5xl mb-4">{step.icon}</div>
-              <div className="text-xl font-semibold mb-2">Step {idx + 1}</div>
-              <h3 className="text-lg font-medium mb-2 text-text-primary">{step.title}</h3>
-              <p className="text-sm text-text-secondary leading-relaxed">{step.description}</p>
-            </div>
-          ))}
+    <section className="bg-white py-20 px-4 md:py-2">
+      <div className="container mx-auto max-w-5xl">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-slate-800 md:text-5xl">
+            始め方は驚くほど簡単
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
+            わずか数ステップで、あなたのこれまでのキャリアが、
+            <br className="hidden sm:block" />
+            説得力のあるポートフォリオに生まれ変わります。
+          </p>
         </div>
-        <Link href="/register">
-          <Button size="lg" className="bg-accent-dark-blue hover:bg-primary-blue">
-            今すぐ無料で始める
+        
+        <div className="relative mt-16 md:mt-20">
+          {/* Connecting line */}
+          <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-200" aria-hidden="true"></div>
+          
+          <div className="relative grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-8">
+            {steps.map((step, idx) => (
+              <div key={step.title} className="relative flex flex-col items-center text-center">
+                {step.isComingSoon && (
+                  <div className="absolute top-0 right-1/2 translate-x-[120%] -translate-y-4 md:right-0 md:translate-x-0 bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold">
+                    Coming Soon
+                  </div>
+                )}
+                
+                {/* Circle and Icon */}
+                <div className="z-10 flex h-24 w-24 items-center justify-center rounded-full border-4 border-slate-200 bg-white shadow-sm">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-50">
+                    {step.icon}
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <h3 className="text-lg font-bold text-slate-800">
+                    <span className="mb-1 block text-sm font-semibold text-blue-600">Step {idx + 1}</span>
+                    {step.title}
+                  </h3>
+                  <p className={`mt-2 text-sm leading-relaxed ${step.isComingSoon ? 'text-slate-500' : 'text-slate-600'}`}>
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-10 text-center">
+          <Button
+            asChild
+            size="lg"
+            className="w-full max-w-xs transform-gpu rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-blue-700 hover:shadow-xl sm:w-auto"
+          >
+            <Link href="/register">
+              今すぐ無料で始める
+              <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            </Link>
           </Button>
-        </Link>
+        </div>
       </div>
     </section>
   )

@@ -126,6 +126,11 @@ export class DatabaseClient {
 
       console.log('DatabaseClient: プロフィール取得成功')
       
+      // introductionフィールドをbioにマッピング（フォーム表示用）
+      if (data && data.introduction && !data.bio) {
+        data.bio = data.introduction
+      }
+      
       // キャッシュに保存
       this.profileCache.set(cacheKey, { data, timestamp: now })
       
@@ -169,7 +174,7 @@ export class DatabaseClient {
         user_id: userId,
         display_name: profileData.displayName || '',
         bio: profileData.bio || '',
-        introduction: profileData.introduction || '', // 詳細な自己紹介フィールドを追加
+        introduction: profileData.bio || profileData.introduction || '', // フォームのbioを自己紹介として保存
         professions: profileData.professions || [],
         skills: profileData.skills || [],
         location: profileData.location || '',

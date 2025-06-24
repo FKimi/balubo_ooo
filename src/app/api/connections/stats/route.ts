@@ -8,26 +8,26 @@ export const dynamic = 'force-dynamic'
 
 // Service Role Keyでクライアント作成
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl) {
   throw new Error('NEXT_PUBLIC_SUPABASE_URL environment variable is required')
 }
 
-if (!supabaseServiceKey) {
-  throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required')
+// 開発環境では service role key を置かない場合があるため、公開 anon key でフォールバック
+const supabaseKey = supabaseServiceKey || supabaseAnonKey
+
+if (!supabaseKey) {
+  throw new Error('Supabase key is not configured. Set SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY')
 }
 
-const supabaseAdmin = createClient(
-  supabaseUrl,
-  supabaseServiceKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+})
 
 export async function GET(request: NextRequest) {
   try {

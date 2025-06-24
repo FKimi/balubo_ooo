@@ -42,15 +42,15 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   })
 
   // プロフィール情報の整理
-  const displayName = profile.display_name || 'ユーザー'
-  const bio = profile.bio || ''
-  const location = profile.location || ''
-  const websiteUrl = profile.website_url || ''
-  const backgroundImageUrl = profile.background_image_url || ''
-  const avatarImageUrl = profile.avatar_image_url || ''
-  const skills = profile.skills || []
-  const career = profile.career || []
-  const professions = profile.professions || []
+  const displayName = profile?.display_name || 'ユーザー'
+  const bio = profile?.bio || ''
+  const location = profile?.location || ''
+  const websiteUrl = profile?.website_url || ''
+  const backgroundImageUrl = profile?.background_image_url || ''
+  const avatarImageUrl = profile?.avatar_image_url || ''
+  const skills = profile?.skills || []
+  const career = profile?.career || []
+  const professions = profile?.professions || []
 
   console.log('PublicProfileContent: 整理後データ', {
     displayName,
@@ -65,6 +65,27 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   // 画像の存在チェック
   const hasCustomBackground = backgroundImageUrl && backgroundImageUrl.trim() !== ''
   const hasCustomAvatar = avatarImageUrl && avatarImageUrl.trim() !== ''
+
+  console.log('PublicProfileContent: 画像設定確認', {
+    backgroundImageUrl,
+    avatarImageUrl,
+    hasCustomBackground,
+    hasCustomAvatar
+  })
+
+  console.log('PublicProfileContent: HeaderPropsに渡すデータ', {
+    userId,
+    displayName,
+    bio,
+    location,
+    websiteUrl,
+    backgroundImageUrl,
+    avatarImageUrl,
+    isProfileEmpty: !bio && skills.length === 0 && career.length === 0,
+    hasCustomBackground,
+    hasCustomAvatar,
+    professions
+  })
 
   // プロフィールが空かどうかの判定
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0

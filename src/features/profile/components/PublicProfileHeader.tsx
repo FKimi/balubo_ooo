@@ -37,7 +37,7 @@ export function PublicProfileHeader({
     <div className="relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl mb-6 sm:mb-8">
       {/* 背景画像またはグラデーション */}
       <div className="relative h-32 sm:h-40 md:h-48 lg:h-56">
-        {hasCustomBackground ? (
+        {hasCustomBackground && backgroundImageUrl ? (
           <div className="absolute inset-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <Image 
@@ -46,6 +46,10 @@ export function PublicProfileHeader({
               fill
               sizes="100vw"
               className="object-cover"
+              onError={(e) => {
+                console.error('背景画像の読み込みエラー:', backgroundImageUrl)
+                e.currentTarget.style.display = 'none'
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
           </div>
@@ -77,59 +81,61 @@ export function PublicProfileHeader({
 
       
       {/* プロフィール情報コンテンツ */}
-      <div className="relative bg-white px-4 sm:px-6 md:px-8 pt-12 sm:pt-16 pb-4 sm:pb-6">
-        {/* プロフィール画像 - 背景画像に重ねて配置 */}
-        <div className="absolute -top-10 sm:-top-16 left-4 sm:left-6 md:left-8">
-          <div className="relative">
-            <div className="w-20 sm:w-28 md:w-32 h-20 sm:h-28 md:h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-2xl">
-              {hasCustomAvatar ? (
-                <Image 
-                  src={avatarImageUrl} 
-                  alt="プロフィール画像" 
-                  fill
-                  sizes="128px"
-                  className="object-cover rounded-full"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center relative overflow-hidden">
-                  {/* 背景パターン */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
-                  <div className="absolute top-1 sm:top-2 right-1 sm:right-2 w-3 sm:w-6 h-3 sm:h-6 bg-white/20 rounded-full"></div>
-                  <div className="absolute bottom-1.5 sm:bottom-3 left-1.5 sm:left-3 w-2 sm:w-4 h-2 sm:h-4 bg-white/15 rounded-full"></div>
-                  
-                  {/* ユーザーアイコンまたはイニシャル */}
-                  {displayName && displayName !== 'ユーザー' ? (
-                    <span className="text-white font-bold text-2xl sm:text-3xl md:text-4xl z-10 relative">
-                      {displayName.charAt(0).toUpperCase()}
-                    </span>
-                  ) : (
-                    <svg className="w-10 sm:w-14 md:w-16 h-10 sm:h-14 md:h-16 text-white/90 z-10 relative" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                  )}
+      <div className="bg-white px-4 sm:px-6 md:px-8 pt-4 pb-4 sm:pb-6">
+        <div className="flex justify-between items-start">
+            {/* プロフィール画像 */}
+            <div className="-mt-14 sm:-mt-20 md:-mt-24">
+                <div className="relative">
+                    <div className="w-20 sm:w-28 md:w-32 h-20 sm:h-28 md:h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-2xl">
+                    {hasCustomAvatar && avatarImageUrl ? (
+                        <Image 
+                        src={avatarImageUrl} 
+                        alt="プロフィール画像" 
+                        fill
+                        sizes="128px"
+                        className="object-cover rounded-full"
+                        onError={(e) => {
+                          console.error('プロフィール画像の読み込みエラー:', avatarImageUrl)
+                          e.currentTarget.style.display = 'none'
+                        }}
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center relative overflow-hidden">
+                        {/* 背景パターン */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
+                        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 w-3 sm:w-6 h-3 sm:h-6 bg-white/20 rounded-full"></div>
+                        <div className="absolute bottom-1.5 sm:bottom-3 left-1.5 sm:left-3 w-2 sm:w-4 h-2 sm:h-4 bg-white/15 rounded-full"></div>
+                        
+                        {/* ユーザーアイコンまたはイニシャル */}
+                        {displayName && displayName !== 'ユーザー' && displayName.trim() !== '' ? (
+                            <span className="text-white font-bold text-2xl sm:text-3xl md:text-4xl z-10 relative">
+                            {displayName.charAt(0).toUpperCase()}
+                            </span>
+                        ) : (
+                            <svg className="w-10 sm:w-14 md:w-16 h-10 sm:h-14 md:h-16 text-white/90 z-10 relative" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        )}
+                        </div>
+                    )}
+                    </div>
                 </div>
-              )}
             </div>
-            {/* オンラインステータス */}
-            <div className="absolute -bottom-1 -right-1 w-6 sm:w-8 h-6 sm:h-8 bg-green-500 rounded-full border-2 sm:border-4 border-white flex items-center justify-center">
-              <div className="w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full"></div>
-            </div>
-          </div>
-        </div>
 
-        {/* フォローボタンとメッセージボタン - 右上に配置 */}
-        <div className="absolute -top-8 sm:-top-12 right-4 sm:right-6 md:right-8 flex gap-2">
-          <MessageButton targetUserId={userId} />
-          <FollowButton targetUserId={userId} />
+            {/* フォローボタンとメッセージボタン */}
+            <div className="flex gap-2 pt-2 sm:pt-4">
+              <MessageButton targetUserId={userId} />
+              <FollowButton targetUserId={userId} />
+            </div>
         </div>
 
         {/* プロフィール詳細 */}
-        <div className="mt-2 sm:mt-4">
+        <div className="mt-4">
           <div className="flex flex-col md:flex-row md:items-start justify-between mb-3 sm:mb-4">
             {/* 名前とメール */}
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-                {displayName === 'ユーザー' ? (
+                {!displayName || displayName === 'ユーザー' || displayName.trim() === '' ? (
                   <span className="text-gray-500">表示名を設定してください</span>
                 ) : (
                   displayName
