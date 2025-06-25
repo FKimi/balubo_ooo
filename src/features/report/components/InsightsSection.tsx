@@ -11,6 +11,37 @@ interface InsightsSectionProps {
 export function InsightsSection({ works, inputs, workStats }: InsightsSectionProps) {
   const hasInputs = inputs.length > 0
   
+  // 興味・関心分析
+  const getInterestAnalysis = () => {
+    const interests: string[] = []
+    
+    works.forEach(work => {
+      if (work.ai_analysis_result) {
+        try {
+          const analysis = typeof work.ai_analysis_result === 'string' 
+            ? JSON.parse(work.ai_analysis_result) 
+            : work.ai_analysis_result
+          
+          if (analysis.tagClassification?.interest) {
+            interests.push(...analysis.tagClassification.interest)
+          }
+        } catch (error) {
+          console.warn('AI分析結果のパースに失敗:', error)
+        }
+      }
+    })
+    
+    const interestCount: { [key: string]: number } = {}
+    interests.forEach(interest => {
+      interestCount[interest] = (interestCount[interest] || 0) + 1
+    })
+    
+    return Object.entries(interestCount)
+      .map(([interest, count]) => ({ interest, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+  }
+
   // 月別活動データ（シンプル化）
   const getMonthlyActivity = () => {
     const now = new Date()
@@ -112,6 +143,7 @@ export function InsightsSection({ works, inputs, workStats }: InsightsSectionPro
   const monthlyData = getMonthlyActivity()
   const suggestions = generatePracticalSuggestions()
   const maxActivity = Math.max(...monthlyData.map(m => m.total), 1)
+  const interestAnalysis = getInterestAnalysis()
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -228,6 +260,42 @@ export function InsightsSection({ works, inputs, workStats }: InsightsSectionPro
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 興味・関心分析セクション */}
+      {interestAnalysis.length > 0 && (
+        <Card className="hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <span>🧠</span>
+              <span>興味・関心分析</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                AI分析による作品から読み取れる興味・関心領域の傾向
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {interestAnalysis.map((item, index) => (
+                  <span
+                    key={item.interest}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                      index < 3 
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {item.interest}
+                    <span className={`ml-2 text-xs ${index < 3 ? 'text-blue-100' : 'text-gray-500'}`}>
+                      {item.count}
+                    </span>
+                  </span>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>

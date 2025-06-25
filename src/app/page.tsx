@@ -54,7 +54,7 @@ export default function HomePage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
           <p className="text-slate-500">読み込み中...</p>
         </div>
       </div>
@@ -72,13 +72,13 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-slate-800">balubo</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">balubo</h1>
           </Link>
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <Button asChild variant="ghost" className="text-slate-600 hover:text-blue-600">
+            <Button asChild variant="ghost" className="text-slate-600 hover:text-blue-500">
               <Link href="/login">ログイン</Link>
             </Button>
-            <Button asChild className="rounded-lg bg-blue-600 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
+            <Button asChild className="rounded-lg bg-blue-500 font-semibold text-white shadow-sm transition-colors hover:bg-blue-600">
               <Link href="/register">無料で始める</Link>
             </Button>
           </div>

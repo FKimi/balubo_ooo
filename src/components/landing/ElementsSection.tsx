@@ -5,7 +5,7 @@ import React from 'react'
 const elements = [
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-600"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
     ),
     title: '創造性',
     subtitle: 'オリジナリティ',
@@ -13,7 +13,7 @@ const elements = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-600"><path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="m2.8 15.1.7-1.2 1.2.7-1.2.7-.7-1.2Zm1.5-8.2.7-1.2 1.2.7-1.2.7-.7-1.2Zm8.9 4.3.7-1.2 1.2.7-1.2.7-.7-1.2Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="m2.8 15.1.7-1.2 1.2.7-1.2.7-.7-1.2Zm1.5-8.2.7-1.2 1.2.7-1.2.7-.7-1.2Zm8.9 4.3.7-1.2 1.2.7-1.2.7-.7-1.2Z"/></svg>
     ),
     title: '専門性',
     subtitle: 'クオリティ',
@@ -21,7 +21,7 @@ const elements = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-600"><path d="M10 17a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5H7a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h3Z"/><path d="M21 17a5 5 0 0 0 0-10h-1a5 5 0 0 0-5 5v3a5 5 0 0 0 5 5h1Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M10 17a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5H7a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h3Z"/><path d="M21 17a5 5 0 0 0 0-10h-1a5 5 0 0 0-5 5v3a5 5 0 0 0 5 5h1Z"/></svg>
     ),
     title: '影響力',
     subtitle: 'エンゲージメント',
@@ -44,14 +44,14 @@ export default function ElementsSection() {
 
         <div className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
           {elements.map((el) => (
-            <div key={el.title} className="rounded-2xl border border-slate-200/80 bg-white p-8">
+            <div key={el.title} className="rounded-3xl border border-blue-200/30 bg-white/90 p-8 shadow-lg backdrop-blur-sm">
               <div className="mb-6 flex items-center gap-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-blue-100/80 shadow-sm">
                   {el.icon}
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-slate-800">{el.title}</h3>
-                  <p className="text-sm font-semibold text-blue-600">{el.subtitle}</p>
+                  <p className="text-sm font-semibold text-blue-500">{el.subtitle}</p>
                 </div>
               </div>
               <p className="text-base leading-relaxed text-slate-600">{el.description}</p>
