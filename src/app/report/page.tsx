@@ -27,9 +27,121 @@ function ReportContent() {
   const [isExporting, setIsExporting] = useState(false)
   const [profile, setProfile] = useState<any>(null)
 
+  // 創造性、専門性、影響力の総合分析を生成
+  const generateComprehensiveAnalysis = () => {
+    const analysisData = {
+      creativity: {
+        scores: [] as number[],
+        insights: [] as string[],
+        strengths: [] as string[],
+        topWorks: [] as { title: string; score: number; highlights: string[] }[]
+      },
+      expertise: {
+        scores: [] as number[],
+        insights: [] as string[],
+        strengths: [] as string[],
+        topWorks: [] as { title: string; score: number; highlights: string[] }[]
+      },
+      impact: {
+        scores: [] as number[],
+        insights: [] as string[],
+        strengths: [] as string[],
+        topWorks: [] as { title: string; score: number; highlights: string[] }[]
+      }
+    }
+
+    // 各作品のAI分析結果から創造性、専門性、影響力を抽出
+    works.forEach(work => {
+      if (work.ai_analysis_result) {
+        const analysis = typeof work.ai_analysis_result === 'string' 
+          ? JSON.parse(work.ai_analysis_result) 
+          : work.ai_analysis_result
+
+        if (analysis.strengths) {
+          // 創造性分析
+          if (analysis.strengths.creativity && analysis.strengths.creativity.length > 0) {
+            const creativityScore = analysis.strengths.creativity.length * 20 + 
+              (analysis.tagClassification?.technique?.length || 0) * 10
+            analysisData.creativity.scores.push(Math.min(creativityScore, 100))
+            analysisData.creativity.insights.push(...analysis.strengths.creativity)
+            analysisData.creativity.topWorks.push({
+              title: work.title,
+              score: Math.min(creativityScore, 100),
+              highlights: analysis.strengths.creativity.slice(0, 2)
+            })
+          }
+
+          // 専門性分析
+          if (analysis.strengths.expertise && analysis.strengths.expertise.length > 0) {
+            const expertiseScore = analysis.strengths.expertise.length * 20 + 
+              (analysis.keywords?.length || 0) * 5
+            analysisData.expertise.scores.push(Math.min(expertiseScore, 100))
+            analysisData.expertise.insights.push(...analysis.strengths.expertise)
+            analysisData.expertise.topWorks.push({
+              title: work.title,
+              score: Math.min(expertiseScore, 100),
+              highlights: analysis.strengths.expertise.slice(0, 2)
+            })
+          }
+
+          // 影響力分析
+          if (analysis.strengths.impact && analysis.strengths.impact.length > 0) {
+            const impactScore = analysis.strengths.impact.length * 20 + 
+              (analysis.tagClassification?.purpose?.length || 0) * 15
+            analysisData.impact.scores.push(Math.min(impactScore, 100))
+            analysisData.impact.insights.push(...analysis.strengths.impact)
+            analysisData.impact.topWorks.push({
+              title: work.title,
+              score: Math.min(impactScore, 100),
+              highlights: analysis.strengths.impact.slice(0, 2)
+            })
+          }
+        }
+      }
+    })
+
+    // 各分野の総合スコアと統計を計算
+    const processAnalysisData = (data: typeof analysisData.creativity) => {
+      const avgScore = data.scores.length > 0 ? 
+        Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length) : 0
+      
+      const uniqueInsights = [...new Set(data.insights)].slice(0, 10)
+      const topWorksRanked = data.topWorks
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5)
+
+      return {
+        averageScore: avgScore,
+        totalInsights: uniqueInsights.length,
+        insights: uniqueInsights,
+        topWorks: topWorksRanked,
+        trend: data.scores.length >= 3 ? 
+          (data.scores.slice(-3).reduce((sum, score) => sum + score, 0) / 3) - 
+          (data.scores.slice(0, 3).reduce((sum, score) => sum + score, 0) / 3) : 0
+      }
+    }
+
+    return {
+      creativity: processAnalysisData(analysisData.creativity),
+      expertise: processAnalysisData(analysisData.expertise),
+      impact: processAnalysisData(analysisData.impact),
+      overall: {
+        totalWorks: works.length,
+        analyzedWorks: works.filter(w => w.ai_analysis_result).length,
+        comprehensiveScore: Math.round(
+          (analysisData.creativity.scores.reduce((sum, score) => sum + score, 0) +
+           analysisData.expertise.scores.reduce((sum, score) => sum + score, 0) +
+           analysisData.impact.scores.reduce((sum, score) => sum + score, 0)) / 
+          Math.max(analysisData.creativity.scores.length + analysisData.expertise.scores.length + analysisData.impact.scores.length, 1)
+        )
+      }
+    }
+  }
+
   // 作品統計を計算
   const workStats = useWorkStatistics(works)
   const hasInputs = inputs.length > 0
+  const comprehensiveAnalysis = generateComprehensiveAnalysis()
   
   // デバッグ用：統計を確認
   console.log('レポートページ統計:', {
@@ -352,7 +464,8 @@ function ReportContent() {
           frequency: tagDistribution[tag] || 0,
           trend: 'stable' as const
         }))
-      }
+      },
+      comprehensiveAnalysis: generateComprehensiveAnalysis()
     }
   }
 
@@ -433,6 +546,241 @@ function ReportContent() {
     } finally {
       setIsExporting(false)
     }
+  }
+
+  // レンダリング部分でComprehensiveAnalysisセクションを追加
+  const renderComprehensiveAnalysisSection = () => {
+    const analysisData = generateComprehensiveAnalysis()
+    
+    return (
+      <div className="space-y-8">
+        {/* ヘッダー */}
+        <div className="text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            🌟 総合分析：創造性・専門性・影響力
+          </h2>
+          <p className="text-gray-600">
+            {analysisData.overall.analyzedWorks}件の作品を分析した、あなたの創作活動の強み
+          </p>
+        </div>
+
+        {/* メイン分析カード */}
+        <div className="grid gap-8 lg:grid-cols-3">
+          
+          {/* 創造性 */}
+          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">🎨</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">創造性</h3>
+                  <p className="text-pink-100 text-sm">独創的なアイデア力</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              {analysisData.creativity.insights.length > 0 ? (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">✨ 主な特徴</h4>
+                    <div className="space-y-2">
+                      {analysisData.creativity.insights.slice(0, 4).map((insight, idx) => (
+                        <div key={idx} className="bg-pink-50 rounded-lg p-3 border border-pink-100">
+                          <span className="text-pink-800 text-sm">{insight}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {analysisData.creativity.topWorks.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3">🏆 代表作品</h4>
+                      <div className="space-y-2">
+                        {analysisData.creativity.topWorks.slice(0, 2).map((work, idx) => {
+                          // 作品IDを取得（titleから検索）
+                          const workData = works.find(w => w.title === work.title);
+                          const workId = workData?.id;
+                          
+                          return (
+                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              {workId ? (
+                                <button
+                                  onClick={() => window.open(`/works/${workId}`, '_blank')}
+                                  className="font-medium text-pink-700 hover:text-pink-900 text-sm text-left block w-full hover:underline"
+                                >
+                                  {work.title}
+                                </button>
+                              ) : (
+                                <span className="font-medium text-gray-700 text-sm block">{work.title}</span>
+                              )}
+                              <div className="text-gray-600 text-xs mt-1">
+                                {work.highlights.slice(0, 2).join(' • ')}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-gray-400 py-8">
+                  <p className="text-sm">創造性の分析データがありません</p>
+                  <p className="text-xs mt-1">AI分析を実行した作品がある場合に表示されます</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 専門性 */}
+          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">🎯</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">専門性</h3>
+                  <p className="text-blue-100 text-sm">技術力と知識の深さ</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              {analysisData.expertise.insights.length > 0 ? (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">💡 主な特徴</h4>
+                    <div className="space-y-2">
+                      {analysisData.expertise.insights.slice(0, 4).map((insight, idx) => (
+                        <div key={idx} className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                          <span className="text-blue-800 text-sm">{insight}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {analysisData.expertise.topWorks.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3">🏆 代表作品</h4>
+                      <div className="space-y-2">
+                        {analysisData.expertise.topWorks.slice(0, 2).map((work, idx) => {
+                          // 作品IDを取得（titleから検索）
+                          const workData = works.find(w => w.title === work.title);
+                          const workId = workData?.id;
+                          
+                          return (
+                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              {workId ? (
+                                <button
+                                  onClick={() => window.open(`/works/${workId}`, '_blank')}
+                                  className="font-medium text-blue-700 hover:text-blue-900 text-sm text-left block w-full hover:underline"
+                                >
+                                  {work.title}
+                                </button>
+                              ) : (
+                                <span className="font-medium text-gray-700 text-sm block">{work.title}</span>
+                              )}
+                              <div className="text-gray-600 text-xs mt-1">
+                                {work.highlights.slice(0, 2).join(' • ')}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-gray-400 py-8">
+                  <p className="text-sm">専門性の分析データがありません</p>
+                  <p className="text-xs mt-1">AI分析を実行した作品がある場合に表示されます</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 影響力 */}
+          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-lg">💫</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">影響力</h3>
+                  <p className="text-green-100 text-sm">読者への価値提供</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              {analysisData.impact.insights.length > 0 ? (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-3">🚀 主な特徴</h4>
+                    <div className="space-y-2">
+                      {analysisData.impact.insights.slice(0, 4).map((insight, idx) => (
+                        <div key={idx} className="bg-green-50 rounded-lg p-3 border border-green-100">
+                          <span className="text-green-800 text-sm">{insight}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {analysisData.impact.topWorks.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3">🏆 代表作品</h4>
+                      <div className="space-y-2">
+                        {analysisData.impact.topWorks.slice(0, 2).map((work, idx) => {
+                          // 作品IDを取得（titleから検索）
+                          const workData = works.find(w => w.title === work.title);
+                          const workId = workData?.id;
+                          
+                          return (
+                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              {workId ? (
+                                <button
+                                  onClick={() => window.open(`/works/${workId}`, '_blank')}
+                                  className="font-medium text-green-700 hover:text-green-900 text-sm text-left block w-full hover:underline"
+                                >
+                                  {work.title}
+                                </button>
+                              ) : (
+                                <span className="font-medium text-gray-700 text-sm block">{work.title}</span>
+                              )}
+                              <div className="text-gray-600 text-xs mt-1">
+                                {work.highlights.slice(0, 2).join(' • ')}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-gray-400 py-8">
+                  <p className="text-sm">影響力の分析データがありません</p>
+                  <p className="text-xs mt-1">AI分析を実行した作品がある場合に表示されます</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* まとめセクション */}
+        <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-xl p-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">📋 分析概要</h3>
+            <p className="text-gray-700 text-sm max-w-2xl mx-auto">
+              この分析は、AI分析を実行した作品から自動的に抽出された洞察です。
+              作品名をクリックすると詳細ページで確認できます。
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // 認証チェック（他のユーザーのレポートを見る場合は認証不要）
@@ -527,6 +875,7 @@ function ReportContent() {
                 {[
                   { id: 'overview', label: '概要', icon: '📊' },
                   { id: 'works', label: '作品分析', icon: '🎨' },
+                  { id: 'comprehensive', label: '総合分析', icon: '🌟' },
                   { id: 'inputs', label: 'インプット分析', icon: '📚', disabled: !hasInputs },
                   { id: 'insights', label: '成長の軌跡', icon: '📈' }
                 ].map((section) => (
@@ -562,6 +911,7 @@ function ReportContent() {
               >
                 <option value="overview">📊 概要</option>
                 <option value="works">🎨 作品分析</option>
+                <option value="comprehensive">🌟 総合分析</option>
                 <option value="inputs" disabled={!hasInputs}>
                   📚 インプット分析{!hasInputs ? ' (0件)' : ''}
                 </option>
@@ -572,10 +922,21 @@ function ReportContent() {
 
           {/* メインコンテンツ */}
           <div id="report-content" className="space-y-6">
-            {activeSection === 'overview' && <OverviewSection works={works} inputs={inputs} workStats={workStats} />}
+            {activeSection === 'overview' && (
+              <OverviewSection
+                works={works}
+                inputs={inputs}
+                workStats={workStats}
+                profile={profile}
+                comprehensiveAnalysis={comprehensiveAnalysis}
+              />
+            )}
             {activeSection === 'works' && <WorksSection works={works} workStats={workStats} />}
             {activeSection === 'inputs' && <InputsSection inputs={inputs} />}
-            {activeSection === 'insights' && <InsightsSection works={works} inputs={inputs} workStats={workStats} />}
+            {activeSection === 'insights' && (
+              <InsightsSection works={works} inputs={inputs} workStats={workStats} />
+            )}
+            {activeSection === 'comprehensive' && renderComprehensiveAnalysisSection()}
           </div>
 
           {/* クライアント向け推薦セクション */}
