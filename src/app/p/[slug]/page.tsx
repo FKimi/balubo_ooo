@@ -6,12 +6,15 @@ import { PublicProfileContent } from '@/app/share/profile/[userId]/public-profil
 
 async function getPublicProfileBySlug(slug: string) {
   // anon クライアントで公開プロフィールを取得
-  let { data: profile, error } = await supabase
+  const profileResponse = await supabase
     .from('profiles')
     .select('*')
     .eq('slug', slug)
     .eq('portfolio_visibility', 'public')
     .single()
+
+  let profile = profileResponse.data
+  const error = profileResponse.error
 
   // anon で見つからない場合、Service Role で再試行（ローカルでも env があれば）
   if ((error || !profile) && process.env.SUPABASE_SERVICE_ROLE_KEY) {
