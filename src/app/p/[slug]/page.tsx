@@ -6,7 +6,7 @@ import { PublicProfileContent } from '@/app/share/profile/[userId]/public-profil
 
 async function getPublicProfileBySlug(slug: string) {
   // anon クライアントで公開プロフィールを取得
-  const { data: profile, error } = await supabase
+  let { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('slug', slug)
