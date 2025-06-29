@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { auth } from '@/lib/supabase'
+import { auth, supabase } from '@/lib/supabase'
+import { slugify } from '@/utils'
 
 // 型定義の改善
 interface AuthError {
@@ -62,6 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           currentUrl: typeof window !== 'undefined' ? window.location.href : 'サーバーサイド'
         })
         setUser(user)
+        // 初期ロード時にもプロフィール存在確認
+        ensureProfile(user)
       } catch (error) {
         console.warn('[AuthContext] 初期認証取得エラー:', getErrorMessage(error))
         setUser(null)
@@ -87,8 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null)
         setLoading(false)
 
-        // OAuth認証完了時の特別な処理
         if (event === 'SIGNED_IN' && session) {
+          // プロフィールの存在確認 & 自動作成
+          ensureProfile(session.user)
+
           console.log('[AuthContext] SIGNED_IN イベント検出:', {
             userEmail: session.user.email,
             currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド',
@@ -99,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (typeof window !== 'undefined') {
             const currentPath = window.location.pathname
             const hasOAuthFragment = window.location.hash.includes('access_token')
-            
+
             // OAuth認証後で、ログインページまたはコールバックページにいる場合
             if (hasOAuthFragment && (currentPath === '/login' || currentPath === '/auth/callback')) {
               console.log('[AuthContext] OAuth認証完了 - プロフィールページにリダイレクト')
@@ -225,6 +230,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } finally {
       setLoading(false)
+    }
+  }
+
+  // サインイン後にプロフィール行が存在しない場合は作成する
+  const ensureProfile = async (signedInUser: User | null) => {
+    try {
+      if (!signedInUser) return
+
+      // 既にプロフィールが存在するか確認 (slug と display_name も取得)
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, slug, display_name')
+        .eq('user_id', signedInUser.id)
+        .single() as { data: any; error: any }
+
+      if (error && error.code !== 'PGRST116') {
+        // その他のエラーはログに出すだけ
+        console.warn('[AuthContext] ensureProfile: プロフィール確認エラー:', error)
+        return
+      }
+
+      const generateUniqueSlug = async (displayName: string) => {
+        const baseSlug = slugify(displayName) || 'user'
+        let slugCandidate = baseSlug
+        let attempt = 0
+        while (true) {
+          const { data: existing } = await supabase
+            .from('profiles')
+            .select('slug')
+            .eq('slug', slugCandidate)
+            .single()
+
+          if (!existing) break
+          attempt += 1
+          slugCandidate = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
+          if (attempt > 5) {
+            slugCandidate = `${baseSlug}-${signedInUser.id.substring(0, 6)}`
+            break
+          }
+        }
+        return slugCandidate
+      }
+
+      // PGRST116: Row not found → 新規作成
+      if (!data) {
+        const displayName = (signedInUser.user_metadata?.display_name as string | undefined) || 'ユーザー'
+        const slug = await generateUniqueSlug(displayName)
+
+        const { error: insertError } = await supabase.from('profiles').insert({
+          user_id: signedInUser.id,
+          display_name: displayName,
+          slug,
+        })
+
+        if (insertError) {
+          console.error('[AuthContext] ensureProfile: プロフィール作成エラー:', insertError)
+        } else {
+          console.log('[AuthContext] ensureProfile: プロフィールを自動作成しました')
+        }
+      } else {
+        // 既存プロフィールだが slug が空の場合は付与
+        if (!data.slug || data.slug.length === 0) {
+          const displayName = data.display_name || (signedInUser.user_metadata?.display_name as string | undefined) || 'ユーザー'
+          const newSlug = await generateUniqueSlug(displayName)
+
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ slug: newSlug })
+            .eq('user_id', signedInUser.id)
+
+          if (updateError) {
+            console.error('[AuthContext] ensureProfile: slug バックフィル失敗:', updateError)
+          } else {
+            console.log('[AuthContext] ensureProfile: slug をバックフィルしました')
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[AuthContext] ensureProfile: 例外発生', err)
     }
   }
 

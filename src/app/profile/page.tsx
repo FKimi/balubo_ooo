@@ -7,7 +7,6 @@ import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { ProfileData, CareerItem } from '@/types/profile'
 import type { InputData, InputAnalysis } from '@/types/input'
-import type { WorkData } from '@/types/work'
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
 import { ProfileModals } from '@/features/profile/components/ProfileModals'
@@ -186,6 +185,7 @@ function ProfileContent() {
               skills: profileData.profile.skills || [],
               location: profileData.profile.location || '',
               websiteUrl: profileData.profile.website_url || profileData.profile.websiteUrl || '',
+              slug: profileData.profile.slug || '',
               portfolioVisibility: profileData.profile.portfolio_visibility || profileData.profile.portfolioVisibility || 'public',
               backgroundImageUrl: profileData.profile.background_image_url || profileData.profile.backgroundImageUrl || '',
               avatarImageUrl: profileData.profile.avatar_image_url || profileData.profile.avatarImageUrl || '',
@@ -533,6 +533,7 @@ function ProfileContent() {
   const backgroundImageUrl = profileData?.backgroundImageUrl || ''
   const hasCustomAvatar = !!(profileData?.avatarImageUrl)
   const avatarImageUrl = profileData?.avatarImageUrl || ''
+  const slug = profileData?.slug || ''
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
 
   return (
@@ -551,6 +552,7 @@ function ProfileContent() {
             hasCustomBackground={hasCustomBackground}
             hasCustomAvatar={hasCustomAvatar}
             userId={user?.id}
+            slug={slug}
             portfolioVisibility={profileData?.portfolioVisibility}
           />
           

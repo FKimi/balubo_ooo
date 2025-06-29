@@ -51,23 +51,23 @@ export default function FinalCTASection() {
               
               <div className="mx-auto max-w-3xl space-y-6 text-lg leading-relaxed text-slate-600 md:text-xl">
                 <p>
-                  クリエイターとして歩んできた道のりは、一つひとつが貴重な財産です。
+                  あなたが歩んできた創作の一歩一歩は、すべてが<strong className="font-semibold">あなた自身の物語</strong>です。
                 </p>
-                
+
                 <p>
-                  日々徹夜で向き合った原稿、締切に追われながらも魂を込めた作品、
+                  夜を徹して磨き上げた原稿、締切と戦いながら完成させた作品、
                   <br className="hidden md:block" />
-                  試行錯誤を重ねて生み出した表現の数々。
+                  試行錯誤の末に生まれたインスピレーションの欠片たち。
                 </p>
-                
+
                 <p>
-                  <span className="font-semibold text-blue-600">せっかくだから、しっかりストックして</span>
+                  <span className="font-semibold text-blue-600">その軌跡を「流れ去る思い出」にせず、</span>
                   <br className="hidden md:block" />
-                  <span className="font-semibold text-blue-600">その価値を感じてほしい。</span>
+                  <span className="font-semibold text-blue-600">“資産”として未来へ繋げよう。</span>
                 </p>
-                
+
                 <p className="mt-8 text-xl font-medium text-slate-700 md:text-2xl">
-                  それを世界に証明してほしい。
+                  いまこそ、あなたのクリエイティビティを世界に示すときです。
                 </p>
               </div>
             </div>

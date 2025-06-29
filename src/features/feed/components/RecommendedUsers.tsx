@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { fetcher } from '@/utils/fetcher'
 import { useRouter } from 'next/navigation'
 import { User, UserPlus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import FollowButton from '@/features/follow/components/FollowButton'
 
 interface RecommendedUser {

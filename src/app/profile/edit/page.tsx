@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
-import { ProfileData, CareerItem, defaultProfileData } from '@/types/profile'
+import { ProfileData } from '@/types/profile'
 
 export default function ProfileEditPage() {
   const { user } = useAuth()

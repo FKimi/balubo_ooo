@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { fetcher } from '@/utils/fetcher'
 import type { WorkData, WorkCategory } from '@/types/work'
 

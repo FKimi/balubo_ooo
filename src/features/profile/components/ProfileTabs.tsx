@@ -11,13 +11,10 @@ import type { WorkData } from '@/types/work'
 import type { ProfileData, CareerItem } from '@/types/profile'
 import { useWorkStatistics } from '@/hooks/useWorkStatistics'
 import { useWorkCategories } from '@/hooks/useWorkCategories'
-import { CategoryDropZone } from '@/features/work/components/CategoryDropZone'
 import { WorkCard } from '@/features/work/components/WorkCard'
 import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelector'
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import {
-  DndContext,
-  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -439,24 +436,36 @@ export function ProfileTabs({
   return (
     <div className="space-y-6">
       {/* タブナビゲーション */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-2 bg-gray-100 p-2 rounded-xl">
         <button 
           onClick={() => setActiveTab('profile')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+            activeTab === 'profile' 
+              ? 'bg-white text-gray-900 shadow-md border border-gray-200' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
-          👤 プロフィール
+          プロフィール
         </button>
         <button 
           onClick={() => setActiveTab('works')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'works' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+            activeTab === 'works' 
+              ? 'bg-white text-gray-900 shadow-md border border-gray-200' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
-          🎨 作品
+          作品
         </button>
         <button 
           onClick={() => setActiveTab('inputs')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'inputs' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+            activeTab === 'inputs' 
+              ? 'bg-white text-gray-900 shadow-md border border-gray-200' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
-          📚 インプット
+          インプット
         </button>
       </div>
 
@@ -504,7 +513,7 @@ export function ProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">📝 自己紹介</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">自己紹介</h3>
                   <Button
                     onClick={() => setIsIntroductionModalOpen(true)}
                     size="sm"
@@ -543,7 +552,7 @@ export function ProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">⚡ できること</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">できること</h3>
                   <Button
                     onClick={() => setIsSkillModalOpen(true)}
                     size="sm"
@@ -595,7 +604,7 @@ export function ProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">💼 キャリア</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">キャリア</h3>
                   <Button
                     onClick={() => setIsCareerModalOpen(true)}
                     size="sm"
@@ -674,10 +683,7 @@ export function ProfileTabs({
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                      <span>🏷️</span>
-                      <span>アウトプット作品のタグ分析</span>
-                    </h3>
+                    <h3 className="text-2xl font-bold text-gray-900">アウトプット作品のタグ分析</h3>
                     <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                       全{topTags.reduce((sum, [, count]) => sum + count, 0)}回使用
                     </div>
@@ -784,7 +790,7 @@ export function ProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">📊 作品統計・役割分布</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">作品統計・役割分布</h3>
                 </div>
 
                 {workStats.totalWorks > 0 ? (
@@ -858,7 +864,7 @@ export function ProfileTabs({
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">📅 アクティビティ履歴</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">アクティビティ履歴</h3>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -984,10 +990,7 @@ export function ProfileTabs({
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                      <span>🧠</span>
-                      <span>興味・関心分析</span>
-                    </h3>
+                    <h3 className="text-2xl font-bold text-gray-900">興味・関心分析</h3>
                     <div className="text-sm text-gray-500">
                       {inputs.length}件のインプットから分析
                     </div>

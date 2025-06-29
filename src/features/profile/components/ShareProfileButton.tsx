@@ -6,13 +6,18 @@ import { Button } from '@/components/ui/button'
 interface ShareProfileButtonProps {
   userId: string
   displayName: string
+  slug?: string | undefined
 }
 
-export function ShareProfileButton({ userId, displayName }: ShareProfileButtonProps) {
+export function ShareProfileButton({ userId, displayName, slug }: ShareProfileButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
 
-  const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/share/profile/${userId}` : ''
+  const shareUrl = typeof window !== 'undefined' ?
+    slug && slug.length > 0
+      ? `${window.location.origin}/p/${slug}`
+      : `${window.location.origin}/share/profile/${userId}`
+    : ''
 
   const handleCopyUrl = async () => {
     try {

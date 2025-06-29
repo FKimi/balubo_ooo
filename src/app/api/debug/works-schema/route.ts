@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
 // GET: worksテーブルのスキーマを確認
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // テーブルのカラム情報を取得
     const { data: columns, error: columnsError } = await supabase

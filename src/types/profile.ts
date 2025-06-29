@@ -9,6 +9,7 @@ export interface ProfileData {
   portfolioVisibility: 'public' | 'connections_only' | 'private'
   backgroundImageUrl?: string
   avatarImageUrl?: string
+  slug?: string
   desiredRate?: string
   jobChangeIntention: 'not_considering' | 'good_opportunity' | 'actively_looking'
   sideJobIntention: 'not_considering' | 'good_opportunity' | 'actively_looking'
@@ -54,6 +55,7 @@ export const defaultProfileData: Partial<ProfileData> = {
   portfolioVisibility: 'public',
   backgroundImageUrl: '',
   avatarImageUrl: '',
+  slug: '',
   desiredRate: '',
   jobChangeIntention: 'not_considering',
   sideJobIntention: 'not_considering',

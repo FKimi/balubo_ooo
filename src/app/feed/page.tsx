@@ -7,18 +7,9 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { RecommendedUsers } from '@/features/feed'
 import { 
-  Heart, 
   Share, 
   ExternalLink,
-  Calendar,
-  Tag,
-  Users,
-  Edit,
-  BookOpen,
-  Users2,
-  User,
-  LogIn,
-  UserPlus
+  User
 } from 'lucide-react'
 
 interface User {

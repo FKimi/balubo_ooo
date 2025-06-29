@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 
 // PUT: 代表作情報を更新

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import AIAnalysisEnhancer from '@/lib/aiAnalysisEnhancer'
 
 // Gemini APIクライアントの初期化
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')

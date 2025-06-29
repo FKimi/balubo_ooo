@@ -79,6 +79,8 @@ async function getPublicProfile(userId: string) {
         banner_image_url,
         preview_data,
         ai_analysis_result,
+        content_type,
+        article_word_count,
         created_at,
         updated_at
       `)
@@ -141,13 +143,74 @@ async function getPublicProfile(userId: string) {
       errorDetails: inputsError?.details 
     })
 
+
+
+    // インプット分析を計算
+    let inputAnalysis = null
+    if (inputs && inputs.length > 0) {
+
+      
+      const totalInputs = inputs.length
+      const favoriteCount = inputs.filter((input: any) => input.favorite).length
+      const averageRating = totalInputs > 0
+        ? inputs.reduce((sum: number, input: any) => sum + (input.rating || 0), 0) / totalInputs
+        : 0
+
+      const typeDistribution = inputs.reduce((acc: any, input: any) => {
+        const type = input.type || '未分類'
+        acc[type] = (acc[type] || 0) + 1
+        return acc
+      }, {})
+
+      const genresDistribution = inputs.reduce((acc: any, input: any) => {
+        if (input.genres && Array.isArray(input.genres)) {
+          input.genres.forEach((genre: string) => {
+            acc[genre] = (acc[genre] || 0) + 1
+          })
+        }
+        return acc
+      }, {})
+
+      const topGenres = Object.entries(genresDistribution)
+        .sort(([, a], [, b]) => (b as number) - (a as number))
+        .slice(0, 5)
+        .map(([name, count]) => ({ name, count: count as number }))
+
+      // インプットからタグを抽出してtopTagsを作成
+      const tagCount: { [key: string]: number } = {}
+      inputs.forEach((input: any) => {
+        if (input.tags && Array.isArray(input.tags)) {
+          input.tags.forEach((tag: string) => {
+            tagCount[tag] = (tagCount[tag] || 0) + 1
+          })
+        }
+      })
+      
+      const topTags = Object.entries(tagCount)
+        .sort(([, a], [, b]) => (b as number) - (a as number))
+        .slice(0, 15)
+        .map(([tag, count]) => ({ tag, count: count as number }))
+
+      inputAnalysis = {
+        totalInputs,
+        favoriteCount,
+        averageRating,
+        typeDistribution,
+        genresDistribution,
+        topGenres,
+        topTags
+      }
+      
+    }
+
     const result = {
       profileExists: true,
       worksCount: works?.length || 0,
       inputsCount: inputs?.length || 0,
       profile,
       works: works || [],
-      inputs: inputs || []
+      inputs: inputs || [],
+      inputAnalysis
     }
 
     console.log('公開プロフィール取得完了:', result)

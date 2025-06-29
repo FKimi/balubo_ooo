@@ -1,22 +1,18 @@
 'use client'
 
-import Link from 'next/link'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { AIAnalysisDetailModal } from '@/features/work/components/AIAnalysisDetailModal'
-import { ArticleForm, DesignForm, DefaultContentForm } from '@/features/work/components/ContentTypeForm'
-import { ShareSuccessToast } from '@/components/social/ShareModal'
+import { ShareSuccessToast } from '@/features/social/components/ShareModal'
 import { shareToTwitter } from '@/utils/socialShare'
-import { ArrowLeft, Link2, Sparkles, Plus, X, Upload } from 'lucide-react'
+import { ArrowLeft, Sparkles, X } from 'lucide-react'
 
 interface LinkPreviewData {
   title: string

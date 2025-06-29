@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
-
-// 作品データの型定義
-interface WorkData {
-  id: string
-  user_id: string
-  title: string
-  description: string
-  external_url: string
-  tags: string[]
-  roles: string[]
-  banner_image_url?: string
-  preview_data?: any
-  production_notes?: string
-  created_at: string
-  updated_at: string
-}
+import { DatabaseClient } from '@/lib/database'
 
 // GET: 特定の作品を取得
 export async function GET(
@@ -105,69 +89,18 @@ export async function GET(
       )
     }
 
-    // Supabaseから作品を取得（すべてのユーザーの作品を取得可能）
-    console.log('Attempting to fetch work with ID:', id)
-    const { data: work, error } = await supabaseWithAuth
-      .from('works')
-      .select(`
-        *,
-        production_notes,
-        is_featured,
-        featured_order
-      `)
-      .eq('id', id)
-      .single()
-    
-    console.log('Supabase query result:', { work, error })
-    
-    if (error || !work) {
-      console.error('Supabase error details:', {
-        error,
-        code: error?.code,
-        message: error?.message,
-        details: error?.details,
-        hint: error?.hint
-      })
-      
-      // RLSポリシーエラーの場合は特別なメッセージを返す
-      if (error?.code === 'PGRST116' || error?.message?.includes('row-level security')) {
-        return NextResponse.json(
-          { error: '作品の閲覧権限がありません。作品の所有者のみが閲覧できます。' },
-          { 
-            status: 403,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-      }
-      
+    // DatabaseClient を利用して作品を取得
+    console.log('Fetching work via DatabaseClient:', id)
+    const work = await DatabaseClient.getWork(id, user.id, token)
+
+    if (!work) {
       return NextResponse.json(
         { error: '作品が見つかりません' },
-        { 
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { status: 404 }
       )
     }
-    
-    console.log('Work detail retrieved from Supabase:', {
-      id: work.id,
-      user_id: work.user_id,
-      title: work.title,
-      external_url: work.external_url,
-      banner_image_url: work.banner_image_url,
-      hasPreview_data: !!work.preview_data,
-      preview_dataImage: work.preview_data?.image
-    })
-    
-    return NextResponse.json({ work }, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+
+    return NextResponse.json({ work })
   } catch (error) {
     console.error('作品取得エラー:', error)
     return NextResponse.json(

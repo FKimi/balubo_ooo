@@ -11,9 +11,9 @@ import Link from 'next/link'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import Image from 'next/image'
 import { Header } from '@/components/layout/header'
-import { ShareSuccessToast } from '@/components/social/ShareModal'
+import { ShareSuccessToast } from '@/features/social/components/ShareModal'
 import { shareToTwitter } from '@/utils/socialShare'
-import { InputType, InputStatus, InputData, inputTypeLabels, inputStatusLabels, defaultInputData } from '@/types/input'
+import { InputType, InputData, inputTypeLabels, defaultInputData } from '@/types/input'
 
 interface PreviewData {
   title: string

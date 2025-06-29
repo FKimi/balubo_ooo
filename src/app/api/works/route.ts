@@ -111,34 +111,15 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
     
-    // 認証されたSupabaseクライアントを作成
-    console.log('認証されたSupabaseクライアントを作成中...')
+    // Supabase 認証を検証するのみ（DatabaseClient側でも行うが念のため取得）
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.json({ 
-        error: 'サーバー設定エラー', 
-        details: 'Supabase environment variables not configured' 
-      }, { status: 500 })
-    }
-    
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }
+    const supabase = createClient(supabaseUrl!, supabaseAnonKey!, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
     })
-    
     const { data: { user }, error: userError } = await supabase.auth.getUser(token)
-    
     if (userError || !user) {
-      console.log('認証エラー:', userError)
-      return NextResponse.json(
-        { error: '認証に失敗しました', details: userError?.message || 'User not found' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 })
     }
 
     const userId = user.id
@@ -167,9 +148,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 認証されたSupabaseクライアントで作品を保存
-    console.log('認証されたSupabaseクライアントで作品を保存中...')
-    
     // production_dateの形式変換（YYYY-MM → YYYY-MM-01）
     let productionDate = null
     if (workData.productionDate && workData.productionDate.trim()) {
@@ -187,50 +165,11 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    const workToSave = {
-      user_id: userId,
-      title: workData.title || '',
-      description: workData.description || '',
-      external_url: workData.externalUrl || '', // フロントエンドのexternalUrlを変換
-      tags: workData.tags || [],
-      roles: workData.roles || [],
-      categories: workData.categories || [],
-      content_type: workData.contentType || '', // フロントエンドのcontentTypeを変換
-      production_date: productionDate,
-      production_notes: workData.productionNotes || null, // 制作メモを追加
-      banner_image_url: workData.bannerImageUrl || '', // フロントエンドのbannerImageUrlを変換
-      preview_data: workData.previewData || null, // フロントエンドのpreviewDataを変換
-      ai_analysis_result: workData.aiAnalysisResult || null, // フロントエンドのaiAnalysisResultを変換
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-
-    console.log('保存するデータ:', workToSave)
-
-    const { data: savedWork, error: insertError } = await supabase
-      .from('works')
-      .insert(workToSave)
-      .select()
-      .single()
-    
-    if (insertError) {
-      console.error('Supabase挿入エラー:', {
-        code: insertError.code,
-        message: insertError.message,
-        details: insertError.details,
-        hint: insertError.hint
-      })
-      return NextResponse.json(
-        { 
-          error: 'データベースへの保存に失敗しました', 
-          details: insertError.message,
-          code: 'DATABASE_ERROR',
-          supabaseCode: insertError.code,
-          hint: insertError.hint
-        },
-        { status: 500 }
-      )
-    }
+    // DatabaseClient 経由で保存
+    const savedWork = await DatabaseClient.saveWork(userId, {
+      ...workData,
+      productionDate
+    }, token)
 
     console.log('作品保存成功:', savedWork.id)
 

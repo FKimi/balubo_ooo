@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
 // POST: production_notesカラムを手動で追加
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // まず現在のスキーマを確認
-    const { data: sampleData, error: sampleError } = await supabase
+    const { data: sampleData } = await supabase
       .from('works')
       .select('*')
       .limit(1)

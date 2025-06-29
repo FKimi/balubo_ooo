@@ -10,6 +10,7 @@ interface PublicProfileData {
   profile: any
   works: any[]
   inputs: any[]
+  inputAnalysis?: any
 }
 
 interface PublicProfileContentProps {
@@ -27,7 +28,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
     userId
   })
   
-  const { profile, works, inputs } = data
+  const { profile, works, inputs, inputAnalysis } = data
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs'>('profile')
 
   console.log('PublicProfileContent: プロフィール情報', {
@@ -130,6 +131,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
           skills={skills}
           career={career}
           isProfileEmpty={isProfileEmpty}
+          inputAnalysis={inputAnalysis}
         />
       </div>
     </main>

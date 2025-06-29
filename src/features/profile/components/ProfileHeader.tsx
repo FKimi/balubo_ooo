@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { ProfileData } from '@/types/profile'
 import { ShareProfileButton } from './ShareProfileButton'
 import { FollowStats } from '@/features/follow/components/FollowStats'
 
@@ -18,6 +17,7 @@ interface ProfileHeaderProps {
   hasCustomBackground: boolean
   hasCustomAvatar: boolean
   userId?: string | undefined
+  slug?: string
   portfolioVisibility?: string
 }
 
@@ -32,6 +32,7 @@ export function ProfileHeader({
   hasCustomBackground,
   hasCustomAvatar,
   userId,
+  slug,
   portfolioVisibility
 }: ProfileHeaderProps) {
   return (
@@ -77,11 +78,11 @@ export function ProfileHeader({
       
       {/* プロフィール情報コンテンツ */}
       <div className="bg-white px-4 sm:px-6 md:px-8 pt-4 pb-4 sm:pb-6">
-        <div className="flex justify-between items-start">
+        <div className="flex items-start gap-4 sm:gap-6">
             {/* プロフィール画像 */}
-            <div className="-mt-14 sm:-mt-20 md:-mt-24">
+            <div className="-mt-16 sm:-mt-24 md:-mt-28">
                 <div className="relative">
-                    <div className="w-20 sm:w-28 md:w-32 h-20 sm:h-28 md:h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-2xl">
+                    <div className="w-24 sm:w-32 md:w-36 lg:w-40 h-24 sm:h-32 md:h-36 lg:h-40 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center border-4 sm:border-6 border-white shadow-2xl">
                     {hasCustomAvatar ? (
                         <Image
                         src={avatarImageUrl}
@@ -99,11 +100,11 @@ export function ProfileHeader({
                         
                         {/* ユーザーアイコンまたはイニシャル */}
                         {displayName && displayName !== 'ユーザー' ? (
-                            <span className="text-white font-bold text-2xl sm:text-3xl md:text-4xl z-10 relative">
+                            <span className="text-white font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl z-10 relative">
                             {displayName.charAt(0).toUpperCase()}
                             </span>
                         ) : (
-                            <svg className="w-10 sm:w-14 md:w-16 h-10 sm:h-14 md:h-16 text-white/90 z-10 relative" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-12 sm:w-16 md:w-18 lg:w-20 h-12 sm:h-16 md:h-18 lg:h-20 text-white/90 z-10 relative" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                             </svg>
                         )}
@@ -113,60 +114,63 @@ export function ProfileHeader({
                 </div>
             </div>
 
-            {/* 編集・共有ボタン */}
-            <div className="flex gap-2 pt-2 sm:pt-4">
-                {/* 共有ボタン */}
-                {portfolioVisibility === 'public' && userId && (
-                    <ShareProfileButton userId={userId} displayName={displayName} />
-                )}
+            {/* 名前とプロフィール情報 */}
+            <div className="flex-1 min-w-0 pt-2 sm:pt-4">
+                <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                        {displayName === 'ユーザー' ? (
+                            <span className="text-gray-500">表示名を設定してください</span>
+                        ) : (
+                            displayName
+                        )}
+                        </h1>
+                    </div>
+                    
+                    {/* 編集・共有ボタン */}
+                    <div className="flex gap-2 ml-4">
+                        {/* 共有ボタン */}
+                        {portfolioVisibility === 'public' && userId && (
+                            <ShareProfileButton userId={userId} slug={slug} displayName={displayName} />
+                        )}
+                        
+                        {/* 編集ボタン */}
+                        <Link href="/profile/edit">
+                            <Button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg text-xs sm:text-sm">
+                            <svg className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            編集
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
                 
-                {/* 編集ボタン */}
-                <Link href="/profile/edit">
-                    <Button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg text-xs sm:text-sm">
-                    <svg className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    編集
-                    </Button>
-                </Link>
+                {/* 自己紹介 */}
+                <div className="mb-4">
+                {bio ? (
+                    <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
+                    {bio}
+                    </p>
+                ) : (
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                        <svg className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span className="text-blue-900 font-medium text-xs sm:text-sm">自己紹介を追加しましょう</span>
+                    </div>
+                    <p className="text-blue-700 text-xs sm:text-sm leading-relaxed">
+                        あなたの経験、スキル、興味のある分野について教えてください。魅力的な自己紹介で、他のクリエイターとのつながりを深めましょう。
+                    </p>
+                    </div>
+                )}
+                </div>
             </div>
         </div>
 
         {/* プロフィール詳細 */}
         <div className="mt-4">
-            <div className="flex flex-col md:flex-row md:items-start justify-between mb-3 sm:mb-4">
-            {/* 名前とメール */}
-            <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-                {displayName === 'ユーザー' ? (
-                    <span className="text-gray-500">表示名を設定してください</span>
-                ) : (
-                    displayName
-                )}
-                </h1>
-            </div>
-            </div>
-
-            {/* 自己紹介 */}
-            <div className="mb-4 sm:mb-6">
-            {bio ? (
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                {bio}
-                </p>
-            ) : (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-                <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span className="text-blue-900 font-medium text-xs sm:text-sm">自己紹介を追加しましょう</span>
-                </div>
-                <p className="text-blue-700 text-xs sm:text-sm leading-relaxed">
-                    あなたの経験、スキル、興味のある分野について教えてください。魅力的な自己紹介で、他のクリエイターとのつながりを深めましょう。
-                </p>
-                </div>
-            )}
-            </div>
 
             {/* フォロー統計 */}
             {userId && (

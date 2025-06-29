@@ -1,10 +1,11 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
 import { useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useWorkStatistics } from '@/hooks/useWorkStatistics'
+import { PublicFeaturedWorksSection } from '@/features/work/components/PublicFeaturedWorksSection'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'inputs'
@@ -15,6 +16,7 @@ interface PublicProfileTabsProps {
   skills: string[]
   career: any[]
   isProfileEmpty: boolean
+  inputAnalysis?: any // オプショナルとして追加
 }
 
 export function PublicProfileTabs({
@@ -25,122 +27,19 @@ export function PublicProfileTabs({
   inputs,
   skills,
   career,
-  isProfileEmpty
+  isProfileEmpty,
+  inputAnalysis: propInputAnalysis
 }: PublicProfileTabsProps) {
 
-  // 作品統計の計算
-  const workStats = useMemo(() => {
-    if (!works || works.length === 0) {
-      return {
-        totalWorks: 0,
-        roles: {},
-        monthlyActivity: [],
-        recentActivity: [],
-        mostActiveMonth: null,
-        mostActiveYear: null,
-        yearlyActivity: [],
-        totalWordCount: 0,
-        roleDistribution: []
-      }
-    }
+  // 作品統計の計算（プライベートプロフィールと同じフックを使用）
+  const workStats = useWorkStatistics(works)
 
-    // 役割分布の計算
-    const roles = works.reduce((acc, work) => {
-      if (work.roles && Array.isArray(work.roles)) {
-        work.roles.forEach((role: string) => {
-          acc[role] = (acc[role] || 0) + 1
-        })
-      } else if (work.roles) {
-        acc[work.roles] = (acc[work.roles] || 0) + 1
-      }
-      return acc
-    }, {} as Record<string, number>)
-
-    // 月別アクティビティの計算
-    const monthCounts: Record<string, number> = {}
-    works.forEach(work => {
-      const date = new Date(work.created_at)
-      const year = date.getFullYear()
-      const month = date.getMonth() + 1
-      const key = `${year}-${month.toString().padStart(2, '0')}`
-      monthCounts[key] = (monthCounts[key] || 0) + 1
-    })
-
-    const monthlyActivity = Object.entries(monthCounts).map(([key, count]) => {
-      const parts = key.split('-')
-      const year = parts[0] ? parseInt(parts[0]) : 0
-      const month = parts[1] ? parseInt(parts[1]) : 0
-      return {
-        month,
-        year,
-        count,
-        displayMonth: `${year}年${month}月`
-      }
-    }).sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year
-      return b.month - a.month
-    })
-
-    // 最近のアクティビティ（最新6ヶ月）
-    const recentActivity = monthlyActivity.slice(0, 6)
-
-    // 最も活動的だった月
-    const mostActiveMonth = monthlyActivity.length > 0 
-      ? monthlyActivity.reduce((max, current) => current.count > max.count ? current : max)
-      : null
-
-    // 年別アクティビティの計算
-    const yearCounts: Record<number, number> = {}
-    works.forEach(work => {
-      const year = new Date(work.created_at).getFullYear()
-      yearCounts[year] = (yearCounts[year] || 0) + 1
-    })
-
-    const yearlyActivity = Object.entries(yearCounts)
-      .map(([year, count]) => ({ year: parseInt(year), count }))
-      .sort((a, b) => b.year - a.year)
-
-    // 最も活動的だった年
-    const mostActiveYear = yearlyActivity.length > 0
-      ? yearlyActivity.reduce((max, current) => current.count > max.count ? current : max)
-      : null
-
-    // 総文字数（記事などの wordCount がある作品）
-    const totalWordCount = works.reduce((sum, work) => {
-      if (work.ai_analysis_result && work.ai_analysis_result.wordCount) {
-        return sum + work.ai_analysis_result.wordCount
-      }
-      return sum
-    }, 0)
-
-    // 役割分布 (割合付き)
-    const roleEntries = Object.entries(roles)
-    const colorPalette = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4']
-    const roleDistribution = roleEntries.map(([role, count], index) => {
-      const numCount = count as number
-      return {
-        role,
-        count: numCount,
-        percentage: (numCount / works.length) * 100,
-        color: colorPalette[index % colorPalette.length]
-      }
-    })
-
-    return {
-      totalWorks: works.length,
-      roles,
-      monthlyActivity,
-      recentActivity,
-      mostActiveMonth,
-      mostActiveYear,
-      yearlyActivity,
-      totalWordCount,
-      roleDistribution
-    }
-  }, [works])
-
-  // インプット分析の計算
+  // インプット分析の計算（propsで渡された場合はそれを優先、なければ自分で計算）
   const inputAnalysis = useMemo(() => {
+    if (propInputAnalysis) {
+      return propInputAnalysis
+    }
+
     const totalInputs = inputs.length
     const favoriteCount = inputs.filter((input) => input.favorite).length
     const averageRating =
@@ -177,7 +76,7 @@ export function PublicProfileTabs({
       genresDistribution,
       topGenres,
     }
-  }, [inputs])
+  }, [propInputAnalysis, inputs])
 
   // 作品タグの分析
   const topTags = useMemo(() => {
@@ -200,24 +99,36 @@ export function PublicProfileTabs({
   return (
     <div className="space-y-6">
       {/* タブナビゲーション */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-2 bg-gray-100 p-2 rounded-xl">
         <button 
           onClick={() => setActiveTab('profile')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+            activeTab === 'profile' 
+              ? 'bg-white text-gray-900 shadow-md border border-gray-200' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
-          👤 プロフィール
+          プロフィール
         </button>
         <button 
           onClick={() => setActiveTab('works')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'works' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+            activeTab === 'works' 
+              ? 'bg-white text-gray-900 shadow-md border border-gray-200' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
-          🎨 作品 ({works.length})
+          作品 ({works.length})
         </button>
         <button 
           onClick={() => setActiveTab('inputs')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'inputs' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+            activeTab === 'inputs' 
+              ? 'bg-white text-gray-900 shadow-md border border-gray-200' 
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          }`}
         >
-          📚 インプット ({inputs.length})
+          インプット ({inputs.length})
         </button>
       </div>
 
@@ -244,7 +155,7 @@ export function PublicProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">📝 自己紹介</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">自己紹介</h3>
                 </div>
 
                 {introductionText ? (
@@ -266,7 +177,7 @@ export function PublicProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">⚡ できること</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">できること</h3>
                 </div>
 
                 {skills && skills.length > 0 ? (
@@ -295,7 +206,7 @@ export function PublicProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900">💼 キャリア</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">キャリア</h3>
                 </div>
 
                 {career && career.length > 0 ? (
@@ -340,10 +251,7 @@ export function PublicProfileTabs({
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                      <span>🏷️</span>
-                      <span>アウトプット作品のタグ分析</span>
-                    </h3>
+                    <h3 className="text-2xl font-bold text-gray-900">アウトプット作品のタグ分析</h3>
                     <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                       全{topTags.reduce((sum, [, count]) => sum + (count as number), 0)}回使用
                     </div>
@@ -431,90 +339,335 @@ export function PublicProfileTabs({
             {/* 作品統計・役割分布 */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">📊 作品統計・役割分布</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">作品統計・役割分布</h3>
+                </div>
+
                 {workStats.totalWorks > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-3">役割の分布</h4>
-                      <div className="space-y-2">
-                        {workStats.roleDistribution.map((role) => (
-                          <div key={role.role} className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">{role.role}</span>
-                            <span className="text-sm font-medium text-gray-800">{role.count}件</span>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* 総作品数表示 */}
+                    <div className="text-center lg:text-left">
+                      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                        <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
+                        <div className="text-4xl font-bold text-indigo-600">{workStats.totalWorks}</div>
+                        <p className="text-gray-600 mt-2">これまでに制作した作品</p>
+                        
+                        {/* 総文字数（記事作品がある場合のみ表示） */}
+                        {workStats.totalWordCount > 0 && (
+                          <div className="mt-4 pt-4 border-t border-indigo-200">
+                            <h5 className="text-sm font-medium text-gray-600 mb-1">総文字数</h5>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {workStats.totalWordCount.toLocaleString('ja-JP')}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">記事・ライティング作品の合計</p>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center justify-center bg-gray-50 rounded-lg p-4">
-                      <p className="text-sm text-center text-gray-600">役割分布のグラフ表示 (近日対応予定)</p>
+
+                    {/* 役割分布 */}
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
+                      {workStats.roleDistribution.length > 0 ? (
+                        <div className="space-y-3">
+                          {workStats.roleDistribution.map((role, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-gray-700">{role.role}</span>
+                                <span className="text-sm text-gray-600">{role.count}件 ({role.percentage.toFixed(0)}%)</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="h-2 rounded-full transition-all duration-300" 
+                                  style={{ 
+                                    width: `${role.percentage}%`,
+                                    backgroundColor: role.color
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500">役割データがありません</p>
+                      )}
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-3">📊</div>
-                    <h4 className="text-lg font-semibold text-gray-600 mb-2">作品がありません</h4>
-                    <p className="text-gray-500">作品が投稿されると、統計情報が表示されます。</p>
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📁</div>
+                    <h4 className="text-lg font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
+                    <p className="text-gray-500">作品が投稿されると統計情報が表示されます。</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* アクティビティ履歴 */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">📅 アクティビティ履歴</h3>
-                {workStats.recentActivity.length > 0 ? (
-                  <div className="space-y-4">
-                    {workStats.recentActivity.map(activity => (
-                      <div key={activity.displayMonth} className="flex items-center">
-                        <div className="text-sm text-gray-500 w-24">{activity.displayMonth}</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2.5">
-                          <div 
-                            className="bg-blue-600 h-2.5 rounded-full" 
-                            style={{ width: `${(activity.count / (workStats.mostActiveMonth?.count || 1)) * 100}%` }}
-                          ></div>
+            {workStats.monthlyActivity.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900">アクティビティ履歴</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* 最近のアクティビティ */}
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <span>🔥</span>
+                        <span>最近の活動</span>
+                      </h4>
+                      {workStats.recentActivity.length > 0 ? (
+                        <div className="space-y-3">
+                          {workStats.recentActivity.map((activity, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                  {activity.month}
+                                </div>
+                                <div>
+                                  <div className="font-medium text-gray-900">{activity.displayMonth}</div>
+                                  <div className="text-sm text-gray-600">{activity.count}件の作品</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300" 
+                                    style={{ 
+                                      width: `${Math.min((activity.count / Math.max(...workStats.recentActivity.map(a => a.count))) * 100, 100)}%` 
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-sm font-bold text-blue-600">{activity.count}</span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                        <div className="text-sm text-gray-800 w-12 text-right">{activity.count}件</div>
-                      </div>
-                    ))}
+                      ) : (
+                        <p className="text-gray-500">最近のアクティビティがありません</p>
+                      )}
+                    </div>
+
+                    {/* 年別統計とハイライト */}
+                    <div className="space-y-6">
+                      {/* 最も活動的だった月 */}
+                      {workStats.mostActiveMonth && (
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                          <h4 className="text-sm font-semibold text-green-800 mb-2 flex items-center gap-2">
+                            <span>🏆</span>
+                            <span>最も活動的だった月</span>
+                          </h4>
+                          <div className="text-lg font-bold text-green-700">{workStats.mostActiveMonth.displayMonth}</div>
+                          <div className="text-sm text-green-600">{workStats.mostActiveMonth.count}件の作品を制作</div>
+                        </div>
+                      )}
+
+                      {/* 最も活動的だった年 */}
+                      {workStats.mostActiveYear && (
+                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+                          <h4 className="text-sm font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                            <span>🎯</span>
+                            <span>最も活動的だった年</span>
+                          </h4>
+                          <div className="text-lg font-bold text-purple-700">{workStats.mostActiveYear.year}年</div>
+                          <div className="text-sm text-purple-600">{workStats.mostActiveYear.count}件の作品を制作</div>
+                        </div>
+                      )}
+
+                      {/* 年別サマリー */}
+                      {workStats.yearlyActivity.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <span>📊</span>
+                            <span>年別サマリー</span>
+                          </h4>
+                          <div className="space-y-2">
+                            {workStats.yearlyActivity.slice(0, 3).map((year, index) => (
+                              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                                <span className="font-medium text-gray-700">{year.year}年</span>
+                                <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded-full">{year.count}件</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-3">📅</div>
-                    <h4 className="text-lg font-semibold text-gray-600 mb-2">アクティビティがありません</h4>
-                    <p className="text-gray-500">作品を投稿すると、活動履歴が表示されます。</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+
+                  {/* 全月別履歴（展開可能） */}
+                  {workStats.monthlyActivity.length > 6 && (
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                      <details className="group">
+                        <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2 mb-4">
+                          <span>📋 全アクティビティ履歴を表示</span>
+                          <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </summary>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {workStats.monthlyActivity.map((activity, index) => (
+                            <div key={index} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                              <div className="font-medium text-gray-900 text-sm">{activity.displayMonth}</div>
+                              <div className="text-xs text-gray-600">{activity.count}件</div>
+                              <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+                                <div 
+                                  className="bg-blue-500 h-1 rounded-full transition-all duration-300" 
+                                  style={{ 
+                                    width: `${Math.min((activity.count / Math.max(...workStats.monthlyActivity.map(a => a.count))) * 100, 100)}%` 
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
             
             {/* 興味・関心分析 */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">🧠 興味・関心分析</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">興味・関心分析</h3>
+                  <div className="text-sm text-gray-500">
+                    {inputs.length}件のインプットから分析
+                  </div>
+                </div>
+
                 {inputAnalysis.totalInputs > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-3">インプットタイプ</h4>
-                      <div className="space-y-2">
-                        {Object.entries(inputAnalysis.typeDistribution).map(([type, count]) => (
-                          <div key={type} className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">{type}</span>
-                            <span className="text-sm font-medium text-gray-800">{count as number}件</span>
-                          </div>
-                        ))}
-                      </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* 好きなメディアタイプ */}
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                      <h4 className="text-lg font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                        <span>📱</span>
+                        <span>好きなメディア</span>
+                      </h4>
+                      {inputAnalysis.typeDistribution && Object.keys(inputAnalysis.typeDistribution).length > 0 ? (
+                        <div className="space-y-3">
+                          {Object.entries(inputAnalysis.typeDistribution).slice(0, 4).map(([type, count], index) => (
+                            <div key={type} className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">
+                                  {type === 'book' ? '📚' : 
+                                   type === 'manga' ? '📖' :
+                                   type === 'movie' ? '🎬' :
+                                   type === 'anime' ? '🎭' :
+                                   type === 'tv' ? '📺' :
+                                   type === 'game' ? '🎮' :
+                                   type === 'podcast' ? '🎧' : '📄'}
+                                </span>
+                                <span className="text-sm font-medium text-gray-700 capitalize">
+                                  {type === 'book' ? '書籍' : 
+                                   type === 'manga' ? '漫画' :
+                                   type === 'movie' ? '映画' :
+                                   type === 'anime' ? 'アニメ' :
+                                   type === 'tv' ? 'TV番組' :
+                                   type === 'game' ? 'ゲーム' :
+                                   type === 'podcast' ? 'ポッドキャスト' : 'その他'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 bg-blue-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300" 
+                                    style={{ 
+                                      width: `${Math.min(((count as number) / Math.max(...Object.values(inputAnalysis.typeDistribution || {}).map(v => v as number))) * 100, 100)}%` 
+                                    }}
+                                  />
+                                </div>
+                                                                 <span className="text-sm font-bold text-blue-600 w-6 text-right">{count as number}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-blue-600">データが不足しています</p>
+                      )}
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-3">人気のジャンル Top 5</h4>
-                      <div className="space-y-2">
-                        {inputAnalysis.topGenres.map(genre => (
-                          <div key={genre.name} className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">{genre.name}</span>
-                            <span className="text-sm font-medium text-gray-800">{genre.count}件</span>
-                          </div>
-                        ))}
-                      </div>
+
+                    {/* 興味のあるジャンル */}
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100">
+                      <h4 className="text-lg font-semibold text-green-800 mb-4 flex items-center gap-2">
+                        <span>🎭</span>
+                        <span>好きなジャンル</span>
+                      </h4>
+                      {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 ? (
+                        <div className="space-y-3">
+                          {inputAnalysis.topGenres.slice(0, 5).map((genreItem: any, index: number) => (
+                            <div key={index} className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                  {index + 1}
+                                </div>
+                                <Badge variant="outline" className="text-xs border-green-300 text-green-700">
+                                  {genreItem.name}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 bg-green-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300" 
+                                    style={{ 
+                                      width: `${Math.min((genreItem.count / Math.max(...inputAnalysis.topGenres.map((g: any) => g.count))) * 100, 100)}%` 
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-sm font-bold text-green-600 w-6 text-right">{genreItem.count}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-green-600">まだジャンルが登録されていません</p>
+                      )}
+                    </div>
+
+                    {/* 関心キーワード */}
+                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-100">
+                      <h4 className="text-lg font-semibold text-purple-800 mb-4 flex items-center gap-2">
+                        <span>🏷️</span>
+                        <span>関心キーワード</span>
+                      </h4>
+                      {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
+                        <div className="space-y-3">
+                          {inputAnalysis.topTags.slice(0, 5).map((tagItem: any, index: number) => {
+                            // プライベートプロフィールと同じ形式に対応（{ tag, count } または { name, count }）
+                            const tagName = tagItem.name || tagItem.tag || tagItem
+                            const tagCount = tagItem.count || 1
+                            
+                            return (
+                              <div key={index} className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-5 h-5 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                    {index + 1}
+                                  </div>
+                                  <Badge variant="outline" className="text-xs border-purple-300 text-purple-700">
+                                    {tagName}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-16 bg-purple-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300" 
+                                      style={{ 
+                                        width: `${Math.min((tagCount / Math.max(...inputAnalysis.topTags.map((t: any) => t.count || 1))) * 100, 100)}%` 
+                                      }}
+                                    />
+                                  </div>
+                                  <span className="text-sm font-bold text-purple-600 w-6 text-right">{tagCount}</span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-purple-600">まだタグが登録されていません</p>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -522,6 +675,53 @@ export function PublicProfileTabs({
                     <div className="text-4xl mb-3">🧠</div>
                     <h4 className="text-lg font-semibold text-gray-600 mb-2">インプットがありません</h4>
                     <p className="text-gray-500">読んだ本や観た映画を記録すると、興味・関心の分析結果が表示されます。</p>
+                  </div>
+                )}
+
+                {/* 分析サマリー */}
+                {inputAnalysis.totalInputs > 0 && (
+                  <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">💡</div>
+                      <div className="flex-1">
+                        <h5 className="font-semibold text-gray-800 mb-2">興味・関心プロフィール</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div>
+                            <span className="font-medium">最も消費するメディア:</span>
+                            <span className="ml-2 text-blue-600 font-semibold">
+                              {inputAnalysis.typeDistribution ? 
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'book' ? '書籍' : 
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'manga' ? '漫画' :
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'movie' ? '映画' :
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'anime' ? 'アニメ' :
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'tv' ? 'TV番組' :
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'game' ? 'ゲーム' :
+                                Object.entries(inputAnalysis.typeDistribution)
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] === 'podcast' ? 'ポッドキャスト' : 'その他'
+                                : 'データなし'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="font-medium">主要な関心分野:</span>
+                            <span className="ml-2 text-green-600 font-semibold">
+                              {inputAnalysis.topGenres && inputAnalysis.topGenres[0] ?
+                                inputAnalysis.topGenres[0].name
+                                : 'データなし'}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs text-gray-500">
+                          この分析は、インプットデータを基に自動生成されています。
+                          より正確な分析のために、ジャンルやタグの設定を充実させることをお勧めします。
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -533,8 +733,20 @@ export function PublicProfileTabs({
         {activeTab === 'works' && (
           <div>
             {works.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {works.map((work) => (
+              <>
+                {/* 代表作セクション */}
+                <PublicFeaturedWorksSection works={works} />
+                
+                {/* 全作品一覧 */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">🎨 全作品</h3>
+                    <div className="text-sm text-gray-500">
+                      {works.length}件の作品
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {works.map((work) => (
                   <Card key={work.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                     <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                       {work.banner_image_url ? (
@@ -565,12 +777,14 @@ export function PublicProfileTabs({
                             (Array.isArray(work.roles) ? work.roles.join(', ') : work.roles) 
                             : '役割未設定'}
                         </span>
-                        <span>{new Date(work.created_at).toLocaleDateString('ja-JP')}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                                              <span>{new Date(work.created_at).toLocaleDateString('ja-JP')}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🎨</div>
@@ -586,7 +800,7 @@ export function PublicProfileTabs({
           <div>
             {/* インプット分析 */}
             {inputs.length > 0 && (
-              <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 {/* 統計情報 */}
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -612,19 +826,65 @@ export function PublicProfileTabs({
                 </div>
 
                 {/* タイプ分布 */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-blue-600">📊</span>
+                    <span className="text-orange-600">📚</span>
                     タイプ分布
                   </h3>
-                  <div className="space-y-3">
-                    {Object.entries(inputAnalysis.typeDistribution).map(([type, count]) => (
-                      <div key={type} className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">{type}</span>
-                        <span className="text-sm font-medium text-gray-800">{count as number}件</span>
-                      </div>
-                    ))}
-                  </div>
+                  {inputAnalysis.typeDistribution && Object.keys(inputAnalysis.typeDistribution).length > 0 ? (
+                    <div className="space-y-2">
+                      {Object.entries(inputAnalysis.typeDistribution).slice(0, 4).map(([type, count]) => (
+                        <div key={type} className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-700 capitalize">{type}</span>
+                          <span className="text-sm text-orange-600 font-semibold">{count as number}件</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">タイプ情報がありません</p>
+                  )}
+                </div>
+
+                {/* 興味関心ワード */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="text-blue-600">🏷️</span>
+                    興味関心ワード
+                  </h3>
+                  {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {inputAnalysis.topTags.slice(0, 6).map((tagItem: any, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-white text-blue-700 rounded-full text-xs border border-blue-200"
+                        >
+                          {tagItem.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">タグを追加すると分析されます</p>
+                  )}
+                </div>
+
+                {/* ジャンル分析 */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="text-green-600">🎭</span>
+                    ジャンル分析
+                  </h3>
+                  {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 ? (
+                    <div className="space-y-2">
+                      {inputAnalysis.topGenres.slice(0, 4).map((genre: any, index: number) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-700">{genre.name}</span>
+                          <span className="text-sm text-green-600 font-semibold">{genre.count}件</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 text-sm">ジャンル情報がありません</p>
+                  )}
                 </div>
               </div>
             )}
