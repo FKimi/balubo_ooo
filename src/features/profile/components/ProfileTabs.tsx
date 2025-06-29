@@ -545,7 +545,7 @@ export function ProfileTabs({
                         >
                           {skill}
                           <button
-                            onClick={() => _onRemoveSkill(index)}
+                            onClick={() => _onRemoveSkill?.(index)}
                             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             ×
