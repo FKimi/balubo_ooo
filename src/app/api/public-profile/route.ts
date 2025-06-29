@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 作品データを取得
-    const { data: works, error: worksError } = await supabase
+    const { data: works, error: _worksError } = await supabase
       .from('works')
       .select(`
         id,
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     // インプットデータを取得
-    const { data: inputs, error: inputsError } = await supabase
+    const { data: inputs, error: _inputsError } = await supabase
       .from('inputs')
       .select(`
         id,

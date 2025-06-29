@@ -14,14 +14,6 @@ import { useWorkCategories } from '@/hooks/useWorkCategories'
 import { WorkCard } from '@/features/work/components/WorkCard'
 import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelector'
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
-import {
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core'
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useState } from 'react'
 
 interface ProfileTabsProps {
@@ -35,15 +27,15 @@ interface ProfileTabsProps {
   isLoadingInputs: boolean
   deleteWork: (workId: string) => void
   // スキル管理
-  onAddSkill: () => void
-  onRemoveSkill: (index: number) => void
+  // onAddSkill: () => void
+  // onRemoveSkill: (index: number) => void
   setIsSkillModalOpen: (open: boolean) => void
   // キャリア管理
   onEditCareer: (career: CareerItem) => void
   onDeleteCareerConfirm: (careerId: string) => void
   setIsCareerModalOpen: (open: boolean) => void
   // 自己紹介管理
-  onUpdateIntroduction: (introduction: string) => void
+  // onUpdateIntroduction: (introduction: string) => void
   setIsIntroductionModalOpen: (open: boolean) => void
 }
 
@@ -57,13 +49,13 @@ export function ProfileTabs({
   inputAnalysis, 
   isLoadingInputs, 
   deleteWork,
-  onAddSkill,
-  onRemoveSkill,
+  // onAddSkill,
+  // onRemoveSkill,
   setIsSkillModalOpen,
   onEditCareer,
   onDeleteCareerConfirm,
   setIsCareerModalOpen,
-  onUpdateIntroduction,
+  // onUpdateIntroduction,
   setIsIntroductionModalOpen
 }: ProfileTabsProps) {
   // カスタムフックからデータを取得
@@ -72,28 +64,6 @@ export function ProfileTabs({
   
   // コンテンツタイプ選択モーダルの状態
   const [isContentTypeSelectorOpen, setIsContentTypeSelectorOpen] = useState(false)
-
-  // ドラッグアンドドロップ処理
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-
-    if (!over) return
-
-    const workId = active.id as string
-    const newCategoryId = over.id as string
-    
-    const newCategory = categories.find(cat => cat.id === newCategoryId)
-    if (newCategory) {
-      updateWorkCategory(workId, newCategory.name)
-    }
-  }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
 
   // よく使用するタグを計算（作品データから）
   const getTopTags = () => {
@@ -122,7 +92,7 @@ export function ProfileTabs({
     updateCategory,
     deleteCategory,
     deleteWork,
-    updateWorkCategory
+    // updateWorkCategory
   }: {
     savedWorks: WorkData[]
     categories: any[]
