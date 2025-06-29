@@ -27,15 +27,15 @@ interface ProfileTabsProps {
   isLoadingInputs: boolean
   deleteWork: (workId: string) => void
   // スキル管理
-  // onAddSkill: () => void
-  // onRemoveSkill: (index: number) => void
+  onAddSkill?: () => void
+  onRemoveSkill?: (index: number) => void
   setIsSkillModalOpen: (open: boolean) => void
   // キャリア管理
   onEditCareer: (career: CareerItem) => void
   onDeleteCareerConfirm: (careerId: string) => void
   setIsCareerModalOpen: (open: boolean) => void
   // 自己紹介管理
-  // onUpdateIntroduction: (introduction: string) => void
+  onUpdateIntroduction?: (introduction: string) => void
   setIsIntroductionModalOpen: (open: boolean) => void
 }
 
@@ -49,13 +49,13 @@ export function ProfileTabs({
   inputAnalysis, 
   isLoadingInputs, 
   deleteWork,
-  // onAddSkill,
-  // onRemoveSkill,
+  onAddSkill: _onAddSkill,
+  onRemoveSkill: _onRemoveSkill,
   setIsSkillModalOpen,
   onEditCareer,
   onDeleteCareerConfirm,
   setIsCareerModalOpen,
-  // onUpdateIntroduction,
+  onUpdateIntroduction: _onUpdateIntroduction,
   setIsIntroductionModalOpen
 }: ProfileTabsProps) {
   // カスタムフックからデータを取得
@@ -545,7 +545,7 @@ export function ProfileTabs({
                         >
                           {skill}
                           <button
-                            onClick={() => onRemoveSkill(index)}
+                            onClick={() => _onRemoveSkill(index)}
                             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             ×
