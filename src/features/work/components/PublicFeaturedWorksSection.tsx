@@ -20,7 +20,6 @@ export function PublicFeaturedWorksSection({ works }: PublicFeaturedWorksSection
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <span className="text-2xl">⭐</span>
           代表作
           <span className="text-sm font-normal text-gray-500">
             ({featuredWorks.length}/3)
@@ -54,51 +53,23 @@ export function PublicFeaturedWorksSection({ works }: PublicFeaturedWorksSection
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
                   <div className="text-center">
-                    <div className="text-4xl text-amber-600 mb-2">🎨</div>
-                    <p className="text-xs text-amber-700">代表作画像</p>
+                    <div className="w-8 h-8 mx-auto mb-2 bg-blue-600 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p className="text-xs text-blue-700">代表作画像</p>
                   </div>
                 </div>
               )}
             </div>
 
-            <CardContent className="p-6">
-              <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-amber-700 transition-colors">
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-amber-700 transition-colors text-sm">
                 {work.title}
               </h3>
-              
-              {work.description && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-3">
-                  {work.description}
-                </p>
-              )}
-
-              <div className="flex flex-wrap gap-2 mb-3">
-                {work.roles && (
-                  <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">
-                    {Array.isArray(work.roles) ? work.roles.join(', ') : work.roles}
-                  </span>
-                )}
-                {work.content_type && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                    {work.content_type}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>
-                  {work.production_date ? 
-                    new Date(work.production_date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' }) :
-                    new Date(work.created_at).toLocaleDateString('ja-JP')
-                  }
-                </span>
-                <div className="flex items-center gap-1 text-amber-600">
-                  <span>⭐</span>
-                  <span className="font-medium">代表作</span>
-                </div>
-              </div>
             </CardContent>
           </Card>
         ))}

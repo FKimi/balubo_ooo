@@ -18,9 +18,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
   const totalArticleWordCount = articleWorks.reduce((sum, work) => sum + (work.article_word_count || 0), 0)
   
   // インプット統計
-  const inputsWithRating = inputs.filter(input => input.rating && input.rating > 0)
-  const averageInputRating = inputsWithRating.length > 0 
-    ? inputsWithRating.reduce((sum, input) => sum + (input.rating || 0), 0) / inputsWithRating.length 
+  const favoriteInputs = inputs.filter(input => input.favorite)
+  const favoriteRate = inputs.length > 0 
+    ? (favoriteInputs.length / inputs.length) * 100
     : 0
 
   const hasInputs = inputs.length > 0
@@ -45,7 +45,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
         <Card className="hover:shadow-md transition-shadow duration-200">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <span>📝</span>
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
               <span>自己紹介</span>
             </CardTitle>
           </CardHeader>
@@ -62,7 +64,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
         <Card className="hover:shadow-md transition-shadow duration-200">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <span>⚡</span>
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
               <span>できること</span>
             </CardTitle>
           </CardHeader>
@@ -79,7 +83,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
         <Card className="hover:shadow-md transition-shadow duration-200">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <span>💼</span>
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8m0 0H6a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h8a2 2 0 002-2v-6a2 2 0 00-2-2h-2m0 0V6a2 2 0 00-2-2H10a2 2 0 00-2 2v0" />
+              </svg>
               <span>キャリア</span>
             </CardTitle>
           </CardHeader>
@@ -93,11 +99,16 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
 
       {/* エキスパート認定バッジ */}
       {works.length >= 3 && (
-        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold mb-2">🏆 {expertise}</h3>
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  {expertise}
+                </h3>
                 <p className="text-blue-100">
                   実績作品{works.length}件、総文字数{totalArticleWordCount.toLocaleString()}文字の経験豊富なクリエイター
                 </p>
@@ -128,7 +139,7 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
         <Card className="hover:shadow-md transition-shadow duration-200">
           <CardContent className="p-4 sm:p-6">
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">
                 {totalArticleWordCount.toLocaleString()}
               </div>
               <div className="text-xs sm:text-sm text-gray-600">総文字数</div>
@@ -142,7 +153,7 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
             <Card className="hover:shadow-md transition-shadow duration-200">
               <CardContent className="p-4 sm:p-6">
                 <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-1">
+                  <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">
                     {inputs.length}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600">インプット数</div>
@@ -154,11 +165,11 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
             <Card className="hover:shadow-md transition-shadow duration-200">
               <CardContent className="p-4 sm:p-6">
                 <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-1">
-                    {averageInputRating > 0 ? averageInputRating.toFixed(1) : '-'}
+                  <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">
+                    {inputs.length > 0 ? favoriteRate.toFixed(1) + '%' : '-'}
                   </div>
-                  <div className="text-xs sm:text-sm text-gray-600">平均評価</div>
-                  <div className="text-xs text-gray-500 mt-1">評価済み: {inputsWithRating.length}件</div>
+                  <div className="text-xs sm:text-sm text-gray-600">お気に入り率</div>
+                  <div className="text-xs text-gray-500 mt-1">お気に入り: {favoriteInputs.length}件</div>
                 </div>
               </CardContent>
             </Card>
@@ -168,66 +179,37 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
 
       {/* クライアント推薦ポイント */}
       {works.length >= 3 && (
-        <Card className="border-accent-dark-blue border-2">
+        <Card className="border-blue-600 border-2">
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2 text-accent-dark-blue">
-              <span>🎯</span>
-              <span>クライアント推薦ポイント</span>
+            <CardTitle className="text-lg sm:text-xl flex items-center gap-2 text-blue-600">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <span>クリエイターまとめ</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 text-sm sm:text-base">✨ 強み・特徴</h4>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start space-x-2">
-                    <span className="text-blue-500 mt-1">•</span>
-                    <span>実績作品{works.length}件の豊富な経験</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-green-500 mt-1">•</span>
-                    <span>総{totalArticleWordCount.toLocaleString()}文字の執筆実績</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-purple-500 mt-1">•</span>
-                    <span>{workStats.roleDistribution.length}つの専門役割をカバー</span>
-                  </li>
-                  {averageInputRating >= 4.0 && (
-                    <li className="flex items-start space-x-2">
-                      <span className="text-orange-500 mt-1">•</span>
-                      <span>高い品質意識（評価{averageInputRating.toFixed(1)}/5.0）</span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-              
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-900 text-sm sm:text-base">🚀 期待できる成果</h4>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  {avgWordCount >= 2000 && (
-                    <li className="flex items-start space-x-2">
-                      <span className="text-green-500 mt-1">•</span>
-                      <span>充実したボリュームの記事作成</span>
-                    </li>
-                  )}
-                  {workStats.roleDistribution.length >= 2 && (
-                    <li className="flex items-start space-x-2">
-                      <span className="text-purple-500 mt-1">•</span>
-                      <span>多角的な視点でのプロジェクト推進</span>
-                    </li>
-                  )}
-                  {hasInputs && (
-                    <li className="flex items-start space-x-2">
-                      <span className="text-orange-500 mt-1">•</span>
-                      <span>継続的な学習による品質向上</span>
-                    </li>
-                  )}
-                  <li className="flex items-start space-x-2">
-                    <span className="text-blue-500 mt-1">•</span>
-                    <span>安定した品質でのコンテンツ制作</span>
-                  </li>
-                </ul>
-              </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+                まとめ
+              </h4>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start space-x-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>{works.length}件の実績と{totalArticleWordCount.toLocaleString()}文字の執筆経験</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>{workStats.roleDistribution.length}つの専門役割による多角的な制作力</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>{hasInputs ? '継続的な学習と' : ''}安定した品質でのコンテンツ制作</span>
+                </li>
+              </ul>
             </div>
           </CardContent>
         </Card>
@@ -237,7 +219,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-            <span>📊</span>
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
             <span>実績サマリー</span>
           </CardTitle>
         </CardHeader>
@@ -245,24 +229,15 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
           {/* 役割分布 */}
           {workStats.roleDistribution.length > 0 && (
             <div>
-              <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">主な役割分布（トップ5）</h4>
-              <div className="space-y-3">
-                {workStats.roleDistribution.slice(0, 5).map((role: any, index: number) => (
-                  <div key={role.role}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs sm:text-sm text-gray-700">{role.role}</span>
-                      <span className="text-xs sm:text-sm font-medium">{role.count}件 ({role.percentage.toFixed(1)}%)</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="h-2 rounded-full transition-all duration-300" 
-                        style={{ 
-                          backgroundColor: role.color,
-                          width: `${role.percentage}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
+              <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">主な役割（トップ3）</h4>
+              <div className="flex flex-wrap gap-2">
+                {workStats.roleDistribution.slice(0, 3).map((role: any, index: number) => (
+                  <span 
+                    key={role.role}
+                    className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"
+                  >
+                    {role.role} ({role.count}件)
+                  </span>
                 ))}
               </div>
             </div>
@@ -274,7 +249,11 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-blue-50 rounded-lg p-4">
                 <div className="flex items-center space-x-3">
-                  <div className="text-blue-500 text-xl">🎨</div>
+                  <div className="text-blue-500 text-xl">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5a2 2 0 00-2 2v12a4 4 0 004 4h2a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                    </svg>
+                  </div>
                   <div>
                     <div className="font-medium text-blue-900">作品制作</div>
                     <div className="text-sm text-blue-700">
@@ -293,12 +272,16 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
               </div>
 
               {hasInputs && (
-                <div className="bg-purple-50 rounded-lg p-4">
+                <div className="bg-blue-50 rounded-lg p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="text-purple-500 text-xl">📚</div>
+                    <div className="text-blue-500 text-xl">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
                     <div>
-                      <div className="font-medium text-purple-900">学習活動</div>
-                      <div className="text-sm text-purple-700">
+                      <div className="font-medium text-blue-900">学習活動</div>
+                      <div className="text-sm text-blue-700">
                         {(() => {
                           const recentInputs = inputs.filter(input => 
                             input.createdAt && 
@@ -320,7 +303,11 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
           {!hasInputs && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start space-x-3">
-                <div className="text-blue-500 text-xl">💡</div>
+                <div className="text-blue-500 text-xl">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
                 <div>
                   <h4 className="font-medium text-blue-900 mb-1">インプット機能を活用しましょう</h4>
                   <p className="text-sm text-blue-700">
@@ -338,7 +325,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <span>🌟</span>
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
               <span>クリエイター分析</span>
             </CardTitle>
           </CardHeader>
@@ -349,7 +338,10 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
               {/* 強み・特徴 */}
               <div className="space-y-3">
                 <h4 className="font-bold text-lg text-blue-600 flex items-center gap-2">
-                  <span>💎</span>強み・特徴
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  強み・特徴
                 </h4>
                 <div className="space-y-2">
                   {(() => {
@@ -370,35 +362,38 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
 
               {/* 発注者へのアピールポイント */}
               <div className="space-y-3">
-                <h4 className="font-bold text-lg text-green-600 flex items-center gap-2">
-                  <span>🎯</span>発注者へのアピール
+                <h4 className="font-bold text-lg text-blue-600 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  発注者へのアピール
                 </h4>
                 <div className="space-y-2">
                   {works.length >= 3 && (
-                    <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-400">
-                      <p className="text-sm font-medium text-green-800">豊富な実績</p>
-                      <p className="text-xs text-green-600">{works.length}件の作品制作経験</p>
+                    <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                      <p className="text-sm font-medium text-blue-800">豊富な実績</p>
+                      <p className="text-xs text-blue-600">{works.length}件の作品制作経験</p>
                     </div>
                   )}
                   
                   {workStats.totalWordCount > 10000 && (
-                    <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-400">
-                      <p className="text-sm font-medium text-green-800">高い文章力</p>
-                      <p className="text-xs text-green-600">総{workStats.totalWordCount.toLocaleString()}文字の執筆実績</p>
+                    <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                      <p className="text-sm font-medium text-blue-800">高い文章力</p>
+                      <p className="text-xs text-blue-600">総{workStats.totalWordCount.toLocaleString()}文字の執筆実績</p>
                     </div>
                   )}
                   
                   {workStats.roleDistribution.length >= 2 && (
-                    <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-400">
-                      <p className="text-sm font-medium text-green-800">多角的対応力</p>
-                      <p className="text-xs text-green-600">{workStats.roleDistribution.length}つの役割を経験</p>
+                    <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                      <p className="text-sm font-medium text-blue-800">多角的対応力</p>
+                      <p className="text-xs text-blue-600">{workStats.roleDistribution.length}つの役割を経験</p>
                     </div>
                   )}
                   
                   {hasInputs && (
-                    <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-400">
-                      <p className="text-sm font-medium text-green-800">継続的学習姿勢</p>
-                      <p className="text-xs text-green-600">{inputs.length}件のインプット活動</p>
+                    <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                      <p className="text-sm font-medium text-blue-800">継続的学習姿勢</p>
+                      <p className="text-xs text-blue-600">{inputs.length}件のインプット活動</p>
                     </div>
                   )}
                 </div>
@@ -406,8 +401,11 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
 
               {/* 今後の成長の方向性 */}
               <div className="space-y-3">
-                <h4 className="font-bold text-lg text-purple-600 flex items-center gap-2">
-                  <span>🚀</span>成長の方向性
+                <h4 className="font-bold text-lg text-blue-600 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  成長の方向性
                 </h4>
                 <div className="space-y-2">
                   {(() => {
@@ -450,9 +448,9 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
                     }
                     
                     return suggestions.slice(0, 3).map((suggestion, i) => (
-                      <div key={i} className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-400">
-                        <p className="text-sm font-medium text-purple-800">{suggestion.title}</p>
-                        <p className="text-xs text-purple-600">{suggestion.description}</p>
+                      <div key={i} className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                        <p className="text-sm font-medium text-blue-800">{suggestion.title}</p>
+                        <p className="text-xs text-blue-600">{suggestion.description}</p>
                       </div>
                     ))
                   })()}
@@ -464,7 +462,10 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
             {works.length > 0 && (
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <h4 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
-                  <span>✨</span>注目作品
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                  注目作品
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {works.slice(0, 2).map((work, i) => (
@@ -494,11 +495,14 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
             )}
 
             {/* クライアント向けメッセージ */}
-            <div className="mt-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-6 border border-amber-200">
-              <h4 className="font-bold text-lg text-amber-800 mb-3 flex items-center gap-2">
-                <span>📢</span>発注者の方へ
+            <div className="mt-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+              <h4 className="font-bold text-lg text-blue-800 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                発注者の方へ
               </h4>
-              <p className="text-sm text-amber-700 leading-relaxed">
+              <p className="text-sm text-blue-700 leading-relaxed">
                 {works.length >= 5 
                   ? `豊富な実績（${works.length}件）と継続的な学習姿勢により、安定した品質でのコンテンツ制作をお約束します。` 
                   : works.length >= 3

@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { ProfileData } from '@/types/profile'
+import { apiEndpoints, safeApiCall } from '@/utils/fetcher'
 
 export default function ProfileEditPage() {
   const { user } = useAuth()
@@ -21,31 +22,12 @@ export default function ProfileEditPage() {
   
   // データベースからプロフィールデータを取得する関数
   const fetchProfileData = async () => {
-    try {
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token
-
-      if (!token) {
-        return null
-      }
-
-      const response = await fetch('/api/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        return result.profile
-      } else {
-        return null
-      }
-    } catch (error) {
+    const { data, error } = await safeApiCall(() => apiEndpoints.profile.get())
+    if (error) {
       console.error('プロフィール取得エラー:', error)
       return null
     }
+    return data?.profile
   }
 
   // useEffectでデータベースからプロフィールデータを読み込み
@@ -77,10 +59,7 @@ export default function ProfileEditPage() {
           
           setFormData(convertedProfile)
           
-          // MCP接続状態の確認
-          const { mcpSupabase } = await import('@/lib/mcp-supabase')
-          const connectionStatus = mcpSupabase.getConnectionStatus()
-          console.log('MCP接続状態:', connectionStatus)
+
         } else {
           // データベースにデータがない場合はローカルストレージから読み込み
           const savedProfile = localStorage.getItem('profileData')
@@ -231,95 +210,25 @@ export default function ProfileEditPage() {
     setIsLoading(true)
     
     try {
-      // 認証トークンを取得
-      const { supabase } = await import('@/lib/supabase')
-      console.log('認証セッション取得中...')
-      
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('セッション:', session)
-      console.log('セッションエラー:', sessionError)
-      
-      const token = session?.access_token
-
-      if (!session || !token) {
-        console.log('認証セッションが見つかりません')
-        alert('ログインが必要です。ログインページに移動します。')
-        window.location.href = '/auth/login'
-        setIsLoading(false)
-        return
-      }
-
       console.log('保存するデータ:', formData)
 
       // データベースに保存
-      const response = await fetch('/api/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      })
+      const { data, error } = await safeApiCall(() => apiEndpoints.profile.save(formData))
+      
+      if (error) {
+        console.error('保存エラー:', error)
+        alert(`保存に失敗しました: ${error}
 
-      console.log('APIレスポンス status:', response.status)
-      console.log('APIレスポンス statusText:', response.statusText)
-      
-      // レスポンスのContent-Typeを確認
-      const contentType = response.headers.get('content-type')
-      console.log('Content-Type:', contentType)
-      
-      if (!contentType?.includes('application/json')) {
-        const text = await response.text()
-        console.error('JSONでないレスポンス:', text)
-        alert(`サーバーエラーが発生しました。レスポンス: ${text.substring(0, 200)}...`)
-        setIsLoading(false)
+問題が続く場合は、ページを再読み込みしてもう一度お試しください。`)
         return
       }
 
-      const result = await response.json()
-      console.log('APIレスポンス結果:', result)
-
-      if (response.ok) {
+      if (data?.success) {
         // ローカルストレージにも保存（バックアップ用）
         localStorage.setItem('profileData', JSON.stringify(formData))
         
         // 更新フラグを付けてプロフィール画面に遷移
         router.push('/profile?updated=true')
-      } else {
-        console.error('保存エラー詳細:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: result.error,
-          details: result.details,
-          debugInfo: result.debugInfo,
-          result: result
-        })
-        
-        // RLSエラーの場合はより詳細な説明を表示
-        if (response.status === 403 && result.debugInfo?.errorCode === '42501') {
-          alert(`データベース権限エラーが発生しました。
-
-詳細: ${result.details || 'プロフィールテーブルの権限設定に問題があります'}
-
-解決方法:
-1. Supabaseダッシュボードにアクセス
-2. profilesテーブルのRLSポリシーを確認
-3. 認証されたユーザーの権限設定を確認
-
-開発者向け情報:
-- エラーコード: ${result.debugInfo?.errorCode}
-- テーブル: ${result.debugInfo?.table}
-- ユーザーID: ${result.debugInfo?.userId}
-
-この問題が続く場合は開発者にお知らせください。`)
-        } else {
-          alert(`保存に失敗しました: ${result.error || '不明なエラー'}
-
-ステータス: ${response.status} ${response.statusText}
-${result.details ? `詳細: ${result.details}` : ''}
-
-問題が続く場合は、ページを再読み込みしてもう一度お試しください。`)
-        }
       }
     } catch (error) {
       console.error('保存エラー（例外）:', error)

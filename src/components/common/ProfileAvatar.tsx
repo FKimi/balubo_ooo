@@ -56,7 +56,7 @@ export function ProfileAvatar({
 
   // 画像がない場合はイニシャルまたはデフォルトアイコンを表示
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${className}`}>
+          <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${className}`}>
       <span className="text-white font-bold">
         {getInitial()}
       </span>

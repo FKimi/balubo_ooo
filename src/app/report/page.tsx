@@ -6,93 +6,132 @@ import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Header, MobileBottomNavigation } from '@/components/layout/header'
 import { useWorkStatistics } from '@/hooks/useWorkStatistics'
-import { OverviewSection } from '@/features/report/components/OverviewSection'
 import { WorksSection } from '@/features/report/components/WorksSection'
 import { InputsSection } from '@/features/report/components/InputsSection'
-import { InsightsSection } from '@/features/report/components/InsightsSection'
+import { ActivitySection } from '@/features/report/components/ActivitySection'
 import { exportToPDF, exportScreenshotToPDF, exportComprehensiveReportToPDF } from '@/utils/pdfExport'
 import { supabase } from '@/lib/supabase'
 import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
+import { OverallScoreGauge } from '@/features/report/components/OverallScoreGauge'
+import { TagBarChart } from '@/features/report/components/TagBarChart'
 
 function ReportContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const targetUserId = searchParams.get('userId') // URLパラメータからuserIdを取得
-  const [activeSection, setActiveSection] = useState<string>('overview')
+  const [activeSection, setActiveSection] = useState<string>('outputs')
   const [works, setWorks] = useState<WorkData[]>([])
   const [inputs, setInputs] = useState<InputData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [profile, setProfile] = useState<any>(null)
+  const [showDetailedCards, setShowDetailedCards] = useState(false)
 
-  // 創造性、専門性、影響力の総合分析を生成
+  // 各作品のAI分析結果から創造性、専門性、影響力を抽出
   const generateComprehensiveAnalysis = () => {
     const analysisData = {
-      creativity: {
-        scores: [] as number[],
-        insights: [] as string[],
-        strengths: [] as string[],
-        topWorks: [] as { title: string; score: number; highlights: string[] }[]
-      },
-      expertise: {
-        scores: [] as number[],
-        insights: [] as string[],
-        strengths: [] as string[],
-        topWorks: [] as { title: string; score: number; highlights: string[] }[]
-      },
-      impact: {
-        scores: [] as number[],
-        insights: [] as string[],
-        strengths: [] as string[],
-        topWorks: [] as { title: string; score: number; highlights: string[] }[]
-      }
+      creativity: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] },
+      expertise: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] },
+      impact: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] },
+      technology: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] }
     }
 
-    // 各作品のAI分析結果から創造性、専門性、影響力を抽出
+    // 各作品のAI分析結果から評価スコアを抽出
     works.forEach(work => {
       if (work.ai_analysis_result) {
         const analysis = typeof work.ai_analysis_result === 'string' 
           ? JSON.parse(work.ai_analysis_result) 
           : work.ai_analysis_result
 
-        if (analysis.strengths) {
+        // 新しい評価スコア（evaluation.scores）を優先使用
+        if (analysis.evaluation?.scores) {
+          const scores = analysis.evaluation.scores
+
+          // 技術力スコア
+          if (scores.technology?.score) {
+            analysisData.technology.scores.push(scores.technology.score)
+            analysisData.technology.topWorks.push({
+              title: work.title,
+              score: scores.technology.score,
+              reason: scores.technology.reason,
+              highlights: [scores.technology.reason]
+            })
+          }
+
+          // 専門性スコア
+          if (scores.expertise?.score) {
+            analysisData.expertise.scores.push(scores.expertise.score)
+            analysisData.expertise.topWorks.push({
+              title: work.title,
+              score: scores.expertise.score,
+              reason: scores.expertise.reason,
+              highlights: [scores.expertise.reason]
+            })
+          }
+
+          // 創造性スコア
+          if (scores.creativity?.score) {
+            analysisData.creativity.scores.push(scores.creativity.score)
+            analysisData.creativity.topWorks.push({
+              title: work.title,
+              score: scores.creativity.score,
+              reason: scores.creativity.reason,
+              highlights: [scores.creativity.reason]
+            })
+          }
+
+          // 影響力スコア
+          if (scores.impact?.score) {
+            analysisData.impact.scores.push(scores.impact.score)
+            analysisData.impact.topWorks.push({
+              title: work.title,
+              score: scores.impact.score,
+              reason: scores.impact.reason,
+              highlights: [scores.impact.reason]
+            })
+          }
+        }
+        // フォールバック：旧形式の場合は従来の計算を使用
+        else if (analysis.strengths) {
           // 創造性分析
           if (analysis.strengths.creativity && analysis.strengths.creativity.length > 0) {
-            const creativityScore = analysis.strengths.creativity.length * 20 + 
-              (analysis.tagClassification?.technique?.length || 0) * 10
-            analysisData.creativity.scores.push(Math.min(creativityScore, 100))
+            const creativityScore = Math.min(analysis.strengths.creativity.length * 20 + 
+              (analysis.tagClassification?.technique?.length || 0) * 10, 100)
+            analysisData.creativity.scores.push(creativityScore)
             analysisData.creativity.insights.push(...analysis.strengths.creativity)
             analysisData.creativity.topWorks.push({
               title: work.title,
-              score: Math.min(creativityScore, 100),
+              score: creativityScore,
               highlights: analysis.strengths.creativity.slice(0, 2)
             })
           }
 
           // 専門性分析
           if (analysis.strengths.expertise && analysis.strengths.expertise.length > 0) {
-            const expertiseScore = analysis.strengths.expertise.length * 20 + 
-              (analysis.keywords?.length || 0) * 5
-            analysisData.expertise.scores.push(Math.min(expertiseScore, 100))
+            const expertiseScore = Math.min(analysis.strengths.expertise.length * 20 + 
+              (analysis.keywords?.length || 0) * 5, 100)
+            analysisData.expertise.scores.push(expertiseScore)
             analysisData.expertise.insights.push(...analysis.strengths.expertise)
             analysisData.expertise.topWorks.push({
               title: work.title,
-              score: Math.min(expertiseScore, 100),
+              score: expertiseScore,
               highlights: analysis.strengths.expertise.slice(0, 2)
             })
           }
 
           // 影響力分析
           if (analysis.strengths.impact && analysis.strengths.impact.length > 0) {
-            const impactScore = analysis.strengths.impact.length * 20 + 
-              (analysis.tagClassification?.purpose?.length || 0) * 15
-            analysisData.impact.scores.push(Math.min(impactScore, 100))
+            const impactScore = Math.min(analysis.strengths.impact.length * 20 + 
+              (analysis.tagClassification?.purpose?.length || 0) * 15, 100)
+            analysisData.impact.scores.push(impactScore)
             analysisData.impact.insights.push(...analysis.strengths.impact)
             analysisData.impact.topWorks.push({
               title: work.title,
-              score: Math.min(impactScore, 100),
+              score: impactScore,
               highlights: analysis.strengths.impact.slice(0, 2)
             })
           }
@@ -101,7 +140,7 @@ function ReportContent() {
     })
 
     // 各分野の総合スコアと統計を計算
-    const processAnalysisData = (data: typeof analysisData.creativity) => {
+    const processAnalysisData = (data: typeof analysisData.creativity, fieldName: string) => {
       const avgScore = data.scores.length > 0 ? 
         Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length) : 0
       
@@ -110,29 +149,47 @@ function ReportContent() {
         .sort((a, b) => b.score - a.score)
         .slice(0, 5)
 
+      // スコアレベルの判定
+      const getScoreLevel = (score: number) => {
+        if (score >= 90) return { level: 'エキスパート', color: 'text-purple-600', bgColor: 'bg-purple-50', description: 'プロフェッショナルレベル' }
+        if (score >= 80) return { level: '上級者', color: 'text-blue-600', bgColor: 'bg-blue-50', description: '高い品質' }
+        if (score >= 70) return { level: '中級者', color: 'text-green-600', bgColor: 'bg-green-50', description: '標準的な品質' }
+        if (score >= 60) return { level: '初級者', color: 'text-yellow-600', bgColor: 'bg-yellow-50', description: '基本的な品質' }
+        return { level: 'ビギナー', color: 'text-gray-600', bgColor: 'bg-gray-50', description: '改善が必要' }
+      }
+
       return {
         averageScore: avgScore,
+        scoreLevel: getScoreLevel(avgScore),
         totalInsights: uniqueInsights.length,
         insights: uniqueInsights,
         topWorks: topWorksRanked,
         trend: data.scores.length >= 3 ? 
           (data.scores.slice(-3).reduce((sum, score) => sum + score, 0) / 3) - 
-          (data.scores.slice(0, 3).reduce((sum, score) => sum + score, 0) / 3) : 0
+          (data.scores.slice(0, 3).reduce((sum, score) => sum + score, 0) / 3) : 0,
+        fieldName
       }
     }
 
     return {
-      creativity: processAnalysisData(analysisData.creativity),
-      expertise: processAnalysisData(analysisData.expertise),
-      impact: processAnalysisData(analysisData.impact),
+      creativity: processAnalysisData(analysisData.creativity, '創造性'),
+      expertise: processAnalysisData(analysisData.expertise, '専門性'),
+      impact: processAnalysisData(analysisData.impact, '影響力'),
+      technology: processAnalysisData(analysisData.technology, '技術力'),
       overall: {
         totalWorks: works.length,
         analyzedWorks: works.filter(w => w.ai_analysis_result).length,
         comprehensiveScore: Math.round(
           (analysisData.creativity.scores.reduce((sum, score) => sum + score, 0) +
            analysisData.expertise.scores.reduce((sum, score) => sum + score, 0) +
-           analysisData.impact.scores.reduce((sum, score) => sum + score, 0)) / 
-          Math.max(analysisData.creativity.scores.length + analysisData.expertise.scores.length + analysisData.impact.scores.length, 1)
+           analysisData.impact.scores.reduce((sum, score) => sum + score, 0) +
+           analysisData.technology.scores.reduce((sum, score) => sum + score, 0)) / 
+          Math.max(
+            analysisData.creativity.scores.length + 
+            analysisData.expertise.scores.length + 
+            analysisData.impact.scores.length + 
+            analysisData.technology.scores.length, 1
+          )
         )
       }
     }
@@ -142,6 +199,34 @@ function ReportContent() {
   const workStats = useWorkStatistics(works)
   const hasInputs = inputs.length > 0
   const comprehensiveAnalysis = generateComprehensiveAnalysis()
+
+  // タブの定義
+  const tabs = [
+    {
+      id: 'outputs',
+      label: 'アウトプット',
+      icon: '🎨',
+      disabled: works.length === 0
+    },
+    {
+      id: 'inputs',
+      label: 'インプット',
+      icon: '📚',
+      disabled: !hasInputs
+    },
+    {
+      id: 'activity',
+      label: 'アクティビティ',
+      icon: '📈',
+      disabled: false
+    },
+    {
+      id: 'analysis',
+      label: '総合分析',
+      icon: '🔍',
+      disabled: works.filter(w => w.ai_analysis_result).length === 0
+    }
+  ]
   
   // デバッグ用：統計を確認
   console.log('レポートページ統計:', {
@@ -290,10 +375,8 @@ function ReportContent() {
       const worksWithContent = works.filter(work => work.description && work.description.length > 50)
       const contentQualityRate = works.length > 0 ? (worksWithContent.length / works.length) * 100 : 0
       
-      const inputsWithRating = inputs.filter(input => input.rating && input.rating > 0)
-      const avgInputRating = inputsWithRating.length > 0 
-        ? inputsWithRating.reduce((sum, input) => sum + (input.rating || 0), 0) / inputsWithRating.length 
-        : 0
+      const inputsWithNotes = inputs.filter(input => input.notes && input.notes.length > 20)
+      const inputQualityRate = inputs.length > 0 ? (inputsWithNotes.length / inputs.length) * 100 : 0
 
       const uniqueRoles = new Set()
       works.forEach(work => {
@@ -303,12 +386,12 @@ function ReportContent() {
       })
 
       // 100点満点で計算
-      const contentScore = Math.min((contentQualityRate / 100) * 25, 25)
-      const ratingScore = Math.min((avgInputRating / 5) * 25, 25)
+      const contentScore = Math.min((contentQualityRate / 100) * 30, 30)
+      const inputScore = Math.min((inputQualityRate / 100) * 20, 20)
       const roleScore = Math.min((uniqueRoles.size / 10) * 25, 25)
       const worksScore = Math.min((works.length / 20) * 25, 25)
 
-      return Math.round(contentScore + ratingScore + roleScore + worksScore)
+      return Math.round(contentScore + inputScore + roleScore + worksScore)
     }
 
     // タグ分布
@@ -337,65 +420,8 @@ function ReportContent() {
       return genreCount
     }
 
-    // 月別活動量
-    const getMonthlyProgress = () => {
-      const monthlyData: { [key: string]: { works: number, inputs: number } } = {}
-      
-      works.forEach(work => {
-        if (work.production_date) {
-          const month = new Date(work.production_date).toISOString().slice(0, 7)
-          if (!monthlyData[month]) monthlyData[month] = { works: 0, inputs: 0 }
-          monthlyData[month].works++
-        }
-      })
-
-      inputs.forEach(input => {
-        if (input.consumptionDate) {
-          const month = new Date(input.consumptionDate).toISOString().slice(0, 7)
-          if (!monthlyData[month]) monthlyData[month] = { works: 0, inputs: 0 }
-          monthlyData[month].inputs++
-        }
-      })
-
-      return Object.entries(monthlyData)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .slice(-12) // 最新12ヶ月
-        .map(([month, data]) => ({ month, works: data.works, inputs: data.inputs }))
-    }
-
-    // タイムライン作成
-    const getTimeline = () => {
-      const events: { date: string; event: string; type: 'work' | 'input' }[] = []
-      
-      works.forEach(work => {
-        if (work.production_date) {
-          events.push({
-            date: new Date(work.production_date).toLocaleDateString('ja-JP'),
-            event: `作品「${work.title}」を制作`,
-            type: 'work'
-          })
-        }
-      })
-
-      inputs.forEach(input => {
-        if (input.consumptionDate) {
-          events.push({
-            date: new Date(input.consumptionDate).toLocaleDateString('ja-JP'),
-            event: `「${input.title}」を学習`,
-            type: 'input'
-          })
-        }
-      })
-
-      return events
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 20) // 最新20件
-    }
-
-    const inputsWithRating = inputs.filter(input => input.rating && input.rating > 0)
-    const avgInputRating = inputsWithRating.length > 0 
-      ? inputsWithRating.reduce((sum, input) => sum + (input.rating || 0), 0) / inputsWithRating.length 
-      : 0
+    const favoriteInputs = inputs.filter(input => input.favorite)
+    const favoriteRate = inputs.length > 0 ? (favoriteInputs.length / inputs.length) * 100 : 0
 
     const tagDistribution = getTagDistribution()
     const genreDistribution = getGenreDistribution()
@@ -424,12 +450,13 @@ function ReportContent() {
         totalWordCount: workStats.totalWordCount,
         avgWordCount: works.length > 0 ? Math.round(workStats.totalWordCount / works.length) : 0,
         contentQualityRate: works.length > 0 ? (works.filter(w => w.description && w.description.length > 50).length / works.length) * 100 : 0,
-        avgInputRating,
+        favoriteRate,
+        avgInputRating: favoriteRate,
         availableRoles: new Set(works.flatMap(w => w.roles || [])).size,
         strengths: [
           `実績豊富（${works.length}作品の制作経験）`,
           `学習意欲旺盛（${inputs.length}件のインプット記録）`,
-          avgInputRating > 4 ? '高い評価基準（平均評価4点以上）' : '客観的な評価能力',
+          favoriteRate > 20 ? '厳選したコンテンツ（お気に入り率20%以上）' : '幅広いコンテンツ摂取',
           workStats.totalWordCount > 20000 ? '豊富な文章力（2万文字以上の執筆）' : '継続的な創作活動',
           topTags.length > 5 ? '多様なスキルセット' : '専門分野への集中'
         ]
@@ -438,7 +465,7 @@ function ReportContent() {
         works: works.slice(0, 12),
         genreDistribution: {},
         tagDistribution,
-        monthlyProgress: getMonthlyProgress().map(m => ({ month: m.month, count: m.works })),
+        monthlyProgress: calculateMonthlyProgress(works, inputs).map(m => ({ month: m.month, count: m.works })),
         qualityMetrics: {
           avgWordCount: works.length > 0 ? Math.round(workStats.totalWordCount / works.length) : 0,
           completionRate: works.length > 0 ? (works.filter(w => w.description && w.description.length > 20).length / works.length) * 100 : 0,
@@ -449,16 +476,17 @@ function ReportContent() {
         inputs: inputs.slice(0, 10),
         genrePreferences: genreDistribution,
         ratingDistribution: {},
-        monthlyInputs: getMonthlyProgress().map(m => ({ month: m.month, count: m.inputs })),
+        monthlyInputs: calculateMonthlyProgress(works, inputs).map(m => ({ month: m.month, count: m.inputs })),
         learningInsights: {
           totalInputs: inputs.length,
-          avgRating: avgInputRating,
+          favoriteRate,
+          avgRating: favoriteRate,
           topGenres
         }
       },
       growthInsights: {
-        timeline: getTimeline(),
-        productivityTrends: getMonthlyProgress(),
+        timeline: generateTimeline(works, inputs),
+        productivityTrends: calculateMonthlyProgress(works, inputs),
         skillEvolution: topTags.slice(0, 8).map(tag => ({
           skill: tag,
           frequency: tagDistribution[tag] || 0,
@@ -510,10 +538,8 @@ function ReportContent() {
             .map(([genre]) => genre)
         }
 
-        const inputsWithRating = inputs.filter(input => input.rating && input.rating > 0)
-        const avgRating = inputsWithRating.length > 0 
-          ? inputsWithRating.reduce((sum, input) => sum + (input.rating || 0), 0) / inputsWithRating.length 
-          : 0
+        const favoriteInputs = inputs.filter(input => input.favorite)
+        const favoriteRate = inputs.length > 0 ? (favoriteInputs.length / inputs.length) * 100 : 0
 
         const exportData = {
           profile: {
@@ -528,7 +554,8 @@ function ReportContent() {
           stats: {
             totalWorks: works.length,
             totalWordCount: workStats.totalWordCount,
-            avgRating,
+            favoriteRate,
+            avgRating: favoriteRate,
             topGenres: topGenres(),
             topTags: topTags()
           }
@@ -548,238 +575,85 @@ function ReportContent() {
     }
   }
 
-  // レンダリング部分でComprehensiveAnalysisセクションを追加
+  // 総合分析セクションをレンダリング
   const renderComprehensiveAnalysisSection = () => {
-    const analysisData = generateComprehensiveAnalysis()
-    
+    if (works.length === 0 && inputs.length === 0) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center text-gray-500">
+            <p>データがありません。</p>
+          </CardContent>
+        </Card>
+      )
+    }
+
+    // タグを統合集計
+    const tagCount: Record<string, number> = {}
+    ;[...works, ...inputs].forEach((item: any) => {
+      if (Array.isArray(item.tags)) {
+        item.tags.forEach((tag: string) => {
+          tagCount[tag] = (tagCount[tag] || 0) + 1
+        })
+      }
+    })
+
+    const topTags = Object.entries(tagCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+
+    // 傾向文生成
+    const tendencySentences = () => {
+      if (topTags.length === 0) return ['データ不足のため傾向を特定できません']
+      return topTags.slice(0, 5).map(([tag]) => `「${tag}」に強い関心・専門性が見られます`)
+    }
+
     return (
-      <div className="space-y-8">
-        {/* ヘッダー */}
-        <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            🌟 総合分析：創造性・専門性・影響力
-          </h2>
-          <p className="text-gray-600">
-            {analysisData.overall.analyzedWorks}件の作品を分析した、あなたの創作活動の強み
-          </p>
-        </div>
-
-        {/* メイン分析カード */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          
-          {/* 創造性 */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg">🎨</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">創造性</h3>
-                  <p className="text-pink-100 text-sm">独創的なアイデア力</p>
-                </div>
-              </div>
+      <Card>
+        <CardContent className="space-y-8">
+          {/* 総合評価 */}
+          <div className="grid md:grid-cols-3 gap-6 items-center">
+            <div className="col-span-1 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-200 flex items-center justify-center">
+              <OverallScoreGauge score={comprehensiveAnalysis.overall.comprehensiveScore} />
             </div>
-            <div className="p-6">
-              {analysisData.creativity.insights.length > 0 ? (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">✨ 主な特徴</h4>
-                    <div className="space-y-2">
-                      {analysisData.creativity.insights.slice(0, 4).map((insight, idx) => (
-                        <div key={idx} className="bg-pink-50 rounded-lg p-3 border border-pink-100">
-                          <span className="text-pink-800 text-sm">{insight}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {analysisData.creativity.topWorks.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">🏆 代表作品</h4>
-                      <div className="space-y-2">
-                        {analysisData.creativity.topWorks.slice(0, 2).map((work, idx) => {
-                          // 作品IDを取得（titleから検索）
-                          const workData = works.find(w => w.title === work.title);
-                          const workId = workData?.id;
-                          
-                          return (
-                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                              {workId ? (
-                                <button
-                                  onClick={() => window.open(`/works/${workId}`, '_blank')}
-                                  className="font-medium text-pink-700 hover:text-pink-900 text-sm text-left block w-full hover:underline"
-                                >
-                                  {work.title}
-                                </button>
-                              ) : (
-                                <span className="font-medium text-gray-700 text-sm block">{work.title}</span>
-                              )}
-                              <div className="text-gray-600 text-xs mt-1">
-                                {work.highlights.slice(0, 2).join(' • ')}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center text-gray-400 py-8">
-                  <p className="text-sm">創造性の分析データがありません</p>
-                  <p className="text-xs mt-1">AI分析を実行した作品がある場合に表示されます</p>
-                </div>
-              )}
+            <div className="col-span-2 text-sm text-indigo-800">
+              <p className="mb-1 font-semibold text-gray-900">総合スコア</p>
+              <p className="text-3xl font-bold text-indigo-700 mb-2">{comprehensiveAnalysis.overall.comprehensiveScore}</p>
+              <p>
+                分析対象作品 {comprehensiveAnalysis.overall.analyzedWorks} 件 / 全{comprehensiveAnalysis.overall.totalWorks} 件の平均スコアです。
+              </p>
             </div>
           </div>
 
-          {/* 専門性 */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg">🎯</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">専門性</h3>
-                  <p className="text-blue-100 text-sm">技術力と知識の深さ</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              {analysisData.expertise.insights.length > 0 ? (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">💡 主な特徴</h4>
-                    <div className="space-y-2">
-                      {analysisData.expertise.insights.slice(0, 4).map((insight, idx) => (
-                        <div key={idx} className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                          <span className="text-blue-800 text-sm">{insight}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {analysisData.expertise.topWorks.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">🏆 代表作品</h4>
-                      <div className="space-y-2">
-                        {analysisData.expertise.topWorks.slice(0, 2).map((work, idx) => {
-                          // 作品IDを取得（titleから検索）
-                          const workData = works.find(w => w.title === work.title);
-                          const workId = workData?.id;
-                          
-                          return (
-                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                              {workId ? (
-                                <button
-                                  onClick={() => window.open(`/works/${workId}`, '_blank')}
-                                  className="font-medium text-blue-700 hover:text-blue-900 text-sm text-left block w-full hover:underline"
-                                >
-                                  {work.title}
-                                </button>
-                              ) : (
-                                <span className="font-medium text-gray-700 text-sm block">{work.title}</span>
-                              )}
-                              <div className="text-gray-600 text-xs mt-1">
-                                {work.highlights.slice(0, 2).join(' • ')}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center text-gray-400 py-8">
-                  <p className="text-sm">専門性の分析データがありません</p>
-                  <p className="text-xs mt-1">AI分析を実行した作品がある場合に表示されます</p>
-                </div>
-              )}
-            </div>
+          {/* 傾向 */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9c.828 0 1.5.895 1.5 2s-.672 2-1.5 2-1.5-.895-1.5-2 .672-2 1.5-2zM5 9c.828 0 1.5.895 1.5 2S5.828 13 5 13s-1.5-.895-1.5-2S4.172 9 5 9z" />
+              </svg>
+              クリエイターの傾向
+            </h3>
+            <ul className="list-disc pl-6 space-y-1 text-gray-700 text-sm">
+              {tendencySentences().map((t, idx) => (
+                <li key={idx}>{t}</li>
+              ))}
+            </ul>
           </div>
 
-          {/* 影響力 */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg">💫</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">影響力</h3>
-                  <p className="text-green-100 text-sm">読者への価値提供</p>
-                </div>
-              </div>
+          {/* top tags */}
+          {topTags.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18" />
+                </svg>
+                頻出タグ Top10
+              </h3>
+              <TagBarChart tags={topTags.map(([name,count])=>({name,count}))} />
             </div>
-            <div className="p-6">
-              {analysisData.impact.insights.length > 0 ? (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">🚀 主な特徴</h4>
-                    <div className="space-y-2">
-                      {analysisData.impact.insights.slice(0, 4).map((insight, idx) => (
-                        <div key={idx} className="bg-green-50 rounded-lg p-3 border border-green-100">
-                          <span className="text-green-800 text-sm">{insight}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {analysisData.impact.topWorks.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">🏆 代表作品</h4>
-                      <div className="space-y-2">
-                        {analysisData.impact.topWorks.slice(0, 2).map((work, idx) => {
-                          // 作品IDを取得（titleから検索）
-                          const workData = works.find(w => w.title === work.title);
-                          const workId = workData?.id;
-                          
-                          return (
-                            <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                              {workId ? (
-                                <button
-                                  onClick={() => window.open(`/works/${workId}`, '_blank')}
-                                  className="font-medium text-green-700 hover:text-green-900 text-sm text-left block w-full hover:underline"
-                                >
-                                  {work.title}
-                                </button>
-                              ) : (
-                                <span className="font-medium text-gray-700 text-sm block">{work.title}</span>
-                              )}
-                              <div className="text-gray-600 text-xs mt-1">
-                                {work.highlights.slice(0, 2).join(' • ')}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center text-gray-400 py-8">
-                  <p className="text-sm">影響力の分析データがありません</p>
-                  <p className="text-xs mt-1">AI分析を実行した作品がある場合に表示されます</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* まとめセクション */}
-        <div className="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-xl p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">📋 分析概要</h3>
-            <p className="text-gray-700 text-sm max-w-2xl mx-auto">
-              この分析は、AI分析を実行した作品から自動的に抽出された洞察です。
-              作品名をクリックすると詳細ページで確認できます。
-            </p>
-          </div>
-        </div>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     )
   }
 
@@ -839,31 +713,17 @@ function ReportContent() {
       <main className="pb-16 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* ヘッダー */}
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                  📊 {targetUserId ? `${profile?.display_name || 'クリエイター'}の活動レポート` : '活動レポート'}
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {targetUserId ? `${profile?.display_name || 'クリエイター'}の活動レポート` : '活動レポート'}
                 </h1>
-                <p className="text-gray-600 text-sm sm:text-base">
-                  {targetUserId 
-                    ? `${profile?.display_name || 'このクリエイター'}の創作活動とインプットの総合分析`
-                    : `${profile?.display_name || user?.user_metadata?.display_name || 'あなた'}の創作活動とインプットの総合分析`
-                  }
+                <p className="text-gray-600 mt-1">
+                  作品制作とインプットデータを基にした詳細分析
                 </p>
               </div>
-              
-              {/* PDF出力ボタン（実装中） */}
-              <Button
-                disabled={true}
-                className="bg-gray-300 text-gray-500 px-4 py-2 text-sm cursor-not-allowed"
-                title="現在PDF出力機能を改善中です"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                全レポートPDF出力（実装中...）
-              </Button>
+
             </div>
           </div>
 
@@ -871,32 +731,23 @@ function ReportContent() {
           <div className="mb-6 sm:mb-8">
             {/* デスクトップ用タブナビゲーション */}
             <div className="hidden sm:block">
-              <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm">
-                {[
-                  { id: 'overview', label: '概要', icon: '📊' },
-                  { id: 'works', label: '作品分析', icon: '🎨' },
-                  { id: 'comprehensive', label: '総合分析', icon: '🌟' },
-                  { id: 'inputs', label: 'インプット分析', icon: '📚', disabled: !hasInputs },
-                  { id: 'insights', label: '成長の軌跡', icon: '📈' }
-                ].map((section) => (
+              <div className="hidden md:flex space-x-1 bg-gray-100 rounded-lg p-1">
+                {tabs.map((section) => (
                   <button
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
                     disabled={section.disabled}
-                    className={`flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors relative ${
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       activeSection === section.id
-                        ? 'bg-accent-dark-blue text-white'
+                        ? 'bg-white text-gray-900 shadow-sm'
                         : section.disabled
                         ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
                     }`}
-                    title={section.disabled ? 'インプットデータがありません' : ''}
                   >
                     <span>{section.icon}</span>
                     <span className="hidden md:inline">{section.label}</span>
-                    {section.disabled && (
-                      <span className="hidden md:inline text-xs text-gray-400 ml-1">(0件)</span>
-                    )}
+                    {section.disabled && <span className="text-xs">(データなし)</span>}
                   </button>
                 ))}
               </div>
@@ -909,71 +760,26 @@ function ReportContent() {
                 onChange={(e) => setActiveSection(e.target.value)}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 shadow-sm focus:border-accent-dark-blue focus:ring-1 focus:ring-accent-dark-blue"
               >
-                <option value="overview">📊 概要</option>
-                <option value="works">🎨 作品分析</option>
-                <option value="comprehensive">🌟 総合分析</option>
-                <option value="inputs" disabled={!hasInputs}>
-                  📚 インプット分析{!hasInputs ? ' (0件)' : ''}
-                </option>
-                <option value="insights">📈 成長の軌跡</option>
+                {tabs.map((section) => (
+                  <option key={section.id} value={section.id} disabled={section.disabled}>
+                    {section.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           {/* メインコンテンツ */}
           <div id="report-content" className="space-y-6">
-            {activeSection === 'overview' && (
-              <OverviewSection
-                works={works}
-                inputs={inputs}
-                workStats={workStats}
-                profile={profile}
-                comprehensiveAnalysis={comprehensiveAnalysis}
-              />
-            )}
-            {activeSection === 'works' && <WorksSection works={works} workStats={workStats} />}
+            {activeSection === 'outputs' && <WorksSection works={works} workStats={workStats} analysis={comprehensiveAnalysis} />}
             {activeSection === 'inputs' && <InputsSection inputs={inputs} />}
-            {activeSection === 'insights' && (
-              <InsightsSection works={works} inputs={inputs} workStats={workStats} />
+            {activeSection === 'activity' && (
+              <ActivitySection works={works} inputs={inputs} />
             )}
-            {activeSection === 'comprehensive' && renderComprehensiveAnalysisSection()}
+            {activeSection === 'analysis' && renderComprehensiveAnalysisSection()}
           </div>
 
-          {/* クライアント向け推薦セクション */}
-          {works.length >= 3 && (
-            <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6 sm:p-8">
-              <div className="text-center">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
-                  🎯 クリエイター推薦レポート
-                </h2>
-                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                  このレポートは、{targetUserId 
-                    ? (profile?.display_name || 'このクリエイター')
-                    : (profile?.display_name || user?.user_metadata?.display_name || 'このクリエイター')
-                  }の実績と能力をデータに基づいて分析したものです。
-                  {targetUserId ? 'プロジェクトやコラボレーションのご参考にご活用ください。' : ''}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">{works.length}</div>
-                    <div className="text-sm text-gray-600">実績作品数</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="text-2xl font-bold text-green-600 mb-1">
-                      {workStats.totalWordCount.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-600">総執筆文字数</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="text-2xl font-bold text-purple-600 mb-1">
-                      {workStats.roleDistribution.length}
-                    </div>
-                    <div className="text-sm text-gray-600">対応可能役割</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+
         </div>
       </main>
 

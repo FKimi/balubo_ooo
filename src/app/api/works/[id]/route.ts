@@ -8,28 +8,169 @@ export async function GET(
   context: any
 ) {
   try {
-    const { id } = context.params
+    const { id } = await context.params
     const authHeader = request.headers.get('authorization')
     
     console.log('GET /api/works/[id] - ID:', id, 'Auth:', !!authHeader)
     
-    // 認証なしの場合は既存のJSONファイルから取得（開発用）
-    if (!authHeader) {
+    // 認証の有無に関わらず、同じロジックを使用（Service roleクライアント）
+    let work = null
+      
+      // まずJSONファイルから検索
       try {
         const fs = await import('fs')
         const path = await import('path')
         const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'works.json')
         
+        console.log('JSONファイルパス:', DATA_FILE_PATH)
+        console.log('ファイル存在確認:', fs.existsSync(DATA_FILE_PATH))
+        
         if (fs.existsSync(DATA_FILE_PATH)) {
           const data = fs.readFileSync(DATA_FILE_PATH, 'utf-8')
           const works = JSON.parse(data)
-          const work = works.find((w: any) => w.id === id)
+          console.log('利用可能なJSONファイル作品ID:', works.map((w: any) => w.id))
           
-          console.log('Found work in JSON:', !!work)
+          work = works.find((w: any) => w.id === id)
+          console.log('JSONファイルで見つかった作品:', !!work)
+        }
+      } catch (error) {
+        console.log('JSONファイルの読み込みに失敗:', error)
+      }
+      
+      // JSONファイルで見つからない場合、Supabaseから検索（public作品のみ）
+      if (!work) {
+        try {
+          console.log('Supabaseで公開作品を検索中:', id)
+          
+          // Service roleクライアントを使用（フィードAPIと同じアプローチ）
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+          const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+          
+          if (!supabaseUrl || !supabaseServiceKey) {
+            console.log('Supabase環境変数が設定されていません')
+            throw new Error('Supabase設定エラー')
+          }
+          
+          const supabaseForPublic = createClient(supabaseUrl, supabaseServiceKey, {
+            auth: {
+              autoRefreshToken: false,
+              persistSession: false
+            }
+          })
+          
+          
+           
+           // まず作品のみを検索（profilesの結合なし）
+           const { data: supabaseWork, error: supabaseError } = await supabaseForPublic
+             .from('works')
+             .select('*')
+             .eq('id', id)
+             .single()
+          
+                     if (supabaseError) {
+             console.log('Supabase検索エラー:', supabaseError.message)
+             console.log('Supabase検索エラー詳細:', supabaseError)
+           } else if (supabaseWork) {
+             console.log('Supabaseで作品が見つかりました:', supabaseWork.title)
+             console.log('作品データ:', { id: supabaseWork.id, title: supabaseWork.title, user_id: supabaseWork.user_id })
+             
+             // profilesデータを別途取得
+             let profileData = null
+             try {
+               const { data: profile } = await supabaseForPublic
+                 .from('profiles')
+                 .select('display_name, avatar_image_url, portfolio_visibility')
+                 .eq('user_id', supabaseWork.user_id)
+                 .single()
+               
+               profileData = profile
+               console.log('プロフィールデータ:', profileData)
+             } catch (profileError) {
+               console.log('プロフィール取得エラー:', profileError)
+             }
+             
+             // 作品データを構築
+             work = {
+               id: supabaseWork.id,
+               title: supabaseWork.title,
+               description: supabaseWork.description,
+               externalUrl: supabaseWork.external_url,
+               productionDate: supabaseWork.production_date,
+               tags: supabaseWork.tags || [],
+               roles: supabaseWork.roles || [],
+               categories: supabaseWork.categories || [],
+               previewData: supabaseWork.preview_data,
+               banner_image_url: supabaseWork.banner_image_url,
+               ai_analysis_result: supabaseWork.ai_analysis_result,
+               production_notes: supabaseWork.production_notes,
+               createdAt: supabaseWork.created_at,
+               updatedAt: supabaseWork.updated_at,
+               user_id: supabaseWork.user_id,
+               user: {
+                 id: supabaseWork.user_id,
+                 display_name: profileData?.display_name || 'ユーザー',
+                 avatar_image_url: profileData?.avatar_image_url || null
+               }
+             }
+             console.log('Supabaseで作品データを構築しました:', work.title)
+          } else {
+            console.log('Supabaseでも作品が見つかりませんでした')
+          }
+        } catch (supabaseError) {
+          console.log('Supabase検索中にエラー:', supabaseError)
+        }
+      }
           
           if (!work) {
+        console.log('どこからも作品が見つかりませんでした ID:', id)
+        
+        // 利用可能なIDを取得してエラーレスポンスに含める
+        let availableIds: string[] = []
+        try {
+          const fs = await import('fs')
+          const path = await import('path')
+          const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'works.json')
+          
+          if (fs.existsSync(DATA_FILE_PATH)) {
+            const data = fs.readFileSync(DATA_FILE_PATH, 'utf-8')
+            const works = JSON.parse(data)
+            availableIds = [...availableIds, ...works.map((w: any) => w.id)]
+          }
+          
+          // Supabaseからも取得（Service roleクライアント使用）
+          const supabaseForIds = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            {
+              auth: {
+                autoRefreshToken: false,
+                persistSession: false
+              }
+            }
+          )
+          
+                     const { data: supabaseWorks, error: supabaseWorksError } = await supabaseForIds
+             .from('works')
+             .select('id')
+             .limit(10)
+           
+
+           
+           if (supabaseWorks) {
+             availableIds = [...availableIds, ...supabaseWorks.map(w => w.id)]
+           }
+        } catch (error) {
+          console.log('利用可能ID取得エラー:', error)
+        }
+        
             return NextResponse.json(
-              { error: '作品が見つかりません' },
+          { 
+            error: '作品が見つかりません',
+            details: `ID "${id}" の作品は存在しないか、非公開設定になっています。`,
+            searchedSources: ['JSONファイル', 'Supabaseデータベース（公開作品のみ）'],
+            availableIds: availableIds,
+            requestedId: id
+          },
               { 
                 status: 404,
                 headers: {
@@ -44,63 +185,6 @@ export async function GET(
               'Content-Type': 'application/json',
             },
           })
-        }
-      } catch (error) {
-        console.log('JSONファイルの読み込みに失敗:', error)
-      }
-      
-      return NextResponse.json(
-        { error: '作品が見つかりません' },
-        { 
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
-
-    // Supabaseクライアントを作成（認証トークン付き）
-    const token = authHeader.replace('Bearer ', '')
-    const supabaseWithAuth = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    )
-
-    // 現在のユーザーを取得
-    const { data: { user }, error: userError } = await supabaseWithAuth.auth.getUser()
-    
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: '認証が必要です' },
-        { 
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
-
-    // DatabaseClient を利用して作品を取得
-    console.log('Fetching work via DatabaseClient:', id)
-    const work = await DatabaseClient.getWork(id, user.id, token)
-
-    if (!work) {
-      return NextResponse.json(
-        { error: '作品が見つかりません' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({ work })
   } catch (error) {
     console.error('作品取得エラー:', error)
     return NextResponse.json(
@@ -121,7 +205,7 @@ export async function PUT(
   context: any
 ) {
   try {
-    const { id } = context.params
+    const { id } = await context.params
     const body = await request.json()
     const { title, description, externalUrl, tags, roles, categories, productionDate, previewData, aiAnalysisResult, productionNotes } = body
 
@@ -402,7 +486,7 @@ export async function DELETE(
   context: any
 ) {
   try {
-    const { id } = context.params
+    const { id } = await context.params
     const authHeader = request.headers.get('authorization')
     
     // 認証なしの場合は既存のJSONファイルから削除（開発用）

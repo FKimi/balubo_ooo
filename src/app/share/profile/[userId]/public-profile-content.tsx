@@ -29,7 +29,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   })
   
   const { profile, works, inputs, inputAnalysis } = data
-  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
 
   console.log('PublicProfileContent: プロフィール情報', {
     displayName: profile?.display_name,
@@ -92,6 +92,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
 
   return (
+    <div className="min-h-screen bg-white">
     <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
       <div className="max-w-4xl mx-auto">
         {/* 戻るリンク */}
@@ -135,5 +136,6 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
         />
       </div>
     </main>
+    </div>
   )
 } 

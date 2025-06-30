@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Send, MessageCircle, User } from 'lucide-react'
-import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 import { fetcher } from '@/utils/fetcher'
 
 interface Comment {
@@ -192,7 +192,7 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
                        className="rounded-full object-cover"
                      />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                       <User className="h-4 w-4 text-white" />
                     </div>
                   )}

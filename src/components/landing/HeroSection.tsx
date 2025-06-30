@@ -1,13 +1,44 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default function HeroSection() {
+  const [animateAnalysis, setAnimateAnalysis] = useState(false)
+  const [currentAnalysisStep, setCurrentAnalysisStep] = useState(0)
+
+  // AI分析のアニメーション効果
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimateAnalysis(true)
+      setTimeout(() => setAnimateAnalysis(false), 2000)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // 分析ステップの切り替え
+  useEffect(() => {
+    const stepInterval = setInterval(() => {
+      setCurrentAnalysisStep(prev => (prev + 1) % 3)
+    }, 3000)
+
+    return () => clearInterval(stepInterval)
+  }, [])
+
+  const analysisSteps = [
+    { label: '概要', color: 'blue', content: '経営戦略をテーマにした深い洞察を提供する記事。業界の第一人者へのインタビューを通じて、読者に実践的な価値を提供' },
+    { label: '強み分析', color: 'purple', content: '独自の視点から業界動向を分析し、深い経営知識と実践的なインサイトを提供' },
+    { label: 'タグ生成', color: 'green', content: 'リーダーシップ、経営戦略、インタビューなどの関連タグを自動生成' }
+  ]
+
   return (
     <section className="relative overflow-hidden bg-white">
-      {/* Background elements */}
-      <div className="absolute inset-x-0 top-0 z-0 h-[600px] bg-gradient-to-b from-blue-50 to-white"></div>
+      {/* Background elements with enhanced animation */}
+      <div className="absolute inset-x-0 top-0 z-0 h-[600px] bg-gradient-to-b from-blue-50 to-white">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-100 rounded-full opacity-20 animate-pulse"></div>
+      </div>
       
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center py-20 md:py-24">
@@ -15,6 +46,18 @@ export default function HeroSection() {
             
             {/* Left Content */}
             <div className="space-y-8 text-center lg:text-left">
+              {/* ベータ版バッジ */}
+              <div className="flex justify-center lg:justify-start">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-50 border border-orange-200 rounded-full transform transition-all duration-300 hover:scale-105 hover:shadow-md">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-orange-500 text-white animate-pulse">
+                    BETA
+                  </span>
+                  <span className="text-sm font-medium text-orange-800">
+                    現在ベータ版として無料でご利用いただけます
+                  </span>
+                </div>
+              </div>
+
               <h1 className="text-4xl font-extrabold tracking-tight text-slate-800 sm:text-5xl md:text-6xl lg:text-7xl">
                 <span className="block leading-tight">
                                   <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
@@ -32,18 +75,17 @@ export default function HeroSection() {
                   <span className="font-semibold text-slate-900">balubo</span>は、ライター・編集者などクリエイターのためのポートフォリオサービスです。
                 </p>
                 <p>
-                  AIがあなたの作品を<br className="hidden sm:block" />
-                  <span className="font-semibold text-blue-500">「創造性」「専門性」「影響力」</span>の3つの指標と、
-                  内容に応じたタグで多角的に分析。
-                  作品一つひとつの魅力と価値を客観的に可視化します。
+                  AIがあなたの作品を<span className="font-semibold text-blue-500">「創造性」「専門性」「影響力」</span>の3つの視点と、
+                  内容に応じたタグで分析。<br className="hidden sm:block" />
+                  作品の特徴と傾向を客観的に整理します。
                 </p>
                 <p>
-                  さらに、登録された作品全体の傾向から、
-                  <span className="font-semibold text-blue-500">あなた自身の強みや得意な領域</span>も明らかに。
+                  登録された作品全体から、<br className="hidden sm:block" />
+                  <span className="font-semibold text-blue-500">あなたの傾向や得意分野</span>を把握。
                 </p>
                 <p>
-                  説得力のあるポートフォリオで、スキルや個性を正しく伝え、
-                  <span className="font-semibold text-blue-500">ミスマッチのない最適な仕事</span>と出会えます。
+                  整理されたポートフォリオで、スキルや経験を適切に伝え、<br className="hidden sm:block" />
+                  <span className="font-semibold text-blue-500">より良い仕事の機会</span>につなげます。
                 </p>
               </div>
 
@@ -51,34 +93,34 @@ export default function HeroSection() {
                 <Button
                   asChild
                   size="lg"
-                  className="w-full transform-gpu rounded-2xl bg-blue-500 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-300/30 sm:w-auto"
+                  className="w-full transform-gpu rounded-2xl bg-blue-500 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-300/30 hover:scale-105 sm:w-auto"
                 >
                   <Link href="/register">
                     無料で始める
-                    <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                    <svg className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                   </Link>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
                   size="lg"
-                  className="w-full rounded-2xl border-2 border-blue-200/40 bg-transparent px-8 py-4 text-lg font-semibold text-slate-700 transition-all duration-300 hover:bg-blue-50/30 hover:border-blue-300/60 sm:w-auto"
+                  className="w-full rounded-2xl border-2 border-blue-200/40 bg-transparent px-8 py-4 text-lg font-semibold text-slate-700 transition-all duration-300 hover:bg-blue-50/30 hover:border-blue-300/60 hover:scale-105 hover:shadow-md sm:w-auto"
                 >
                   <Link href="/login">ログイン</Link>
                 </Button>
               </div>
             </div>
 
-            {/* Right Visual */}
+            {/* Right Visual - Enhanced Interactive AI Demo */}
             <div className="flex justify-center lg:justify-end">
                 <div className="relative w-full max-w-md">
-                                      <div className="relative z-10 rounded-3xl border border-blue-200/30 bg-white/90 p-8 shadow-xl backdrop-blur-sm sm:p-10">
-                    <div className="absolute right-4 top-4 rounded-full bg-blue-500 px-3 py-1 text-xs font-medium text-white">
-                      AI Analysis
+                  <div className={`relative z-10 rounded-3xl border border-blue-200/30 bg-white/90 p-8 shadow-xl backdrop-blur-sm sm:p-10 transition-all duration-500 ${animateAnalysis ? 'scale-105 shadow-2xl' : ''}`}>
+                    <div className={`absolute right-4 top-4 rounded-full bg-blue-500 px-3 py-1 text-xs font-medium text-white transition-all duration-300 ${animateAnalysis ? 'animate-pulse bg-green-500' : ''}`}>
+                      {animateAnalysis ? 'Analyzing...' : 'AI Analysis'}
                     </div>
                     
                     <div className="mb-6 flex items-center gap-4">
-                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-lg">
+                      <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-lg transition-all duration-300 ${animateAnalysis ? 'animate-spin' : ''}`}>
                         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
                       </div>
                       <div>
@@ -87,67 +129,105 @@ export default function HeroSection() {
                       </div>
                     </div>
 
-                    <div className="mb-6 space-y-4">
-                      {/* Score Item */}
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"><svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" /></svg></div>
-                          <span className="font-medium text-slate-700">創造性</span>
+                    {/* Dynamic Content Based on Current Step */}
+                    <div className="min-h-[300px]">
+                      {currentAnalysisStep === 0 && (
+                        <div className="animate-fadeIn">
+                          {/* 概要セクション */}
+                          <div className="mb-6 bg-blue-50 rounded-lg p-4 transition-all duration-500 transform">
+                            <h4 className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                              </svg>
+                              概要
+                            </h4>
+                            <p className="text-xs text-blue-800 leading-relaxed">
+                              経営戦略に関するインタビュー記事。業界の専門知識と実践的な洞察を提供する内容
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-1 items-center gap-3">
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-blue-100/60"><div className="h-full w-4/5 rounded-full bg-gradient-to-r from-blue-400 to-blue-500"></div></div>
-                          <span className="min-w-[32px] text-right text-lg font-bold text-slate-800">85</span>
-                        </div>
-                      </div>
-                      {/* Score Item */}
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100"><svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg></div>
-                          <span className="font-medium text-slate-700">専門性</span>
-                        </div>
-                        <div className="flex flex-1 items-center gap-3">
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-blue-100/60"><div className="h-full w-5/6 rounded-full bg-gradient-to-r from-blue-400 to-blue-500"></div></div>
-                          <span className="min-w-[32px] text-right text-lg font-bold text-slate-800">92</span>
-                        </div>
-                      </div>
-                      {/* Score Item */}
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100"><svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></div>
-                          <span className="font-medium text-slate-700">影響力</span>
-                        </div>
-                        <div className="flex flex-1 items-center gap-3">
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-blue-100/60"><div className="h-full w-3/4 rounded-full bg-gradient-to-r from-blue-400 to-blue-500"></div></div>
-                          <span className="min-w-[32px] text-right text-lg font-bold text-slate-800">78</span>
-                        </div>
-                      </div>
-                    </div>
+                      )}
 
-                    <div className="border-t border-slate-200 pt-6">
-                      <div className="mb-3 flex items-center gap-2">
-                        <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
-                        <span className="text-sm font-medium text-slate-600">AIによる自動タグ付け</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">リーダーシップ</span>
-                        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">経営戦略</span>
-                        <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">インタビュー</span>
-                      </div>
-                    </div>
-                  </div>
+                      {currentAnalysisStep === 1 && (
+                        <div className="animate-fadeIn">
+                          {/* 強み分析セクション */}
+                          <div className="mb-6 space-y-3">
+                            <h4 className="text-sm font-semibold text-slate-700 mb-3">強み分析</h4>
+                            
+                            {/* 創造性 */}
+                            <div className="bg-purple-50 border-l-4 border-purple-400 p-3 rounded transition-all duration-300 hover:bg-purple-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-4 h-4 bg-purple-400 rounded-full animate-pulse"></div>
+                                <span className="text-xs font-medium text-purple-800">創造性</span>
+                              </div>
+                              <p className="text-xs text-purple-700 leading-tight">
+                                独自の視点から業界動向を分析
+                              </p>
+                            </div>
 
-                  {/* Decorative elements */}
-                  <div className="absolute -right-4 -top-4 z-20 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-300 to-blue-500 shadow-xl">
-                    <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
-                  </div>
-                  <div className="absolute -bottom-6 -left-6 z-0 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-500 opacity-90 shadow-lg">
-                    <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                            {/* 専門性 */}
+                            <div className="bg-emerald-50 border-l-4 border-emerald-400 p-3 rounded transition-all duration-300 hover:bg-emerald-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-4 h-4 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                <span className="text-xs font-medium text-emerald-800">専門性</span>
+                              </div>
+                              <p className="text-xs text-emerald-700 leading-tight">
+                                専門知識に基づいた記事の構成
+                              </p>
+                            </div>
+
+                            {/* 影響力 */}
+                            <div className="bg-orange-50 border-l-4 border-orange-400 p-3 rounded transition-all duration-300 hover:bg-orange-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-4 h-4 bg-orange-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                                <span className="text-xs font-medium text-orange-800">影響力</span>
+                              </div>
+                              <p className="text-xs text-orange-700 leading-tight">
+                                読者の課題解決に寄与する内容
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {currentAnalysisStep === 2 && (
+                        <div className="animate-fadeIn">
+                          <div className="border-t border-slate-200 pt-6">
+                            <div className="mb-3 flex items-center gap-2">
+                              <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                              <span className="text-sm font-medium text-slate-600">AIによる自動タグ付け</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 animate-fadeIn transition-all duration-300 hover:bg-blue-200">リーダーシップ</span>
+                              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 animate-fadeIn transition-all duration-300 hover:bg-blue-200" style={{ animationDelay: '0.2s' }}>経営戦略</span>
+                              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 animate-fadeIn transition-all duration-300 hover:bg-blue-200" style={{ animationDelay: '0.4s' }}>インタビュー</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+      `}</style>
     </section>
   )
 }

@@ -6,6 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 interface InputAIAnalysis {
   // 基本分析（作家名を含む）
+  summary: string                   // 簡易要約を追加
   suggestedTags: string[]        // 作家名を含むタグ
   suggestedGenres: string[]
   targetAudience: string[]
@@ -110,48 +111,49 @@ export async function POST(request: NextRequest) {
 【分析対象】
 タイトル: ${inputData.title}
 タイプ: ${inputData.type || '不明'}
-作者/制作者: ${inputData.authorCreator || '不明'}
-カテゴリ: ${inputData.category || '不明'}
 説明: ${inputData.description || ''}
 
-【🎯 最重要指示：作家名をタグに含めること】
-- suggestedTagsには必ず作家名・クリエイター名を含めてください
-- 類似作家・影響を受けた作家も推測してタグに含めてください
-- 作家名は最初の方に配置してください
+【🎯 最重要指示：コンテンツ分析に集中すること】
+- タイトルと説明から推測される関連要素を重視してください
+- 類似作品・類似ジャンルを推測してタグに含めてください
+- コンテンツの性質を表すタグを最初の方に配置してください
 
 【分析要求】
 以下のJSON形式で回答してください。余計な説明文は一切含めないでください。
 
-1. **suggestedTags**: 作家名を含む作品タグ（8-12個）
-   - 必ず作家名を最初の数個に含める
-   - 類似作家名も含める
-   - 作品の性質を表すタグも含める
+1. **summary**: 作品の簡易要約（2-3行の文章で内容と魅力を要約）
 
-2. **suggestedGenres**: 詳細なジャンル分類（3-6個）
+2. **suggestedTags**: コンテンツ特性を表すタグ（8-12個）
+   - コンテンツの性質を表すタグを最初の数個に含める
+   - 類似作品・ジャンルも含める
+   - テーマや特徴を表すタグも含める
 
-3. **targetAudience**: ターゲット層（3-5個）
+3. **suggestedGenres**: 詳細なジャンル分類（3-6個）
 
-4. **appealPoints**: 魅力ポイント（3-6個）
+4. **targetAudience**: ターゲット層（3-5個）
 
-5. **personalityTraits**: 性格特徴（3-6個）
+5. **appealPoints**: 魅力ポイント（3-6個）
 
-6. **interestCategories**: 興味カテゴリ（3-6個）
+6. **personalityTraits**: 性格特徴（3-6個）
 
-7. **mood**: 作品の雰囲気（1つの文章）
+7. **interestCategories**: 興味カテゴリ（3-6個）
 
-8. **themes**: 主要テーマ（3-6個）
+8. **mood**: 作品の雰囲気（1つの文章）
 
-9. **difficulty**: 難易度（1つの文章）
+9. **themes**: 主要テーマ（3-6個）
 
-10. **timeCommitment**: 時間投資（1つの文章）
+10. **difficulty**: 難易度（1つの文章）
 
-11. **socialElements**: 社交性（1-3個）
+11. **timeCommitment**: 時間投資（1つの文章）
 
-12. **creativeInfluence**: 創作への影響（1-3個）
+12. **socialElements**: 社交性（1-3個）
+
+13. **creativeInfluence**: 創作への影響（1-3個）
 
 【回答例】
 {
-  "suggestedTags": ["吉田修一", "伊坂幸太郎", "重松清", "芸道小説", "青春", "歌舞伎", "極道", "人間ドラマ", "師弟関係", "成長物語", "葛藤", "友情"],
+  "summary": "伝統芸能である歌舞伎の世界を舞台に、青年の成長と複雑な人間関係を丁寧に描いた現代小説。師弟関係や友情、葛藤を通じて人間の内面を深く掘り下げた作品",
+  "suggestedTags": ["芸道小説", "青春", "歌舞伎", "伝統芸能", "人間ドラマ", "師弟関係", "成長物語", "葛藤", "友情", "現代文学", "日本文学", "青春小説"],
   "suggestedGenres": ["現代小説", "青春小説", "人間ドラマ", "芸道小説"],
   "targetAudience": ["20～40代", "小説愛好家", "現代文学ファン", "人間ドラマ好き"],
   "appealPoints": ["複雑な人間関係の描写", "伝統芸能の世界観", "登場人物の成長過程", "社会問題への洞察"],
@@ -165,7 +167,7 @@ export async function POST(request: NextRequest) {
   "creativeInfluence": ["人間描写技法", "対比構造の活用", "心理描写の深化"]
 }
 
-必ずこの形式のJSONで回答してください。作家名をタグの最初に必ず含めてください。
+必ずこの形式のJSONで回答してください。コンテンツの特徴を表すタグを最初に含めてください。
 `;
 
     console.log('Gemini APIを呼び出し中...')
@@ -203,7 +205,8 @@ export async function POST(request: NextRequest) {
         
         // JSONパースに失敗した場合の強化されたフォールバック
         analysis = {
-          suggestedTags: [inputData.authorCreator || 'クリエイター', 'AI分析', 'エンターテインメント', 'コンテンツ', 'メディア'],
+          summary: `${inputData.title || 'このコンテンツ'}は興味深い内容を持つ作品です。${inputData.type || 'エンターテインメント'}として、多くの読者に愛される魅力的な内容となっています。`,
+          suggestedTags: ['コンテンツ', 'AI分析', 'エンターテインメント', 'メディア', inputData.type || 'その他'],
           suggestedGenres: ['その他', 'エンターテインメント'],
           targetAudience: ['一般', 'コンテンツ愛好者'],
           appealPoints: ['ユニークなコンテンツ', '興味深い題材'],
@@ -229,8 +232,8 @@ export async function POST(request: NextRequest) {
             preferredMediums: ['デジタル']
           },
           tagClassification: {
-            creator: [inputData.authorCreator || 'クリエイター'],
-            genre: ['エンターテインメント'],
+            creator: ['コンテンツクリエイター'],
+            genre: [inputData.type || 'エンターテインメント'],
             mood: ['興味深い'],
             theme: ['文化'],
             technique: ['観察'],
@@ -238,7 +241,7 @@ export async function POST(request: NextRequest) {
             medium: ['デジタル']
           },
           creatorAnalysis: {
-            primaryCreator: [inputData.authorCreator || 'クリエイター'],
+            primaryCreator: ['コンテンツクリエイター'],
             similarCreators: ['類似クリエイター'],
             influentialCreators: ['影響を受けたクリエイター'],
             collaborationSuggestions: ['他分野のクリエイター']

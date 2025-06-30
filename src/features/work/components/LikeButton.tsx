@@ -6,7 +6,7 @@ import { fetcher } from '@/utils/fetcher'
 
 import { useState, useEffect } from 'react'
 import { Heart } from 'lucide-react'
-import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 
 interface LikeButtonProps {
   workId: string

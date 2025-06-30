@@ -13,19 +13,19 @@ interface AIAnalysisDetailModalProps {
 const analysisDetails = {
   article: {
     name: '記事・ライティング',
-    emoji: '📝',
-    icon: '✍️',
-    color: 'bg-blue-500',
+    emoji: '',
+    icon: 'pen',
+    color: 'bg-blue-600',
     description: 'ブログ記事、コラム、ニュース記事などのライティング作品の分析',
     analysisPoints: [
-      '✍️ ライティングスキル',
-      '🔍 取材力・調査力',
-      '💡 独自性・オリジナリティ',
-      '📚 専門性・知識の深さ',
-      '🎯 読者ターゲティング',
-      '📈 SEO対策',
-      '🔗 構成力・論理性',
-      '📝 文体・表現力'
+      'ライティングスキル',
+      '取材力・調査力',
+      '独自性・オリジナリティ',
+      '専門性・知識の深さ',
+      '読者ターゲティング',
+      'SEO対策',
+      '構成力・論理性',
+      '文体・表現力'
     ],
     specificAnalysis: [
       {
@@ -48,19 +48,19 @@ const analysisDetails = {
   },
   design: {
     name: 'デザイン',
-    emoji: '🎨',
-    icon: '🎨',
-    color: 'bg-purple-500',
+    emoji: '',
+    icon: 'palette',
+    color: 'bg-blue-500',
     description: 'グラフィックデザイン、UI/UXデザイン、ロゴなどのデザイン作品の分析',
     analysisPoints: [
-      '🎨 美的センス・デザイン力',
-      '🎯 ブランディング力',
-      '👥 ユーザビリティ',
-      '🔧 技術スキル・ツール活用',
-      '💡 創造性・アイデア力',
-      '📐 レイアウト・構成力',
-      '🌈 色彩センス',
-      '📱 レスポンシブ対応'
+      '美的センス・デザイン力',
+      'ブランディング力',
+      'ユーザビリティ',
+      '技術スキル・ツール活用',
+      '創造性・アイデア力',
+      'レイアウト・構成力',
+      '色彩センス',
+      'レスポンシブ対応'
     ],
     specificAnalysis: [
       {
@@ -83,19 +83,19 @@ const analysisDetails = {
   },
   photo: {
     name: '写真',
-    emoji: '📸',
-    icon: '📷',
-    color: 'bg-green-500',
+    emoji: '',
+    icon: 'camera',
+    color: 'bg-blue-500',
     description: '写真撮影、フォトレタッチなどの写真作品の分析',
     analysisPoints: [
-      '📷 撮影技術・テクニック',
-      '💡 光の使い方・露出',
-      '🎨 構図・フレーミング',
-      '✨ レタッチスキル',
-      '📖 ストーリーテリング',
-      '🎯 被写体選定',
-      '🌅 シーン構築力',
-      '🔧 機材活用力'
+      '撮影技術・テクニック',
+      '光の使い方・露出',
+      '構図・フレーミング',
+      'レタッチスキル',
+      'ストーリーテリング',
+      '被写体選定',
+      'シーン構築力',
+      '機材活用力'
     ],
     specificAnalysis: [
       {
@@ -118,19 +118,19 @@ const analysisDetails = {
   },
   video: {
     name: '動画',
-    emoji: '🎬',
-    icon: '🎥',
-    color: 'bg-red-500',
+    emoji: '',
+    icon: 'video',
+    color: 'bg-blue-500',
     description: '動画制作、映像編集、アニメーションなどの動画作品の分析',
     analysisPoints: [
-      '🎬 撮影技術・映像美',
-      '✂️ 編集技術・カット割り',
-      '📖 ストーリー構成力',
-      '🎵 音響・BGM選定',
-      '🎭 演出力・表現力',
-      '⚡ 視覚エフェクト',
-      '🎯 テンポ・リズム感',
-      '📱 配信最適化'
+      '撮影技術・映像美',
+      '編集技術・カット割り',
+      'ストーリー構成力',
+      '音響・BGM選定',
+      '演出力・表現力',
+      '視覚エフェクト',
+      'テンポ・リズム感',
+      '配信最適化'
     ],
     specificAnalysis: [
       {
@@ -153,19 +153,19 @@ const analysisDetails = {
   },
   podcast: {
     name: 'ポッドキャスト',
-    emoji: '🎙️',
-    icon: '🔊',
-    color: 'bg-orange-500',
+    emoji: '',
+    icon: 'mic',
+    color: 'bg-blue-500',
     description: '音声コンテンツ、ラジオ番組などのポッドキャスト作品の分析',
     analysisPoints: [
-      '🎤 話術・プレゼン力',
-      '📋 企画力・構成力',
-      '🎧 音響品質',
-      '👥 エンゲージメント力',
-      '📚 コンテンツの質',
-      '⏰ 時間配分・テンポ',
-      '🎯 ターゲティング',
-      '📈 継続性・一貫性'
+      '話術・プレゼン力',
+      '企画力・構成力',
+      '音響品質',
+      'エンゲージメント力',
+      'コンテンツの質',
+      '時間配分・テンポ',
+      'ターゲティング',
+      '継続性・一貫性'
     ],
     specificAnalysis: [
       {
@@ -188,19 +188,19 @@ const analysisDetails = {
   },
   event: {
     name: 'イベント',
-    emoji: '🎪',
-    icon: '🎊',
-    color: 'bg-pink-500',
+    emoji: '',
+    icon: 'calendar',
+    color: 'bg-blue-500',
     description: 'イベント企画・運営、カンファレンスなどのイベント作品の分析',
     analysisPoints: [
-      '📋 企画力・アイデア力',
-      '👥 運営力・チームマネジメント',
-      '🎯 ターゲティング・集客力',
-      '💰 予算管理・コスト効率',
-      '🤝 参加者エンゲージメント',
-      '📱 デジタル活用力',
-      '⚡ 問題解決力・対応力',
-      '📈 成果測定・分析力'
+      '企画力・アイデア力',
+      '運営力・チームマネジメント',
+      'ターゲティング・集客力',
+      '予算管理・コスト効率',
+      '参加者エンゲージメント',
+      'デジタル活用力',
+      '問題解決力・対応力',
+      '成果測定・分析力'
     ],
     specificAnalysis: [
       {
@@ -238,8 +238,38 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className={`w-12 h-12 ${detail.color} rounded-xl flex items-center justify-center`}>
-                <span className="text-2xl text-white">{detail.icon}</span>
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                {detail.icon === 'pen' && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                )}
+                {detail.icon === 'palette' && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5a2 2 0 00-2 2v12a4 4 0 004 4h2a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                  </svg>
+                )}
+                {detail.icon === 'camera' && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )}
+                {detail.icon === 'video' && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {detail.icon === 'mic' && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                )}
+                {detail.icon === 'calendar' && (
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                )}
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{detail.name} AI分析詳細</h2>
@@ -264,8 +294,8 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
               onClick={() => setActiveTab('overview')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === 'overview'
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
               }`}
             >
               概要
@@ -274,8 +304,8 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
               onClick={() => setActiveTab('detailed')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === 'detailed'
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
               }`}
             >
               詳細分析項目
@@ -289,7 +319,12 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
             <div className="space-y-6">
               {/* 分析ポイント概要 */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">🔍 主要分析ポイント</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  主要分析ポイント
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {detail.analysisPoints.map((point, index) => (
                     <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -303,7 +338,9 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
               {/* AI分析の特徴 */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
                 <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center space-x-2">
-                  <span>🤖</span>
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                   <span>AI分析の特徴</span>
                 </h3>
                 <div className="space-y-3 text-blue-800">
@@ -317,7 +354,9 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
               {/* 分析結果の活用方法 */}
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
                 <h3 className="text-lg font-semibold text-green-900 mb-4 flex items-center space-x-2">
-                  <span>💡</span>
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
                   <span>分析結果の活用方法</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -344,12 +383,17 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
 
           {activeTab === 'detailed' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 詳細分析カテゴリ</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                詳細分析カテゴリ
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {detail.specificAnalysis.map((category, index) => (
                   <div key={index} className="bg-white border border-gray-200 rounded-xl p-5">
                     <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                      <div className={`w-3 h-3 ${detail.color} rounded-full`}></div>
+                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       <span>{category.category}</span>
                     </h4>
                     <div className="space-y-2">
@@ -365,26 +409,40 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
               </div>
 
               {/* 分析精度について */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100 mt-8">
-                <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center space-x-2">
-                  <span>⚡</span>
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 mt-8">
+                <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
                   <span>高精度分析の秘密</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-purple-800">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-blue-800">
                   <div className="text-center">
-                    <div className="text-2xl mb-2">🎯</div>
+                    <div className="text-2xl mb-2">
+                      <svg className="w-8 h-8 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </div>
                     <h4 className="font-medium mb-1">専門特化</h4>
-                    <p className="text-sm text-purple-700">{detail.name}の専門知識を活用</p>
+                    <p className="text-sm text-blue-700">{detail.name}の専門知識を活用</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl mb-2">🔍</div>
+                    <div className="text-2xl mb-2">
+                      <svg className="w-8 h-8 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
                     <h4 className="font-medium mb-1">多次元評価</h4>
-                    <p className="text-sm text-purple-700">複数の観点から総合分析</p>
+                    <p className="text-sm text-blue-700">複数の観点から総合分析</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl mb-2">📈</div>
+                    <div className="text-2xl mb-2">
+                      <svg className="w-8 h-8 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
                     <h4 className="font-medium mb-1">業界基準</h4>
-                    <p className="text-sm text-purple-700">最新のトレンドを反映</p>
+                    <p className="text-sm text-blue-700">最新のトレンドを反映</p>
                   </div>
                 </div>
               </div>
@@ -396,9 +454,9 @@ export function AIAnalysisDetailModal({ isOpen, onClose, contentType }: AIAnalys
         <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
           <div className="flex items-center justify-between">
             <p className="text-gray-600 text-sm">
-              💡 コンテンツタイプを選択することで、より専門的で精度の高いAI分析を受けることができます
+              コンテンツタイプを選択することで、より専門的で精度の高いAI分析を受けることができます
             </p>
-            <Button onClick={onClose} className="bg-gray-900 text-white hover:bg-gray-800">
+            <Button onClick={onClose} className="bg-blue-600 text-white hover:bg-blue-700">
               閉じる
             </Button>
           </div>

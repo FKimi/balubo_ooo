@@ -65,7 +65,7 @@ export function Header() {
         <div className="flex items-center space-x-4">
           {/* 作品追加ボタン */}
           <Link href="/works/new">
-            <Button className="bg-gradient-to-r from-accent-dark-blue to-primary-blue hover:from-primary-blue hover:to-accent-dark-blue shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+            <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>

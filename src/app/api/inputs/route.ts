@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { DatabaseClient } from '@/lib/database'
+
+// サーバーサイド用のSupabaseクライアントを作成
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabaseの環境変数が設定されていません')
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
 
 // インプット一覧取得 (GET)
 export async function GET(request: NextRequest) {
@@ -28,12 +43,23 @@ export async function GET(request: NextRequest) {
     console.log('認証トークンを確認中...')
     
     try {
+      console.log('トークンでユーザー情報を取得中... (GET)')
       const { data: { user }, error: userError } = await supabase.auth.getUser(token)
       
+      console.log('ユーザー取得結果 (GET):', {
+        hasUser: !!user,
+        hasError: !!userError,
+        errorMessage: userError?.message,
+        userId: user?.id
+      })
+      
       if (userError || !user) {
-        console.log('認証エラー:', userError)
+        console.error('認証エラー (GET):', userError)
         return NextResponse.json(
-          { error: '認証に失敗しました' },
+          { 
+            error: '認証に失敗しました',
+            details: userError?.message || 'ユーザー情報が取得できませんでした'
+          },
           { 
             status: 401,
             headers: {
@@ -44,7 +70,7 @@ export async function GET(request: NextRequest) {
       }
 
       const userId = user.id
-      console.log('認証成功、ユーザーID:', userId)
+      console.log('認証成功、ユーザーID (GET):', userId)
 
       // DatabaseClientを使用してインプットデータを取得
       console.log('DatabaseClientでインプットを取得中...')
@@ -62,9 +88,23 @@ export async function GET(request: NextRequest) {
       })
 
     } catch (authError) {
-      console.log('認証処理エラー:', authError)
+      console.error('認証処理エラー (GET):', authError)
+      console.error('エラーの詳細 (GET):', {
+        message: authError instanceof Error ? authError.message : 'Unknown error',
+        stack: authError instanceof Error ? authError.stack : null,
+        tokenLength: token ? token.length : 0,
+        tokenPrefix: token ? token.substring(0, 10) + '...' : 'No token'
+      })
       return NextResponse.json(
-        { error: '認証処理でエラーが発生しました' },
+        { 
+          error: '認証処理でエラーが発生しました',
+          details: authError instanceof Error ? authError.message : 'Unknown error',
+          debugInfo: {
+            hasToken: !!token,
+            tokenLength: token ? token.length : 0,
+            errorType: authError instanceof Error ? authError.constructor.name : typeof authError
+          }
+        },
         { 
           status: 401,
           headers: {
@@ -116,10 +156,20 @@ export async function POST(request: NextRequest) {
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser(token)
       
+      console.log('ユーザー取得結果 (POST):', {
+        hasUser: !!user,
+        hasError: !!userError,
+        errorMessage: userError?.message,
+        userId: user?.id
+      })
+      
       if (userError || !user) {
-        console.log('認証エラー:', userError)
+        console.error('認証エラー (POST):', userError)
         return NextResponse.json(
-          { error: '認証に失敗しました' },
+          { 
+            error: '認証に失敗しました',
+            details: userError?.message || 'ユーザー情報が取得できませんでした'
+          },
           { 
             status: 401,
             headers: {
@@ -130,7 +180,7 @@ export async function POST(request: NextRequest) {
       }
 
       const userId = user.id
-      console.log('認証成功、ユーザーID:', userId)
+      console.log('認証成功、ユーザーID (POST):', userId)
 
       // リクエストボディを取得
       const inputData = await request.json()
@@ -153,11 +203,22 @@ export async function POST(request: NextRequest) {
       })
 
     } catch (authError) {
-      console.log('認証処理エラー:', authError)
+      console.error('認証処理エラー:', authError)
+      console.error('エラーの詳細:', {
+        message: authError instanceof Error ? authError.message : 'Unknown error',
+        stack: authError instanceof Error ? authError.stack : null,
+        tokenLength: token ? token.length : 0,
+        tokenPrefix: token ? token.substring(0, 10) + '...' : 'No token'
+      })
       return NextResponse.json(
         { 
           error: '認証処理でエラーが発生しました',
-          details: authError instanceof Error ? authError.message : 'Unknown error'
+          details: authError instanceof Error ? authError.message : 'Unknown error',
+          debugInfo: {
+            hasToken: !!token,
+            tokenLength: token ? token.length : 0,
+            errorType: authError instanceof Error ? authError.constructor.name : typeof authError
+          }
         },
         { 
           status: 401,

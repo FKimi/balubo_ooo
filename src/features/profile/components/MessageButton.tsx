@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { fetcher } from '@/utils/fetcher'
 import { useRouter } from 'next/navigation'
 import { MessageCircle } from 'lucide-react'
-import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 
 interface MessageButtonProps {
   targetUserId: string

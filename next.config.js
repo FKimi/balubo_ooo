@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['recharts'],
   
   // 開発時の設定
   webpack: (config, { dev }) => {

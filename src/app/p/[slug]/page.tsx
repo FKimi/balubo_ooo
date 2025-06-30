@@ -143,11 +143,12 @@ async function getPublicProfileBySlug(slug: string) {
   }
 }
 
-export default async function PublicProfileSlugPage({ params }: any) {
-  const data = await getPublicProfileBySlug(params.slug)
+export default async function PublicProfileSlugPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const data = await getPublicProfileBySlug(slug)
   if (!data) notFound()
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Suspense fallback={<div>読み込み中...</div>}>
         <PublicProfileContent data={data} userId={data.profile.user_id} />
       </Suspense>
@@ -155,8 +156,9 @@ export default async function PublicProfileSlugPage({ params }: any) {
   )
 }
 
-export async function generateMetadata({ params }: any) {
-  const data = await getPublicProfileBySlug(params.slug)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const data = await getPublicProfileBySlug(slug)
   if (!data) {
     return { title: 'プロフィールが見つかりません' }
   }

@@ -7,6 +7,121 @@ if (!GEMINI_API_KEY) {
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
+// スコアリング用の関数（コンテンツタイプ別）
+async function getEvaluationScores(analysisResult: any, contentType: string) {
+  // コンテンツタイプ別の評価軸定義
+  const evaluationCriteria = {
+    article: {
+      technology: "構成の巧みさ、文章の読みやすさ、情報の提示方法、編集・校正の品質",
+      expertise: "記事のテーマに対する深い知識、正確な情報、取材力、業界への理解度",
+      creativity: "独自の切り口、ユニークな視点、読者を引きつける構成や表現の工夫",
+      impact: "読者の課題解決への貢献度、共感や納得感、行動を促す力"
+    },
+    design: {
+      technology: "デザインツールの習熟度、技術的完成度、制作プロセスの効率性",
+      expertise: "デザイン理論の理解、ブランドガイドライン準拠、業界知識の活用",
+      creativity: "斬新なビジュアル表現、独創的なコンセプト、美的センス",
+      impact: "ブランド価値向上、ユーザーエクスペリエンス改善、ビジネス成果"
+    },
+    photo: {
+      technology: "撮影技術の高さ、機材活用スキル、レタッチ技術",
+      expertise: "撮影ジャンルの専門知識、光と構図の理解、被写体への深い理解",
+      creativity: "独創的な視点、芸術的表現、感情を動かす構図",
+      impact: "視覚的インパクト、メッセージ伝達力、感情への働きかけ"
+    },
+    video: {
+      technology: "撮影・編集技術、音響技術、ソフトウェア活用スキル",
+      expertise: "映像制作の専門知識、ストーリーテリング技術、ジャンル理解",
+      creativity: "独創的な演出、革新的な表現手法、感動的なストーリー",
+      impact: "視聴者エンゲージメント、メッセージ伝達効果、ブランド価値向上"
+    },
+    podcast: {
+      technology: "音響品質、編集技術、配信プラットフォームの活用",
+      expertise: "コンテンツ企画力、インタビュー技術、業界知識",
+      creativity: "独自の切り口、魅力的な話術、革新的な番組構成",
+      impact: "リスナーコミュニティ形成、知識・情報の価値提供、影響力の拡大"
+    },
+    event: {
+      technology: "運営スキル、空間デザイン、テクノロジー活用",
+      expertise: "イベント企画の専門知識、プロジェクトマネジメント、リスク管理",
+      creativity: "独創的な企画、革新的な演出、参加者体験の工夫",
+      impact: "参加者満足度、ネットワーキング効果、知識・価値の共有"
+    }
+  }
+
+  const criteria = evaluationCriteria[contentType as keyof typeof evaluationCriteria] || evaluationCriteria.article
+
+  const scoringPrompt = `
+あなたは、与えられた${contentType}作品の分析レポートを評価し、スコアを算出する専門アナリストです。
+以下のJSON形式の分析レポートを読み解き、5つの評価項目について、それぞれ100点満点で採点してください。
+採点は、レポート内の具体的な記述を根拠とし、客観的に行ってください。
+
+## 分析レポート
+${JSON.stringify(analysisResult)}
+
+## 評価項目（${contentType}作品向け）
+1. **技術力 (Technology)**: ${criteria.technology}
+2. **専門性 (Expertise)**: ${criteria.expertise}
+3. **創造性 (Creativity)**: ${criteria.creativity}
+4. **影響力 (Impact)**: ${criteria.impact}
+5. **総合評価 (Overall)**: 上記4項目を総合的に判断した、作品全体の完成度と価値
+
+## 出力形式
+以下のJSON形式で、スコアと評価の根拠（レポート内のどの記述を参考にしたか）を簡潔に示してください。
+JSON以外のテキストは絶対に含めないでください。
+
+{
+  "scores": {
+    "technology": { "score": 85, "reason": "評価の根拠を簡潔に記述" },
+    "expertise": { "score": 78, "reason": "評価の根拠を簡潔に記述" },
+    "creativity": { "score": 92, "reason": "評価の根拠を簡潔に記述" },
+    "impact": { "score": 80, "reason": "評価の根拠を簡潔に記述" },
+    "overall": { "score": 84, "reason": "評価の根拠を簡潔に記述" }
+  }
+}
+`
+
+  try {
+    // Gemini APIを再度呼び出し（スコアリング用）
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: scoringPrompt }] }],
+        generationConfig: {
+          temperature: 0.3, // スコアリングなので安定性を重視
+          maxOutputTokens: 1024,
+        },
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('スコアリングAPIの呼び出しに失敗しました')
+    }
+
+    const data = await response.json()
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!generatedText) {
+      throw new Error('スコアリング結果が取得できませんでした')
+    }
+
+    const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
+    return JSON.parse(cleanedText)
+  } catch (error) {
+    console.error('スコアリングエラー:', error)
+    // フォールバック: デフォルトスコア
+    return {
+      scores: {
+        technology: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
+        expertise: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
+        creativity: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
+        impact: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
+        overall: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' }
+      }
+    }
+  }
+}
+
 // コンテンツタイプ別のプロンプト設定
 // コンテンツタイプの型定義
 const prompts = {
@@ -265,7 +380,7 @@ ${contentConfig.focus}の中でも、より具体的なサブジャンルや専�
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
         }
       }),
     })
@@ -317,10 +432,23 @@ ${contentConfig.focus}の中でも、より具体的なサブジャンルや専�
       }
     }
 
+    // 取得した分析結果を基に、評価スコアを取得
+    let evaluationScores = null
+    try {
+      if (analysisResult) { // 分析が成功した場合のみスコアリング
+        evaluationScores = await getEvaluationScores(analysisResult, contentType || 'other')
+      }
+    } catch(scoringError) {
+      console.error('Scoring Error:', scoringError)
+      // スコアリングに失敗しても、分析結果は返す
+    }
+
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
+      evaluation: evaluationScores, // 評価スコアをレスポンスに追加
       contentType: contentConfig.focus,
+      analysisType: 'comprehensive_analysis_with_score',
       rawResponse: generatedText // デバッグ用
     })
 

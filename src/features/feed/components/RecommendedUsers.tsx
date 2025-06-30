@@ -200,7 +200,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
                   className="rounded-full object-cover hover:opacity-90 transition-opacity"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center hover:opacity-90 transition-opacity">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hover:opacity-90 transition-opacity">
                   <User className="h-5 w-5 text-white" />
                 </div>
               )}

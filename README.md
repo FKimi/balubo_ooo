@@ -127,19 +127,31 @@ npm run dev
 ### 使用例
 
 ```typescript
-import { mcpSupabase } from '@/lib/mcp-supabase'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 
 // プロフィールデータの取得
-const profile = await mcpSupabase.getProfile(userId)
+const supabase = getSupabaseBrowserClient()
+const { data: profile, error } = await supabase
+  .from('profiles')
+  .select('*')
+  .eq('user_id', userId)
+  .single()
 
 // リアルタイム購読
-await mcpSupabase.subscribeToProfile(userId, (updatedProfile) => {
-  console.log('プロフィールが更新されました:', updatedProfile)
+const subscription = supabase
+  .channel('profiles')
+  .on('postgres_changes', { 
+    event: 'UPDATE', 
+    schema: 'public', 
+    table: 'profiles',
+    filter: `user_id=eq.${userId}`
+  }, (payload) => {
+    console.log('プロフィールが更新されました:', payload.new)
 })
+  .subscribe()
 
-// 接続状態の確認
-const status = mcpSupabase.getConnectionStatus()
-console.log('アクティブな購読数:', status.activeSubscriptions)
+// 購読の解除
+subscription.unsubscribe()
 ```
 
 ## 🐛 トラブルシューティング

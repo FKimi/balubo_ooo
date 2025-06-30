@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabaseManager, createAuthenticatedClient } from './supabase-client'
+import { processDbResult, processDbArrayResult } from './api-utils'
 
 // データベース操作のヘルパー関数（認証対応版）
 export class DatabaseClient {
@@ -14,25 +15,6 @@ export class DatabaseClient {
   private static recentRequests = new Map<string, number[]>()
   private static readonly RATE_LIMIT_WINDOW = 10000 // 10秒
   private static readonly MAX_REQUESTS_PER_WINDOW = 5 // 10秒間に最大5回
-
-  // 認証されたSupabaseクライアントを作成するヘルパー
-  private static createAuthenticatedClient(token?: string) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    
-    if (token) {
-      return createClient(supabaseUrl, supabaseAnonKey, {
-        global: {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      })
-    } else {
-      // 認証なしのフォールバック（基本的な接続テスト用）
-      return createClient(supabaseUrl, supabaseAnonKey)
-    }
-  }
 
   // プロフィール関連操作
   static async getProfile(userId: string, token?: string) {
@@ -89,7 +71,7 @@ export class DatabaseClient {
       // リクエストを作成してpendingに追加
       const requestPromise = (async () => {
         try {
-          const supabase = this.createAuthenticatedClient(token)
+          const supabase = createAuthenticatedClient(token)
           
           // プロフィール取得にタイムアウトを設定（5秒）
           const profilePromise = supabase
@@ -159,7 +141,7 @@ export class DatabaseClient {
       console.log('DatabaseClient: プロフィール保存中...', userId)
       
       // まず通常の認証クライアントで試行
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       
       // 既存プロフィールの確認
       let existingProfile
@@ -282,7 +264,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: 作品一覧取得中...', userId, 'token:', !!token)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const { data, error } = await supabase
         .from('works')
         .select('*, is_featured, featured_order')
@@ -291,18 +273,9 @@ export class DatabaseClient {
         .order('featured_order', { ascending: true })
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('DatabaseClient: 作品取得エラー詳細:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        })
-        throw error
-      }
-
-      console.log('DatabaseClient: 作品一覧取得成功:', data?.length || 0, '件')
-      return data || []
+      const result = processDbArrayResult(data, error)
+      console.log('DatabaseClient: 作品一覧取得成功:', result.length, '件')
+      return result
     } catch (error) {
       console.error('DatabaseClient: 作品一覧取得エラー:', error)
       throw error
@@ -313,7 +286,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: 作品取得中...', workId)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const { data, error } = await supabase
         .from('works')
         .select('*')
@@ -342,7 +315,7 @@ export class DatabaseClient {
       console.log('DatabaseClient: 作品保存中...', userId)
       console.log('DatabaseClient: 受信したworkData:', workData)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const workToSave = {
         user_id: userId,
         title: workData.title || '',
@@ -389,7 +362,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: 作品更新中...', workId)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const workToUpdate = {
         title: workData.title || '',
         description: workData.description || '',
@@ -426,7 +399,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: 作品削除中...', workId)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const { error } = await supabase
         .from('works')
         .delete()
@@ -449,7 +422,7 @@ export class DatabaseClient {
       console.log('DatabaseClient: 接続テスト中...')
       
       // 基本的な接続テストのみ（認証が不要な操作）
-      const supabase = this.createAuthenticatedClient()
+      const supabase = createAuthenticatedClient()
       
       // RLSポリシーの影響を受けない基本的な接続確認
       // プロフィールテーブルではなく、基本的なSupabase機能をテスト
@@ -473,7 +446,7 @@ export class DatabaseClient {
   // ユーザー認証状態の確認
   static async getCurrentUser() {
     try {
-      const { data: { user }, error } = await this.createAuthenticatedClient()
+      const { data: { user }, error } = await createAuthenticatedClient()
         .auth.getUser()
       
       if (error) throw error
@@ -490,25 +463,16 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: インプット一覧取得中...', userId, 'token:', !!token)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const { data, error } = await supabase
         .from('inputs')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('DatabaseClient: インプット取得エラー詳細:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        })
-        throw error
-      }
-
-      console.log('DatabaseClient: インプット一覧取得成功:', data?.length || 0, '件')
-      return data || []
+      const result = processDbArrayResult(data, error)
+      console.log('DatabaseClient: インプット一覧取得成功:', result.length, '件')
+      return result
     } catch (error) {
       console.error('DatabaseClient: インプット一覧取得エラー:', error)
       throw error
@@ -519,7 +483,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: インプット取得中...', inputId)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const { data, error } = await supabase
         .from('inputs')
         .select('*')
@@ -547,7 +511,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: ユーザー情報付きインプット取得中...', inputId)
       
-      const supabase = this.createAuthenticatedClient(token || undefined)
+      const supabase = createAuthenticatedClient(token || undefined)
       
       // まずインプットを取得
       const { data: inputData, error: inputError } = await supabase
@@ -606,17 +570,17 @@ export class DatabaseClient {
       console.log('DatabaseClient: インプット保存中...', userId)
       console.log('DatabaseClient: 受信したinputData:', inputData)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const inputToSave = {
         user_id: userId,
         title: inputData.title || '',
         type: inputData.type || 'book', // book, manga, movie, anime, tv, game, etc.
-        category: inputData.category || '',
-        author_creator: inputData.authorCreator || '',
+        category: '', // 削除されたフィールド - 空文字列で保存
+        author_creator: '', // 削除されたフィールド - 空文字列で保存
         release_date: inputData.releaseDate || null,
         consumption_date: inputData.consumptionDate || null,
         status: inputData.status || 'completed', // completed, reading, watching, planning, dropped
-        rating: inputData.rating || null, // 1-5 stars
+        rating: null, // 削除されたフィールド - nullで保存
         review: inputData.review || '',
         tags: inputData.tags || [],
         genres: inputData.genres || [],
@@ -659,16 +623,16 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: インプット更新中...', inputId)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const inputToUpdate = {
         title: inputData.title || '',
         type: inputData.type || 'book',
-        category: inputData.category || '',
-        author_creator: inputData.authorCreator || '',
+        category: inputData.category || '', // 既存データは保持、新規では空文字列
+        author_creator: inputData.authorCreator || '', // 既存データは保持、新規では空文字列
         release_date: inputData.releaseDate || null,
         consumption_date: inputData.consumptionDate || null,
         status: inputData.status || 'completed',
-        rating: inputData.rating || null,
+        rating: inputData.rating || null, // 既存データは保持、新規ではnull
         review: inputData.review || '',
         tags: inputData.tags || [],
         genres: inputData.genres || [],
@@ -702,7 +666,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: インプット削除中...', inputId)
       
-      const supabase = this.createAuthenticatedClient(token)
+      const supabase = createAuthenticatedClient(token)
       const { error } = await supabase
         .from('inputs')
         .delete()
@@ -724,7 +688,7 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: インプット分析中...', userId)
       
-      const inputs = await this.getInputs(userId, token)
+      const inputs = await DatabaseClient.getInputs(userId, token)
       
       // 基本統計
       const tagFrequency: Record<string, number> = {}

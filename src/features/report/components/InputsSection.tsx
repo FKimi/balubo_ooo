@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { SimpleProgress } from './SimpleProgress'
 import type { InputData } from '@/types/input'
 
 interface InputsSectionProps {
@@ -14,7 +13,11 @@ export function InputsSection({ inputs }: InputsSectionProps) {
         <Card className="border-dashed border-2 border-gray-300">
           <CardContent className="p-8 sm:p-12">
             <div className="text-center">
-              <div className="text-4xl sm:text-6xl mb-4">📚</div>
+              <div className="text-4xl sm:text-6xl mb-4">
+                <svg className="w-16 h-16 sm:w-24 sm:h-24 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
                 インプットデータがありません
               </h3>
@@ -37,7 +40,7 @@ export function InputsSection({ inputs }: InputsSectionProps) {
     )
   }
 
-  // ジャンル分析
+  // ジャンル分析（トップ3のみ）
   const genreAnalysis = () => {
     const genreCount: { [key: string]: number } = {}
     inputs.forEach(input => {
@@ -49,172 +52,107 @@ export function InputsSection({ inputs }: InputsSectionProps) {
     })
     return Object.entries(genreCount)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 8)
+      .slice(0, 3)
   }
 
-  // タイプ分析
+  // タイプ分析（トップ3のみ）
   const typeAnalysis = () => {
     const typeCount: { [key: string]: number } = {}
     inputs.forEach(input => {
       typeCount[input.type] = (typeCount[input.type] || 0) + 1
     })
-    return Object.entries(typeCount).sort(([, a], [, b]) => b - a)
+    return Object.entries(typeCount)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
   }
 
-  // 評価分析
-  const ratingAnalysis = () => {
-    const ratedInputs = inputs.filter(input => input.rating && input.rating > 0)
-    const averageRating = ratedInputs.length > 0 
-      ? ratedInputs.reduce((sum, input) => sum + (input.rating || 0), 0) / ratedInputs.length 
-      : 0
-    
-    const ratingDistribution = [1, 2, 3, 4, 5].map(rating => ({
-      rating,
-      count: ratedInputs.filter(input => input.rating === rating).length
-    }))
-
-    return { averageRating, ratingDistribution, totalRated: ratedInputs.length }
+  // お気に入り分析
+  const favoriteAnalysis = () => {
+    const favoriteCount = inputs.filter(input => input.favorite).length
+    const favoriteRate = inputs.length > 0 ? Math.round((favoriteCount / inputs.length) * 100) : 0
+    return { favoriteCount, favoriteRate }
   }
 
   const topGenres = genreAnalysis()
   const typeDistribution = typeAnalysis()
-  const ratingData = ratingAnalysis()
+  const favoriteData = favoriteAnalysis()
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* 基本統計 */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="p-4 sm:p-6">
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">{inputs.length}</div>
-              <div className="text-xs sm:text-sm text-gray-600">総インプット数</div>
+    <div className="space-y-6">
+      {/* 基本統計（3つの箇条書きに統一） */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold">•</span>
+              <span className="text-gray-700">
+                <strong>{inputs.length}件</strong>のインプットを記録済み
+              </span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="p-4 sm:p-6">
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-yellow-600 mb-2">
-                {ratingData.averageRating > 0 ? ratingData.averageRating.toFixed(1) : '-'}
-              </div>
-              <div className="text-xs sm:text-sm text-gray-600">平均評価</div>
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold">•</span>
+              <span className="text-gray-700">
+                <strong>{favoriteData.favoriteCount}件</strong>をお気に入り登録（{favoriteData.favoriteRate}%）
+              </span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="p-4 sm:p-6">
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-2">{ratingData.totalRated}</div>
-              <div className="text-xs sm:text-sm text-gray-600">評価済み</div>
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold">•</span>
+              <span className="text-gray-700">
+                <strong>{typeDistribution.length}種類</strong>のメディアタイプを活用
+              </span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* ジャンルとメディアタイプを2カラムに */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* ジャンル分析 */}
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="pb-3 sm:pb-4">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <span>🎭</span>
-              <span>好きなジャンル</span>
-            </CardTitle>
+      {/* シンプルな分析（2カラムレイアウト） */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 好きなジャンル */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">好きなジャンル</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent>
             {topGenres.length > 0 ? (
-              <div className="space-y-2 sm:space-y-3">
-                {topGenres.map(([genre, count], index) => (
-                  <div key={genre} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                        {index + 1}
-                      </div>
-                      <span className="text-xs sm:text-sm text-gray-700 truncate">{genre}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 flex-shrink-0">
-                      <SimpleProgress 
-                        value={(count / Math.max(...topGenres.map(([, c]) => c))) * 100} 
-                        className="w-12 sm:w-20 h-2" 
-                      />
-                      <span className="text-xs sm:text-sm font-medium text-gray-600 w-6 sm:w-8 text-right">{count}</span>
-                    </div>
-                  </div>
+              <div className="flex flex-wrap gap-2">
+                {topGenres.map(([genre, count]) => (
+                  <span
+                    key={genre}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                  >
+                    {genre} ({count}件)
+                  </span>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">ジャンルデータがありません</p>
+              <div className="text-gray-500 text-sm">ジャンルデータがありません</div>
             )}
           </CardContent>
         </Card>
 
-        {/* メディアタイプ分析 */}
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="pb-3 sm:pb-4">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <span>📱</span>
-              <span>メディアタイプ分布</span>
-            </CardTitle>
+        {/* メディアタイプ */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">メディアタイプ</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent>
             {typeDistribution.length > 0 ? (
-              <div className="space-y-2 sm:space-y-3">
+              <div className="flex flex-wrap gap-2">
                 {typeDistribution.map(([type, count]) => (
-                  <div key={type} className="flex items-center justify-between">
-                    <span className="text-xs sm:text-sm text-gray-700 capitalize truncate flex-1 mr-2">{type}</span>
-                    <div className="flex items-center space-x-2 flex-shrink-0">
-                      <SimpleProgress 
-                        value={(count / Math.max(...typeDistribution.map(([, c]) => c))) * 100} 
-                        className="w-16 sm:w-24 h-2" 
-                      />
-                      <span className="text-xs sm:text-sm font-medium text-gray-600 w-20 sm:w-24 text-right">
-                        {count}件 ({Math.round((count / inputs.length) * 100)}%)
-                      </span>
-                    </div>
-                  </div>
+                  <span
+                    key={type}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
+                  >
+                    {type} ({count}件)
+                  </span>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">メディアタイプデータがありません</p>
+              <div className="text-gray-500 text-sm">メディアタイプデータがありません</div>
             )}
           </CardContent>
         </Card>
       </div>
-
-      {/* 評価分布 */}
-      {ratingData.totalRated > 0 && (
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="pb-3 sm:pb-4">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <span>⭐</span>
-              <span>評価分布</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-2 sm:space-y-3">
-              {ratingData.ratingDistribution.reverse().map(({ rating, count }) => (
-                <div key={rating} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs sm:text-sm text-gray-700 font-medium">★{rating}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 flex-shrink-0">
-                    <SimpleProgress 
-                      value={ratingData.totalRated > 0 ? (count / ratingData.totalRated) * 100 : 0} 
-                      className="w-16 sm:w-24 h-2" 
-                    />
-                    <span className="text-xs sm:text-sm font-medium text-gray-600 w-20 sm:w-24 text-right">
-                      {count}件 ({ratingData.totalRated > 0 ? Math.round((count / ratingData.totalRated) * 100) : 0}%)
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 } 

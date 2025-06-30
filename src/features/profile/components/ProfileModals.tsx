@@ -254,7 +254,7 @@ export function ProfileModals({
                 <Button
                   onClick={() => onUpdateIntroduction(currentIntroduction)}
                   disabled={isUpdatingIntroduction}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl shadow-lg shadow-blue-300/30 transition-all duration-300"
                 >
                   {isUpdatingIntroduction ? (
                     <div className="flex items-center gap-2">
@@ -379,7 +379,7 @@ export function ProfileModals({
                         setNewCareer(updated)
                       }
                     }}
-                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <Label htmlFor="isCurrent" className="text-sm text-gray-700">
                     現在の職場
@@ -395,7 +395,7 @@ export function ProfileModals({
                     value={newCareer.description || ''}
                     onChange={(e) => setNewCareer({ ...newCareer, description: e.target.value })}
                     placeholder="例: Webメディアでの記事執筆、編集業務"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                     rows={3}
                   />
                 </div>
@@ -405,7 +405,7 @@ export function ProfileModals({
                 <Button
                   onClick={onAddCareer}
                   disabled={!newCareer.company || !newCareer.position || !newCareer.startDate}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl shadow-lg shadow-blue-300/30 transition-all duration-300"
                 >
                   追加
                 </Button>
@@ -525,7 +525,7 @@ export function ProfileModals({
                       }
                       return updated
                     })}
-                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <Label htmlFor="edit-isCurrent" className="text-sm text-gray-700">
                     現在の職場
@@ -541,7 +541,7 @@ export function ProfileModals({
                     value={editingCareer.description}
                     onChange={(e) => setEditingCareer((prev: CareerItem | null) => prev ? { ...prev, description: e.target.value } : null)}
                     placeholder="例: Webメディアでの記事執筆、編集業務"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                     rows={3}
                   />
                 </div>
@@ -551,7 +551,7 @@ export function ProfileModals({
                 <Button
                   onClick={onUpdateCareer}
                   disabled={!editingCareer.company || !editingCareer.position || !editingCareer.startDate || isUpdatingCareer}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl shadow-lg shadow-blue-300/30 transition-all duration-300"
                 >
                   {isUpdatingCareer ? (
                     <div className="flex items-center gap-2">

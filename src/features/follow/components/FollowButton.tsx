@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { fetcher } from '@/utils/fetcher'
-import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { UserPlus, UserCheck } from 'lucide-react'
 

@@ -33,7 +33,7 @@ const completeDefaultProfileData: ProfileData = {
 
 function ProfileLoadingFallback() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-600">プロフィールを読み込んでいます...</p>
@@ -47,7 +47,7 @@ function ProfileContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
-  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
   
   // スキル管理用のstate
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
@@ -99,8 +99,8 @@ function ProfileContent() {
   // クエリパラメータからタブを設定
   useEffect(() => {
     const tabParam = searchParams.get('tab')
-    if (tabParam && ['profile', 'works', 'inputs'].includes(tabParam)) {
-      setActiveTab(tabParam as 'profile' | 'works' | 'inputs')
+    if (tabParam && ['profile', 'works', 'inputs', 'details'].includes(tabParam)) {
+      setActiveTab(tabParam as 'profile' | 'works' | 'inputs' | 'details')
     }
   }, [searchParams])
 
@@ -537,7 +537,7 @@ function ProfileContent() {
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
         <div className="max-w-4xl mx-auto">
           {/* プロフィールヘッダー */}

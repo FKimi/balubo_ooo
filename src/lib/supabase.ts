@@ -1,31 +1,18 @@
-import { createClient } from '@supabase/supabase-js'
+import { supabaseManager } from './supabase-client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// 後方互換性のためのサポート
+export const supabase = supabaseManager.getStandardClient()
 
-// 環境変数が設定されているかチェック
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabaseの環境変数が設定されていません')
-}
-const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your-project-url-here')
+const isSupabaseConfigured = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL && 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && 
+  process.env.NEXT_PUBLIC_SUPABASE_URL !== 'your-project-url-here'
+)
 
 console.log('Supabase設定状況:', {
-  url: supabaseUrl,
-  keyConfigured: Boolean(supabaseAnonKey),
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  keyConfigured: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   isConfigured: isSupabaseConfigured
-})
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
-  }
 })
 
 // 認証関連のヘルパー関数
@@ -148,5 +135,5 @@ export const auth = {
 
 // ブラウザから利用する際に共通インスタンスを返すヘルパー
 export function getSupabaseBrowserClient() {
-  return supabase
+  return supabaseManager.getStandardClient()
 } 

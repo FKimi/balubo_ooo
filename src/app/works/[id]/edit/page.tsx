@@ -9,25 +9,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, X, Sparkles } from 'lucide-react'
-
-interface AnalysisResult {
-  summary?: string
-  genre?: string[]
-  topic?: string[]
-  keyword?: string[]
-  sentiment?: string[]
-  style?: string[]
-  target?: string[]
-  strengths?: {
-    creativity?: string[]
-    expertise?: string[]
-    impact?: string[]
-  }
-  tags?: string[]
-  tagClassification?: {
-    [key: string]: string[]
-  }
-}
+import { AIAnalysisResult } from '@/types/work'
 
 interface LinkPreviewData {
   title: string
@@ -45,6 +27,247 @@ interface LinkPreviewData {
   iconType: string
   siteName: string
   locale: string
+}
+
+// AI評価セクションコンポーネント
+function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+
+  const toggleExpanded = (item: string) => {
+    const newExpanded = new Set(expandedItems)
+    if (newExpanded.has(item)) {
+      newExpanded.delete(item)
+    } else {
+      newExpanded.add(item)
+    }
+    setExpandedItems(newExpanded)
+  }
+
+  // 新しい形式のスコアがあるかチェック
+  const hasNewFormat = aiAnalysis.evaluation?.scores
+  // 古い形式のスコアがあるかチェック  
+  const hasLegacyFormat = aiAnalysis.legacyEvaluation?.scores
+
+  // 新しい形式を優先的に表示
+  if (hasNewFormat) {
+    const scores = aiAnalysis.evaluation!.scores
+    return (
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h4 className="text-lg font-bold text-blue-900">AI評価スコア</h4>
+        </div>
+        
+        {/* 総合評価 */}
+        {scores.overall && (
+          <div className="mb-4 p-3 bg-white rounded-lg border border-blue-100">
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleExpanded('overall')}
+            >
+              <span className="font-semibold text-gray-800">総合評価</span>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-blue-600">
+                  {scores.overall.score}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  scores.overall.score >= 90 ? 'bg-purple-100 text-purple-700' :
+                  scores.overall.score >= 80 ? 'bg-blue-100 text-blue-700' :
+                  scores.overall.score >= 70 ? 'bg-green-100 text-green-700' :
+                  scores.overall.score >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>
+                  {scores.overall.score >= 90 ? 'エキスパート' :
+                   scores.overall.score >= 80 ? '上級者' :
+                   scores.overall.score >= 70 ? '中級者' :
+                   scores.overall.score >= 60 ? '初級者' : 'ビギナー'}
+                </span>
+                <svg 
+                  className={`w-4 h-4 text-gray-400 transition-transform ${
+                    expandedItems.has('overall') ? 'rotate-180' : ''
+                  }`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            {expandedItems.has('overall') && (
+              <p className="mt-2 text-xs text-gray-600 leading-relaxed">
+                {scores.overall.reason}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* 個別評価項目 */}
+        <div className="grid grid-cols-2 gap-3">
+          {scores.technology && (
+            <div className="p-3 bg-white rounded-lg border border-blue-100">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleExpanded('technology')}
+              >
+                <span className="text-sm font-medium text-gray-700">技術力</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-lg font-bold text-gray-700">
+                    {scores.technology.score}
+                  </span>
+                  <svg 
+                    className={`w-3 h-3 text-gray-400 transition-transform ${
+                      expandedItems.has('technology') ? 'rotate-180' : ''
+                    }`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              {expandedItems.has('technology') && (
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  {scores.technology.reason}
+                </p>
+              )}
+            </div>
+          )}
+
+          {scores.expertise && (
+            <div className="p-3 bg-white rounded-lg border border-blue-100">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleExpanded('expertise')}
+              >
+                <span className="text-sm font-medium text-gray-700">専門性</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-lg font-bold text-purple-600">
+                    {scores.expertise.score}
+                  </span>
+                  <svg 
+                    className={`w-3 h-3 text-gray-400 transition-transform ${
+                      expandedItems.has('expertise') ? 'rotate-180' : ''
+                    }`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              {expandedItems.has('expertise') && (
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  {scores.expertise.reason}
+                </p>
+              )}
+            </div>
+          )}
+
+          {scores.creativity && (
+            <div className="p-3 bg-white rounded-lg border border-blue-100">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleExpanded('creativity')}
+              >
+                <span className="text-sm font-medium text-gray-700">創造性</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-lg font-bold text-purple-600">
+                    {scores.creativity.score}
+                  </span>
+                  <svg 
+                    className={`w-3 h-3 text-gray-400 transition-transform ${
+                      expandedItems.has('creativity') ? 'rotate-180' : ''
+                    }`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              {expandedItems.has('creativity') && (
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  {scores.creativity.reason}
+                </p>
+              )}
+            </div>
+          )}
+
+          {scores.impact && (
+            <div className="p-3 bg-white rounded-lg border border-blue-100">
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => toggleExpanded('impact')}
+              >
+                <span className="text-sm font-medium text-gray-700">影響力</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-lg font-bold text-orange-600">
+                    {scores.impact.score}
+                  </span>
+                  <svg 
+                    className={`w-3 h-3 text-gray-400 transition-transform ${
+                      expandedItems.has('impact') ? 'rotate-180' : ''
+                    }`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              {expandedItems.has('impact') && (
+                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
+                  {scores.impact.reason}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* スコア基準の説明 */}
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <h5 className="text-sm font-medium text-blue-800 mb-2">評価基準</h5>
+          <div className="grid grid-cols-2 gap-2 text-xs text-blue-700">
+            <div><span className="font-medium">90-100点:</span> エキスパート（プロレベル）</div>
+            <div><span className="font-medium">80-89点:</span> 上級者（高品質）</div>
+            <div><span className="font-medium">70-79点:</span> 中級者（標準品質）</div>
+            <div><span className="font-medium">60-69点:</span> 初級者（基本品質）</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 古い形式の表示（後方互換性）
+  if (hasLegacyFormat) {
+    const scores = aiAnalysis.legacyEvaluation!.scores
+    return (
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h4 className="text-lg font-bold text-blue-900">AI評価スコア</h4>
+          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">レガシー形式</span>
+        </div>
+        
+        {/* 古い形式の総合評価と個別項目の展開機能を実装 */}
+        {/* 実装は新しい形式と同様に行う */}
+        <div className="text-blue-700 text-sm">
+          古い形式のAI評価データです。再分析を実行すると最新の詳細評価が利用できます。
+        </div>
+      </div>
+    )
+  }
+
+  return null
 }
 
 export default function EditWorkPage() {
@@ -72,7 +295,7 @@ export default function EditWorkPage() {
   const [newRole, setNewRole] = useState('')
   const [newCategory, setNewCategory] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
@@ -802,108 +1025,114 @@ export default function EditWorkPage() {
                   
                   {analysisResult && (
                     <div className="space-y-6">
-                      {/* 分析概要 */}
-                      {analysisResult.summary && (
-                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-5">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-blue-600 text-lg">📊</span>
-                            <h4 className="font-semibold text-blue-900">分析概要</h4>
-                          </div>
-                          <p className="text-blue-800 leading-relaxed">{analysisResult.summary}</p>
+                      {/* AI分析結果表示 */}
+                      <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="h-5 w-5 text-purple-500" />
+                          <h4 className="text-lg font-bold text-purple-900">AI分析結果</h4>
                         </div>
+                        <p className="text-purple-800 leading-relaxed text-sm">{analysisResult.summary}</p>
+                      </div>
+
+                      {/* AI評価スコア */}
+                      {(analysisResult.evaluation?.scores || analysisResult.legacyEvaluation?.scores) && (
+                        <AIEvaluationSection aiAnalysis={analysisResult} />
                       )}
 
-                      {/* 分析結果 */}
-                      {analysisResult.genre && analysisResult.genre.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-700 mb-2">ジャンル</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResult.genre?.map((genre, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                              >
-                                {genre}
-                              </span>
-                            ))}
+                      {/* 詳細分析項目 */}
+                      <div className="space-y-4">
+                        {/* タグ分析 */}
+                        {analysisResult.genre && analysisResult.genre.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">ジャンル</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResult.genre?.map((genre: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                >
+                                  {genre}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {analysisResult.topic && analysisResult.topic.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-700 mb-2">トピック</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResult.topic?.map((topic, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                              >
-                                {topic}
-                              </span>
-                            ))}
+                        )}
+                        {analysisResult.topic && analysisResult.topic.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">トピック</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResult.topic?.map((topic: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                >
+                                  {topic}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {analysisResult.keyword && analysisResult.keyword.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-700 mb-2">キーワード</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResult.keyword?.map((keyword, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                              >
-                                {keyword}
-                              </span>
-                            ))}
+                        )}
+                        {analysisResult.keyword && analysisResult.keyword.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">キーワード</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResult.keyword?.map((keyword: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                                >
+                                  {keyword}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {analysisResult.sentiment && analysisResult.sentiment.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-700 mb-2">感情分析</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResult.sentiment?.map((sentiment, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-                              >
-                                {sentiment}
-                              </span>
-                            ))}
+                        )}
+                        {analysisResult.sentiment && analysisResult.sentiment.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">感情分析</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResult.sentiment?.map((sentiment: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                                >
+                                  {sentiment}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {analysisResult.style && analysisResult.style.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-700 mb-2">文体</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResult.style?.map((style, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800"
-                              >
-                                {style}
-                              </span>
-                            ))}
+                        )}
+                        {analysisResult.style && analysisResult.style.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">文体</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResult.style?.map((style: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800"
+                                >
+                                  {style}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {analysisResult.target && analysisResult.target.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-700 mb-2">ターゲット読者</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {analysisResult.target?.map((target, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                              >
-                                {target}
-                              </span>
-                            ))}
+                        )}
+                        {analysisResult.target && analysisResult.target.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">ターゲット読者</h3>
+                            <div className="flex flex-wrap gap-2">
+                              {analysisResult.target?.map((target: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                                >
+                                  {target}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

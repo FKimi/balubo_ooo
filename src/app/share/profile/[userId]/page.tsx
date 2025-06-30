@@ -222,25 +222,27 @@ async function getPublicProfile(userId: string) {
   }
 }
 
-export default async function PublicProfilePage({ params }: any) {
-  const data = await getPublicProfile(params.userId)
+export default async function PublicProfilePage({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params
+  const data = await getPublicProfile(userId)
   
   if (!data) {
     notFound()
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Suspense fallback={<div>読み込み中...</div>}>
-        <PublicProfileContent data={data} userId={params.userId} />
+        <PublicProfileContent data={data} userId={userId} />
       </Suspense>
     </div>
   )
 }
 
 // メタデータの生成
-export async function generateMetadata({ params }: any) {
-  const data = await getPublicProfile(params.userId)
+export async function generateMetadata({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params
+  const data = await getPublicProfile(userId)
   
   if (!data) {
     return {

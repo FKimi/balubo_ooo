@@ -1,14 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { SimpleProgress } from './SimpleProgress'
 import type { WorkData } from '@/types/work'
+
+interface AIFieldSummary {
+  averageScore: number
+  scoreLevel: {
+    level: string
+    color: string
+    bgColor: string
+    description: string
+  }
+  topWorks: Array<{ title: string; score: number; reason?: string }>
+}
+
+interface ComprehensiveAnalysis {
+  technology: AIFieldSummary
+  creativity: AIFieldSummary
+  expertise: AIFieldSummary
+  impact: AIFieldSummary
+}
 
 interface WorksSectionProps {
   works: WorkData[]
   workStats: any
+  analysis?: ComprehensiveAnalysis
 }
 
-export function WorksSection({ works, workStats }: WorksSectionProps) {
-  // タグ分析
+export function WorksSection({ works, workStats, analysis }: WorksSectionProps) {
+  // タグ分析（トップ3のみ）
   const tagAnalysis = () => {
     const tagCount: { [key: string]: number } = {}
     works.forEach(work => {
@@ -20,10 +38,10 @@ export function WorksSection({ works, workStats }: WorksSectionProps) {
     })
     return Object.entries(tagCount)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
+      .slice(0, 3)
   }
 
-  // カテゴリ分析（データベースのcategoriesフィールドを使用）
+  // カテゴリ分析（トップ3のみ）
   const categoryAnalysis = () => {
     const categoryCount: { [key: string]: number } = {}
     works.forEach(work => {
@@ -35,25 +53,10 @@ export function WorksSection({ works, workStats }: WorksSectionProps) {
     })
     return Object.entries(categoryCount)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 8)
+      .slice(0, 3)
   }
 
-  // 月別作品数（production_dateベース）
-  const monthlyData = () => {
-    const monthCount: { [key: string]: number } = {}
-    works.forEach(work => {
-      if (work.production_date) {
-        const date = new Date(work.production_date)
-        const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
-        monthCount[monthKey] = (monthCount[monthKey] || 0) + 1
-      }
-    })
-    return Object.entries(monthCount)
-      .sort(([a], [b]) => b.localeCompare(a))
-      .slice(0, 6)
-  }
-
-  // コンテンツタイプ分析
+  // コンテンツタイプ分析（トップ3のみ）
   const contentTypeAnalysis = () => {
     const typeCount: { [key: string]: number } = {}
     works.forEach(work => {
@@ -62,206 +65,217 @@ export function WorksSection({ works, workStats }: WorksSectionProps) {
     })
     return Object.entries(typeCount)
       .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
   }
 
   const categories = categoryAnalysis()
   const tags = tagAnalysis()
-  const monthlyActivity = monthlyData()
   const contentTypes = contentTypeAnalysis()
-  const maxTagCount = tags.length > 0 ? tags[0]?.[1] || 1 : 1
-  const maxCategoryCount = categories.length > 0 ? categories[0]?.[1] || 1 : 1
-  const maxMonthCount = monthlyActivity.length > 0 ? Math.max(...monthlyActivity.map(([, count]) => count)) : 1
 
   // 記事作品の統計
   const articleWorks = works.filter(work => work.content_type === 'article')
   const totalWordCount = articleWorks.reduce((sum, work) => sum + (work.article_word_count || 0), 0)
-  const avgWordCount = articleWorks.length > 0 ? Math.round(totalWordCount / articleWorks.length) : 0
+
+  // 役割分布（トップ3のみ）
+  const topRoles = workStats.roleDistribution.slice(0, 3)
+
+  const renderScoreScale = () => (
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 mb-8">
+      <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        AI評価スコア基準
+      </h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-blue-800">
+        <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+          <div className="font-bold text-purple-700">90-100点</div>
+          <div className="text-purple-600">エキスパート</div>
+          <div className="text-xs text-purple-500 mt-1">プロフェッショナルレベル</div>
+        </div>
+        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+          <div className="font-bold text-blue-700">80-89点</div>
+          <div className="text-blue-600">上級者</div>
+          <div className="text-xs text-blue-500 mt-1">高い品質</div>
+        </div>
+        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+          <div className="font-bold text-green-700">70-79点</div>
+          <div className="text-green-600">中級者</div>
+          <div className="text-xs text-green-500 mt-1">標準的な品質</div>
+        </div>
+        <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+          <div className="font-bold text-yellow-700">60-69点</div>
+          <div className="text-yellow-600">初級者</div>
+          <div className="text-xs text-yellow-500 mt-1">基本的な品質</div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderFieldCard = (title: string, gradient: string, field: AIFieldSummary, colorPrefix: string) => {
+    const scoreColorMap: Record<string, string> = {
+      gray: 'text-gray-700',
+      purple: 'text-purple-700',
+      blue: 'text-blue-700',
+      orange: 'text-orange-700'
+    }
+    const scoreColor = scoreColorMap[colorPrefix] || 'text-gray-700'
+    return (
+      <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+        <div className={`px-6 py-4 ${gradient}`}>
+          <h3 className="text-xl font-bold text-white">{title}</h3>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className={`text-4xl font-bold ${scoreColor}`}>{field.averageScore}</div>
+            <div className={`px-3 py-1 rounded-full text-sm font-medium ${field.scoreLevel.bgColor} ${field.scoreLevel.color}`}>
+              {field.scoreLevel.level}
+            </div>
+          </div>
+          <div className="text-sm text-gray-600 mb-4">{field.scoreLevel.description}</div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderEvaluationGrid = () => {
+    if (!analysis) return null
+    return (
+      <div className="grid gap-6 md:grid-cols-4 mb-10">
+        {analysis.technology.averageScore > 0 && renderFieldCard('技術力', 'bg-gradient-to-r from-gray-500 to-gray-600', analysis.technology, 'gray')}
+        {analysis.creativity.averageScore > 0 && renderFieldCard('創造性', 'bg-gradient-to-r from-purple-500 to-purple-600', analysis.creativity, 'purple')}
+        {analysis.expertise.averageScore > 0 && renderFieldCard('専門性', 'bg-gradient-to-r from-blue-500 to-blue-600', analysis.expertise, 'blue')}
+        {analysis.impact.averageScore > 0 && renderFieldCard('影響力', 'bg-gradient-to-r from-orange-500 to-orange-600', analysis.impact, 'orange')}
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* 基本統計 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">{works.length}</div>
-            <div className="text-sm text-gray-600">総作品数</div>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      {/* AI評価サマリー */}
+      {analysis && renderScoreScale()}
+      {analysis && renderEvaluationGrid()}
 
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-2">
-              {totalWordCount.toLocaleString()}
+      {/* 基本統計（3つの箇条書きに統一） */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold">•</span>
+              <span className="text-gray-700">
+                <strong>{works.length}件</strong>の作品を制作済み
+              </span>
             </div>
-            <div className="text-sm text-gray-600">総文字数</div>
-            <div className="text-xs text-gray-500 mt-1">平均: {avgWordCount.toLocaleString()}文字</div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow duration-200">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">
-              {workStats.roleDistribution.length}
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold">•</span>
+              <span className="text-gray-700">
+                総文字数<strong>{totalWordCount.toLocaleString()}文字</strong>を執筆
+              </span>
             </div>
-            <div className="text-sm text-gray-600">担当役割数</div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold">•</span>
+              <span className="text-gray-700">
+                <strong>{workStats.roleDistribution.length}種類</strong>の役割を担当
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* コンテンツタイプ分析 */}
+      {/* シンプルな分析（2カラムレイアウト） */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 主要役割 */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span>📄</span>
-              <span>コンテンツタイプ分布</span>
-            </CardTitle>
+            <CardTitle className="text-lg">主要役割</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {contentTypes.map(([type, count]) => (
-                <div key={type}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-700">{type}</span>
-                    <span className="text-sm font-medium">{count}件</span>
-                  </div>
-                  <SimpleProgress value={(count / works.length) * 100} />
-                </div>
-              ))}
-            </div>
+            {topRoles.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {topRoles.map((role: any) => (
+                  <span
+                    key={role.role}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                  >
+                    {role.role} ({role.count}件)
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 text-sm">役割が設定された作品がありません</div>
+            )}
           </CardContent>
         </Card>
 
-        {/* カテゴリ分析 */}
+        {/* コンテンツタイプ */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span>🏷️</span>
-              <span>カテゴリ分析</span>
-            </CardTitle>
+            <CardTitle className="text-lg">コンテンツタイプ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {contentTypes.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {contentTypes.map(([type, count]) => (
+                  <span
+                    key={type}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"
+                  >
+                    {type} ({count}件)
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 text-sm">コンテンツタイプが設定されていません</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 主要カテゴリ */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">主要カテゴリ</CardTitle>
           </CardHeader>
           <CardContent>
             {categories.length > 0 ? (
-              <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
                 {categories.map(([category, count]) => (
-                  <div key={category}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-700">{category}</span>
-                      <span className="text-sm font-medium">{count}件</span>
-                    </div>
-                    <SimpleProgress value={(count / maxCategoryCount) * 100} />
-                  </div>
+                  <span
+                    key={category}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                  >
+                    {category} ({count}件)
+                  </span>
                 ))}
               </div>
             ) : (
-              <div className="text-center text-gray-500 py-4">
-                カテゴリが設定された作品がありません
-              </div>
+              <div className="text-gray-500 text-sm">カテゴリが設定された作品がありません</div>
             )}
           </CardContent>
         </Card>
 
-        {/* タグ分析 */}
+        {/* よく使用するタグ */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span>🏷️</span>
-              <span>人気タグ（トップ10）</span>
-            </CardTitle>
+            <CardTitle className="text-lg">よく使用するタグ</CardTitle>
           </CardHeader>
           <CardContent>
             {tags.length > 0 ? (
-              <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
                 {tags.map(([tag, count]) => (
-                  <div key={tag}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-700">{tag}</span>
-                      <span className="text-sm font-medium">{count}件</span>
-                    </div>
-                    <SimpleProgress value={(count / maxTagCount) * 100} />
-                  </div>
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800"
+                  >
+                    {tag} ({count}回)
+                  </span>
                 ))}
               </div>
             ) : (
-              <div className="text-center text-gray-500 py-4">
-                タグが設定された作品がありません
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* 時系列分析 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span>📈</span>
-              <span>月別制作活動（最近6ヶ月）</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {monthlyActivity.length > 0 ? (
-              <div className="space-y-3">
-                {monthlyActivity.map(([month, count]) => {
-                  const monthParts = month.split('-')
-                  const year = monthParts[0] || ''
-                  const monthNum = monthParts[1] || ''
-                  const displayMonth = `${year}年${parseInt(monthNum) || 0}月`
-                  return (
-                    <div key={month}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-700">{displayMonth}</span>
-                        <span className="text-sm font-medium">{count}件</span>
-                      </div>
-                      <SimpleProgress value={(count / maxMonthCount) * 100} />
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 py-4">
-                制作日が設定された作品がありません
-              </div>
+              <div className="text-gray-500 text-sm">タグが設定された作品がありません</div>
             )}
           </CardContent>
         </Card>
       </div>
-
-      {/* 役割分布 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <span>👨‍💼</span>
-            <span>役割分布</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {workStats.roleDistribution.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {workStats.roleDistribution.map((role: any) => (
-                <div key={role.role}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-700">{role.role}</span>
-                    <span className="text-sm font-medium">{role.count}件 ({role.percentage.toFixed(1)}%)</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="h-2 rounded-full transition-all duration-300" 
-                      style={{ 
-                        backgroundColor: role.color,
-                        width: `${role.percentage}%` 
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-gray-500 py-4">
-              役割が設定された作品がありません
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
 } 

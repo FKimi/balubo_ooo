@@ -6,7 +6,7 @@ import { ArrowLeft, Send, User, MoreVertical, Edit3, Trash2, Check, X } from 'lu
 import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 
 // アニメーション用のスタイル
 const fadeInStyle = `

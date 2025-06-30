@@ -22,55 +22,55 @@ const contentTypes: ContentType[] = [
   { 
     id: 'article', 
     name: '記事・ライティング', 
-    emoji: '📝', 
+    emoji: '', 
     description: 'ブログ記事、コラム、ニュース記事など',
-    color: 'bg-blue-500',
-    icon: '✍️',
+    color: 'bg-blue-600',
+    icon: 'pen',
     enabled: true // 記事のみ有効
   },
   { 
     id: 'design', 
     name: 'デザイン', 
-    emoji: '🎨', 
+    emoji: '', 
     description: 'グラフィックデザイン、UI/UXデザイン、ロゴなど',
-    color: 'bg-purple-500',
-    icon: '🎨',
+    color: 'bg-blue-500',
+    icon: 'palette',
     enabled: false
   },
   { 
     id: 'photo', 
     name: '写真', 
-    emoji: '📸', 
+    emoji: '', 
     description: '写真撮影、フォトレタッチなど',
-    color: 'bg-green-500',
-    icon: '📷',
+    color: 'bg-blue-500',
+    icon: 'camera',
     enabled: false
   },
   { 
     id: 'video', 
     name: '動画', 
-    emoji: '🎬', 
+    emoji: '', 
     description: '動画制作、映像編集、アニメーションなど',
-    color: 'bg-red-500',
-    icon: '🎥',
+    color: 'bg-blue-500',
+    icon: 'video',
     enabled: false
   },
   { 
     id: 'podcast', 
     name: 'ポッドキャスト', 
-    emoji: '🎙️', 
+    emoji: '', 
     description: '音声コンテンツ、ラジオ番組など',
-    color: 'bg-orange-500',
-    icon: '🔊',
+    color: 'bg-blue-500',
+    icon: 'mic',
     enabled: false
   },
   { 
     id: 'event', 
     name: 'イベント', 
-    emoji: '🎪', 
+    emoji: '', 
     description: 'イベント企画・運営、カンファレンスなど',
-    color: 'bg-pink-500',
-    icon: '🎊',
+    color: 'bg-blue-500',
+    icon: 'calendar',
     enabled: false
   }
 ]
@@ -130,9 +130,36 @@ export function ContentTypeSelector({ isOpen, onClose }: ContentTypeSelectorProp
                       ? `${type.color} group-hover:scale-110` 
                       : 'bg-gray-300'
                   }`}>
-                    <span className={`text-2xl ${type.enabled ? 'text-white' : 'text-gray-500'}`}>
-                      {type.icon}
-                    </span>
+                    {type.icon === 'pen' && (
+                      <svg className={`w-6 h-6 ${type.enabled ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    )}
+                    {type.icon === 'palette' && (
+                      <svg className={`w-6 h-6 ${type.enabled ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                      </svg>
+                    )}
+                    {type.icon === 'camera' && (
+                      <svg className={`w-6 h-6 ${type.enabled ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9zM15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    )}
+                    {type.icon === 'video' && (
+                      <svg className={`w-6 h-6 ${type.enabled ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                    {type.icon === 'mic' && (
+                      <svg className={`w-6 h-6 ${type.enabled ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                    )}
+                    {type.icon === 'calendar' && (
+                      <svg className={`w-6 h-6 ${type.enabled ? 'text-white' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    )}
                   </div>
                   
                   {/* タイトル */}
@@ -176,7 +203,7 @@ export function ContentTypeSelector({ isOpen, onClose }: ContentTypeSelectorProp
           {/* フッター */}
           <div className="mt-8 text-center space-y-3">
             <p className="text-gray-500 text-sm">
-              💡 コンテンツタイプを選択すると、専用のフォームとAI分析が利用できます
+              コンテンツタイプを選択すると、専用のフォームとAI分析が利用できます
             </p>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>

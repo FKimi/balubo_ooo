@@ -35,7 +35,7 @@ export function generateWorkShareMessage(work: WorkData, userDisplayName: string
 
   // 文字数統計があれば追加
   if (work.content_type === 'article' && work.article_word_count && work.article_word_count > 0) {
-    message += `\n\n📊 ${work.article_word_count.toLocaleString()}文字`
+    message += `\n\n${work.article_word_count.toLocaleString()}文字`
   }
 
   // 役割があれば追加
@@ -109,7 +109,7 @@ export function generateInputShareMessage(input: InputData, userDisplayName: str
   const typeText = typeMap[input.type as keyof typeof typeMap] || 'コンテンツ'
   
   // 基本メッセージ
-  let message = `新しい${typeText}をインプットしました！\n\n📚 ${input.title}`
+  let message = `新しい${typeText}をインプットしました！\n\n${input.title}`
   
   // 作者がいれば追加
   if (input.authorCreator) {

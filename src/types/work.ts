@@ -27,16 +27,85 @@ export interface WorkData {
   updated_at: string
 }
 
+// 古い形式のAI評価スコア（後方互換性のため）
+export interface LegacyEvaluationScores {
+  overall?: {
+    score: number
+    reason?: string
+  }
+  logic?: {
+    score: number
+    reason?: string
+  }
+  practicality?: {
+    score: number
+    reason?: string
+  }
+  readability?: {
+    score: number
+    reason?: string
+  }
+  originality?: {
+    score: number
+    reason?: string
+  }
+  clarity?: {
+    score: number
+    reason?: string
+  }
+}
+
 // AI分析結果の詳細型定義
 export interface AIAnalysisResult {
   tags: string[]
   keywords: string[]
+  /** @deprecated 後方互換用。tagClassification.genre を参照してください */
+  genre?: string[]
+  /** @deprecated 後方互換用。tagClassification.topic 等へ移行予定 */
+  topic?: string[]
+  /** @deprecated 後方互換用。keywords を参照してください */
+  keyword?: string[]
+  /** @deprecated 後方互換用。感情分析データ */
+  sentiment?: string[]
+  /** @deprecated 後方互換用。タグ分類 style へ移行予定 */
+  style?: string[]
+  /** @deprecated 後方互換用。ターゲット読者 */
+  target?: string[]
   category: string
   summary: string
   strengths: {
     creativity: string[]
     expertise: string[]
     impact: string[]
+  }
+  // AI評価スコア（新形式）
+  evaluation?: {
+    scores: {
+      overall: {
+        score: number
+        reason: string
+      }
+      technology: {
+        score: number
+        reason: string
+      }
+      expertise: {
+        score: number
+        reason: string
+      }
+      creativity: {
+        score: number
+        reason: string
+      }
+      impact: {
+        score: number
+        reason: string
+      }
+    }
+  }
+  // 古い形式のAI評価スコア（後方互換性のため）
+  legacyEvaluation?: {
+    scores: LegacyEvaluationScores
   }
   // 記事専用の詳細分析
   detailedAnalysis?: {

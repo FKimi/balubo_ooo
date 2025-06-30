@@ -9,13 +9,10 @@ export interface InputData {
   userId: string
   title: string
   type: InputType
-  category: string
-  authorCreator: string
   description?: string
   releaseDate?: string
   consumptionDate?: string
   status: InputStatus
-  rating?: number // 1-5 stars
   review: string
   tags: string[]
   genres: string[]
@@ -42,33 +39,31 @@ export interface InputAnalysis {
 }
 
 export const inputTypeLabels: Record<InputType, string> = {
-  book: '📚 本・書籍',
-  manga: '📖 漫画',
-  movie: '🎬 映画',
-  anime: '🎭 アニメ',
-  tv: '📺 TV番組',
-  game: '🎮 ゲーム',
-  podcast: '🎧 ポッドキャスト',
-  youtube: '🎥 YouTube',
-  other: '📝 その他'
+  book: '本・書籍',
+  manga: '漫画',
+  movie: '映画',
+  anime: 'アニメ',
+  tv: 'TV番組',
+  game: 'ゲーム',
+  podcast: 'ポッドキャスト',
+  youtube: 'YouTube',
+  other: 'その他'
 }
 
 export const inputStatusLabels: Record<InputStatus, string> = {
-  completed: '✅ 完了',
-  reading: '📖 読書中',
-  watching: '👀 視聴中',
-  playing: '🎮 プレイ中',
-  listening: '👂 聴取中',
-  planning: '📋 予定',
-  paused: '⏸️ 一時停止',
-  dropped: '❌ 中断'
+  completed: '完了',
+  reading: '読書中',
+  watching: '視聴中',
+  playing: 'プレイ中',
+  listening: '聴取中',
+  planning: '予定',
+  paused: '一時停止',
+  dropped: '中断'
 }
 
 export const defaultInputData: Partial<InputData> = {
   title: '',
   type: 'book',
-  category: '',
-  authorCreator: '',
   status: 'completed',
   review: '',
   tags: [],
@@ -86,12 +81,9 @@ export const sampleInputs: InputData[] = [
     userId: 'sample',
     title: 'デザインの基本ルール',
     type: 'book',
-    category: 'デザイン',
-    authorCreator: '伊達千代',
     releaseDate: '2020-08-20',
     consumptionDate: '2024-01-15',
     status: 'completed',
-    rating: 5,
     review: 'デザインの基礎を体系的に学べる良書。実例が豊富で理解しやすい。',
     tags: ['デザイン', 'UI/UX', 'レイアウト', '色彩'],
     genres: ['実用書', 'デザイン'],
@@ -107,12 +99,9 @@ export const sampleInputs: InputData[] = [
     userId: 'sample',
     title: '君の名は。',
     type: 'anime',
-    category: 'アニメ映画',
-    authorCreator: '新海誠',
     releaseDate: '2016-08-26',
     consumptionDate: '2024-02-10',
     status: 'completed',
-    rating: 4,
     review: '美しい映像と音楽。ストーリーも感動的だった。',
     tags: ['恋愛', 'タイムリープ', '新海誠', '美麗作画'],
     genres: ['恋愛', 'ファンタジー', 'ドラマ'],
@@ -128,12 +117,9 @@ export const sampleInputs: InputData[] = [
     userId: 'sample',
     title: 'ワンピース',
     type: 'manga',
-    category: '少年漫画',
-    authorCreator: '尾田栄一郎',
     releaseDate: '1997-07-22',
     consumptionDate: '2024-03-01',
     status: 'reading',
-    rating: 5,
     review: '冒険とバトル、仲間との絆が熱い。長編だが飽きない。',
     tags: ['冒険', 'バトル', '友情', '海賊'],
     genres: ['少年漫画', 'バトル', 'アドベンチャー'],

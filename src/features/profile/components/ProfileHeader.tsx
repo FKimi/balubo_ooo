@@ -51,7 +51,7 @@ export function ProfileHeader({
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 overflow-hidden">
             {/* 装飾的なパターン */}
             <div className="absolute inset-0">
               <div className="absolute top-4 sm:top-8 left-4 sm:left-8 w-12 sm:w-20 h-12 sm:h-20 bg-white/10 rounded-full"></div>
@@ -92,7 +92,7 @@ export function ProfileHeader({
                         className="object-cover rounded-full"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center relative overflow-hidden">
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-full flex items-center justify-center relative overflow-hidden">
                         {/* 背景パターン */}
                         <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
                         <div className="absolute top-1 sm:top-2 right-1 sm:right-2 w-3 sm:w-6 h-3 sm:h-6 bg-white/20 rounded-full"></div>
