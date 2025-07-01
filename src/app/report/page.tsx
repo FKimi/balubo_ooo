@@ -649,7 +649,14 @@ function ReportContent() {
                 </svg>
                 頻出タグ Top10
               </h3>
-              <TagBarChart tags={topTags.map(([name,count])=>({name,count}))} />
+              <ul className="space-y-1 text-sm text-gray-700 pl-2">
+                {topTags.map(([name,count]) => (
+                  <li key={name} className="flex justify-between border-b border-dashed last:border-none pb-0.5">
+                    <span className="truncate max-w-[70%]">{name}</span>
+                    <span className="text-gray-500">{count}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </CardContent>
