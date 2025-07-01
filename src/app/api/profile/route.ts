@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
       if (!userId) {
         throw new Error('認証が必要です')
       }
-      const profile = await DatabaseClient.getProfile(userId, token)
+      const profile = await DatabaseClient.getProfile(userId, token || undefined)
       return { profile: profile || null }
     }
     
     // 他のユーザーのプロフィール取得
-    const profile = await DatabaseClient.getProfile(targetUserId, token)
+    const profile = await DatabaseClient.getProfile(targetUserId, token || undefined)
     return { profile: profile || null }
   })
 }
@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest) {
     const profileData = await request.json()
 
     // 既存プロフィールを取得
-    const existingProfile = await DatabaseClient.getProfile(userId, token)
+    const existingProfile = await DatabaseClient.getProfile(userId, token || undefined)
       
     // 部分更新のデータをマージ
     const mergedData = { ...existingProfile, ...profileData }
