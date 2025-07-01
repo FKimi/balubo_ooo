@@ -18,7 +18,7 @@ export default function TagBarChartInternal({ tags }: TagBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={data} layout="vertical" margin={{ left: 24 }}>
-        <XAxis type="number" hide domain={[0, 'dataMax + 1']} />
+        <XAxis type="number" hide domain={['auto', 'dataMax']} />
         <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
         <Tooltip formatter={(value:number)=>`${value} 回`} />
         <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 4, 4]} />
