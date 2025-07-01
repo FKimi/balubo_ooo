@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, use } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -38,8 +38,8 @@ interface InputDetail {
   }
 }
 
-export default function InputDetailPage({ params }: any) {
-  const resolvedParams = use(params)
+export default function InputDetailPage({ params }: { params: { id: string } }) {
+  const inputId = params.id
   const router = useRouter()
   const { user } = useAuth()
   const [input, setInput] = useState<InputDetail | null>(null)
@@ -54,7 +54,7 @@ export default function InputDetailPage({ params }: any) {
       setError(null)
       
       console.log('=== インプット詳細取得開始 ===')
-      console.log('インプットID:', resolvedParams.id)
+      console.log('インプットID:', inputId)
       
       // 認証トークンを取得（オプション）
       let authToken = null
@@ -78,9 +78,9 @@ export default function InputDetailPage({ params }: any) {
         headers['Authorization'] = `Bearer ${authToken}`
       }
       
-      console.log('API呼び出し中...', `/api/inputs/${resolvedParams.id}`)
+      console.log('API呼び出し中...', `/api/inputs/${inputId}`)
       
-      const response = await fetch(`/api/inputs/${resolvedParams.id}`, {
+      const response = await fetch(`/api/inputs/${inputId}`, {
         headers
       })
       
@@ -126,18 +126,18 @@ export default function InputDetailPage({ params }: any) {
       console.error('エラー詳細:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
-        inputId: resolvedParams.id
+        inputId: inputId
       })
       
       setError(error instanceof Error ? error.message : '不明なエラーが発生しました')
     } finally {
       setLoading(false)
     }
-  }, [resolvedParams.id])
+  }, [inputId])
 
   useEffect(() => {
     fetchInputDetail()
-  }, [resolvedParams.id, fetchInputDetail])
+  }, [inputId, fetchInputDetail])
 
   const handleDelete = async () => {
     if (!input || !user || input.user_id !== user.id) return
