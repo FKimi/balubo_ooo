@@ -7,7 +7,13 @@ interface TagBarChartProps {
 }
 
 export default function TagBarChartInternal({ tags }: TagBarChartProps) {
-  const data = tags.map(t => ({ name: t.name || t.tag, count: t.count }))
+  const data = tags
+    .filter(t => typeof t.name === 'string' && typeof t.count === 'number' && !isNaN(t.count))
+    .map(t => ({ name: t.name, count: t.count }))
+
+  if (data.length === 0) {
+    return <p className="text-center text-sm text-gray-500">タグデータがありません</p>
+  }
 
   return (
     <ResponsiveContainer width="100%" height={260}>
