@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { DatabaseClient } from '@/lib/database'
 
 // GET: 特定の作品を取得
 export async function GET(

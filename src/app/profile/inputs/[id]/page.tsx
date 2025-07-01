@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeftIcon, PencilIcon, TrashIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { HeartIcon } from '@heroicons/react/24/solid'
 
 interface InputDetail {

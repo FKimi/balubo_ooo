@@ -13,7 +13,7 @@ import { exportToPDF, exportScreenshotToPDF, exportComprehensiveReportToPDF } fr
 import { supabase } from '@/lib/supabase'
 import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
 import { OverallScoreGauge } from '@/features/report/components/OverallScoreGauge'
 

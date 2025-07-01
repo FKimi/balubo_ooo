@@ -77,7 +77,7 @@ export default function VoicesSection() {
                     style={{ 
                       transitionDelay: `${idx * 300 + 100}ms` 
                     }}
-                  >"</span>
+                  >&quot;</span>
                   <span className="relative">{voice.comment}</span>
                 </p>
               </div>

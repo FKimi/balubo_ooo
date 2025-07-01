@@ -1,5 +1,5 @@
-import { supabaseManager, createAuthenticatedClient } from './supabase-client'
-import { processDbResult, processDbArrayResult } from './api-utils'
+import { createAuthenticatedClient } from './supabase-client'
+import { processDbArrayResult } from './api-utils'
 
 // データベース操作のヘルパー関数（認証対応版）
 export class DatabaseClient {
