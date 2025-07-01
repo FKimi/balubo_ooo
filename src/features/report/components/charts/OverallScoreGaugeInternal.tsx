@@ -16,20 +16,18 @@ export default function OverallScoreGaugeInternal({ score }: OverallScoreGaugePr
   ]
 
   return (
-    <ResponsiveContainer width="100%" height={180}>
+    <ResponsiveContainer width="100%" height={200}>
       <RadialBarChart
         cx="50%"
         cy="50%"
         innerRadius="80%"
-        outerRadius="100%"
+        outerRadius="80%"
         barSize={16}
         startAngle={180}
-        endAngle={-180}
+        endAngle={0}
         data={data}
       >
         <RadialBar
-          minAngle={15}
-          clockWise
           dataKey="value"
         />
         <text

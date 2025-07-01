@@ -25,12 +25,13 @@ export function createSuccessResponse(data: any, status = 200) {
 /**
  * リクエストから認証トークンを抽出
  */
-export function extractAuthToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get('authorization')
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+export function getAuthToken(req: NextRequest): string | null {
+  const authHeader = req.headers.get('authorization')
+  if (!authHeader) {
     return null
   }
-  return authHeader.split(' ')[1]
+  const token = authHeader.split(' ')[1]
+  return token || null
 }
 
 /**
@@ -41,7 +42,7 @@ export async function withAuth<T>(
   handler: (userId: string, token: string) => Promise<T>
 ): Promise<NextResponse<T> | NextResponse<{ error: string }>> {
   try {
-    const token = extractAuthToken(request)
+    const token = getAuthToken(request)
     if (!token) {
       return createErrorResponse('認証トークンが必要です', 401)
     }
@@ -67,7 +68,7 @@ export async function withOptionalAuth<T>(
   handler: (userId: string | null, token: string | null) => Promise<T>
 ): Promise<NextResponse<T> | NextResponse<{ error: string }>> {
   try {
-    const token = extractAuthToken(request)
+    const token = getAuthToken(request)
     let userId: string | null = null
 
     if (token) {

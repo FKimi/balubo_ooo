@@ -32,7 +32,7 @@ interface InputDetail {
 }
 
 export default function InputDetailPage({ params }: any) {
-  const resolvedParams = use(params)
+  const resolvedParams = use(params) as { id: string }
   const router = useRouter()
   const { user } = useAuth()
   const [input, setInput] = useState<InputDetail | null>(null)

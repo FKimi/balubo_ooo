@@ -13,7 +13,7 @@ export function useScrollAnimation(threshold = 0.1) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry && entry.isIntersecting) {
           setIsVisible(true)
         }
       },
@@ -61,7 +61,7 @@ export function useStaggeredAnimation(itemsCount: number, delay = 200) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isTriggered) {
+        if (entry && entry.isIntersecting && !isTriggered) {
           setIsTriggered(true)
           // アイテムを順次表示
           for (let i = 0; i < itemsCount; i++) {

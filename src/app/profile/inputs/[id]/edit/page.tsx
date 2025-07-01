@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -26,8 +26,8 @@ interface InputData {
   favorite: boolean
 }
 
-export default function EditInputPage({ params }: { params: { id: string } }) {
-  const inputId = params.id
+export default function EditInputPage({ params }: any) {
+  const { id: inputId } = use(params) as { id: string }
   const router = useRouter()
   const { user } = useAuth()
   const [formData, setFormData] = useState<InputData>({

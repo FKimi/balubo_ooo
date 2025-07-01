@@ -280,8 +280,8 @@ export class InputAnalysisEnhancer {
     
     // 同じジャンルの高評価作品
     const similarGenreInputs = userInputs.filter(input => 
-      input.genres?.some(genre => currentInput.genres?.includes(genre)) &&
-      input.rating && input.rating >= 4
+      input.genres?.some(genre => currentInput.genres?.includes(genre))
+      // && input.rating && input.rating >= 4
     )
     
     similarGenreInputs.forEach(input => {
@@ -298,10 +298,10 @@ export class InputAnalysisEnhancer {
   /**
    * ユーザーの好みパターン分析
    */
-  private static analyzeUserPreferences(inputs: InputData[]) {
+  private static analyzeUserPreferences(inputs: InputData[]): any {
     const preferences = {
       favoriteGenres: this.getMostFrequent(inputs.flatMap(i => i.genres || [])),
-      averageRating: inputs.filter(i => i.rating).reduce((sum, i) => sum + (i.rating || 0), 0) / inputs.filter(i => i.rating).length,
+      // averageRating: inputs.filter(i => i.rating).reduce((sum, i) => sum + (i.rating || 0), 0) / inputs.filter(i => i.rating).length,
       preferredTypes: this.getMostFrequent(inputs.map(i => i.type)),
       commonTags: this.getMostFrequent(inputs.flatMap(i => i.tags || []))
     }

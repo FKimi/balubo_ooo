@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -9,6 +9,12 @@ import Image from 'next/image'
 import { ArrowLeftIcon, PencilIcon, TrashIcon, UserIcon } from '@heroicons/react/24/outline'
 import { HeartIcon } from '@heroicons/react/24/solid'
 import { Header, MobileBottomNavigation } from '@/components/layout/header'
+
+interface InputDetailPageProps {
+  params: {
+    id: string;
+  };
+}
 
 interface InputDetail {
   id: string
@@ -38,8 +44,8 @@ interface InputDetail {
   }
 }
 
-export default function InputDetailPage({ params }: { params: { id: string } }) {
-  const inputId = params.id
+export default function InputDetailPage({ params }: any) {
+  const { id: inputId } = use(params) as { id: string }
   const router = useRouter()
   const { user } = useAuth()
   const [input, setInput] = useState<InputDetail | null>(null)
