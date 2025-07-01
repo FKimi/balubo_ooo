@@ -922,10 +922,11 @@ async function exportComprehensiveReportToPDF_OLD(data: ComprehensiveReportData,
            currentY += 3
          }
 
-        if (input.rating && input.rating > 0) {
-          currentY += addJapaneseText(`評価: ${input.rating}/5点`, margin, currentY)
-          currentY += 3
-        }
+        // 評価機能は未実装のためコメントアウト
+        // if (input.rating && input.rating > 0) {
+        //   currentY += addJapaneseText(`評価: ${input.rating}/5点`, margin, currentY)
+        //   currentY += 3
+        // }
 
         if (input.genres && input.genres.length > 0) {
           const genres = input.genres.slice(0, 3).join(', ')

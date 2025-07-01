@@ -8,7 +8,7 @@ export class SupabaseClientManager {
   private static instance: SupabaseClientManager
   private readonly supabaseUrl: string
   private readonly supabaseAnonKey: string
-  private readonly supabaseServiceKey?: string
+  private readonly supabaseServiceKey: string | undefined
   
   // クライアントキャッシュ
   private clientCache = new Map<string, SupabaseClient>()
@@ -87,7 +87,9 @@ export class SupabaseClientManager {
     // キャッシュに保存（最大10個まで）
     if (this.clientCache.size >= 10) {
       const firstKey = this.clientCache.keys().next().value
-      this.clientCache.delete(firstKey)
+      if (firstKey !== undefined) {
+        this.clientCache.delete(firstKey)
+      }
     }
     this.clientCache.set(cacheKey, client)
 
@@ -105,10 +107,9 @@ export class SupabaseClientManager {
       throw new Error(`認証に失敗しました: ${error?.message || 'ユーザーが見つかりません'}`)
     }
     
-    return {
-      userId: user.id,
-      email: user.email
-    }
+    return user.email
+      ? { userId: user.id, email: user.email }
+      : { userId: user.id }
   }
 
   /**

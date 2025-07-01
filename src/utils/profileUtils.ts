@@ -1,4 +1,5 @@
-import type { WorkData, InputData } from '@/types'
+import type { WorkData } from '@/types/work'
+import type { InputData } from '@/types/input'
 
 /**
  * 作品データからよく使用するタグを計算する

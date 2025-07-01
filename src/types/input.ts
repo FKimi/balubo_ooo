@@ -23,6 +23,14 @@ export interface InputData {
   aiAnalysisResult?: any
   createdAt?: string
   updatedAt?: string
+  /**
+   * 5段階評価（未実装の場合はundefined）
+   */
+  rating?: number
+  /** 作者・クリエイター名 */
+  authorCreator?: string
+  /** カテゴリ */
+  category?: string
 }
 
 export interface InputAnalysis {
