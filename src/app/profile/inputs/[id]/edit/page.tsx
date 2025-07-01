@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, use } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
@@ -26,8 +26,8 @@ interface InputData {
   favorite: boolean
 }
 
-export default function EditInputPage({ params }: any) {
-  const resolvedParams = use(params)
+export default function EditInputPage({ params }: { params: { id: string } }) {
+  const inputId = params.id
   const router = useRouter()
   const { user } = useAuth()
   const [formData, setFormData] = useState<InputData>({
@@ -64,7 +64,7 @@ export default function EditInputPage({ params }: any) {
         throw new Error('認証トークンの取得に失敗しました')
       }
       
-      const response = await fetch(`/api/inputs/${resolvedParams.id}`, {
+      const response = await fetch(`/api/inputs/${inputId}`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
@@ -102,7 +102,7 @@ export default function EditInputPage({ params }: any) {
     } finally {
       setLoading(false)
     }
-  }, [resolvedParams.id])
+  }, [inputId])
 
   useEffect(() => {
     if (!user) {
@@ -111,7 +111,7 @@ export default function EditInputPage({ params }: any) {
     }
     
     fetchInputData()
-  }, [user, resolvedParams.id, fetchInputData, router])
+  }, [user, inputId, fetchInputData, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -130,7 +130,7 @@ export default function EditInputPage({ params }: any) {
         throw new Error('認証トークンの取得に失敗しました')
       }
       
-      const response = await fetch(`/api/inputs/${resolvedParams.id}`, {
+      const response = await fetch(`/api/inputs/${inputId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
@@ -159,7 +159,7 @@ export default function EditInputPage({ params }: any) {
         throw new Error('更新に失敗しました')
       }
       
-      router.push(`/profile/inputs/${resolvedParams.id}`)
+      router.push(`/profile/inputs/${inputId}`)
     } catch (error) {
       console.error('更新エラー:', error)
       alert('更新に失敗しました')
