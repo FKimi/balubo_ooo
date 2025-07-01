@@ -16,7 +16,6 @@ import type { InputData } from '@/types/input'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
 import { OverallScoreGauge } from '@/features/report/components/OverallScoreGauge'
-import { TagBarChart } from '@/features/report/components/TagBarChart'
 
 function ReportContent() {
   const { user } = useAuth()
@@ -640,7 +639,7 @@ function ReportContent() {
             </ul>
           </div>
 
-          {/* top tags */}
+          {/* top tags (バッジ表示) */}
           {topTags.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -649,14 +648,14 @@ function ReportContent() {
                 </svg>
                 頻出タグ Top10
               </h3>
-              <ul className="space-y-1 text-sm text-gray-700 pl-2">
-                {topTags.map(([name,count]) => (
-                  <li key={name} className="flex justify-between border-b border-dashed last:border-none pb-0.5">
-                    <span className="truncate max-w-[70%]">{name}</span>
-                    <span className="text-gray-500">{count}</span>
-                  </li>
+              <div className="flex flex-wrap gap-2">
+                {topTags.map(([name, count]) => (
+                  <span key={name} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                    #{name}
+                    <span className="ml-1 text-xs text-gray-600">{count}</span>
+                  </span>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
         </CardContent>
