@@ -95,7 +95,7 @@ export function CategoryDropZone({
                 <WorkCard
                   key={work.id}
                   work={work}
-                  onDelete={onDeleteWork}
+                  deleteWork={onDeleteWork}
                 />
               ))
             ) : (
