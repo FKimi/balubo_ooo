@@ -75,7 +75,7 @@ export function PublicWorksCategoryManager({ works, categories }: PublicWorksCat
                 <CardContent className="p-0 flex-grow flex flex-col">
                   <div className="relative w-full aspect-video">
                     <Image
-                      src={work.thumbnail_url || '/images/placeholder.png'}
+                      src={work.preview_data?.image || '/images/placeholder.png'}
                       alt={work.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
