@@ -42,6 +42,8 @@ export default function FinalCTASection() {
         <div className="text-center">
           <div className="space-y-8">
             <div className="space-y-6">
+              {/* プレヘッダー */}
+              <p className="text-sm font-semibold tracking-widest text-blue-600 uppercase mb-4">メッセージ</p>
               <h2 className="text-3xl font-bold leading-tight text-slate-800 md:text-5xl">
                 <span className="block">駆け抜けてきた</span>
                 <span className="block bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
@@ -63,7 +65,7 @@ export default function FinalCTASection() {
                 <p>
                   <span className="font-semibold text-blue-600">その軌跡を「流れ去る思い出」にせず、</span>
                   <br className="hidden md:block" />
-                  <span className="font-semibold text-blue-600">“資産”として未来へ繋げよう。</span>
+                  <span className="font-semibold text-blue-600">&quot;資産&quot;として未来へ繋げよう。</span>
                 </p>
 
                 <p className="mt-8 text-xl font-medium text-slate-700 md:text-2xl">
