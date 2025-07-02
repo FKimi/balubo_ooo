@@ -238,48 +238,65 @@ export function ProfileTabs({
 
                 {profileData?.career && profileData.career.length > 0 ? (
                   <div className="space-y-4">
-                    {profileData.career.map((careerItem) => (
-                      <div key={careerItem.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-semibold text-gray-900">{careerItem.position}</h4>
-                              {careerItem.isCurrent && (
-                                <Badge className="bg-blue-100 text-blue-700 text-xs">現職</Badge>
+                    {[...profileData.career]
+                      .sort((a, b) => {
+                        // 現職を最優先で表示し、その後は開始日が新しい順
+                        if (a.isCurrent && !b.isCurrent) return -1
+                        if (!a.isCurrent && b.isCurrent) return 1
+
+                        const parseYearMonth = (dateStr: string): number => {
+                          // 例: "2020年4月" → Date オブジェクトに変換
+                          const match = dateStr.match(/(\d{4})\D*(\d{1,2})?/) // 年と月を抽出
+                          if (!match) return 0
+                          const year = Number(match[1])
+                          const month = match[2] ? Number(match[2]) - 1 : 0 // 月が無い場合は1月扱い
+                          return new Date(year, month).getTime()
+                        }
+
+                        return parseYearMonth(b.startDate) - parseYearMonth(a.startDate)
+                      })
+                      .map((careerItem) => (
+                        <div key={careerItem.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-semibold text-gray-900">{careerItem.position}</h4>
+                                {careerItem.isCurrent && (
+                                  <Badge className="bg-blue-100 text-blue-700 text-xs">現職</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 mb-1">{careerItem.company}</p>
+                              {careerItem.department && (
+                                <p className="text-sm text-gray-500 mb-2">{careerItem.department}</p>
+                              )}
+                              <p className="text-xs text-gray-500 mb-3">
+                                {careerItem.startDate} - {careerItem.isCurrent ? '現在' : careerItem.endDate || '不明'}
+                              </p>
+                              {careerItem.description && (
+                                <p className="text-sm text-gray-700">{careerItem.description}</p>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 mb-1">{careerItem.company}</p>
-                            {careerItem.department && (
-                              <p className="text-sm text-gray-500 mb-2">{careerItem.department}</p>
-                            )}
-                            <p className="text-xs text-gray-500 mb-3">
-                              {careerItem.startDate} - {careerItem.isCurrent ? '現在' : careerItem.endDate || '不明'}
-                            </p>
-                            {careerItem.description && (
-                              <p className="text-sm text-gray-700">{careerItem.description}</p>
-                            )}
-                          </div>
-                          <div className="flex gap-2 ml-4">
-                            <button
-                              onClick={() => onEditCareer(careerItem)}
-                              className="w-8 h-8 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors shadow-lg shadow-blue-400/20"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => onDeleteCareerConfirm(careerItem.id)}
-                              className="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-full flex items-center justify-center transition-colors"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+                            <div className="flex gap-2 ml-4">
+                              <button
+                                onClick={() => onEditCareer(careerItem)}
+                                className="w-8 h-8 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors shadow-lg shadow-blue-400/20"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => onDeleteCareerConfirm(careerItem.id)}
+                                className="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-full flex items-center justify-center transition-colors"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
