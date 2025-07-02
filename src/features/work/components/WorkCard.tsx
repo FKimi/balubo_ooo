@@ -7,16 +7,17 @@ import { Card, CardContent } from '@/components/ui/card'
 
 interface WorkCardProps {
   work: WorkData
-  deleteWork: (workId: string) => void
+  onDelete: (workId: string) => void
+  isDraggable?: boolean
 }
 
-export function WorkCard({ work, deleteWork }: WorkCardProps) {
+export function WorkCard({ work, onDelete }: WorkCardProps) {
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (window.confirm(`「${work.title}」を削除してもよろしいですか？この操作は元に戻せません。`)) {
       try {
-        await deleteWork(work.id)
+        await onDelete(work.id)
       } catch (error) {
         console.error('作品の削除に失敗しました', error)
         alert('作品の削除に失敗しました。')
