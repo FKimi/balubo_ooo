@@ -104,7 +104,7 @@ export function Header() {
                               {profile?.display_name || user?.user_metadata?.display_name || 'ユーザー'}
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                              @{profile?.displayName || user?.user_metadata?.display_name || user?.id.substring(0, 8)}
+                              @{profile?.display_name || user?.user_metadata?.display_name || user?.id.substring(0, 8)}
                             </p>
                           </div>
                         </div>
