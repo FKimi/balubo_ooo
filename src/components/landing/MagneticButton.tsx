@@ -26,15 +26,16 @@ export default function MagneticButton({
   const rotateY = useTransform(xSpring, [-0.5, 0.5], ['-7.5deg', '7.5deg'])
 
   useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (!ref.current) return
-      
-      const rect = ref.current.getBoundingClientRect()
+      const rect = element.getBoundingClientRect()
       const centerX = rect.left + rect.width / 2
       const centerY = rect.top + rect.height / 2
       const distanceX = e.clientX - centerX
       const distanceY = e.clientY - centerY
-      
+
       x.set(distanceX * strength)
       y.set(distanceY * strength)
     }
@@ -44,15 +45,12 @@ export default function MagneticButton({
       y.set(0)
     }
 
-    const element = ref.current
-    if (element) {
-      element.addEventListener('mousemove', handleMouseMove)
-      element.addEventListener('mouseleave', handleMouseLeave)
-      
-      return () => {
-        element.removeEventListener('mousemove', handleMouseMove)
-        element.removeEventListener('mouseleave', handleMouseLeave)
-      }
+    element.addEventListener('mousemove', handleMouseMove)
+    element.addEventListener('mouseleave', handleMouseLeave)
+
+    return () => {
+      element.removeEventListener('mousemove', handleMouseMove)
+      element.removeEventListener('mouseleave', handleMouseLeave)
     }
   }, [x, y, strength])
 
