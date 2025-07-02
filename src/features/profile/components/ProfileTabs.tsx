@@ -382,14 +382,13 @@ export function ProfileTabs({
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">インプット記録</h2>
                 <p className="text-gray-600 text-sm sm:text-base">読んだ本、視聴した映画・アニメ、プレイしたゲームなどを記録して、興味関心を分析しましょう</p>
               </div>
-              <Link href="/inputs/new">
-                <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white text-sm sm:text-base w-full sm:w-auto">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  新しいインプットを追加
-                </Button>
-              </Link>
+              <div className="flex justify-center">
+                <Link href="/inputs/new" className="inline-block">
+                  <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-2xl shadow-lg shadow-blue-400/30 transition-all duration-300 mx-auto">
+                    インプットを追加
+                  </Button>
+                </Link>
+              </div>
             </div>
 
 
@@ -413,11 +412,13 @@ export function ProfileTabs({
                 <div className="col-span-full text-center py-12">
                   <h4 className="text-lg font-semibold text-gray-600 mb-2">まだインプットがありません</h4>
                   <p className="text-gray-500 mb-4">最初のインプットを追加して、興味関心を分析しましょう</p>
-                  <Link href="/inputs/new">
-                    <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-2xl shadow-lg shadow-blue-400/30 transition-all duration-300">
-                      インプットを追加
-                    </Button>
-                  </Link>
+                  <div className="flex justify-center">
+                    <Link href="/inputs/new" className="inline-block">
+                      <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-2xl shadow-lg shadow-blue-400/30 transition-all duration-300 mx-auto">
+                        インプットを追加
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

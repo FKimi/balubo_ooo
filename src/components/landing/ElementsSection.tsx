@@ -31,7 +31,33 @@ const elements = [
     description: '作品が読者や視聴者に与える影響や共感を分析し、人の心を動かす力を可視化します。',
     color: 'orange',
   },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="m7 21 5-5 5 5"/><path d="m7 14 5-5 5 5"/></svg>
+    ),
+    title: '技術力',
+    subtitle: 'スキル',
+    description: 'コード品質や実装スキルなど技術面を分析し、あなたの強みを明確化します。',
+    color: 'sky',
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l3 3"/></svg>
+    ),
+    title: '総合評価',
+    subtitle: 'バランス',
+    description: '4つの指標を統合し、作品の総合的な価値を分かりやすく言語化します。',
+    color: 'rose',
+  },
 ]
+
+const colorClasses = {
+  purple: 'border-purple-200/40 bg-purple-50/50 hover:bg-purple-100/70 hover:border-purple-300/60',
+  emerald: 'border-emerald-200/40 bg-emerald-50/50 hover:bg-emerald-100/70 hover:border-emerald-300/60',
+  orange: 'border-orange-200/40 bg-orange-50/50 hover:bg-orange-100/70 hover:border-orange-300/60',
+  sky: 'border-sky-200/40 bg-sky-50/50 hover:bg-sky-100/70 hover:border-sky-300/60',
+  rose: 'border-rose-200/40 bg-rose-50/50 hover:bg-rose-100/70 hover:border-rose-300/60',
+} as const
 
 export default function ElementsSection() {
   const { ref, visibleItems } = useStaggeredAnimation(elements.length, 250)
@@ -44,18 +70,12 @@ export default function ElementsSection() {
             AIが作品の価値を多角的に分析
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-slate-600">
-            balubo独自のアルゴリズムが、3つの主要素からあなたの作品が持つ多面的な価値と魅力を発見します。
+            balubo独自のAIが、5つの視点（技術力・創造性・専門性・影響力・総合評価）から作品価値を多角的に分析します。
           </p>
         </div>
 
         <div ref={ref} className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
           {elements.map((el, idx) => {
-            const colorClasses = {
-              purple: 'border-purple-200/40 bg-purple-50/50 hover:bg-purple-100/70 hover:border-purple-300/60',
-              emerald: 'border-emerald-200/40 bg-emerald-50/50 hover:bg-emerald-100/70 hover:border-emerald-300/60',
-              orange: 'border-orange-200/40 bg-orange-50/50 hover:bg-orange-100/70 hover:border-orange-300/60'
-            }
-
             return (
               <div 
                 key={el.title} 

@@ -53,13 +53,16 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
   // 新しいカテゴリを追加
   const addCategory = () => {
     const categoryNumber = categories.length + 1
+    const newCategoryId = `category_${Date.now()}`
     const newCategory: WorkCategory = {
-      id: `category_${Date.now()}`,
+      id: newCategoryId,
       name: `カテゴリ${categoryNumber}`,
       color: '#6366F1',
       works: []
     }
     setCategories([...categories, newCategory])
+    
+    return newCategoryId
   }
 
   // カテゴリ情報を更新（データベースと連携）

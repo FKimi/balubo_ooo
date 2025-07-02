@@ -8,31 +8,67 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'sans': [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'Noto Sans',
+          'sans-serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'Noto Color Emoji'
+        ],
+        'display': [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui'
+        ]
+      },
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1rem' }],
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'base': ['1rem', { lineHeight: '1.5rem' }],
+        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        '5xl': ['3rem', { lineHeight: '1.1' }],
+        '6xl': ['3.75rem', { lineHeight: '1.1' }],
+        '7xl': ['4.5rem', { lineHeight: '1.1' }],
+        '8xl': ['6rem', { lineHeight: '1.1' }],
+        '9xl': ['8rem', { lineHeight: '1.1' }],
+      },
+      letterSpacing: {
+        'tighter': '-0.05em',
+        'tight': '-0.025em',
+        'normal': '0em',
+        'wide': '0.025em',
+        'wider': '0.05em',
+        'widest': '0.1em',
+      },
       colors: {
-        // プライマリカラー（青系）
-        "primary-blue": "#2563EB",
-        "primary-light-blue": "#3B82F6",
-        
-        // アクセントカラー（濃い青）
-        "accent-dark-blue": "#1E3A8A",
-        
-        // ベースカラー（グレー系）
-        "base-light-gray": "#F8FAFC",
-        "base-dark-gray": "#1E293B",
-        
-        // テキストカラー
-        "text-primary": "#0F172A",
-        "text-secondary": "#475569",
-        "text-tertiary": "#94A3B8",
-        
-        // UIコンポーネントカラー
-        "ui-background-gray": "#F1F5F9",
-        "border-color": "#E2E8F0",
-        
-        // システムカラー
-        "success-green": "#10B981",
-        "warning-yellow": "#F59E0B",
-        "error-red": "#EF4444",
+        'base-white': '#FFFFFF',
+        'base-light-gray': '#F8F9FA',
+        'primary-blue': '#007BFF',
+        'primary-light-blue': '#66B2FF',
+        'accent-dark-blue': '#0056b3',
+        'accent-vibrant': '#8A2BE2', // Vibrant Purple
+        'text-primary': '#212529',
+        'text-secondary': '#6C757D',
+        'border-light': '#E9ECEF',
+        'border-focus': '#BBDEFB',
+        'success-green': '#40C057',
+        'warning-yellow': '#FCC419',
+        'error-red': '#FA5252',
       },
       animation: {
         "spin-slow": "spin 3s linear infinite",

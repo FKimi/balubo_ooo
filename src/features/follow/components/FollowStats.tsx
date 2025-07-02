@@ -58,7 +58,8 @@ export function FollowStats({ userId }: FollowStatsProps) {
     )
   }
 
-  const openModal = (tab: 'followers' | 'following') => {
+  const openModal = (tab: 'followers' | 'following', e: React.MouseEvent) => {
+    e.stopPropagation()
     setModalTab(tab)
     setModalOpen(true)
   }
@@ -68,7 +69,7 @@ export function FollowStats({ userId }: FollowStatsProps) {
       <div className="flex gap-6 text-sm">
         {/* フォロワー数 */}
         <button
-          onClick={() => openModal('followers')}
+          onClick={(e) => openModal('followers', e)}
           className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
         >
           <Users className="w-4 h-4 text-gray-500" />
@@ -80,7 +81,7 @@ export function FollowStats({ userId }: FollowStatsProps) {
 
         {/* フォロー中数 */}
         <button
-          onClick={() => openModal('following')}
+          onClick={(e) => openModal('following', e)}
           className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
         >
           <UserCheck className="w-4 h-4 text-gray-500" />

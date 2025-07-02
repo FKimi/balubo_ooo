@@ -2,8 +2,8 @@ import { NextRequest } from 'next/server'
 import { DatabaseClient } from '@/lib/database'
 import { withAuth, withOptionalAuth } from '@/lib/api-utils'
 
-// レスポンスキャッシュを追加
-export const revalidate = 30 // 30秒間キャッシュ
+// プロフィールは頻繁に更新されるためキャッシュしない
+export const dynamic = 'force-dynamic'
 
 // プロフィール取得 (GET)
 export async function GET(request: NextRequest) {

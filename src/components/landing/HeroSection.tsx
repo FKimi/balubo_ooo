@@ -75,7 +75,7 @@ export default function HeroSection() {
                   <span className="font-semibold text-slate-900">balubo</span>は、ライター・編集者などクリエイターのためのポートフォリオサービスです。
                 </p>
                 <p>
-                  AIがあなたの作品を<span className="font-semibold text-blue-500">「創造性」「専門性」「影響力」</span>の3つの視点と、
+                  AIがあなたの作品を<span className="font-semibold text-blue-500">「技術力」「創造性」「専門性」「影響力」そして「総合評価」</span>の5つの視点と、
                   内容に応じたタグで分析。<br className="hidden sm:block" />
                   作品の特徴と傾向を客観的に整理します。
                 </p>

@@ -1,14 +1,13 @@
 'use client'
 
-import React from 'react'
-import { useStaggeredAnimation } from '@/hooks'
+import React, { useRef } from 'react'
+import { motion, useInView, useAnimation, Variants } from 'framer-motion'
 
 interface Voice {
   name: string
   role: string
   comment: string
   avatarInitial: string
-  bgColor: string
 }
 
 const voices: Voice[] = [
@@ -17,84 +16,98 @@ const voices: Voice[] = [
     role: 'フリーランスライター',
     comment: 'これまで感覚的に伝えていた自分の強みが、客観的なデータで可視化されて驚きました。クライアントへの提案でも説得力が格段に上がり、単価アップにも繋がっています。',
     avatarInitial: '田',
-    bgColor: 'bg-blue-500 text-white',
   },
   {
     name: '佐藤 健太',
     role: '編集者・ディレクター',
     comment: 'AIによる作品分析で、自分では気づかなかった得意分野が明らかになりました。今では特化した領域での案件依頼が増え、より充実した仕事ができています。',
     avatarInitial: '佐',
-    bgColor: 'bg-emerald-500 text-white',
   },
   {
     name: '山田 雅子',
     role: 'コンテンツクリエイター',
-    comment: 'ポートフォリオ作成にかけていた時間が大幅に短縮され、制作活動に集中できるように。AI分析の結果も実感とマッチしていて、信頼して活用しています。',
+    comment: 'ポートフォリオ作成にかかる時間が大幅に短縮され、制作活動に集中できるように。AI分析の結果も実感とマッチしていて、信頼して活用しています。',
     avatarInitial: '山',
-    bgColor: 'bg-purple-500 text-white',
   },
 ]
 
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+}
+
+const itemVariants: Variants = {
+  hidden: { y: 20, opacity: 0, scale: 0.95 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  },
+}
+
 export default function VoicesSection() {
-  const { ref, visibleItems } = useStaggeredAnimation(voices.length, 300)
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, amount: 0.2 })
+  const controls = useAnimation()
+
+  React.useEffect(() => {
+    if (isInView) {
+      controls.start('visible')
+    }
+  }, [isInView, controls])
 
   return (
-    <section className="bg-slate-50 py-20 px-4 md:py-2">
-      <div className="container mx-auto max-w-4xl">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-slate-800 md:text-5xl">
-            先行ユーザーからの期待の声
+    <section className="relative overflow-hidden bg-white py-20 px-4 md:py-28">
+       <div className="absolute inset-x-0 top-0 z-0 h-full bg-gradient-to-b from-blue-50/20 to-white"></div>
+      <div className="container relative z-10 mx-auto max-w-5xl">
+        <motion.div 
+          className="text-center"
+          ref={ref}
+          initial="hidden"
+          animate={controls}
+          variants={itemVariants}
+        >
+          <h2 className="text-4xl font-extrabold text-slate-800 sm:text-5xl">
+            <span className="bg-gradient-to-r from-blue-500 via-sky-500 to-cyan-500 bg-clip-text text-transparent">
+              先行ユーザーからの期待の声
+            </span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
             すでに多くの方々から、baluboが提供する新しい価値にご期待いただいています。
           </p>
-        </div>
+        </motion.div>
 
-        <div ref={ref} className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
-          {voices.map((voice, idx) => (
-            <div 
+        <motion.div 
+          className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3"
+          ref={ref}
+          initial="hidden"
+          animate={controls}
+          variants={containerVariants}
+        >
+          {voices.map((voice) => (
+            <motion.div
               key={voice.name} 
-              className={`flex flex-col rounded-3xl border border-blue-200/30 bg-white/90 p-8 shadow-lg backdrop-blur-sm transition-all duration-700 ease-out ${
-                visibleItems.includes(idx) 
-                  ? 'opacity-100 translate-y-0 scale-100' 
-                  : 'opacity-0 translate-y-8 scale-95'
-              } hover:scale-105 hover:shadow-xl hover:shadow-blue-100/50`}
-              style={{ 
-                transitionDelay: `${idx * 300}ms` 
-              }}
+              variants={itemVariants}
+              className="relative flex flex-col rounded-3xl border border-slate-200/80 bg-white/90 p-8 shadow-lg transition-all duration-300 hover:border-slate-300 hover:shadow-xl"
             >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-3xl"/>
               <div className="flex-grow">
-                <p className={`relative text-lg leading-relaxed text-slate-700 transition-all duration-500 ${
-                  visibleItems.includes(idx) ? 'opacity-100' : 'opacity-0'
-                }`}
-                  style={{ 
-                    transitionDelay: `${idx * 300 + 200}ms` 
-                  }}
-                >
-                  <span className={`absolute -left-4 -top-2 text-6xl font-bold text-slate-100 transition-all duration-500 ${
-                    visibleItems.includes(idx) ? 'scale-100 rotate-0' : 'scale-0 rotate-12'
-                  }`}
-                    style={{ 
-                      transitionDelay: `${idx * 300 + 100}ms` 
-                    }}
-                  >&quot;</span>
+                <p className="relative text-base leading-relaxed text-slate-600">
+                  <span className="absolute -left-3 -top-3 text-7xl font-bold text-blue-500/10 opacity-70">&quot;</span>
                   <span className="relative">{voice.comment}</span>
                 </p>
               </div>
-              <div className={`mt-6 flex items-center pt-6 border-t border-blue-200/40 transition-all duration-500 ${
-                visibleItems.includes(idx) ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-              }`}
-                style={{ 
-                  transitionDelay: `${idx * 300 + 400}ms` 
-                }}
-              >
-                <div className={`mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${voice.bgColor} text-xl font-bold transition-all duration-500 ${
-                  visibleItems.includes(idx) ? 'scale-100 rotate-0' : 'scale-0 rotate-45'
-                }`}
-                  style={{ 
-                    transitionDelay: `${idx * 300 + 300}ms` 
-                  }}
-                >
+              <div className="mt-6 flex items-center pt-6 border-t border-slate-200/80">
+                <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-sky-500 text-white text-xl font-bold">
                   {voice.avatarInitial}
                 </div>
                 <div>
@@ -102,9 +115,9 @@ export default function VoicesSection() {
                   <div className="text-sm text-slate-500">{voice.role}</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

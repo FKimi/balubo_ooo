@@ -5,6 +5,9 @@ export { useWorkStatistics } from './useWorkStatistics'
 
 // スクロールアニメーション用フック
 import { useEffect, useRef, useState } from 'react'
+import { useAnimation } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import { Variants } from 'framer-motion'
 
 export function useScrollAnimation(threshold = 0.1) {
   const [isVisible, setIsVisible] = useState(false)
@@ -32,6 +35,50 @@ export function useScrollAnimation(threshold = 0.1) {
   }, [threshold])
 
   return { ref, isVisible }
+}
+
+// Framer Motionを使った汎用的なスクロールアニメーションフック
+export function useFramerMotionAnimation() {
+  const controls = useAnimation()
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  })
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible")
+    } else {
+      // Optional: Reset animation when out of view
+      // controls.start("hidden")
+    }
+  }, [controls, inView])
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
+    },
+  }
+
+  const itemVariants: Variants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.33, 1, 0.68, 1], // Smooth custom cubic-bezier
+      },
+    },
+  }
+
+  return { ref, controls, containerVariants, itemVariants }
 }
 
 // スクロール進行度フック
