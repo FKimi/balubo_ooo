@@ -240,16 +240,11 @@ export function ProfileTabs({
                   <div className="space-y-4">
                     {[...profileData.career]
                       .sort((a, b) => {
-                        // 現職を最優先で表示し、その後は開始日が新しい順
-                        if (a.isCurrent && !b.isCurrent) return -1
-                        if (!a.isCurrent && b.isCurrent) return 1
-
                         const parseYearMonth = (dateStr: string): number => {
-                          // 例: "2020年4月" → Date オブジェクトに変換
                           const match = dateStr.match(/(\d{4})\D*(\d{1,2})?/) // 年と月を抽出
                           if (!match) return 0
                           const year = Number(match[1])
-                          const month = match[2] ? Number(match[2]) - 1 : 0 // 月が無い場合は1月扱い
+                          const month = match[2] ? Number(match[2]) - 1 : 0
                           return new Date(year, month).getTime()
                         }
 
