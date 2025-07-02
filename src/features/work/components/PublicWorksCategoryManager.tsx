@@ -84,7 +84,7 @@ export function PublicWorksCategoryManager({ works, categories }: PublicWorksCat
                   </div>
                   <div className="p-4 flex-grow flex flex-col">
                     <h3 className="font-bold text-md mb-2 flex-grow">{work.title}</h3>
-                    <p className="text-xs text-gray-500 mb-2">{work.summary}</p>
+                    <p className="text-xs text-gray-500 mb-2 line-clamp-2">{work.description}</p>
                     <div className="text-right text-xs text-gray-400">
                       {new Date(work.created_at).toLocaleDateString()}
                     </div>
