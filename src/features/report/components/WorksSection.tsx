@@ -3,6 +3,7 @@ import type { WorkData } from '@/types/work'
 
 interface AIFieldSummary {
   averageScore: number
+  insights: string[]
   scoreLevel: {
     level: string
     color: string
@@ -113,26 +114,17 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
   )
 
   const renderFieldCard = (title: string, gradient: string, field: AIFieldSummary, colorPrefix: string) => {
-    const scoreColorMap: Record<string, string> = {
-      gray: 'text-gray-700',
-      purple: 'text-purple-700',
-      blue: 'text-blue-700',
-      orange: 'text-orange-700'
-    }
-    const scoreColor = scoreColorMap[colorPrefix] || 'text-gray-700'
+    const topInsight = field.topWorks?.[0]?.reason || field.insights?.[0] || "分析結果がありません";
+
     return (
-      <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
         <div className={`px-6 py-4 ${gradient}`}>
           <h3 className="text-xl font-bold text-white">{title}</h3>
         </div>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className={`text-4xl font-bold ${scoreColor}`}>{field.averageScore}</div>
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${field.scoreLevel.bgColor} ${field.scoreLevel.color}`}>
-              {field.scoreLevel.level}
-            </div>
-          </div>
-          <div className="text-sm text-gray-600 mb-4">{field.scoreLevel.description}</div>
+        <div className="p-6 flex-grow flex flex-col justify-center">
+          <p className="text-sm text-gray-600 leading-relaxed text-center">
+            {topInsight}
+          </p>
         </div>
       </div>
     )
@@ -153,7 +145,7 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
   return (
     <div className="space-y-6">
       {/* AI評価サマリー */}
-      {analysis && renderScoreScale()}
+      {/* {analysis && renderScoreScale()} */}
       {analysis && renderEvaluationGrid()}
 
       {/* 基本統計（3つの箇条書きに統一） */}

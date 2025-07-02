@@ -21,6 +21,7 @@ interface RecommendedUsersProps {
 }
 
 export function RecommendedUsers({ currentUserId, isAuthenticated }: RecommendedUsersProps) {
+  return null;
   const [users, setUsers] = useState<RecommendedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

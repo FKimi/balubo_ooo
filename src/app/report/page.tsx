@@ -15,7 +15,6 @@ import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
-import { OverallScoreGauge } from '@/features/report/components/OverallScoreGauge'
 
 function ReportContent() {
   const { user } = useAuth()
@@ -98,39 +97,30 @@ function ReportContent() {
         else if (analysis.strengths) {
           // 創造性分析
           if (analysis.strengths.creativity && analysis.strengths.creativity.length > 0) {
-            const creativityScore = Math.min(analysis.strengths.creativity.length * 20 + 
-              (analysis.tagClassification?.technique?.length || 0) * 10, 100)
-            analysisData.creativity.scores.push(creativityScore)
             analysisData.creativity.insights.push(...analysis.strengths.creativity)
             analysisData.creativity.topWorks.push({
               title: work.title,
-              score: creativityScore,
+              score: 0, // スコアは使用しない
               highlights: analysis.strengths.creativity.slice(0, 2)
             })
           }
 
           // 専門性分析
           if (analysis.strengths.expertise && analysis.strengths.expertise.length > 0) {
-            const expertiseScore = Math.min(analysis.strengths.expertise.length * 20 + 
-              (analysis.keywords?.length || 0) * 5, 100)
-            analysisData.expertise.scores.push(expertiseScore)
             analysisData.expertise.insights.push(...analysis.strengths.expertise)
             analysisData.expertise.topWorks.push({
               title: work.title,
-              score: expertiseScore,
+              score: 0, // スコアは使用しない
               highlights: analysis.strengths.expertise.slice(0, 2)
             })
           }
 
           // 影響力分析
           if (analysis.strengths.impact && analysis.strengths.impact.length > 0) {
-            const impactScore = Math.min(analysis.strengths.impact.length * 20 + 
-              (analysis.tagClassification?.purpose?.length || 0) * 15, 100)
-            analysisData.impact.scores.push(impactScore)
             analysisData.impact.insights.push(...analysis.strengths.impact)
             analysisData.impact.topWorks.push({
               title: work.title,
-              score: impactScore,
+              score: 0, // スコアは使用しない
               highlights: analysis.strengths.impact.slice(0, 2)
             })
           }
@@ -140,32 +130,18 @@ function ReportContent() {
 
     // 各分野の総合スコアと統計を計算
     const processAnalysisData = (data: typeof analysisData.creativity, fieldName: string) => {
-      const avgScore = data.scores.length > 0 ? 
-        Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.scores.length) : 0
-      
       const uniqueInsights = [...new Set(data.insights)].slice(0, 10)
       const topWorksRanked = data.topWorks
         .sort((a, b) => b.score - a.score)
         .slice(0, 5)
 
-      // スコアレベルの判定
-      const getScoreLevel = (score: number) => {
-        if (score >= 90) return { level: 'エキスパート', color: 'text-purple-600', bgColor: 'bg-purple-50', description: 'プロフェッショナルレベル' }
-        if (score >= 80) return { level: '上級者', color: 'text-blue-600', bgColor: 'bg-blue-50', description: '高い品質' }
-        if (score >= 70) return { level: '中級者', color: 'text-green-600', bgColor: 'bg-green-50', description: '標準的な品質' }
-        if (score >= 60) return { level: '初級者', color: 'text-yellow-600', bgColor: 'bg-yellow-50', description: '基本的な品質' }
-        return { level: 'ビギナー', color: 'text-gray-600', bgColor: 'bg-gray-50', description: '改善が必要' }
-      }
-
       return {
-        averageScore: avgScore,
-        scoreLevel: getScoreLevel(avgScore),
+        averageScore: 0, // スコアは使用しない
+        scoreLevel: { level: '', color: '', bgColor: '', description: '' }, // レベルも使用しない
         totalInsights: uniqueInsights.length,
         insights: uniqueInsights,
         topWorks: topWorksRanked,
-        trend: data.scores.length >= 3 ? 
-          (data.scores.slice(-3).reduce((sum, score) => sum + score, 0) / 3) - 
-          (data.scores.slice(0, 3).reduce((sum, score) => sum + score, 0) / 3) : 0,
+        trend: 0, // トレンドも使用しない
         fieldName
       }
     }
@@ -178,18 +154,7 @@ function ReportContent() {
       overall: {
         totalWorks: works.length,
         analyzedWorks: works.filter(w => w.ai_analysis_result).length,
-        comprehensiveScore: Math.round(
-          (analysisData.creativity.scores.reduce((sum, score) => sum + score, 0) +
-           analysisData.expertise.scores.reduce((sum, score) => sum + score, 0) +
-           analysisData.impact.scores.reduce((sum, score) => sum + score, 0) +
-           analysisData.technology.scores.reduce((sum, score) => sum + score, 0)) / 
-          Math.max(
-            analysisData.creativity.scores.length + 
-            analysisData.expertise.scores.length + 
-            analysisData.impact.scores.length + 
-            analysisData.technology.scores.length, 1
-          )
-        )
+        comprehensiveScore: 0 // スコアは使用しない
       }
     }
   }
@@ -612,7 +577,7 @@ function ReportContent() {
           {/* 総合評価 */}
           <div className="grid md:grid-cols-3 gap-6 items-center">
             <div className="col-span-1 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-200 flex items-center justify-center">
-              <OverallScoreGauge score={comprehensiveAnalysis.overall.comprehensiveScore} />
+              {/* <OverallScoreGauge score={comprehensiveAnalysis.overall.comprehensiveScore} /> */}
             </div>
             <div className="col-span-2 text-sm text-indigo-800">
               <p className="mb-1 font-semibold text-gray-900">総合スコア</p>

@@ -2,142 +2,145 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProfile } from '@/hooks/useProfile'
 import { ProfileAvatar } from '@/components/common/ProfileAvatar'
+import { Home, User, BarChart2, Plus, MessageSquare } from 'lucide-react'
 
 export function Header() {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const { user, signOut } = useAuth()
   const { profile } = useProfile()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleSignOut = async () => {
     await signOut()
     router.push('/')
   }
 
+  const navLinks = [
+    { href: '/feed', label: 'フィード', icon: Home },
+    { href: '/profile', label: 'ポートフォリオ', icon: User },
+    { href: '/report', label: '詳細レポート', icon: BarChart2 },
+  ]
+
   return (
-    <header className="border-b border-border-color bg-base-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        {/* ロゴ */}
-        <Link href="/feed" className="group">
-          <h1 className="text-2xl font-bold text-accent-dark-blue group-hover:text-primary-blue transition-colors duration-200">
-            balubo
-          </h1>
-        </Link>
-
-        {/* ナビゲーション */}
-        <nav className="hidden md:flex items-center space-x-2">
-          <Link 
-            href="/feed" 
-            className="flex items-center space-x-2 px-3 py-2 rounded-lg text-text-secondary hover:text-accent-dark-blue hover:bg-ui-background-gray/50 transition-all duration-200 group"
-          >
-            <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0" />
-            </svg>
-            <span className="font-medium">フィード</span>
-          </Link>
-          <Link 
-            href="/profile" 
-            className="flex items-center space-x-2 px-3 py-2 rounded-lg text-text-secondary hover:text-accent-dark-blue hover:bg-ui-background-gray/50 transition-all duration-200 group"
-          >
-            <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="font-medium">ポートフォリオ</span>
+    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* ロゴ */}
+          <Link href={user ? "/feed" : "/"} className="group">
+            <h1 className="text-2xl font-bold text-blue-600 transition-colors">
+              balubo
+            </h1>
           </Link>
 
-          <Link 
-            href="/report" 
-            className="flex items-center space-x-2 px-3 py-2 rounded-lg text-text-secondary hover:text-accent-dark-blue hover:bg-ui-background-gray/50 transition-all duration-200 group"
-          >
-            <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span className="font-medium">詳細レポート</span>
-          </Link>
-        </nav>
+          {/* ナビゲーション */}
+          {user && (
+            <nav className="hidden md:flex items-center gap-2">
+              {navLinks.map((link) => {
+                const isActive = pathname.startsWith(link.href)
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-slate-100 text-blue-600 dark:bg-slate-800 dark:text-blue-400'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                    }`}
+                  >
+                    <link.icon className="w-4 h-4" />
+                    <span>{link.label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+          )}
 
-        {/* 右側のアクション */}
-        <div className="flex items-center space-x-4">
-          {/* 作品追加ボタン */}
-          <Link href="/works/new">
-            <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="font-medium">作品追加</span>
-            </Button>
-          </Link>
+          {/* 右側のアクション */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                {/* 作品追加ボタン */}
+                <Button asChild className="shadow-sm hover:shadow-md transition-shadow">
+                  <Link href="/works/new">
+                    <Plus className="w-4 h-4 mr-2" />
+                    作品追加
+                  </Link>
+                </Button>
 
-          {/* プロフィールメニュー */}
-          <div className="relative">
-            <button
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center space-x-2 p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-ui-background-gray/50 transition-all duration-200 group"
-            >
-              <ProfileAvatar
-                avatarUrl={profile?.avatar_image_url || null}
-                displayName={profile?.display_name || user?.user_metadata?.display_name || ''}
-                size="md"
-              />
-              <svg className={`w-4 h-4 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* プロフィールドロップダウンメニュー */}
-            {showProfileMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-base-white/95 backdrop-blur-md rounded-xl shadow-xl border border-border-color/50 py-2 z-50 animate-in slide-in-from-top-1 duration-200">
-                <div className="px-4 py-3 border-b border-border-color/50">
-                  <div className="flex items-center space-x-3">
+                {/* プロフィールメニュー */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                    className="flex items-center gap-2 p-1 rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                  >
                     <ProfileAvatar
                       avatarUrl={profile?.avatar_image_url || null}
                       displayName={profile?.display_name || user?.user_metadata?.display_name || ''}
-                      size="sm"
+                      size="md"
                     />
-                    <div>
-                      <p className="text-sm font-semibold text-text-primary">
-                        {profile?.display_name || user?.user_metadata?.display_name || 'ユーザー'}
-                      </p>
-                      <p className="text-xs text-text-tertiary">アカウント</p>
+                  </button>
+
+                  {/* プロフィールドロップダウンメニュー */}
+                  {showProfileMenu && (
+                    <div 
+                      className="absolute right-0 mt-3 w-60 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-50 animate-in fade-in-25"
+                      onMouseLeave={() => setShowProfileMenu(false)}
+                    >
+                      <div className="p-2 border-b border-slate-200 dark:border-slate-700 mb-2">
+                        <div className="flex items-center gap-3">
+                          <ProfileAvatar
+                            avatarUrl={profile?.avatar_image_url || null}
+                            displayName={profile?.display_name || user?.user_metadata?.display_name || ''}
+                            size="sm"
+                          />
+                          <div>
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
+                              {profile?.display_name || user?.user_metadata?.display_name || 'ユーザー'}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              @{profile?.username || user?.id.substring(0, 8)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <User className="w-4 h-4" />
+                        <span>プロフィール</span>
+                      </Link>
+                      <Link
+                        href="/messages"
+                        className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>メッセージ</span>
+                      </Link>
+                      <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        <span>ログアウト</span>
+                      </button>
                     </div>
-                  </div>
+                  )}
                 </div>
-                <Link 
-                  href="/profile" 
-                  className="flex items-center space-x-3 px-4 py-3 text-sm text-text-secondary hover:bg-ui-background-gray/70 hover:text-text-primary transition-colors duration-150 group"
-                  onClick={() => setShowProfileMenu(false)}
-                >
-                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="font-medium">プロフィール</span>
-                </Link>
-                <Link 
-                  href="/messages" 
-                  className="flex items-center space-x-3 px-4 py-3 text-sm text-text-secondary hover:bg-ui-background-gray/70 hover:text-text-primary transition-colors duration-150 group"
-                  onClick={() => setShowProfileMenu(false)}
-                >
-                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
-                  </svg>
-                  <span className="font-medium">メッセージ</span>
-                </Link>
-                <hr className="my-1 border-border-color/50" />
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center space-x-3 w-full px-4 py-3 text-sm text-text-secondary hover:bg-red-50 hover:text-red-600 transition-colors duration-150 group"
-                >
-                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  <span className="font-medium">ログアウト</span>
-                </button>
-              </div>
+              </>
+            ) : (
+              <Button asChild>
+                <Link href="/login">ログイン</Link>
+              </Button>
             )}
           </div>
         </div>
