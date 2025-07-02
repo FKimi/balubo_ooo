@@ -30,7 +30,7 @@ interface WorksCategoryManagerProps {
   updateWorkCategory: (workId: string, categoryId: string) => void
 }
 
-function DraggableWorkCard({ work, deleteWork }: { work: WorkData, deleteWork: (workId: string) => void }) {
+function DraggableWorkCard({ work, onDelete }: { work: WorkData, onDelete: (workId: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: work.id,
     data: { work },
@@ -49,7 +49,7 @@ function DraggableWorkCard({ work, deleteWork }: { work: WorkData, deleteWork: (
       {...attributes}
       {...listeners}
     >
-      <WorkCard work={work} deleteWork={deleteWork} />
+      <WorkCard work={work} onDelete={onDelete} />
 
       {/* ドラッグ中の補助表示 */}
       {isDragging && (
@@ -520,7 +520,7 @@ export function WorksCategoryManager({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWorks.length > 0 ? (
               filteredWorks.map((work: WorkData) => (
-                <DraggableWorkCard key={work.id} work={work} deleteWork={deleteWork} />
+                <DraggableWorkCard key={work.id} work={work} onDelete={deleteWork} />
               ))
             ) : (
               <div className="col-span-full text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
