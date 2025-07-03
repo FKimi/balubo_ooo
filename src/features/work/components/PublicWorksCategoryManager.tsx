@@ -21,18 +21,11 @@ export function PublicWorksCategoryManager({ works, categories }: PublicWorksCat
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const allCategoriesWithAll = useMemo(() => {
-    const uncategorized = categories.find(cat => cat.id === 'uncategorized')
-    const otherCategories = categories.filter(cat => cat.id !== 'uncategorized')
-
     const categoryList = [
       { id: 'all', name: 'ALL', works: works },
-      ...otherCategories,
+      ...categories.filter(cat => cat.id !== 'uncategorized'),
     ]
-
-    if (uncategorized && uncategorized.works.length > 0) {
-      categoryList.push({ ...uncategorized, name: '未分類' })
-    }
-    
+    // "未分類" タブは非表示
     return categoryList
   }, [categories, works])
 

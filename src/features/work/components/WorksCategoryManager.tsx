@@ -222,8 +222,8 @@ export function WorksCategoryManager({
   // ALLタブを含む全カテゴリリスト
   const allCategoriesWithAll = [
     { id: 'all', name: 'ALL', color: '#6B7280', works: savedWorks },
-    ...categories.filter(cat => cat.id !== 'uncategorized'),
-    ...categories.filter(cat => cat.id === 'uncategorized' && cat.works.length > 0).map(cat => ({ ...cat, name: '未分類' }))
+    // "未分類" タブはユーザー体験向上のため非表示
+    ...categories.filter(cat => cat.id !== 'uncategorized')
   ]
 
   // 選択されたカテゴリと月の作品を取得
@@ -260,7 +260,7 @@ export function WorksCategoryManager({
 
     const workCount = category.works.length
     const confirmMessage = workCount > 0 
-      ? `「${category.name}」カテゴリを削除しますか？\n\nこのカテゴリに属する${workCount}件の作品は未分類に移動されます。`
+      ? `「${category.name}」カテゴリを削除しますか？\n\nこのカテゴリに属する${workCount}件の作品は「カテゴリなし」に移動されます。`
       : `「${category.name}」カテゴリを削除しますか？`
 
     if (confirm(confirmMessage)) {
@@ -272,7 +272,7 @@ export function WorksCategoryManager({
         }
 
         if (workCount > 0) {
-          setSuccessMessage(`「${category.name}」カテゴリを削除しました。${workCount}件の作品を未分類に移動しました。`)
+          setSuccessMessage(`「${category.name}」カテゴリを削除しました。${workCount}件の作品を「カテゴリなし」に移動しました。`)
         } else {
           setSuccessMessage(`「${category.name}」カテゴリを削除しました。`)
         }

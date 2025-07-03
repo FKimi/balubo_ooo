@@ -503,7 +503,7 @@ function NewWorkForm({ initialData }: WorkFormProps = {}) {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploadedFiles] = useState<File[]>([])
   const [articleContent, setArticleContent] = useState('')
   const [useFullContent, setUseFullContent] = useState(false)
   const [showShareToast, setShowShareToast] = useState(false)
@@ -574,22 +574,8 @@ function NewWorkForm({ initialData }: WorkFormProps = {}) {
   }
 
   // ファイルアップロード処理
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-    
-    const validFiles = files.filter(file => allowedTypes.includes(file.type))
-    if (validFiles.length < files.length) {
-      alert('PDFまたはテキストファイルのみアップロード可能です')
-    }
-    
-    setUploadedFiles(prev => [...prev, ...validFiles])
-  }
 
   // ファイル削除
-  const removeFile = (index: number) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
-  }
 
   // フォームデータの更新
   const handleInputChange = (field: string, value: string) => {
@@ -737,6 +723,7 @@ function NewWorkForm({ initialData }: WorkFormProps = {}) {
         const fileExt = file.name.split('.').pop()
         const fileName = `${Date.now()}.${fileExt}`
         
+        // eslint-disable-next-line unused-imports/no-unused-vars
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('work-files')
           .upload(fileName, file)
