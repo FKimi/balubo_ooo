@@ -128,7 +128,8 @@ function ReportContent() {
           }
         }
 
-        if (analysis.detailedMetrics) {
+        // evaluation.scores が存在しない場合のみ detailedMetrics を使用
+        if (!analysis.evaluation?.scores && analysis.detailedMetrics) {
           const dm = analysis.detailedMetrics as any
 
           // 技術力

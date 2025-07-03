@@ -466,7 +466,19 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
   return null
 }
 
-function NewWorkForm() {
+interface WorkFormProps {
+  initialData?: {
+    title?: string
+    description?: string
+    externalUrl?: string
+    productionDate?: string
+    productionNotes?: string
+    tags?: string[]
+    roles?: string[]
+  }
+}
+
+function NewWorkForm({ initialData }: WorkFormProps = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -474,13 +486,13 @@ function NewWorkForm() {
   const contentType = searchParams.get('type') || 'article' // デフォルトは記事
   
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    externalUrl: '',
-    productionDate: '',
-    productionNotes: '',
-    tags: [] as string[],
-    roles: [] as string[]
+    title: initialData?.title ?? '',
+    description: initialData?.description ?? '',
+    externalUrl: initialData?.externalUrl ?? '',
+    productionDate: initialData?.productionDate ?? '',
+    productionNotes: initialData?.productionNotes ?? '',
+    tags: initialData?.tags ?? ([] as string[]),
+    roles: initialData?.roles ?? ([] as string[])
   })
   
   const [previewData, setPreviewData] = useState<LinkPreviewData | null>(null)
@@ -741,17 +753,9 @@ function NewWorkForm() {
         fileUrls.push(publicUrl)
       }
 
-      // コンテンツタイプに応じたカテゴリ設定
-      const getContentTypeCategory = (type: string) => {
-        switch (type) {
-          case 'article': return ["article"]
-          case 'design': return ["design"]
-          case 'photo': return ["photo"]
-          case 'video': return ["video"]
-          case 'podcast': return ["podcast"]
-          case 'event': return ["event"]
-          default: return ["article"]
-        }
+      // カテゴリはユーザーが後で整理するため初期値は空にする
+      const getContentTypeCategory = (_type: string) => {
+        return []
       }
 
       // 記事の文字数計算（記事タイプで本文が入力されている場合）
@@ -1449,6 +1453,8 @@ function NewWorkForm() {
     </div>
   )
 }
+
+export { NewWorkForm as WorkForm }
 
 export default function NewWorkPage() {
   return (

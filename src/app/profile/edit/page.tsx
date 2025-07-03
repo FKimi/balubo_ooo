@@ -226,7 +226,15 @@ export default function ProfileEditPage() {
       if (data?.success) {
         // ローカルストレージにも保存（バックアップ用）
         localStorage.setItem('profileData', JSON.stringify(formData))
-        
+
+        // Supabase Auth 側の user_metadata も更新して表示名を同期
+        try {
+          const { supabase } = await import('@/lib/supabase')
+          await supabase.auth.updateUser({ data: { display_name: formData.displayName } })
+        } catch (metaErr) {
+          console.warn('user_metadata 更新失敗:', metaErr)
+        }
+
         // 更新フラグを付けてプロフィール画面に遷移
         router.push('/profile?updated=true')
       }

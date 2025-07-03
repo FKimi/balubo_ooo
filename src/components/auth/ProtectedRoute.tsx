@@ -60,6 +60,18 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }, [user, loading, isInitialLoad, router])
 
+  // ローディングが長時間続く場合のフェイルセーフ（例：トークン破損など）
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('[ProtectedRoute] 認証ローディングがタイムアウト、/login へフォールバック')
+        router.push('/login')
+      }
+    }, 6000) // 6秒以上ローディングしている場合はリダイレクト
+
+    return () => clearTimeout(timeout)
+  }, [loading, router])
+
   // ローディング中は何も表示しない
   if (loading || isInitialLoad) {
     return (
