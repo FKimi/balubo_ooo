@@ -6,7 +6,6 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { AIAnalysisResult } from '@/types/work'
-import { WorkForm } from '../../new/page'
 
 interface LinkPreviewData {
   title: string
@@ -717,7 +716,10 @@ export default function EditWorkPage() {
   // 新共通フォームを使用
   return (
     <ProtectedRoute>
-      <WorkForm initialData={formData} />
+      {/* TODO: 共通フォーム化準備中 */}
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        編集フォームは準備中です。
+      </div>
     </ProtectedRoute>
   )
 } 

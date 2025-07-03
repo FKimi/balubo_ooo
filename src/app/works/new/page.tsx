@@ -1441,8 +1441,6 @@ function NewWorkForm({ initialData }: WorkFormProps = {}) {
   )
 }
 
-export { NewWorkForm as WorkForm }
-
 export default function NewWorkPage() {
   return (
     <ProtectedRoute>
