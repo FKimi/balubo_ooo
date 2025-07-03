@@ -125,6 +125,54 @@ function ReportContent() {
             })
           }
         }
+
+        if (analysis.detailedMetrics) {
+          const dm = analysis.detailedMetrics as any
+
+          // 技術力
+          if (dm.technology?.score) {
+            analysisData.technology.scores.push(dm.technology.score)
+            analysisData.technology.topWorks.push({
+              title: work.title,
+              score: dm.technology.score,
+              reason: dm.technology.headline || dm.technology.goodHighlight,
+              highlights: [dm.technology.goodHighlight].filter(Boolean)
+            })
+          }
+
+          // 専門性
+          if (dm.expertise?.score) {
+            analysisData.expertise.scores.push(dm.expertise.score)
+            analysisData.expertise.topWorks.push({
+              title: work.title,
+              score: dm.expertise.score,
+              reason: dm.expertise.headline || dm.expertise.goodHighlight,
+              highlights: [dm.expertise.goodHighlight].filter(Boolean)
+            })
+          }
+
+          // 創造性
+          if (dm.creativity?.score) {
+            analysisData.creativity.scores.push(dm.creativity.score)
+            analysisData.creativity.topWorks.push({
+              title: work.title,
+              score: dm.creativity.score,
+              reason: dm.creativity.headline || dm.creativity.goodHighlight,
+              highlights: [dm.creativity.goodHighlight].filter(Boolean)
+            })
+          }
+
+          // 影響力
+          if (dm.impact?.score) {
+            analysisData.impact.scores.push(dm.impact.score)
+            analysisData.impact.topWorks.push({
+              title: work.title,
+              score: dm.impact.score,
+              reason: dm.impact.headline || dm.impact.goodHighlight,
+              highlights: [dm.impact.goodHighlight].filter(Boolean)
+            })
+          }
+        }
       }
     })
 
@@ -135,8 +183,10 @@ function ReportContent() {
         .sort((a, b) => b.score - a.score)
         .slice(0, 5)
 
+      const avgScore = data.scores.length > 0 ? Math.round(data.scores.reduce((a, b) => a + b, 0) / data.scores.length) : 0
+
       return {
-        averageScore: 0, // スコアは使用しない
+        averageScore: avgScore,
         scoreLevel: { level: '', color: '', bgColor: '', description: '' }, // レベルも使用しない
         totalInsights: uniqueInsights.length,
         insights: uniqueInsights,

@@ -120,6 +120,9 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
         <div className={`px-6 py-4 ${gradient}`}>
           <h3 className="text-xl font-bold text-white">{title}</h3>
+          {field.averageScore > 0 && (
+            <p className="text-sm text-white opacity-80 mt-1">Avg {field.averageScore} / 100</p>
+          )}
         </div>
         <div className="p-6 flex-grow flex flex-col justify-center">
           <p className="text-sm text-gray-600 leading-relaxed text-center">

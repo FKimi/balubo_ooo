@@ -11,6 +11,7 @@ import { Home, User, BarChart2, Plus, MessageSquare } from 'lucide-react'
 
 export function Header() {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [showReportPreview, setShowReportPreview] = useState(false)
   const { user, signOut } = useAuth()
   const { profile } = useProfile()
   const router = useRouter()
@@ -24,7 +25,7 @@ export function Header() {
   const navLinks = [
     { href: '/feed', label: 'フィード', icon: Home },
     { href: '/profile', label: 'ポートフォリオ', icon: User },
-    { href: '/report', label: '詳細レポート', icon: BarChart2 },
+    { href: '/report', label: '詳細レポート', icon: BarChart2, comingSoon: true },
   ]
 
   return (
@@ -43,6 +44,20 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => {
                 const isActive = pathname.startsWith(link.href)
+                if (link.comingSoon) {
+                  return (
+                    <button
+                      key={link.href}
+                      type="button"
+                      onClick={() => setShowReportPreview(!showReportPreview)}
+                      className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-not-allowed opacity-70 hover:opacity-90`}
+                    >
+                      <link.icon className="w-4 h-4" />
+                      <span>{link.label}</span>
+                      <span className="ml-2 text-[10px] uppercase tracking-wide bg-yellow-200 text-yellow-800 rounded px-1">Soon</span>
+                    </button>
+                  )
+                }
                 return (
                   <Link
                     key={link.href}
@@ -145,6 +160,28 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* プレビューポップオーバー */}
+      {showReportPreview && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center mt-24 px-4" onClick={() => setShowReportPreview(false)}>
+          <div className="bg-white shadow-2xl rounded-xl border border-slate-200 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-slate-700">詳細レポート (準備中)</h3>
+              <button className="text-slate-500 hover:text-slate-700" onClick={() => setShowReportPreview(false)}>
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-200 rounded-lg flex items-center justify-center text-slate-500 text-xs">
+                Coming Soon Preview
+              </div>
+              <p className="text-xs text-slate-600 mt-3 leading-relaxed">
+                AIが自動生成する"納得感・学び・自己肯定感"レポートをお届けします。まもなく公開！
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
