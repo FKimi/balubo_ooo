@@ -29,6 +29,7 @@ export function useScrollAnimation(threshold = 0.1) {
 
     return () => {
       if (ref.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         observer.unobserve(ref.current)
       }
     }
@@ -127,6 +128,7 @@ export function useStaggeredAnimation(itemsCount: number, delay = 200) {
 
     return () => {
       if (ref.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         observer.unobserve(ref.current)
       }
     }

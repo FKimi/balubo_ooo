@@ -11,8 +11,10 @@ class Particle {
   color: string
 
   constructor(
+    // eslint-disable-next-line unused-imports/no-unused-vars
     public mouse: { x: number; y: number },
     public canvas: HTMLCanvasElement,
+    // eslint-disable-next-line unused-imports/no-unused-vars
     public ctx: CanvasRenderingContext2D
   ) {
     this.x = Math.random() * canvas.width

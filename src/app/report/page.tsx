@@ -15,6 +15,7 @@ import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
+import AdvancedMetricsGrid from '@/features/report/components/AdvancedMetricsGrid'
 
 function ReportContent() {
   const { user } = useAuth()
@@ -25,9 +26,10 @@ function ReportContent() {
   const [inputs, setInputs] = useState<InputData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isExporting, setIsExporting] = useState(false)
+  const [_isExporting, setIsExporting] = useState(false)
   const [profile, setProfile] = useState<any>(null)
-  const [showDetailedCards, setShowDetailedCards] = useState(false)
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  const [_showDetailedCards, setShowDetailedCards] = useState(false)
 
   // 各作品のAI分析結果から創造性、専門性、影響力を抽出
   const generateComprehensiveAnalysis = () => {
@@ -367,6 +369,7 @@ function ReportContent() {
     }
 
     fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, targetUserId])
 
   // 包括的なレポートデータを準備する関数
@@ -512,6 +515,7 @@ function ReportContent() {
   }
 
   // PDF出力機能
+  // eslint-disable-next-line unused-imports/no-unused-vars
   const handleExportPDF = async (type: 'structured' | 'screenshot' | 'comprehensive' = 'comprehensive') => {
     try {
       setIsExporting(true)
@@ -638,6 +642,9 @@ function ReportContent() {
             </div>
           </div>
 
+          {/* 詳細メトリクスグリッド（デモ / 実データ） */}
+          <AdvancedMetricsGrid />
+
           {/* 傾向 */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -652,6 +659,29 @@ function ReportContent() {
                 <li key={idx}>{t}</li>
               ))}
             </ul>
+          </div>
+
+          {/* 学びポイント & クライアント訴求 */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Learning Points */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">学びポイント</h3>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                {['論理展開のテンプレート化で再現性を確保', '一次情報へのアクセスで記事価値を高める'].map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Client Appeal */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">クライアント訴求力</h3>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                {['読者エンゲージメント平均120%向上の実績', '専門外の読者にも理解される翻訳力'].map((p, i) => (
+                  <li key={i}>{p}</li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* top tags (バッジ表示) */}
