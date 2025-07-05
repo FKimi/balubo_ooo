@@ -276,7 +276,7 @@ export function PublicProfileTabs({
           <div>
             {/* インプット一覧 */}
             {inputs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 {inputs.map((input) => (
                   <div key={input.id} className="group bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden cursor-pointer">
                     {/* インプット画像またはプレースホルダー */}
