@@ -16,9 +16,12 @@ export default function TagBarChartInternal({ tags }: TagBarChartProps) {
     return <EmptyState title="タグデータがありません" />
   }
 
+  // データ数に応じて高さを調整（1本あたり28px + 余白）
+  const dynamicHeight = Math.max(120, data.length * 28 + 20)
+
   return (
-    <ResponsiveContainer width="100%" height={260}>
-      <BarChart data={data} layout="vertical" margin={{ left: 24 }}>
+    <ResponsiveContainer width="100%" height={dynamicHeight}>
+      <BarChart data={data} layout="vertical" margin={{ left: 24, right: 12 }} barCategoryGap={8}>
         <XAxis type="number" hide domain={['auto', 'dataMax']} />
         <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
         <Tooltip formatter={(value:number)=>`${value} 回`} />
