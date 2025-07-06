@@ -15,6 +15,7 @@ import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelec
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
 import { calculateTopTags, getMediaTypeLabel, summarizeTopTags } from '@/utils/profileUtils'
+import { TagSummarySection } from '@/features/profile/components/TagSummarySection'
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
 import { EmptyState } from '@/components/common'
@@ -499,11 +500,7 @@ export function ProfileTabs({
                     </div>
                   </div>
                   
-                  {tagSummary && (
-                    <p className="text-sm text-gray-600 mb-4">
-                      {tagSummary}
-                    </p>
-                  )}
+                  <TagSummarySection tags={topTags} />
 
                   {/* バーグラフを削除。ランキングリストのみ表示 */}
                   <div className="space-y-3">

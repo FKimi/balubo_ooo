@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +11,7 @@ import { PublicWorksCategoryManager } from '@/features/work/components/PublicWor
 import { RolePieChart } from './RolePieChart'
 import { calculateTopTags, summarizeTopTags } from '@/utils/profileUtils'
 import { EmptyState } from '@/components/common'
+import { TagSummarySection } from '@/features/profile/components/TagSummarySection'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'inputs' | 'details'
@@ -35,11 +36,6 @@ export function PublicProfileTabs({
   isProfileEmpty,
   inputAnalysis: propInputAnalysis
 }: PublicProfileTabsProps) {
-  const [isClient, setIsClient] = useState(false)
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
   // 作品統計の計算（プライベートプロフィールと同じフックを使用）
   const workStats = useWorkStatistics(works)
 
@@ -353,13 +349,7 @@ export function PublicProfileTabs({
                     <div>
                       <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
                       {workStats.roleDistribution.length > 0 ? (
-                        isClient ? (
-                          <RolePieChart roles={workStats.roleDistribution} />
-                        ) : (
-                          <div className="flex h-[260px] w-full items-center justify-center">
-                            <p className="text-sm text-gray-400">読み込み中...</p>
-                          </div>
-                        )
+                        <RolePieChart roles={workStats.roleDistribution} />
                       ) : (
                         <EmptyState title="役割データがありません" />
                       )}
@@ -385,6 +375,8 @@ export function PublicProfileTabs({
                     </div>
                   </div>
                   
+                  <TagSummarySection tags={topTags} />
+
                   <div className="space-y-3">
                     {topTags.slice(0, 5).map(([tag, count]: [string, number], index: number) => (
                       <div 
@@ -414,12 +406,6 @@ export function PublicProfileTabs({
                       </div>
                     ))}
                   </div>
-
-                  {tagSummary && (
-                    <p className="text-sm text-gray-600 mb-4">
-                      {tagSummary}
-                    </p>
-                  )}
                 </CardContent>
               </Card>
             )}

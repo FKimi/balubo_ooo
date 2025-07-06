@@ -119,9 +119,8 @@ export default function RolePieChartInternal({ roles }: RolePieChartInternalProp
                 key={seg.name}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                style={{ transition: 'transform 0.2s ease-out, opacity 0.2s' }}
+                style={{ transition: 'transform 0.2s ease-out, opacity 0.2s', transformOrigin: `${center}px ${center}px` }}
                 transform={hoveredIndex === i ? 'scale(1.05)' : 'scale(1)'}
-                transform-origin={`${center} ${center}`}
                 className="cursor-pointer"
                 filter={hoveredIndex === i ? 'url(#segShadow)' : ''}
                 opacity={hoveredIndex === null || hoveredIndex === i ? 1 : 0.4}
