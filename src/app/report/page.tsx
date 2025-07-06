@@ -16,6 +16,7 @@ import type { InputData } from '@/types/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
 import AdvancedMetricsGrid from '@/features/report/components/AdvancedMetricsGrid'
+import { EmptyState } from '@/components/common'
 
 function ReportContent() {
   const { user } = useAuth()
@@ -600,7 +601,7 @@ function ReportContent() {
       return (
         <Card>
           <CardContent className="p-8 text-center text-gray-500">
-            <p>データがありません。</p>
+            <EmptyState title="データがありません" message="作品またはインプットを追加すると、総合分析レポートが生成されます" />
           </CardContent>
         </Card>
       )

@@ -12,6 +12,10 @@ import {
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { WorkCard } from '@/features/work/components/WorkCard'
 import type { WorkData } from '@/types/work'
+import { DraggableWorkCard } from './SortableWorkCard'
+import { Badge } from '@/components/ui/badge'
+import { useWorkCategories } from '@/hooks/useWorkCategories'
+import { EmptyState } from '@/components/common'
 
 interface Category {
   id: string
@@ -523,22 +527,10 @@ export function WorksCategoryManager({
                 <DraggableWorkCard key={work.id} work={work} onDelete={deleteWork} />
               ))
             ) : (
-              <div className="col-span-full text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m0 5v6h4l2 2-2 2h-4v-6z" />
-                  </svg>
-                </div>
-                <h4 className="text-lg font-semibold text-gray-600 mb-2">
-                  {selectedCategory === 'all' ? 'まだ作品がありません' : 'このカテゴリには作品がありません'}
-                </h4>
-                <p className="text-gray-500 max-w-md mx-auto">
-                  {selectedCategory === 'all' 
-                    ? '最初の作品を追加しましょう' 
-                    : '他のカテゴリから作品を移動するか、新しい作品を追加してください'
-                  }
-                </p>
-              </div>
+              <EmptyState
+                title={selectedCategory === 'all' ? 'まだ作品がありません' : 'このカテゴリには作品がありません'}
+                message={selectedCategory === 'all' ? '最初の作品を追加しましょう' : '他のカテゴリから作品を移動するか、新しい作品を追加してください'}
+              />
             )}
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,9 @@ import { TabNavigation } from '@/components/ui/TabNavigation'
 import { useWorkStatistics } from '@/hooks/useWorkStatistics'
 import { PublicFeaturedWorksSection } from '@/features/work/components/PublicFeaturedWorksSection'
 import { PublicWorksCategoryManager } from '@/features/work/components/PublicWorksCategoryManager'
+import { RolePieChart } from './RolePieChart'
+import { calculateTopTags } from '@/utils/profileUtils'
+import { EmptyState } from '@/components/common'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'inputs' | 'details'
@@ -32,6 +35,10 @@ export function PublicProfileTabs({
   isProfileEmpty,
   inputAnalysis: propInputAnalysis
 }: PublicProfileTabsProps) {
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // 作品統計の計算（プライベートプロフィールと同じフックを使用）
   const workStats = useWorkStatistics(works)
@@ -99,19 +106,7 @@ export function PublicProfileTabs({
   }, [works])
 
   // 作品タグの分析
-  const topTags = useMemo(() => {
-    const tagCount: { [key: string]: number } = {}
-    works.forEach((work) => {
-      if (work.tags && Array.isArray(work.tags)) {
-        work.tags.forEach((tag: string) => {
-          tagCount[tag] = (tagCount[tag] || 0) + 1
-        })
-      }
-    })
-    return (Object.entries(tagCount)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 10)) as [string, number][];
-  }, [works])
+  const topTags = useMemo(() => calculateTopTags(works), [works])
 
   // 自己紹介テキスト（introduction が優先、なければ bio）
   const introductionText = profile?.introduction || profile?.bio || ''
@@ -262,11 +257,10 @@ export function PublicProfileTabs({
                 </div>
               </>
             ) : (
-              <div className="text-center py-20">
-                <div className="text-5xl mb-4">🎨</div>
-                <h4 className="text-lg font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
-                <p className="text-gray-500">作品が登録されると表示されます</p>
-              </div>
+              <EmptyState
+                title="まだ作品がありません"
+                message="作品が登録されると表示されます"
+              />
             )}
           </div>
         )}
@@ -314,11 +308,10 @@ export function PublicProfileTabs({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                
-                <h4 className="text-lg font-semibold text-gray-600 mb-2">まだインプットがありません</h4>
-                <p className="text-gray-500">インプットが登録されると表示されます</p>
-              </div>
+              <EmptyState
+                title="まだインプットがありません"
+                message="インプットが登録されると表示されます"
+              />
             )}
           </div>
         )}
@@ -334,10 +327,10 @@ export function PublicProfileTabs({
                 </div>
 
                 {workStats.totalWorks > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     {/* 総作品数表示 */}
                     <div className="text-center lg:text-left">
-                      <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-6 border border-blue-200">
+                      <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-6 border border-blue-200 h-full">
                         <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
                         <div className="text-4xl font-bold text-blue-600">{workStats.totalWorks}</div>
                         <p className="text-gray-600 mt-2">これまでに制作した作品</p>
@@ -359,34 +352,23 @@ export function PublicProfileTabs({
                     <div>
                       <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
                       {workStats.roleDistribution.length > 0 ? (
-                        <div className="space-y-3">
-                          {workStats.roleDistribution.map((role, index) => (
-                            <div key={index} className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-gray-700">{role.role}</span>
-                                <span className="text-sm text-gray-600">{role.count}件 ({role.percentage.toFixed(0)}%)</span>
-                              </div>
-                              <div className="w-full bg-blue-100 rounded-full h-2">
-                                <div 
-                                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300" 
-                                  style={{ 
-                                    width: `${role.percentage}%`
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                        isClient ? (
+                          <RolePieChart roles={workStats.roleDistribution} />
+                        ) : (
+                          <div className="flex h-[260px] w-full items-center justify-center">
+                            <p className="text-sm text-gray-400">読み込み中...</p>
+                          </div>
+                        )
                       ) : (
-                        <p className="text-gray-500">役割データがありません</p>
+                        <EmptyState title="役割データがありません" />
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <h4 className="text-lg font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
-                    <p className="text-gray-500">作品が登録されると統計情報が表示されます</p>
-                  </div>
+                  <EmptyState
+                    title="まだ作品がありません"
+                    message="作品が登録されると統計情報が表示されます"
+                  />
                 )}
               </CardContent>
             </Card>

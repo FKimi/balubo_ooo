@@ -7,6 +7,8 @@ import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { getSupabaseBrowserClient } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui'
 
 // アニメーション用のスタイル
 const fadeInStyle = `
@@ -331,11 +333,24 @@ export default function ChatPage() {
         <div className="min-h-screen bg-gray-50">
           <Header />
           <main className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-200 border-t-blue-600"></div>
-                <span className="ml-3 text-gray-600">読み込み中...</span>
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* チャットヘッダー */}
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-1/4" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
               </div>
+
+              {/* メッセージバブルのスケルトン */}
+              {[...Array(8)].map((_, idx) => (
+                <div key={idx} className={`flex ${idx % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                  <div className="max-w-xs lg:max-w-md">
+                    <Skeleton className="h-10 w-full rounded-2xl" />
+                  </div>
+                </div>
+              ))}
             </div>
           </main>
         </div>
@@ -358,12 +373,12 @@ export default function ChatPage() {
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">エラーが発生しました</h3>
                 <p className="text-gray-500 mb-4">{error}</p>
-                <button
+                <Button
                   onClick={() => router.push('/messages')}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="font-semibold text-white bg-blue-600 hover:bg-blue-700"
                 >
                   メッセージ一覧に戻る
-                </button>
+                </Button>
               </div>
             </div>
           </main>
@@ -384,12 +399,15 @@ export default function ChatPage() {
         <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 py-4 shadow-sm">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="メッセージ一覧に戻る"
                 onClick={() => router.push('/messages')}
-                className="p-2 hover:bg-gray-100/80 rounded-full transition-all duration-200 hover:scale-105"
+                className="hover:bg-gray-100/80 hover:scale-105"
               >
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </button>
+              </Button>
               {otherParticipant && (
                 <>
                   <div className="relative">
@@ -417,9 +435,14 @@ export default function ChatPage() {
               )}
             </div>
             
-            <button className="p-2 hover:bg-gray-100/80 rounded-full transition-all duration-200 hover:scale-105">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="メニュー"
+              className="hover:bg-gray-100/80 hover:scale-105"
+            >
               <MoreVertical className="h-5 w-5 text-gray-600" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -510,21 +533,25 @@ export default function ChatPage() {
                                       autoFocus
                                     />
                                     <div className="flex gap-2 justify-end">
-                                      <button
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="キャンセル"
                                         onClick={cancelEditing}
-                                        className="p-1.5 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
-                                        title="キャンセル"
+                                        className="bg-gray-200 hover:bg-gray-300"
                                       >
                                         <X className="h-3 w-3 text-gray-600" />
-                                      </button>
-                                      <button
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="保存"
                                         onClick={() => handleEditMessage(message.id, editingContent)}
                                         disabled={!editingContent.trim()}
-                                        className="p-1.5 bg-green-500 rounded-full hover:bg-green-600 transition-colors disabled:opacity-50"
-                                        title="保存"
+                                        className="bg-green-500 hover:bg-green-600 disabled:opacity-50"
                                       >
                                         <Check className="h-3 w-3 text-white" />
-                                      </button>
+                                      </Button>
                                     </div>
                                   </div>
                                 ) : (
@@ -619,10 +646,13 @@ export default function ChatPage() {
                   </div>
                 )}
               </div>
-              <button
+              <Button
                 type="submit"
+                variant="ghost"
+                size="icon"
+                aria-label="送信"
                 disabled={!newMessage.trim() || sending}
-                className={`p-4 rounded-full transition-all duration-200 shadow-lg ${
+                className={`p-4 rounded-full shadow-lg ${
                   newMessage.trim() && !sending
                     ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 hover:scale-105 shadow-blue-500/25'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -633,7 +663,7 @@ export default function ChatPage() {
                 ) : (
                   <Send className="h-5 w-5" />
                 )}
-              </button>
+              </Button>
             </form>
             
             {/* タイピングインジケーター（将来的に実装） */}

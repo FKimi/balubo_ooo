@@ -1,6 +1,7 @@
 "use client"
 
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
+import { EmptyState } from '@/components/common'
 
 interface TagBarChartProps {
   tags: Array<{ name: string; count: number }>
@@ -12,7 +13,7 @@ export default function TagBarChartInternal({ tags }: TagBarChartProps) {
     .filter(t => t.name && !isNaN(t.count))
 
   if (data.length === 0) {
-    return <p className="text-center text-sm text-gray-500">タグデータがありません</p>
+    return <EmptyState title="タグデータがありません" />
   }
 
   return (

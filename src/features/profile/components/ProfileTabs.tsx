@@ -15,7 +15,9 @@ import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelec
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
 import { calculateTopTags, getMediaTypeLabel } from '@/utils/profileUtils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { RolePieChart } from './RolePieChart'
+import { EmptyState } from '@/components/common'
 
 interface ProfileTabsProps {
   activeTab: string
@@ -59,6 +61,12 @@ export function ProfileTabs({
   onUpdateIntroduction: _onUpdateIntroduction,
   setIsIntroductionModalOpen
 }: ProfileTabsProps) {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   // カスタムフックからデータを取得
   const workStats = useWorkStatistics(savedWorks)
   const { categories, addCategory, updateCategory, deleteCategory, updateWorkCategory } = useWorkCategories(savedWorks, setSavedWorks)
@@ -368,20 +376,12 @@ export function ProfileTabs({
                 />
               </div>
             ) : (
-              <div className="text-center py-16">
-                
-                <h4 className="text-xl font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
-                <p className="text-gray-500 mb-6">最初の作品を追加して、ポートフォリオを始めましょう</p>
-                <Button 
-                  onClick={() => setIsContentTypeSelectorOpen(true)}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  最初の作品を追加
-                </Button>
-              </div>
+              <EmptyState
+                title="まだ作品がありません"
+                message="最初の作品を追加して、ポートフォリオを始めましょう"
+                ctaLabel="最初の作品を追加"
+                onCtaClick={() => setIsContentTypeSelectorOpen(true)}
+              />
             )}
           </div>
         )}
@@ -403,37 +403,30 @@ export function ProfileTabs({
               </div>
             </div>
 
-
-
-            {/* インプットグリッド */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto justify-items-center">
-              {isLoadingInputs ? (
-                <div className="col-span-full text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="text-gray-600 mt-2">インプットを読み込み中...</p>
-                </div>
-              ) : inputs.length > 0 ? (
-                inputs.map((input) => (
+            {/* インプット表示 */}
+            {isLoadingInputs ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-gray-600 mt-2">インプットを読み込み中...</p>
+              </div>
+            ) : inputs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto justify-items-center">
+                {inputs.map((input) => (
                   <InputCard
                     key={input.id}
                     input={input}
                     linkPath={`/profile/inputs/${input.id}`}
                   />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <h4 className="text-lg font-semibold text-gray-600 mb-2">まだインプットがありません</h4>
-                  <p className="text-gray-500 mb-4">最初のインプットを追加して、興味関心を分析しましょう</p>
-                  <div className="flex justify-center">
-                    <Link href="/inputs/new" className="inline-block">
-                      <Button className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-2xl shadow-lg shadow-blue-400/30 transition-all duration-300 mx-auto">
-                        インプットを追加
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="まだインプットがありません"
+                message="最初のインプットを追加して、興味関心を分析しましょう"
+                ctaLabel="インプットを追加"
+                ctaHref="/inputs/new"
+              />
+            )}
           </div>
         )}
 
@@ -448,10 +441,10 @@ export function ProfileTabs({
                 </div>
 
                 {workStats.totalWorks > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     {/* 総作品数表示 */}
                     <div className="text-center lg:text-left">
-                      <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-6 border border-blue-200">
+                      <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-6 border border-blue-200 h-full">
                         <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
                         <div className="text-4xl font-bold text-blue-600">{workStats.totalWorks}</div>
                         <p className="text-gray-600 mt-2">これまでに制作した作品</p>
@@ -473,40 +466,25 @@ export function ProfileTabs({
                     <div>
                       <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
                       {workStats.roleDistribution.length > 0 ? (
-                        <div className="space-y-3">
-                          {workStats.roleDistribution.map((role, index) => (
-                            <div key={index} className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-gray-700">{role.role}</span>
-                                <span className="text-sm text-gray-600">{role.count}件 ({role.percentage.toFixed(0)}%)</span>
-                              </div>
-                              <div className="w-full bg-blue-100 rounded-full h-2">
-                                <div 
-                                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300" 
-                                  style={{ 
-                                    width: `${role.percentage}%`
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                        isClient ? (
+                          <RolePieChart roles={workStats.roleDistribution} />
+                        ) : (
+                          <div className="flex h-[260px] w-full items-center justify-center">
+                            <p className="text-sm text-gray-400">読み込み中...</p>
+                          </div>
+                        )
                       ) : (
-                        <p className="text-gray-500">役割データがありません</p>
+                        <EmptyState title="役割データがありません" />
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <h4 className="text-lg font-semibold text-gray-600 mb-2">まだ作品がありません</h4>
-                    <p className="text-gray-500 mb-4">最初の作品を追加して、統計情報を表示しましょう</p>
-                    <Button 
-                      onClick={() => setIsContentTypeSelectorOpen(true)}
-                      className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-2xl shadow-lg shadow-blue-400/30 transition-all duration-300"
-                    >
-                      作品を追加
-                    </Button>
-                  </div>
+                  <EmptyState
+                    title="まだ作品がありません"
+                    message="最初の作品を追加して、統計情報を表示しましょう"
+                    ctaLabel="作品を追加"
+                    onCtaClick={() => setIsContentTypeSelectorOpen(true)}
+                  />
                 )}
               </CardContent>
             </Card>
@@ -596,7 +574,7 @@ export function ProfileTabs({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-blue-600">データが不足しています</p>
+                        <EmptyState title="データが不足しています" />
                       )}
                     </div>
 
@@ -634,7 +612,7 @@ export function ProfileTabs({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-blue-600">まだジャンルが登録されていません</p>
+                        <EmptyState title="まだジャンルが登録されていません" />
                       )}
                     </div>
 
@@ -672,7 +650,7 @@ export function ProfileTabs({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-blue-600">まだタグが登録されていません</p>
+                        <EmptyState title="まだタグが登録されていません" />
                       )}
                     </div>
                   </div>

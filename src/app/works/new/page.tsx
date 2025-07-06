@@ -1101,14 +1101,18 @@ function NewWorkForm({ initialData }: WorkFormProps = {}) {
                 <p className="text-sm text-gray-600 mb-2">よく使われる役割：</p>
                 <div className="flex flex-wrap gap-2">
                   {predefinedRoles.map((role) => (
-                    <button
+                    <Button
                       key={role}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-label="役割追加"
                       onClick={() => addRole(role)}
                       disabled={formData.roles.includes(role)}
-                      className="px-3 py-1 border border-gray-300 rounded-full text-sm hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500 transition-colors"
+                      className="border border-gray-300 rounded-full hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500 px-3 py-1 text-sm"
                     >
                       {role}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -1123,12 +1127,16 @@ function NewWorkForm({ initialData }: WorkFormProps = {}) {
                         className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
                       >
                         {role}
-                        <button
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="役割削除"
                           onClick={() => removeRole(role)}
                           className="ml-2 text-blue-500 hover:text-red-500"
                         >
                           <X className="w-3 h-3" />
-                        </button>
+                        </Button>
                       </span>
                     ))}
                   </div>

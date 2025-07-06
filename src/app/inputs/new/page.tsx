@@ -417,10 +417,6 @@ export default function NewInputPage() {
                         </div>
                       </div>
 
-
-
-
-
                       {/* メモ・感想 */}
                       <div>
                         <Label htmlFor="notes">メモ・感想・レビュー</Label>
@@ -559,13 +555,16 @@ export default function NewInputPage() {
                                       className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center gap-1"
                                     >
                                       {tag}
-                                      <button
+                                      <Button
                                         type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="タグ削除"
                                         onClick={() => removeTag(tag)}
                                         className="text-blue-600 hover:text-blue-800"
                                       >
                                         ×
-                                      </button>
+                                      </Button>
                                     </span>
                                   ))
                                 ) : aiAnalysis.suggestedTags && aiAnalysis.suggestedTags.length > 0 ? (
@@ -596,13 +595,16 @@ export default function NewInputPage() {
                                       className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs flex items-center gap-1"
                                     >
                                       {genre}
-                                      <button
+                                      <Button
                                         type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="ジャンル削除"
                                         onClick={() => removeGenre(genre)}
                                         className="text-purple-600 hover:text-purple-800"
                                       >
                                         ×
-                                      </button>
+                                      </Button>
                                     </span>
                                   ))
                                 ) : aiAnalysis.suggestedGenres && aiAnalysis.suggestedGenres.length > 0 ? (

@@ -278,13 +278,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const displayName = (signedInUser.user_metadata?.display_name as string | undefined) || 'ユーザー'
         const slug = await generateUniqueSlug(displayName)
 
-        const { error: insertError } = await supabase.from('profiles').insert({
-          user_id: signedInUser.id,
-          display_name: displayName,
-          slug,
-        })
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .upsert({
+            user_id: signedInUser.id,
+            display_name: displayName,
+            slug,
+          }, { onConflict: 'user_id', ignoreDuplicates: true })
 
-        if (insertError) {
+        if (insertError && insertError.code !== '23505') { // 23505 = unique_violation
           console.error('[AuthContext] ensureProfile: プロフィール作成エラー:', insertError)
         } else {
           console.log('[AuthContext] ensureProfile: プロフィールを自動作成しました')

@@ -149,7 +149,9 @@ export default function SettingsPage() {
                 <Card>
                   <CardContent className="p-4">
                     <nav className="space-y-2">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setActiveTab('account')}
                         className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           activeTab === 'account'
@@ -158,9 +160,11 @@ export default function SettingsPage() {
                         }`}
                       >
                         アカウント情報
-                      </button>
+                      </Button>
 
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setActiveTab('privacy')}
                         className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                           activeTab === 'privacy'
@@ -169,7 +173,7 @@ export default function SettingsPage() {
                         }`}
                       >
                         プライバシー
-                      </button>
+                      </Button>
                     </nav>
                   </CardContent>
                 </Card>

@@ -234,7 +234,7 @@ export default function ProfileEditPage() {
         } catch (metaErr) {
           console.warn('user_metadata 更新失敗:', metaErr)
         }
-
+        
         // 更新フラグを付けてプロフィール画面に遷移
         router.push('/profile?updated=true')
       }
@@ -382,15 +382,18 @@ export default function ProfileEditPage() {
                           </div>
                         )}
                         {formData.backgroundImageUrl && (
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="背景画像削除"
                             onClick={() => setFormData(prev => ({ ...prev, backgroundImageUrl: '' }))}
                             className="absolute top-3 right-3 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                          </button>
+                          </Button>
                         )}
                       </div>
                       
@@ -411,17 +414,6 @@ export default function ProfileEditPage() {
                             画像を選択
                           </label>
                         </Button>
-                        {formData.backgroundImageUrl && (
-                          <Button
-                            variant="outline"
-                            type="button"
-                            size="sm"
-                            onClick={() => setFormData(prev => ({ ...prev, backgroundImageUrl: '' }))}
-                            className="text-red-600 border-red-200 hover:bg-red-50"
-                          >
-                            削除
-                          </Button>
-                        )}
                       </div>
                       <p className="text-xs text-gray-500">JPG, PNG形式（最大5MB）推奨サイズ: 1200×300px</p>
                     </div>
@@ -476,6 +468,7 @@ export default function ProfileEditPage() {
                             variant="outline"
                             type="button"
                             size="sm"
+                            aria-label="プロフィール画像削除"
                             onClick={() => setFormData(prev => ({ ...prev, avatarImageUrl: '' }))}
                             className="text-red-600 border-red-200 hover:bg-red-50"
                           >

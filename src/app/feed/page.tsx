@@ -5,12 +5,16 @@ import Image from 'next/image'
 import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
+import { Button } from '@/components/ui/button'
 import { RecommendedUsers } from '@/features/feed'
 import { 
   Share, 
   ExternalLink,
   User
 } from 'lucide-react'
+import { EmptyState } from '@/components/common'
+import { TabNavigation } from '@/components/ui/TabNavigation'
+import { Skeleton } from '@/components/ui'
 
 interface User {
   id: string
@@ -43,7 +47,7 @@ export default function FeedPage() {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'all' | 'works' | 'inputs'>('works')
+  const [activeTab, setActiveTab] = useState<'works' | 'inputs'>('works')
   const [selectedItem, setSelectedItem] = useState<FeedItem | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -163,11 +167,15 @@ export default function FeedPage() {
   }, [])
 
   const filteredItems = feedItems.filter(item => {
-    if (activeTab === 'all') return true
     if (activeTab === 'works') return item.type === 'work'
     if (activeTab === 'inputs') return item.type === 'input'
     return true
   })
+
+  const tabConfigs = [
+    { key: 'works', label: '作品' },
+    { key: 'inputs', label: 'インプット' },
+  ]
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
@@ -494,14 +502,30 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Header />
-        <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 73px)' }}>
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-6"></div>
-            <p className="text-gray-600 font-medium">フィードを読み込み中...</p>
-            <p className="text-gray-400 text-sm mt-2">クリエイターの最新作品をお届けします</p>
+        <div className="max-w-4xl mx-auto">
+          {/* スケルトンヘッダー */}
+          <div className="border-x border-b border-gray-200">
+            <Skeleton className="h-14 w-full" />
           </div>
+          {/* スケルトンフィードアイテム */}
+          {[...Array(5)].map((_, idx) => (
+            <div key={idx} className="border-x border-b border-gray-200 p-4 max-w-4xl mx-auto">
+              <div className="flex items-start space-x-3 mb-3">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-1/3 mb-2" />
+                  <Skeleton className="h-3 w-1/4" />
+                </div>
+              </div>
+              <div className="ml-12 space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-11/12" />
+                <Skeleton className="h-4 w-10/12" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     )
@@ -516,28 +540,13 @@ export default function FeedPage() {
           {/* メインフィード - 横幅を広げて中央配置 */}
           <div className="flex-1 max-w-4xl mx-auto border-x border-gray-200">
         {/* タブナビゲーション */}
-        <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 mb-0">
-          <div className="flex">
-            {[
-              { key: 'works', label: '作品' },
-              { key: 'inputs', label: 'インプット' },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`px-4 py-4 text-center font-medium transition-colors relative hover:bg-gray-50 ${
-                  activeTab === tab.key || (activeTab === 'all' && tab.key === 'works')
-                    ? 'text-gray-900'
-                    : 'text-gray-500'
-                }`}
-              >
-                <span className="text-sm font-semibold">{tab.label}</span>
-                {(activeTab === tab.key || (activeTab === 'all' && tab.key === 'works')) && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-500 rounded-full"></div>
-                )}
-              </button>
-            ))}
-          </div>
+        <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 mb-0 p-2">
+          <TabNavigation
+            tabs={tabConfigs}
+            activeTab={activeTab}
+            onTabChange={(key) => setActiveTab(key as any)}
+            className="bg-transparent"
+          />
         </div>
 
         {/* 未ログインユーザー向けバナー */}
@@ -548,12 +557,12 @@ export default function FeedPage() {
                 <p className="font-semibold text-blue-900">Baluboへようこそ！</p>
                 <p className="text-sm text-blue-700">クリエイターのポートフォリオを発見しよう</p>
               </div>
-              <button 
+              <Button 
                 onClick={() => router.push('/auth')}
-                className="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors text-sm"
+                className="rounded-full px-4 py-2 font-semibold text-sm text-white bg-blue-600 hover:bg-blue-700"
               >
                 ログイン
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -741,104 +750,93 @@ export default function FeedPage() {
                 )}
 
                 {/* アクションボタン */}
-                <div className="ml-12 flex items-center space-x-12">
-                  <button 
-                    className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors group p-2 rounded-full hover:bg-blue-50"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openCommentModal(item.id)
-                    }}
-                  >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
-                    </svg>
-                    <span className="text-sm text-gray-500">{item.comments_count || 0}</span>
-                  </button>
-                  
-                  <button 
-                    className={`flex items-center space-x-2 transition-colors group p-2 rounded-full ${
-                      item.user_has_liked 
-                        ? 'text-red-500 hover:bg-red-50' 
-                        : 'text-gray-500 hover:text-red-500 hover:bg-red-50'
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleLike(item.id, item.user_has_liked || false)
-                    }}
-                  >
-                    <svg className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                      item.user_has_liked ? 'fill-current' : ''
-                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+                <div className="ml-12 flex items-center gap-4 text-gray-500">
+                  {/* コメント */}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="コメントする"
+                      className="hover:text-blue-500 hover:bg-blue-50 group"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openCommentModal(item.id)
+                      }}
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
+                      </svg>
+                    </Button>
+                    <span className="text-sm">{item.comments_count || 0}</span>
+                  </div>
+                  {/* いいね */}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="いいね"
+                      className={`transition-colors group ${
+                        item.user_has_liked 
+                          ? 'text-red-500 hover:bg-red-50' 
+                          : 'hover:text-red-500 hover:bg-red-50'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleLike(item.id, item.user_has_liked || false)
+                      }}
+                    >
+                      <svg className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                        item.user_has_liked ? 'fill-current' : ''
+                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </Button>
                     <span className="text-sm">{item.likes_count || 0}</span>
-                  </button>
-                  
-                  <button 
-                    className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors group p-2 rounded-full hover:bg-green-50"
+                  </div>
+                  {/* シェア */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="シェア"
+                    className="hover:text-green-500 hover:bg-green-50 group"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleShare(item)
                     }}
                   >
                     <Share className="h-5 w-5 transition-transform group-hover:scale-110" />
-                  </button>
+                  </Button>
                 </div>
               </article>
             ))}
           </div>
         ) : (
-          <div className="bg-white p-12 text-center border-b border-gray-200">
-            <div className="mb-6">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+          <div className="bg-white p-12 border-b border-gray-200">
+            <EmptyState
+              title={error ? 'データの取得に失敗しました' :
+                activeTab === 'works' ? '作品がまだありません' :
+                activeTab === 'inputs' ? 'インプットがまだありません' :
+                'フィードが空です'}
+              message={error ? 'サーバーに接続できませんでした。しばらくしてから再度お試しください。' :
+                !isAuthenticated ? 'ログインすると、クリエイターのポートフォリオを閲覧できます。' :
+                activeTab === 'works' ? 'クリエイターの作品が投稿されるとここに表示されます。' :
+                activeTab === 'inputs' ? 'クリエイターのインプットが投稿されるとここに表示されます。' :
+                'まだ投稿がありません。'}
+              ctaLabel={error ? '再読み込み' :
+                !isAuthenticated ? 'ログイン' :
+                activeTab === 'works' ? '作品を投稿' :
+                activeTab === 'inputs' ? 'インプットを追加' : undefined}
+              onCtaClick={error ? () => window.location.reload() :
+                !isAuthenticated ? () => router.push('/auth') :
+                activeTab === 'works' ? () => router.push('/works/new') :
+                activeTab === 'inputs' ? () => router.push('/inputs/new') : undefined}
+            >
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                 <span className="text-2xl">
                   {error ? '⚠️' : activeTab === 'works' ? '🎨' : activeTab === 'inputs' ? '📚' : '📱'}
                 </span>
               </div>
-            </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {error ? 'データの取得に失敗しました' :
-               activeTab === 'works' ? '作品がまだありません' : 
-               activeTab === 'inputs' ? 'インプットがまだありません' : 
-               'フィードが空です'}
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-              {error ? 'サーバーに接続できませんでした。しばらくしてから再度お試しください。' :
-               !isAuthenticated ? 'ログインすると、クリエイターのポートフォリオを閲覧できます。' :
-               activeTab === 'works' ? 'クリエイターの作品が投稿されるとここに表示されます。' : 
-               activeTab === 'inputs' ? 'クリエイターのインプットが投稿されるとここに表示されます。' : 
-               'まだ投稿がありません。'}
-            </p>
-            {error ? (
-              <button 
-                onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors text-sm font-semibold"
-              >
-                再読み込み
-              </button>
-            ) : !isAuthenticated ? (
-              <button 
-                onClick={() => router.push('/auth')}
-                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors text-sm font-semibold"
-              >
-                ログイン
-              </button>
-            ) : (
-              <div className="flex gap-2 justify-center">
-                <button 
-                  onClick={() => router.push('/works/new')}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-colors text-sm font-semibold"
-                >
-                  作品を投稿
-                </button>
-                <button 
-                  onClick={() => router.push('/inputs/new')}
-                  className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors text-sm font-semibold"
-                >
-                  インプットを追加
-                </button>
-              </div>
-            )}
+            </EmptyState>
           </div>
         )}
 
@@ -906,14 +904,15 @@ export default function FeedPage() {
                     <p className="text-sm text-gray-600">{formatTimeAgo(selectedItem.created_at)}</p>
                   </div>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setSelectedItem(null)}
-                  className="text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all duration-200"
+                  className="text-gray-400 hover:text-gray-600 w-10 h-10 rounded-full hover:bg-gray-100 transition-all duration-200"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </button>
+                </Button>
               </div>
 
               <h2 className="text-2xl font-bold text-gray-900 mb-4">{selectedItem.title}</h2>
@@ -935,18 +934,23 @@ export default function FeedPage() {
               {/* アクションボタン */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <div className="flex items-center space-x-8">
-                  <button 
-                    className="flex items-center space-x-2 text-gray-500 hover:text-blue-500 transition-colors"
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="コメントする"
+                    className="text-gray-500 hover:text-blue-500 hover:bg-blue-50 group"
                     onClick={() => openCommentModal(selectedItem.id)}
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
                     </svg>
-                    <span className="text-sm">{selectedItem.comments_count || 0}</span>
-                  </button>
+                  </Button>
                   
-                  <button 
-                    className={`flex items-center space-x-2 transition-colors ${
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="いいね"
+                    className={`transition-colors group ${
                       selectedItem.user_has_liked 
                         ? 'text-red-500' 
                         : 'text-gray-500 hover:text-red-500'
@@ -958,25 +962,38 @@ export default function FeedPage() {
                     }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
-                    <span className="text-sm">{selectedItem.likes_count || 0}</span>
-                  </button>
+                  </Button>
                   
-                  <button 
-                    className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors"
-                    onClick={() => handleShare(selectedItem)}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="シェア"
+                    className="text-gray-500 hover:text-green-500 hover:bg-green-50 group"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleShare(selectedItem)
+                    }}
                   >
                     <Share className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="flex gap-3">
-                  <button className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
-                    isAuthenticated
-                      ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
-                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
-                  }`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label={isAuthenticated ? 'フォロー' : 'ログイン'}
+                    className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
+                      isAuthenticated
+                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    }`}
+                    onClick={() => {
+                      if (!isAuthenticated) router.push('/auth')
+                    }}
+                  >
                     {isAuthenticated ? 'フォロー' : 'ログイン'}
-                  </button>
+                  </Button>
                   {selectedItem.external_url && (
                     <a
                       href={selectedItem.external_url}
@@ -1002,14 +1019,17 @@ export default function FeedPage() {
             <div className="p-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">コメント</h3>
-                <button
-                  onClick={closeCommentModal}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="閉じる"
                   className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                  onClick={closeCommentModal}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </button>
+                </Button>
               </div>
             </div>
             
@@ -1058,15 +1078,13 @@ export default function FeedPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
+                <EmptyState title="まだコメントがありません" message="最初のコメントを投稿してみましょう">
                   <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
                     </svg>
                   </div>
-                  <p className="text-gray-500 text-sm">まだコメントがありません</p>
-                  <p className="text-gray-400 text-xs mt-1">最初のコメントを投稿してみましょう</p>
-                </div>
+                </EmptyState>
               )}
             </div>
 
@@ -1091,35 +1109,43 @@ export default function FeedPage() {
                     disabled={isSubmittingComment}
                   />
                   <div className="flex justify-end space-x-2">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-label="キャンセル"
                       onClick={closeCommentModal}
-                      className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800"
                     >
                       キャンセル
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="submit"
+                      size="sm"
+                      aria-label="投稿"
                       disabled={!newComment.trim() || isSubmittingComment}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmittingComment ? '投稿中...' : '投稿'}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
             ) : (
               <div className="p-4 border-t border-gray-200 text-center">
                 <p className="text-gray-600 text-sm mb-3">コメントを投稿するにはログインが必要です</p>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="ログイン"
                   onClick={() => {
                     closeCommentModal()
                     router.push('/auth')
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                 >
                   ログイン
-                </button>
+                </Button>
               </div>
             )}
           </div>

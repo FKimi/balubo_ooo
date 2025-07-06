@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import type { WorkData } from '@/types/work'
+import { EmptyState } from '@/components/common'
 
 interface Category {
   id: string
@@ -88,9 +89,10 @@ export function PublicWorksCategoryManager({ works, categories }: PublicWorksCat
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-gray-500">
-          <p>このカテゴリにはまだ作品がありません。</p>
-        </div>
+        <EmptyState
+          title={selectedCategory === 'all' ? 'まだ作品がありません' : 'このカテゴリには作品がありません'}
+          message={selectedCategory === 'all' ? '作品が投稿されるとここに表示されます' : '別のカテゴリを選択してください'}
+        />
       )}
     </div>
   )

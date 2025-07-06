@@ -3,6 +3,7 @@ import { SimpleProgress } from './SimpleProgress'
 import type { WorkData } from '@/types/work'
 import type { InputData } from '@/types/input'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
+import { EmptyState } from '@/components/common'
 
 interface ActivitySectionProps {
   works: WorkData[]
@@ -42,7 +43,7 @@ export function ActivitySection({ works, inputs }: ActivitySectionProps) {
               })}
             </div>
           ) : (
-            <div className="text-gray-500 text-sm">アクティビティデータがありません</div>
+            <EmptyState title="アクティビティデータがありません" />
           )}
         </CardContent>
       </Card>
@@ -63,7 +64,7 @@ export function ActivitySection({ works, inputs }: ActivitySectionProps) {
               ))}
             </ol>
           ) : (
-            <div className="text-gray-500 text-sm">タイムラインデータがありません</div>
+            <EmptyState title="タイムラインデータがありません" />
           )}
         </CardContent>
       </Card>

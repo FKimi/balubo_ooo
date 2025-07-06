@@ -3,29 +3,34 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { usePrefersReducedMotion } from '@/hooks'
 
 export default function HeroSection() {
   const [animateAnalysis, setAnimateAnalysis] = useState(false)
   const [currentAnalysisStep, setCurrentAnalysisStep] = useState(0)
+  const [isRedirecting, setIsRedirecting] = useState(false)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   // AI分析のアニメーション効果
   useEffect(() => {
+    if (prefersReducedMotion) return
     const interval = setInterval(() => {
       setAnimateAnalysis(true)
       setTimeout(() => setAnimateAnalysis(false), 2000)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [prefersReducedMotion])
 
   // 分析ステップの切り替え
   useEffect(() => {
+    if (prefersReducedMotion) return
     const stepInterval = setInterval(() => {
       setCurrentAnalysisStep(prev => (prev + 1) % 3)
     }, 3000)
 
     return () => clearInterval(stepInterval)
-  }, [])
+  }, [prefersReducedMotion])
 
   const analysisSteps = [
     { label: '概要', color: 'blue', content: '経営戦略をテーマにした深い洞察を提供する記事。業界の第一人者へのインタビューを通じて、読者に実践的な価値を提供' },
@@ -60,17 +65,16 @@ export default function HeroSection() {
 
               <h1 className="text-4xl font-extrabold tracking-tight text-slate-800 sm:text-5xl md:text-6xl lg:text-7xl">
                 <span className="block leading-tight">
-                                  <span className="bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
-                  クリエイター
+                  あなたの
+                  <span className="ml-2 bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent">
+                    隠れた強み
+                  </span>
+                  を発見・証明
                 </span>
-                  の
-                </span>
-                <span className="mt-2 block leading-tight">
-                  新しい魅力を発見・証明
-                </span>
+
               </h1>
 
-              <div className="mx-auto max-w-xl space-y-6 text-lg text-slate-600 sm:text-xl lg:mx-0">
+              <div className="mx-auto max-w-2xl space-y-6 text-lg text-slate-600 sm:text-xl lg:mx-0">
                 <p>
                   <span className="font-semibold text-slate-900">balubo</span>は、ライター・編集者などクリエイターのためのポートフォリオサービスです。
                 </p>
@@ -91,14 +95,20 @@ export default function HeroSection() {
 
               <div className="flex flex-col justify-center gap-4 pt-4 sm:flex-row lg:justify-start">
                 <Button
-                  asChild
                   size="lg"
-                  className="w-full transform-gpu rounded-2xl bg-blue-500 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-300/30 hover:scale-105 sm:w-auto"
+                  className="w-full transform-gpu rounded-2xl bg-blue-500 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-300/30 hover:scale-105 sm:w-auto disabled:opacity-60"
+                  disabled={isRedirecting}
+                  onClick={() => {
+                    setIsRedirecting(true)
+                    window.location.href = '/register'
+                  }}
                 >
-                  <Link href="/register">
-                    無料で始める
-                    <svg className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                  </Link>
+                  {isRedirecting ? '読み込み中…' : (
+                    <span className="inline-flex items-center">
+                      無料で始める
+                      <svg className="ml-2 h-5 w-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                    </span>
+                  )}
                 </Button>
                 <Button
                   asChild
@@ -130,7 +140,7 @@ export default function HeroSection() {
                     </div>
 
                     {/* Dynamic Content Based on Current Step */}
-                    <div className="min-h-[300px]">
+                    <div className="min-h-[300px]" aria-live="polite" aria-atomic="true">
                       {currentAnalysisStep === 0 && (
                         <div className="animate-fadeIn">
                           {/* 概要セクション */}

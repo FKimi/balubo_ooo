@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { Send, MessageCircle, User } from 'lucide-react'
 import { getSupabaseBrowserClient } from '@/lib/supabase'
 import { fetcher } from '@/utils/fetcher'
+import { EmptyState } from '@/components/common'
 
 interface Comment {
   id: string
@@ -217,11 +218,12 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">まだコメントがありません</p>
-          <p className="text-sm text-gray-400">最初のコメントを投稿してみませんか？</p>
-        </div>
+        <EmptyState
+          title="まだコメントがありません"
+          message="最初のコメントを投稿してみませんか？"
+        >
+          <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+        </EmptyState>
       )}
     </div>
   )

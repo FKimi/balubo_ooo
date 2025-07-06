@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { InputData } from '@/types/input'
+import { EmptyState } from '@/components/common'
 
 interface InputsSectionProps {
   inputs: InputData[]
@@ -125,7 +126,7 @@ export function InputsSection({ inputs }: InputsSectionProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm">ジャンルデータがありません</div>
+              <EmptyState title="ジャンルデータがありません" />
             )}
           </CardContent>
         </Card>
@@ -148,7 +149,7 @@ export function InputsSection({ inputs }: InputsSectionProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm">メディアタイプデータがありません</div>
+              <EmptyState title="メディアタイプデータがありません" />
             )}
           </CardContent>
         </Card>

@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { ArrowLeftIcon, PencilIcon, TrashIcon, UserIcon } from '@heroicons/react/24/outline'
 import { HeartIcon } from '@heroicons/react/24/solid'
 import { Header, MobileBottomNavigation } from '@/components/layout/header'
+import { Button } from '@/components/ui/button'
 
 interface InputDetailPageProps {
   params: {
@@ -275,13 +276,16 @@ export default function InputDetailPage({ params }: any) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* ナビゲーション */}
           <div className="mb-6">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="戻る"
               onClick={() => router.back()}
               className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeftIcon className="h-5 w-5 mr-2" />
               戻る
-            </button>
+            </Button>
           </div>
 
           {/* メインコンテンツ */}
@@ -314,13 +318,16 @@ export default function InputDetailPage({ params }: any) {
                       <PencilIcon className="h-4 w-4 mr-1" />
                       編集
                     </Link>
-                    <button
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      aria-label="削除"
                       onClick={() => setShowDeleteModal(true)}
-                      className="flex items-center px-3 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                      className="flex items-center px-3 py-2 text-sm font-medium"
                     >
                       <TrashIcon className="h-4 w-4 mr-1" />
                       削除
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

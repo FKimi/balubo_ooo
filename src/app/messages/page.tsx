@@ -7,6 +7,9 @@ import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { supabase } from '@/lib/supabase'
+import { EmptyState } from '@/components/common'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui'
 
 interface Conversation {
   id: string
@@ -102,10 +105,33 @@ export default function MessagesPage() {
         <div className="min-h-screen bg-gray-50">
           <Header />
           <main className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-200 border-t-blue-600"></div>
-                <span className="ml-3 text-gray-600">読み込み中...</span>
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* ページヘッダー */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-8 w-8 rounded" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-4 w-48" />
+                  </div>
+                </div>
+                <Skeleton className="h-10 w-36 rounded-lg" />
+              </div>
+
+              {/* 検索バー */}
+              <Skeleton className="h-12 w-full rounded-lg" />
+
+              {/* 会話リスト */}
+              <div className="bg-white rounded-xl border overflow-hidden divide-y divide-gray-100">
+                {[...Array(5)].map((_, idx) => (
+                  <div key={idx} className="p-4 flex items-start gap-4">
+                    <Skeleton className="w-12 h-12 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-1/3" />
+                      <Skeleton className="h-3 w-2/3" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </main>
@@ -130,13 +156,13 @@ export default function MessagesPage() {
                   <p className="text-gray-600">クリエイター同士でコミュニケーションを取りましょう</p>
                 </div>
               </div>
-              <button
+              <Button
                 onClick={handleNewMessage}
                 className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 新しいメッセージ
-              </button>
+              </Button>
             </div>
 
             {/* 検索バー */}
@@ -155,12 +181,15 @@ export default function MessagesPage() {
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-600">{error}</p>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="再試行"
                   onClick={fetchConversations}
                   className="mt-2 text-red-700 hover:text-red-800 font-medium"
                 >
                   再試行
-                </button>
+                </Button>
               </div>
             )}
 
@@ -232,35 +261,19 @@ export default function MessagesPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  {searchQuery ? (
-                    <>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        検索結果が見つかりません
-                      </h3>
-                      <p className="text-gray-500">
-                        「{searchQuery}」に一致する会話はありません
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        まだメッセージがありません
-                      </h3>
-                      <p className="text-gray-500 mb-4">
-                        他のクリエイターとメッセージを始めてみましょう
-                      </p>
-                      <button
-                        onClick={handleNewMessage}
-                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        <Plus className="h-4 w-4" />
-                        新しいメッセージを開始
-                      </button>
-                    </>
-                  )}
-                </div>
+                searchQuery ? (
+                  <EmptyState
+                    title="検索結果が見つかりません"
+                    message={`「${searchQuery}」に一致する会話はありません`}
+                  />
+                ) : (
+                  <EmptyState
+                    title="まだメッセージがありません"
+                    message="他のクリエイターとメッセージを始めてみましょう"
+                    ctaLabel="新しいメッセージを開始"
+                    onCtaClick={handleNewMessage}
+                  />
+                )}
               )}
             </div>
           </div>

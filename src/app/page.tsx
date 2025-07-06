@@ -26,9 +26,10 @@ function Footer() {
             href="https://x.com/AiBalubo56518" 
             target="_blank" 
             rel="noopener noreferrer"
+            aria-label="balubo公式X（旧Twitter）アカウント（新しいタブで開く）"
             className="text-sm leading-6 text-slate-600 hover:text-slate-900 flex items-center gap-1"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
             X (Twitter)
@@ -93,29 +94,36 @@ export default function HomePage() {
 
   return (
     <div className="bg-white">
+      {/* アクセシビリティ: キーボード操作ユーザー向けにメインコンテンツへ直接移動できるスキップリンクを追加 */}
+      <a
+        href="#main"
+        className="sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white"
+      >
+        メインコンテンツへスキップ
+      </a>
       {/* TODO: ヘッダーもコンポーネントに分離する */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2" aria-label="balubo トップページ">
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">balubo</h1>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">balubo</span>
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
                 BETA
               </span>
             </div>
           </Link>
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <nav className="flex items-center space-x-2 sm:space-x-4" aria-label="グローバルナビゲーション">
             <Button asChild variant="ghost" className="text-slate-600 hover:text-blue-500">
               <Link href="/login">ログイン</Link>
             </Button>
             <Button asChild className="rounded-lg bg-blue-600 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
               <Link href="/register">無料で始める</Link>
             </Button>
-          </div>
+          </nav>
         </div>
       </header>
 
-      <main>
+      <main id="main">
         <HeroSection />
         {/* HeroとPainPoints間の区切り (シンプル余白) */}
         <div className="h-10 bg-white" />
