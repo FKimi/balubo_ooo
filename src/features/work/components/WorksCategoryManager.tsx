@@ -12,9 +12,6 @@ import {
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { WorkCard } from '@/features/work/components/WorkCard'
 import type { WorkData } from '@/types/work'
-import { DraggableWorkCard } from './SortableWorkCard'
-import { Badge } from '@/components/ui/badge'
-import { useWorkCategories } from '@/hooks/useWorkCategories'
 import { EmptyState } from '@/components/common'
 
 interface Category {

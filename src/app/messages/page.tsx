@@ -260,20 +260,18 @@ export default function MessagesPage() {
                     </div>
                   ))}
                 </div>
+              ) : searchQuery ? (
+                <EmptyState
+                  title="検索結果が見つかりません"
+                  message={`「${searchQuery}」に一致する会話はありません`}
+                />
               ) : (
-                searchQuery ? (
-                  <EmptyState
-                    title="検索結果が見つかりません"
-                    message={`「${searchQuery}」に一致する会話はありません`}
-                  />
-                ) : (
-                  <EmptyState
-                    title="まだメッセージがありません"
-                    message="他のクリエイターとメッセージを始めてみましょう"
-                    ctaLabel="新しいメッセージを開始"
-                    onCtaClick={handleNewMessage}
-                  />
-                )}
+                <EmptyState
+                  title="まだメッセージがありません"
+                  message="他のクリエイターとメッセージを始めてみましょう"
+                  ctaLabel="新しいメッセージを開始"
+                  onCtaClick={handleNewMessage}
+                />
               )}
             </div>
           </div>

@@ -825,11 +825,11 @@ export default function FeedPage() {
               ctaLabel={error ? '再読み込み' :
                 !isAuthenticated ? 'ログイン' :
                 activeTab === 'works' ? '作品を投稿' :
-                activeTab === 'inputs' ? 'インプットを追加' : undefined}
+                activeTab === 'inputs' ? 'インプットを追加' : ''}
               onCtaClick={error ? () => window.location.reload() :
                 !isAuthenticated ? () => router.push('/auth') :
                 activeTab === 'works' ? () => router.push('/works/new') :
-                activeTab === 'inputs' ? () => router.push('/inputs/new') : undefined}
+                activeTab === 'inputs' ? () => router.push('/inputs/new') : () => {}}
             >
               <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                 <span className="text-2xl">
