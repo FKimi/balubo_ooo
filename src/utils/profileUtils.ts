@@ -77,4 +77,19 @@ export function calculateInputStats(inputs: InputData[]) {
     averageRating,
     typeDistribution
   }
+}
+
+export function summarizeTopTags(topTags: [string, number][]): string {
+  if (!topTags || topTags.length === 0) return ''
+
+  // 上位3件のタグ名を取得
+  const tagNames = topTags.slice(0, 3).map(([tag]) => tag)
+
+  if (tagNames.length === 1) {
+    return `${tagNames[0]}に関する作品が多く、専門性を発揮しています。`
+  }
+  if (tagNames.length === 2) {
+    return `${tagNames[0]}や${tagNames[1]}などの分野で多くの作品を制作しています。`
+  }
+  return `${tagNames[0]}、${tagNames[1]}、${tagNames[2]}などの分野で多くの作品を制作しています。`
 } 

@@ -9,8 +9,9 @@ import { useWorkStatistics } from '@/hooks/useWorkStatistics'
 import { PublicFeaturedWorksSection } from '@/features/work/components/PublicFeaturedWorksSection'
 import { PublicWorksCategoryManager } from '@/features/work/components/PublicWorksCategoryManager'
 import { RolePieChart } from './RolePieChart'
-import { calculateTopTags } from '@/utils/profileUtils'
+import { calculateTopTags, summarizeTopTags } from '@/utils/profileUtils'
 import { EmptyState } from '@/components/common'
+import { TagBarChart } from '@/features/report/components/TagBarChart'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'inputs' | 'details'
@@ -107,6 +108,7 @@ export function PublicProfileTabs({
 
   // 作品タグの分析
   const topTags = useMemo(() => calculateTopTags(works), [works])
+  const tagSummary = useMemo(() => summarizeTopTags(topTags), [topTags])
 
   // 自己紹介テキスト（introduction が優先、なければ bio）
   const introductionText = profile?.introduction || profile?.bio || ''
@@ -413,6 +415,18 @@ export function PublicProfileTabs({
                       </div>
                     ))}
                   </div>
+
+                  {tagSummary && (
+                    <p className="text-sm text-gray-600 mb-4">
+                      {tagSummary}
+                    </p>
+                  )}
+
+                  {isClient && (
+                    <div className="mb-6">
+                      <TagBarChart tags={topTags.map(([name, count]) => ({ name, count }))} />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

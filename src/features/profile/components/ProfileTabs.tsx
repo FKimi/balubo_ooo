@@ -14,10 +14,11 @@ import { WorksCategoryManager } from '@/features/work/components/WorksCategoryMa
 import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelector'
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
-import { calculateTopTags, getMediaTypeLabel } from '@/utils/profileUtils'
+import { calculateTopTags, getMediaTypeLabel, summarizeTopTags } from '@/utils/profileUtils'
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
 import { EmptyState } from '@/components/common'
+import { TagBarChart } from '@/features/report/components/TagBarChart'
 
 interface ProfileTabsProps {
   activeTab: string
@@ -76,10 +77,9 @@ export function ProfileTabs({
 
   // よく使用するタグを計算（作品データから）
   const topTags = calculateTopTags(savedWorks)
+  const tagSummary = summarizeTopTags(topTags)
 
-
-
-    // タブ設定
+  // タブ設定
   const tabs = [
     { key: 'profile', label: 'プロフィール' },
     { key: 'works', label: '作品' },
@@ -500,6 +500,19 @@ export function ProfileTabs({
                     </div>
                   </div>
                   
+                  {tagSummary && (
+                    <p className="text-sm text-gray-600 mb-4">
+                      {tagSummary}
+                    </p>
+                  )}
+
+                  {/* タグ別バーグラフ */}
+                  {isClient && (
+                    <div className="mb-6">
+                      <TagBarChart tags={topTags.map(([name, count]) => ({ name, count }))} />
+                    </div>
+                  )}
+
                   <div className="space-y-3">
                     {topTags.slice(0, 5).map(([tag, count], index) => (
                       <div 
