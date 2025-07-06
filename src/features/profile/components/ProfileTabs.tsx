@@ -18,7 +18,6 @@ import { calculateTopTags, getMediaTypeLabel, summarizeTopTags } from '@/utils/p
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
 import { EmptyState } from '@/components/common'
-import { TagBarChart } from '@/features/report/components/TagBarChart'
 
 interface ProfileTabsProps {
   activeTab: string
@@ -506,13 +505,7 @@ export function ProfileTabs({
                     </p>
                   )}
 
-                  {/* タグ別バーグラフ */}
-                  {isClient && (
-                    <div className="mb-6">
-                      <TagBarChart tags={topTags.map(([name, count]) => ({ name, count }))} />
-                    </div>
-                  )}
-
+                  {/* バーグラフを削除。ランキングリストのみ表示 */}
                   <div className="space-y-3">
                     {topTags.slice(0, 5).map(([tag, count], index) => (
                       <div 

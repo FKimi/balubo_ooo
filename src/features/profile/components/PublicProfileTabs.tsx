@@ -11,7 +11,6 @@ import { PublicWorksCategoryManager } from '@/features/work/components/PublicWor
 import { RolePieChart } from './RolePieChart'
 import { calculateTopTags, summarizeTopTags } from '@/utils/profileUtils'
 import { EmptyState } from '@/components/common'
-import { TagBarChart } from '@/features/report/components/TagBarChart'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'inputs' | 'details'
@@ -420,12 +419,6 @@ export function PublicProfileTabs({
                     <p className="text-sm text-gray-600 mb-4">
                       {tagSummary}
                     </p>
-                  )}
-
-                  {isClient && (
-                    <div className="mb-6">
-                      <TagBarChart tags={topTags.map(([name, count]) => ({ name, count }))} />
-                    </div>
                   )}
                 </CardContent>
               </Card>
