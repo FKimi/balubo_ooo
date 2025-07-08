@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "refactor-clean": "eslint 'src/**/*.{ts,tsx}' --fix && ts-prune | grep -v 'used in module' | xargs -I{} sed -i '' -e '/export .* {}$/d' && rg --files-with-matches -e 'console\\.log' -e '^\\s*//.*' src | xargs sed -i '' -e '/console\\.log/d' -e '/^\\s*\\/\\/[^TODO]/d'"
   },
   "keywords": [],
   "author": "",

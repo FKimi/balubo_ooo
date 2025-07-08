@@ -57,21 +57,34 @@ export function TagSummarySection({ tags }: TagSummarySectionProps) {
   }
 
   return (
-    <div className="mb-4">
-      {summary ? (
-        <p className="text-sm text-gray-600 mb-3 whitespace-pre-line leading-relaxed">{summary}</p>
-      ) : (
-        <p className="text-sm text-gray-500 mb-3">まだAI紹介文が生成されていません</p>
-      )}
-      <button
-        onClick={handleGenerate}
-        disabled={loading}
-        className="flex items-center gap-1 text-sm px-4 py-1.5 rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 disabled:opacity-50"
-      >
-        ⚡
-        {loading ? '生成中...' : summary ? '再生成' : 'AIで生成'}
-      </button>
-      {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
+    <div className="w-full space-y-6">
+      {/* タイトルと再生成ボタン */}
+      <div className="flex items-start justify-between gap-4 flex-wrap sm:flex-nowrap">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 flex-shrink-0">分析サマリー</h2>
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full border border-blue-500 text-blue-600 hover:bg-blue-50 disabled:opacity-50 transition-all duration-200 hover:shadow-md flex-shrink-0"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+          {loading ? '生成中...' : summary ? '再生成' : 'AI生成'}
+        </button>
+      </div>
+
+      {/* コンテンツ */}
+      <div className="w-full space-y-4">
+        {summary ? (
+          <div className="w-full">
+            <p className="text-base md:text-lg text-gray-700 whitespace-pre-line leading-relaxed break-words">{summary}</p>
+          </div>
+        ) : (
+          <p className="text-base text-gray-500">まだAI紹介文が生成されていません</p>
+        )}
+        
+        {error && <p className="text-sm text-red-500">{error}</p>}
+      </div>
     </div>
   )
 } 

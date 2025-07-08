@@ -15,10 +15,10 @@ import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelec
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
 import { calculateTopTags, getMediaTypeLabel, summarizeTopTags } from '@/utils/profileUtils'
-import { TagSummarySection } from '@/features/profile/components/TagSummarySection'
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
 import { EmptyState } from '@/components/common'
+import { CreatorIntroCard } from './CreatorIntroCard'
 
 interface ProfileTabsProps {
   activeTab: string
@@ -179,7 +179,7 @@ export function ProfileTabs({
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">できること</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">経験・スキル</h3>
                   <Button
                     onClick={() => setIsSkillModalOpen(true)}
                     size="sm"
@@ -433,6 +433,10 @@ export function ProfileTabs({
         {/* クリエイター詳細タブ */}
         {activeTab === 'details' && (
           <div className="space-y-8">
+            {/* クリエイター紹介 */}
+            {profileData && (
+              <CreatorIntroCard tags={topTags} />
+            )}
             {/* 作品統計・役割分布 */}
             <Card>
               <CardContent className="p-6">
@@ -500,8 +504,6 @@ export function ProfileTabs({
                     </div>
                   </div>
                   
-                  <TagSummarySection tags={topTags} />
-
                   {/* バーグラフを削除。ランキングリストのみ表示 */}
                   <div className="space-y-3">
                     {topTags.slice(0, 5).map(([tag, count], index) => (
