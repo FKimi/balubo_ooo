@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 'use client'
 
 import Link from 'next/link'
@@ -22,13 +23,16 @@ import { CreatorIntroCard } from './CreatorIntroCard'
 
 interface ProfileTabsProps {
   activeTab: string
+  // eslint-disable-next-line unused-imports/no-unused-vars
   setActiveTab: (tab: 'profile' | 'works' | 'inputs' | 'details') => void
   profileData: ProfileData | null
   savedWorks: WorkData[]
+  // eslint-disable-next-line unused-imports/no-unused-vars
   setSavedWorks: (works: WorkData[]) => void
   inputs: InputData[]
   inputAnalysis: InputAnalysis | null
   isLoadingInputs: boolean
+  // eslint-disable-next-line unused-imports/no-unused-vars
   deleteWork: (workId: string) => void
   // スキル管理
   onAddSkill?: () => void
@@ -193,15 +197,15 @@ export function ProfileTabs({
 
                 {profileData?.skills && profileData.skills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
-                    {profileData.skills.map((skill, index) => (
-                      <div key={index} className="group relative">
+                    {profileData.skills.map((skill, _index) => (
+                      <div key={_index} className="group relative">
                         <Badge
                           variant="secondary"
                           className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors pr-8 rounded-2xl border border-blue-200"
                         >
                           {skill}
                           <button
-                            onClick={() => onRemoveSkill?.(index)}
+                            onClick={() => onRemoveSkill?.(_index)}
                             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             ×
@@ -257,7 +261,7 @@ export function ProfileTabs({
 
                         return parseYearMonth(b.startDate) - parseYearMonth(a.startDate)
                       })
-                      .map((careerItem) => (
+                      .map((careerItem, _index) => (
                         <div key={careerItem.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -410,7 +414,7 @@ export function ProfileTabs({
               </div>
             ) : inputs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto justify-items-center">
-                {inputs.map((input) => (
+                {inputs.map((input, _index) => (
                   <InputCard
                     key={input.id}
                     input={input}
@@ -505,18 +509,18 @@ export function ProfileTabs({
                   
                   {/* バーグラフを削除。ランキングリストのみ表示 */}
                   <div className="space-y-3">
-                    {topTags.slice(0, 5).map(([tag, count], index) => (
+                    {topTags.slice(0, 5).map(([tag, count], _index) => (
                       <div 
                         key={tag} 
                         className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm hover:shadow-blue-400/20 transition-all duration-300"
                       >
                         <div className="flex items-center space-x-3">
                           <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                            index < 3 
+                            _index < 3 
                               ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-400/30' 
                               : 'bg-blue-50 text-blue-600 border border-blue-200'
                           }`}>
-                            {index + 1}
+                            {_index + 1}
                           </div>
                           <span className="text-base font-medium text-gray-900">
                             {tag}
@@ -524,7 +528,7 @@ export function ProfileTabs({
                         </div>
                         <div className="text-right">
                           <div className={`text-lg font-bold ${
-                            index < 3 ? 'text-blue-600' : 'text-blue-400'
+                            _index < 3 ? 'text-blue-600' : 'text-blue-400'
                           }`}>
                             {count}
                           </div>

@@ -26,7 +26,7 @@ export async function fetcher<T = unknown>(
   let token: string | undefined
   try {
     // 現在のセッションを取得
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    let { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
     if (sessionError) {
       console.warn('[fetcher] getSession error:', sessionError)
