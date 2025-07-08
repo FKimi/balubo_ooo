@@ -154,7 +154,8 @@ export class DatabaseClient {
       
       const profileToSave = {
         user_id: userId,
-        display_name: profileData.displayName || '',
+        // display_name はPUTルート経由で snake_case のまま来ることがあるためフォールバックを追加
+        display_name: profileData.displayName ?? profileData.display_name ?? existingProfile?.display_name ?? '',
         bio: profileData.bio || '',
         introduction: profileData.bio || profileData.introduction || '', // フォームのbioを自己紹介として保存
         professions: profileData.professions || [],

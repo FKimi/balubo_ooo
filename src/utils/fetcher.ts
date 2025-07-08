@@ -25,9 +25,30 @@ export async function fetcher<T = unknown>(
   // 共有 Supabase クライアントからアクセストークンを取得
   let token: string | undefined
   try {
-    const { data: { session } } = await supabase.auth.getSession()
+    // 現在のセッションを取得
+    let { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError) {
+      console.warn('[fetcher] getSession error:', sessionError)
+    }
+
+    const needsRefresh =
+      !session ||
+      (session.expires_at && session.expires_at * 1000 < Date.now() + 60_000)
+
+    if (needsRefresh) {
+      const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession()
+      if (refreshError) {
+        console.warn('[fetcher] refreshSession error:', refreshError)
+      } else {
+        session = refreshed.session
+        console.log('[fetcher] アクセストークンをリフレッシュしました (needsRefresh=', needsRefresh, ')')
+      }
+    }
+
     token = session?.access_token
-  } catch {
+  } catch (err) {
+    console.warn('[fetcher] セッショントークン取得失敗:', err)
     // サーバーサイドやセッション未初期化の場合はトークンなし
     token = undefined
   }
