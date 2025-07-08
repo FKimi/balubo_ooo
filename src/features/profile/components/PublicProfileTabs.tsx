@@ -9,7 +9,7 @@ import { useWorkStatistics } from '@/hooks/useWorkStatistics'
 import { PublicFeaturedWorksSection } from '@/features/work/components/PublicFeaturedWorksSection'
 import { PublicWorksCategoryManager } from '@/features/work/components/PublicWorksCategoryManager'
 import { RolePieChart } from './RolePieChart'
-import { calculateTopTags, summarizeTopTags } from '@/utils/profileUtils'
+import { calculateTopTags } from '@/utils/profileUtils'
 import { EmptyState } from '@/components/common'
 import { CreatorIntroCard } from './CreatorIntroCard'
 
@@ -33,7 +33,6 @@ export function PublicProfileTabs({
   inputs,
   skills,
   career,
-  isProfileEmpty,
   inputAnalysis: propInputAnalysis
 }: PublicProfileTabsProps) {
   // 作品統計の計算（プライベートプロフィールと同じフックを使用）
@@ -103,7 +102,6 @@ export function PublicProfileTabs({
 
   // 作品タグの分析
   const topTags = useMemo(() => calculateTopTags(works), [works])
-  const tagSummary = useMemo(() => summarizeTopTags(topTags), [topTags])
 
   // 自己紹介テキスト（introduction が優先、なければ bio）
   const introductionText = profile?.introduction || profile?.bio || ''

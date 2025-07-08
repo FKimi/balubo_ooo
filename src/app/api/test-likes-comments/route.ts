@@ -20,7 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: { persistSession: false }
 })
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('likesとcommentsテーブル状況確認開始')
     

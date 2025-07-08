@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 既存の会話があるかチェック
-    const { data: existingConversation, error: existingError } = await supabase
+    const { data: existingConversation } = await supabase
       .from('conversations')
       .select('id')
       .or(`and(participant_1_id.eq.${user.id},participant_2_id.eq.${participantId}),and(participant_1_id.eq.${participantId},participant_2_id.eq.${user.id})`)

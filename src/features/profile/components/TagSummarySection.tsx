@@ -31,7 +31,7 @@ export function TagSummarySection({ tags }: TagSummarySectionProps) {
       })
       .catch(() => {})
       .finally(() => setInitialLoading(false))
-  }, [JSON.stringify(tagsPayload)])
+  }, [tagsPayload])
 
   const handleGenerate = () => {
     setLoading(true)

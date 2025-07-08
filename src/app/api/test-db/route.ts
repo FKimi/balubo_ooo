@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     
     // 1. Supabase接続テスト
     console.log('1. Supabase基本接続テスト...')
-    const { data: testData, error: testError } = await supabase
+    const { error: testError } = await supabase
       .from('profiles')
       .select('*')
       .limit(1)

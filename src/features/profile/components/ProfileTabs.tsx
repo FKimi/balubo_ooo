@@ -14,7 +14,7 @@ import { WorksCategoryManager } from '@/features/work/components/WorksCategoryMa
 import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelector'
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
-import { calculateTopTags, getMediaTypeLabel, summarizeTopTags } from '@/utils/profileUtils'
+import { calculateTopTags, getMediaTypeLabel } from '@/utils/profileUtils'
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
 import { EmptyState } from '@/components/common'
@@ -53,13 +53,13 @@ export function ProfileTabs({
   inputAnalysis, 
   isLoadingInputs, 
   deleteWork,
-  onAddSkill: _onAddSkill,
-  onRemoveSkill: _onRemoveSkill,
+  onAddSkill,
+  onRemoveSkill,
   setIsSkillModalOpen,
   onEditCareer,
   onDeleteCareerConfirm,
   setIsCareerModalOpen,
-  onUpdateIntroduction: _onUpdateIntroduction,
+  onUpdateIntroduction,
   setIsIntroductionModalOpen
 }: ProfileTabsProps) {
   const [isClient, setIsClient] = useState(false)
@@ -77,7 +77,6 @@ export function ProfileTabs({
 
   // よく使用するタグを計算（作品データから）
   const topTags = calculateTopTags(savedWorks)
-  const tagSummary = summarizeTopTags(topTags)
 
   // タブ設定
   const tabs = [
@@ -202,7 +201,7 @@ export function ProfileTabs({
                         >
                           {skill}
                           <button
-                            onClick={() => _onRemoveSkill?.(index)}
+                            onClick={() => onRemoveSkill?.(index)}
                             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             ×
