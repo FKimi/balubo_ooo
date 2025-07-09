@@ -98,7 +98,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { 
           error: '認証処理でエラーが発生しました',
-          details: authError instanceof Error ? authError.message : 'Unknown error',
+          details: authError instanceof Error
+            ? authError.message
+            : typeof authError === 'object'
+              ? JSON.stringify(authError)
+              : String(authError),
           debugInfo: {
             hasToken: !!token,
             tokenLength: token ? token.length : 0,
@@ -213,7 +217,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: '認証処理でエラーが発生しました',
-          details: authError instanceof Error ? authError.message : 'Unknown error',
+          details: authError instanceof Error
+            ? authError.message
+            : typeof authError === 'object'
+              ? JSON.stringify(authError)
+              : String(authError),
           debugInfo: {
             hasToken: !!token,
             tokenLength: token ? token.length : 0,
