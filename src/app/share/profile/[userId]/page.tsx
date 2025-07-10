@@ -111,6 +111,7 @@ async function getPublicProfile(userId: string) {
       .from('inputs')
       .select(`
         id,
+        user_id,
         title,
         author_creator,
         type,
@@ -164,8 +165,8 @@ async function getPublicProfile(userId: string) {
         tags: item.tags,
         createdAt: item.created_at,
         updatedAt: item.updated_at,
-        userId: item.user_id,
-        review: item.review || '',
+        userId: userId,
+        review: '',
         externalUrl: item.external_url,
         coverImageUrl: item.cover_image_url,
       }))
