@@ -201,37 +201,40 @@ export function NotificationBell() {
 
   // 初回読み込みとリアルタイム通知の設定
   useEffect(() => {
-    if (user) {
-      console.log('👤 ユーザーがログインしています。通知システムを初期化...')
+    // ユーザーがログアウトしている場合は何もしない
+    if (!user) {
+      console.log('👻 ユーザーがログアウトしています')
+      return
+    }
+
+    console.log('👤 ユーザーがログインしています。通知システムを初期化...')
+    
+    // 初回の通知取得
+    fetchNotifications()
+    
+    // リアルタイム購読を試行
+    subscribeToNotifications()
+    
+    // クリーンアップ関数を必ず返す
+    return () => {
+      console.log('🧹 通知システムをクリーンアップ中...')
       
-      // 初回の通知取得
-      fetchNotifications()
-      
-      // リアルタイム購読を試行
-      subscribeToNotifications()
-      
-      return () => {
-        console.log('🧹 通知システムをクリーンアップ中...')
-        
-        // リアルタイム購読の解除
-        if (subscriptionRef.current) {
-          try {
-            subscriptionRef.current.unsubscribe()
-            console.log('✅ リアルタイム購読を解除しました')
-          } catch (error) {
-            console.error('❌ リアルタイム購読の解除でエラー:', error)
-          }
-        }
-        
-        // タイマーやインターバルのクリア
-        if (retryTimeoutRef.current) {
-          clearTimeout(retryTimeoutRef.current)
-          clearInterval(retryTimeoutRef.current)
-          console.log('✅ ポーリングインターバルをクリアしました')
+      // リアルタイム購読の解除
+      if (subscriptionRef.current) {
+        try {
+          subscriptionRef.current.unsubscribe()
+          console.log('✅ リアルタイム購読を解除しました')
+        } catch (error) {
+          console.error('❌ リアルタイム購読の解除でエラー:', error)
         }
       }
-    } else {
-      console.log('👻 ユーザーがログアウトしています')
+      
+      // タイマーやインターバルのクリア
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current)
+        clearInterval(retryTimeoutRef.current)
+        console.log('✅ ポーリングインターバルをクリアしました')
+      }
     }
   }, [user, fetchNotifications, subscribeToNotifications])
 
