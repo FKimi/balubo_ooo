@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createOptimizedSupabaseClient } from '@/lib/supabase-client'
 
 // 動的レンダリングを強制
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 // レスポンスキャッシュを追加
-export const revalidate = 30 // 30秒間キャッシュに短縮
+export const revalidate = 60 // 60秒間キャッシュに延長
 
 interface Profile {
   user_id: string
@@ -99,231 +100,156 @@ export async function GET(request: NextRequest) {
 async function processFeedRequest(request: NextRequest) {
   const startTime = Date.now()
   
-  // Service roleクライアントを作成
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Feed API: 必要な環境変数が設定されていません')
-    return NextResponse.json(
-      { error: 'サーバー設定エラー' },
-      { status: 500 }
-    )
-  }
-  
-  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
+  // フィード用にService roleクライアントを作成（全ユーザーのパブリックデータにアクセス）
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     }
-  })
-
-  // 認証されたユーザーの取得（タイムアウト設定を拡張）
+  )
+  
+  // 認証されたユーザーの取得（簡素化）
   const authHeader = request.headers.get('authorization')
   let currentUserId = null
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1]
     try {
-      const userSupabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '', {
-        global: {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      })
-      
-      // 認証チェックにタイムアウトを設定（5秒に延長）
-      const authPromise = userSupabase.auth.getUser(token)
-      const authTimeout = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('認証タイムアウト')), 5000)
-      })
-      
-      const { data: { user } } = await Promise.race([authPromise, authTimeout]) as any
+      const userSupabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      const { data: { user } } = await userSupabase.auth.getUser(token)
       if (user) {
         currentUserId = user.id
-        console.log('Feed API: 認証ユーザー確認:', user.id)
       }
     } catch (authError) {
       console.log('Feed API: 認証処理エラー（続行）:', authError)
     }
   }
 
-  console.log('Feed API: Step 1 - プロフィール取得開始')
+  console.log('Feed API: Step 1 - 軽量データ取得開始')
   
-  // アクティブなプロフィールを取得（条件を緩和、制限を増加）
-  const profilesPromise = supabase
-    .from('profiles')
-    .select('user_id, display_name, avatar_image_url, portfolio_visibility')
-    .or('portfolio_visibility.eq.public,portfolio_visibility.is.null') // nullも含める
-    .not('display_name', 'is', null)
-    .limit(50) // 制限を増加
-  
-  const profilesTimeout = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 8000) // タイムアウトを延長
-  })
-
-  const { data: activeProfiles, error: profilesError } = await Promise.race([
-    profilesPromise,
-    profilesTimeout
-  ]) as any
-
-  console.log('Feed API: Step 2 - プロフィール取得結果:', {
-    count: activeProfiles?.length || 0,
-    error: profilesError?.message || 'なし'
-  })
-
-  if (profilesError || !activeProfiles || activeProfiles.length === 0) {
-    console.log('Feed API: アクティブプロフィールなし - 空の結果を返却')
-    return NextResponse.json({
-      items: [],
-      stats: { total: 0, works: 0, inputs: 0, unique_users: 0 },
-      total: 0,
-      debug: { 
-        message: 'アクティブプロフィールなし', 
-        profilesError: profilesError?.message,
-        profilesCount: 0,
-        timestamp: new Date().toISOString()
-      }
-    })
-  }
-
-  const userIds = activeProfiles.map((p: Profile) => p.user_id)
-  const profileMap = new Map<string, FeedUser>(
-    activeProfiles.map((p: Profile) => [p.user_id, {
-      id: p.user_id,
-      display_name: p.display_name || 'ユーザー',
-      avatar_image_url: p.avatar_image_url
-    }])
-  )
-
-  console.log('Feed API: Step 3 - データ取得開始（userIds:', userIds.length, '）')
-
-  // 並列でworksとinputsを取得（タイムアウト設定を延長）
+  // 最新の作品とインプットを直接取得（軽量化）
   const worksPromise = supabase
     .from('works')
     .select('id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at')
-    .in('user_id', userIds)
     .order('created_at', { ascending: false })
-    .limit(20) // 制限を増加
+    .limit(10) // パフォーマンス重視でデータ量を制限
 
   const inputsPromise = supabase
     .from('inputs')
     .select('id, user_id, title, author_creator, rating, tags, cover_image_url, created_at')
-    .in('user_id', userIds)
     .order('created_at', { ascending: false })
-    .limit(20) // 制限を増加
+    .limit(10) // パフォーマンス重視でデータ量を制限
 
   const dataTimeout = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('データ取得タイムアウト')), 10000) // タイムアウトを延長
+    setTimeout(() => reject(new Error('データ取得タイムアウト')), 15000) // 15秒に延長
   })
 
   try {
-    const [worksResult, inputsResult] = await Promise.all([
-      Promise.race([worksPromise, dataTimeout]),
-      Promise.race([inputsPromise, dataTimeout])
+    const [worksResult, inputsResult] = await Promise.race([
+      Promise.all([worksPromise, inputsPromise]),
+      dataTimeout
     ]) as any
 
     const works = worksResult.data || []
     const inputs = inputsResult.data || []
 
-    console.log('Feed API: Step 4 - データ取得結果:', {
+    console.log('Feed API: Step 2 - データ取得結果:', {
       works: works.length,
       inputs: inputs.length
     })
 
-    // **最適化**: 統計情報をバッチ処理で取得
-    const allItemIds = [
-      ...works.map((w: Work) => ({ id: w.id, type: 'work' })),
-      ...inputs.map((i: Input) => ({ id: i.id, type: 'input' }))
-    ]
+    // ユーザーIDを収集
+    const userIds = [...new Set([
+      ...works.map((w: Work) => w.user_id),
+      ...inputs.map((i: Input) => i.user_id)
+    ])]
 
-    const itemIds = allItemIds.map(item => item.id)
-    
-    const likesMap = new Map<string, number>()
-    const commentsMap = new Map<string, number>()
-    const userLikesSet = new Set<string>()
+    // 作品・インプットIDリスト
+    const workIds = works.map((w: Work) => w.id)
+    const inputIds = inputs.map((i: Input) => i.id)
+    const allIds = [...workIds, ...inputIds]
 
-    if (itemIds.length > 0) {
-      console.log('Feed API: Step 5 - 統計情報取得開始')
-
-      // いいね数をバッチ取得
-      const { data: likesData } = await supabase
+    // likes一括取得（全件取得＋JS集計）
+    let likesCountMap = new Map<string, number>()
+    let userLikesSet = new Set<string>()
+    try {
+      const { data: likesRaw } = await supabase
         .from('likes')
-        .select('target_id, target_type')
-        .in('target_id', itemIds)
+        .select('target_id, target_type, user_id')
+        .in('target_id', allIds.length > 0 ? allIds : ['dummy'])
         .in('target_type', ['work', 'input'])
-
-      // いいね数を集計
-      if (likesData) {
-        for (const like of likesData) {
-          const key = `${like.target_type}-${like.target_id}`
-          likesMap.set(key, (likesMap.get(key) || 0) + 1)
+      ;(likesRaw || []).forEach((like: any) => {
+        const key = `${like.target_type}_${like.target_id}`
+        likesCountMap.set(key, (likesCountMap.get(key) || 0) + 1)
+        if (currentUserId && like.user_id === currentUserId) {
+          userLikesSet.add(key)
         }
-      }
-
-      // コメント数をバッチ取得
-      const { data: commentsData } = await supabase
-        .from('comments')
-        .select('target_id, target_type')
-        .in('target_id', itemIds)
-        .in('target_type', ['work', 'input'])
-
-      // コメント数を集計
-      if (commentsData) {
-        for (const comment of commentsData) {
-          const key = `${comment.target_type}-${comment.target_id}`
-          commentsMap.set(key, (commentsMap.get(key) || 0) + 1)
-        }
-      }
-
-      // ユーザーのいいね状態をバッチ取得（ログイン時のみ）
-      if (currentUserId) {
-        const { data: userLikesData } = await supabase
-          .from('likes')
-          .select('target_id, target_type')
-          .eq('user_id', currentUserId)
-          .in('target_id', itemIds)
-          .in('target_type', ['work', 'input'])
-
-        if (userLikesData) {
-          for (const like of userLikesData) {
-            userLikesSet.add(`${like.target_type}-${like.target_id}`)
-          }
-        }
-      }
-
-      console.log('Feed API: Step 6 - 統計情報取得完了:', {
-        likes: likesMap.size,
-        comments: commentsMap.size,
-        userLikes: userLikesSet.size
       })
+    } catch (e) {
+      // 失敗してもfeedItemsは生成
+      likesCountMap = new Map()
+      userLikesSet = new Set()
     }
 
-    // フィードアイテムを統合（最適化済み）
+    // comments一括取得（全件取得＋JS集計）
+    let commentsCountMap = new Map<string, number>()
+    try {
+      const { data: commentsRaw } = await supabase
+        .from('comments')
+        .select('target_id, target_type')
+        .in('target_id', allIds.length > 0 ? allIds : ['dummy'])
+        .in('target_type', ['work', 'input'])
+      ;(commentsRaw || []).forEach((c: any) => {
+        const key = `${c.target_type}_${c.target_id}`
+        commentsCountMap.set(key, (commentsCountMap.get(key) || 0) + 1)
+      })
+    } catch (e) {
+      commentsCountMap = new Map()
+    }
+
+    // プロフィール情報を一括取得（軽量化）
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('user_id, display_name')
+      .in('user_id', userIds)
+
+    const profileMap = new Map<string, FeedUser>(
+      (profiles || []).map((p: any) => [p.user_id, {
+        id: p.user_id,
+        display_name: p.display_name || 'ユーザー',
+        avatar_image_url: undefined
+      }])
+    )
+
+    // フィードアイテムを統合
     const feedItems: FeedItem[] = []
 
     // 作品を処理
     for (const work of works) {
       const userProfile = profileMap.get(work.user_id)
       if (userProfile) {
-        const likesKey = `work-${work.id}`
-        const commentsKey = `work-${work.id}`
-        
+        const key = `work_${work.id}`
         feedItems.push({
           id: work.id,
           type: 'work' as const,
           title: work.title,
-          description: work.description,
+          description: work.description ? work.description.substring(0, 200) : undefined,
           external_url: work.external_url,
-          tags: work.tags,
-          roles: work.roles,
+          tags: work.tags?.slice(0, 5) || [],
+          roles: work.roles?.slice(0, 3) || [],
           banner_image_url: work.banner_image_url,
           created_at: work.created_at,
           user: userProfile,
-          likes_count: likesMap.get(likesKey) || 0,
-          comments_count: commentsMap.get(commentsKey) || 0,
-          user_has_liked: userLikesSet.has(likesKey)
+          likes_count: likesCountMap.get(key) || 0,
+          comments_count: commentsCountMap.get(key) || 0,
+          user_has_liked: userLikesSet.has(key)
         })
       }
     }
@@ -332,22 +258,20 @@ async function processFeedRequest(request: NextRequest) {
     for (const input of inputs) {
       const userProfile = profileMap.get(input.user_id)
       if (userProfile) {
-        const likesKey = `input-${input.id}`
-        const commentsKey = `input-${input.id}`
-        
+        const key = `input_${input.id}`
         feedItems.push({
           id: input.id,
           type: 'input' as const,
           title: input.title,
           author_creator: input.author_creator,
           rating: input.rating,
-          tags: input.tags,
+          tags: input.tags?.slice(0, 3) || [],
           cover_image_url: input.cover_image_url,
           created_at: input.created_at,
           user: userProfile,
-          likes_count: likesMap.get(likesKey) || 0,
-          comments_count: commentsMap.get(commentsKey) || 0,
-          user_has_liked: userLikesSet.has(likesKey)
+          likes_count: likesCountMap.get(key) || 0,
+          comments_count: commentsCountMap.get(key) || 0,
+          user_has_liked: userLikesSet.has(key)
         })
       }
     }
@@ -364,20 +288,24 @@ async function processFeedRequest(request: NextRequest) {
 
     const processingTime = Date.now() - startTime
 
-    console.log('=== Feed API: フィードデータ取得成功 ===', {
+    console.log('=== Feed API: 軽量フィードデータ取得成功 ===', {
       total: feedItems.length,
       stats,
       processingTime: `${processingTime}ms`
     })
+
+    console.log('Feed API: works件数', works.length)
+    console.log('Feed API: inputs件数', inputs.length)
+    console.log('Feed API: likesCountMap', Array.from(likesCountMap.entries()))
+    console.log('Feed API: commentsCountMap', Array.from(commentsCountMap.entries()))
 
     return NextResponse.json({
       items: feedItems,
       stats,
       total: feedItems.length,
       debug: { 
-        message: 'フィード取得成功', 
+        message: '軽量フィード取得成功', 
         currentUserId: currentUserId ? 'あり' : 'なし',
-        profilesCount: activeProfiles.length,
         worksCount: works.length,
         inputsCount: inputs.length,
         processingTime: `${processingTime}ms`,
@@ -386,20 +314,18 @@ async function processFeedRequest(request: NextRequest) {
     })
 
   } catch (dataError) {
-    console.error('Feed API: データ取得エラー:', dataError)
-    
-    // データ取得エラー時は空の配列を返却
+    console.error('Feed API: 重大なエラー', dataError)
     return NextResponse.json({
       items: [],
       stats: { total: 0, works: 0, inputs: 0, unique_users: 0 },
       total: 0,
       debug: { 
-        message: 'データ取得エラー', 
+        message: '重大なエラーが発生しました', 
         error: true,
         errorMessage: dataError instanceof Error ? dataError.message : String(dataError),
         timestamp: new Date().toISOString()
       }
-    })
+    }, { status: 500 })
   }
 }
 
