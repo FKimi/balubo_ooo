@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from '@/app/share/profile/[userId]/public-profile-content'
 import { calculateInputTopTags, calculateGenreDistribution } from '@/utils/profileUtils'
+import { InputData } from '@/types/input'
 
 async function getPublicProfileBySlug(slug: string) {
   // anon クライアントで公開プロフィールを取得
@@ -45,7 +46,7 @@ async function getPublicProfileBySlug(slug: string) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
-  const { data: inputs } = await client
+  const { data: rawInputs } = await client
     .from('inputs')
     .select(`
       id,
@@ -65,6 +66,26 @@ async function getPublicProfileBySlug(slug: string) {
     `)
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
+
+  // データベースから取得したデータを InputData 型に変換
+  const inputs: InputData[] = (rawInputs || []).map((item: any) => ({
+    id: item.id,
+    userId: userId,
+    title: item.title || '',
+    type: item.type || 'other',
+    status: item.status || 'completed',
+    review: item.notes || '', // notes を review として使用
+    tags: item.tags || [],
+    genres: item.genres || [],
+    externalUrl: item.external_url || '',
+    coverImageUrl: item.cover_image_url || '',
+    notes: item.notes || '',
+    favorite: item.favorite || false,
+    rating: item.rating || undefined,
+    authorCreator: item.author_creator || '',
+    createdAt: item.created_at,
+    updatedAt: item.updated_at
+  }))
 
   // インプット分析を計算
   let inputAnalysis = null
