@@ -104,6 +104,16 @@ async function getPublicProfileBySlug(slug: string) {
       return acc
     }, {})
 
+    // ジャンル分布を計算
+    const genresDistribution = inputs.reduce((acc: any, input: any) => {
+      if (input.genres && Array.isArray(input.genres)) {
+        input.genres.forEach((genre: string) => {
+          acc[genre] = (acc[genre] || 0) + 1
+        })
+      }
+      return acc
+    }, {})
+
     const topGenres = calculateGenreDistribution(inputs).map(([name, count]) => ({ name, count }))
     const topTags = calculateInputTopTags(inputs).map(([tag, count]) => ({ tag, count }))
 
