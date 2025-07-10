@@ -179,7 +179,7 @@ export function NotificationBell() {
   }, [user])
 
   // ポーリング設定（リアルタイム通知のフォールバック）
-  const setupPolling = () => {
+  const setupPolling = useCallback(() => {
     console.log('🔄 ポーリングモードに切り替えます')
     
     // 既存のインターバルがあればクリア
@@ -197,7 +197,7 @@ export function NotificationBell() {
     retryTimeoutRef.current = interval as any
     
     return () => clearInterval(interval)
-  }
+  }, [fetchNotifications])
 
   // 初回読み込みとリアルタイム通知の設定
   useEffect(() => {

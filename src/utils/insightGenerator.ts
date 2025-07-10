@@ -104,22 +104,26 @@ export function analyzeInterestTendencies(inputAnalysis: InputAnalysis | null): 
   if (topGenres && topGenres.length > 0) {
     const primaryGenre = typeof topGenres[0] === 'string' ? topGenres[0] : (topGenres[0] && topGenres[0].genre)
     
-    // 興味がありそうな分野を推測
-    const relatedInterests = getRelatedInterests(primaryGenre)
-    interestedIn.push(...relatedInterests)
+    if (primaryGenre) {
+      // 興味がありそうな分野を推測
+      const relatedInterests = getRelatedInterests(primaryGenre)
+      interestedIn.push(...relatedInterests)
 
-    // 興味がなさそうな分野を推測
-    const oppositeInterests = getOppositeInterests(primaryGenre)
-    notInterestedIn.push(...oppositeInterests)
+      // 興味がなさそうな分野を推測
+      const oppositeInterests = getOppositeInterests(primaryGenre)
+      notInterestedIn.push(...oppositeInterests)
+    }
   }
 
   // タグベースの分析
   if (topTags && topTags.length > 0) {
     const primaryTag = typeof topTags[0] === 'string' ? topTags[0] : (topTags[0] && topTags[0].tag)
     
-    // タグに関連する興味分野を追加
-    const tagRelatedInterests = getTagRelatedInterests(primaryTag)
-    interestedIn.push(...tagRelatedInterests.filter(item => !interestedIn.includes(item)))
+    if (primaryTag) {
+      // タグに関連する興味分野を追加
+      const tagRelatedInterests = getTagRelatedInterests(primaryTag)
+      interestedIn.push(...tagRelatedInterests.filter(item => !interestedIn.includes(item)))
+    }
   }
 
   // 重複を除去

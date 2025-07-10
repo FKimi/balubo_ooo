@@ -116,7 +116,7 @@ export default function ChatPage() {
     } finally {
       setLoading(false)
     }
-  }, [conversationId, supabase, router]);
+  }, [conversationId, router]);
 
   const setupRealtimeSubscription = useCallback(() => {
     const channel = supabase
@@ -142,7 +142,7 @@ export default function ChatPage() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [conversationId, supabase, fetchMessages]);
+  }, [conversationId, fetchMessages]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
