@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { createOptimizedSupabaseClient } from '@/lib/supabase-client'
 
 // 動的レンダリングを強制
 export const runtime = 'nodejs'
@@ -8,13 +7,6 @@ export const dynamic = 'force-dynamic'
 
 // レスポンスキャッシュを追加
 export const revalidate = 60 // 60秒間キャッシュに延長
-
-interface Profile {
-  user_id: string
-  display_name: string
-  avatar_image_url?: string
-  portfolio_visibility: string
-}
 
 interface FeedUser {
   id: string
