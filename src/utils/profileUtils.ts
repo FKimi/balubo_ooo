@@ -1,4 +1,4 @@
-import type { WorkData } from '@/types/work'
+import type { WorkData, WorkCategory } from '@/types/work'
 import type { InputData } from '@/types/input'
 
 /**

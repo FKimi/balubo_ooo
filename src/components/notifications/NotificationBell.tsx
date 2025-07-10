@@ -176,7 +176,7 @@ export function NotificationBell() {
       // エラーが発生した場合は即座にポーリングに切り替え
       setupPolling()
     }
-  }, [user])
+  }, [user, setupPolling])
 
   // ポーリング設定（リアルタイム通知のフォールバック）
   const setupPolling = useCallback(() => {
