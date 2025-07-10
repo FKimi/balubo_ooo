@@ -43,7 +43,12 @@ export function NewsTicker() {
     };
   }, [isPaused, newsItems.length])
 
-  const currentNews = newsItems[currentIndex]
+  const currentNews = newsItems[currentIndex] || newsItems[0]
+
+  // ニュース項目がない場合は何も表示しない
+  if (!currentNews) {
+    return null
+  }
 
   return (
     <div className="relative">
