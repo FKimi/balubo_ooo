@@ -14,7 +14,7 @@ const newsItems: NewsItem[] = [
   {
     id: '1',
     text: 'balubo ベータ版をリリースしました',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0]!,
     category: 'リリース',
     link: '#'
   }
