@@ -97,6 +97,27 @@ export function NotificationBell() {
     }
   }
 
+  // ポーリング設定（リアルタイム通知のフォールバック）
+  const setupPolling = useCallback(() => {
+    console.log('🔄 ポーリングモードに切り替えます')
+    
+    // 既存のインターバルがあればクリア
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current)
+    }
+    
+    // 30秒ごとにポーリング
+    const interval = setInterval(() => {
+      console.log('📡 ポーリングで通知を取得中...')
+      fetchNotifications()
+    }, 30 * 1000)
+    
+    // インターバルIDを保存してクリーンアップできるようにする
+    retryTimeoutRef.current = interval as any
+    
+    return () => clearInterval(interval)
+  }, [fetchNotifications])
+
   // リアルタイム通知の購読
   const subscribeToNotifications = useCallback(() => {
     if (!user) return
@@ -177,27 +198,6 @@ export function NotificationBell() {
       setupPolling()
     }
   }, [user, setupPolling])
-
-  // ポーリング設定（リアルタイム通知のフォールバック）
-  const setupPolling = useCallback(() => {
-    console.log('🔄 ポーリングモードに切り替えます')
-    
-    // 既存のインターバルがあればクリア
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current)
-    }
-    
-    // 30秒ごとにポーリング
-    const interval = setInterval(() => {
-      console.log('📡 ポーリングで通知を取得中...')
-      fetchNotifications()
-    }, 30 * 1000)
-    
-    // インターバルIDを保存してクリーンアップできるようにする
-    retryTimeoutRef.current = interval as any
-    
-    return () => clearInterval(interval)
-  }, [fetchNotifications])
 
   // 初回読み込みとリアルタイム通知の設定
   useEffect(() => {
