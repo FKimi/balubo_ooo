@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
       userId,
       type: 'work_featured',
       message: 'あなたの作品が特集に選ばれました！🎉',
-      relatedEntityId: null,
-      relatedEntityType: null
+      relatedEntityId: '',
+      relatedEntityType: 'work'
     })
 
     if (!notificationId) {

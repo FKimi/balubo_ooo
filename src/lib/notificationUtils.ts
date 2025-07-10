@@ -9,14 +9,14 @@ export type NotificationType =
   | 'new_comment'
   | 'work_featured'
 
-export type RelatedEntityType = 'user' | 'work' | 'review' | 'comment' | 'like'
+export type RelatedEntityType = 'user' | 'work' | 'review' | 'comment' | 'like' | null
 
 export interface CreateNotificationParams {
   userId: string
   type: NotificationType
   message: string
-  relatedEntityId?: string
-  relatedEntityType?: RelatedEntityType
+  relatedEntityId?: string | null
+  relatedEntityType?: RelatedEntityType | null
 }
 
 /**
