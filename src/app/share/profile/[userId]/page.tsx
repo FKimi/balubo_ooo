@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from './public-profile-content'
 import { calculateInputTopTags, calculateGenreDistribution } from '@/utils/profileUtils'
+import { InputData } from '@/types/input'
 
 async function getPublicProfile(userId: string) {
   console.log('公開プロフィール取得開始:', userId)
@@ -149,22 +150,50 @@ async function getPublicProfile(userId: string) {
     // インプット分析を計算
     let inputAnalysis = null
     if (inputs && inputs.length > 0) {
-
+      // データベースから取得したデータを InputData 型に変換
+      const mappedInputs: InputData[] = inputs.map(item => ({
+        id: item.id,
+        title: item.title,
+        authorCreator: item.author_creator,
+        type: item.type,
+        genres: item.genres,
+        status: item.status,
+        rating: item.rating,
+        favorite: item.favorite,
+        notes: item.notes,
+        tags: item.tags,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+        userId: item.user_id,
+        review: item.review || '',
+        externalUrl: item.external_url,
+        coverImageUrl: item.cover_image_url,
+      }))
       
-      const totalInputs = inputs.length
-      const favoriteCount = inputs.filter((input: any) => input.favorite).length
+      const totalInputs = mappedInputs.length
+      const favoriteCount = mappedInputs.filter((input: InputData) => input.favorite).length
       const averageRating = totalInputs > 0
-        ? inputs.reduce((sum: number, input: any) => sum + (input.rating || 0), 0) / totalInputs
+        ? mappedInputs.reduce((sum: number, input: InputData) => sum + (input.rating || 0), 0) / totalInputs
         : 0
 
-      const typeDistribution = inputs.reduce((acc: any, input: any) => {
+      const typeDistribution = mappedInputs.reduce((acc: any, input: InputData) => {
         const type = input.type || '未分類'
         acc[type] = (acc[type] || 0) + 1
         return acc
       }, {})
 
-      const topGenres = calculateGenreDistribution(inputs).map(([name, count]) => ({ name, count }))
-      const topTags = calculateInputTopTags(inputs).map(([tag, count]) => ({ tag, count }))
+      // ジャンル分布を計算
+      const genresDistribution = mappedInputs.reduce((acc: any, input: InputData) => {
+        if (input.genres) {
+          input.genres.forEach(genre => {
+            acc[genre] = (acc[genre] || 0) + 1
+          })
+        }
+        return acc
+      }, {})
+
+      const topGenres = calculateGenreDistribution(mappedInputs).map(([name, count]) => ({ name, count }))
+      const topTags = calculateInputTopTags(mappedInputs).map(([tag, count]) => ({ tag, count }))
 
       inputAnalysis = {
         totalInputs,
