@@ -216,7 +216,7 @@ async function processFeedRequest(request: NextRequest) {
       (profiles || []).map((p: any) => [p.user_id, {
         id: p.user_id,
         display_name: p.display_name || 'ユーザー',
-        avatar_image_url: undefined
+        avatar_image_url: '' // 空文字で初期化
       }])
     )
 
