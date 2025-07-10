@@ -55,7 +55,7 @@ export function FollowModal({ isOpen, onClose, userId, initialTab }: FollowModal
   if (!isOpen) return null
 
   const currentList = activeTab === 'followers' ? followers : following
-  const currentCount = activeTab === 'followers' ? followers.length : following.length
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

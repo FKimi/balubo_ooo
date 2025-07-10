@@ -21,7 +21,7 @@ const newsItems: NewsItem[] = [
 ]
 
 export function NewsTicker() {
-  const [isPaused, setIsPaused] = useState(false)
+  const [isPaused] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
 
   // 自動的にニュースを切り替え
@@ -41,7 +41,7 @@ export function NewsTicker() {
     return () => {
       clearInterval(intervalId); // 設定したタイマーを停止する
     };
-  }, [isPaused, newsItems.length])
+  }, [isPaused])
 
   const currentNews = newsItems[currentIndex] || newsItems[0]
 

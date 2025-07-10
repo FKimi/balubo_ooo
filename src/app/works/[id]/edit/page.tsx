@@ -51,15 +51,15 @@ export default function EditWorkPage() {
   const [, setPreviewData] = useState<LinkPreviewData | null>(null)
   const [, setPreviewError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [, setError] = useState<string | null>(null)
   const [] = useState(false)
   const [, setAnalysisResult] = useState<AIAnalysisResult | null>(null)
-  const [showShareSuccess, setShowShareSuccess] = useState(false)
+  const [, setShowShareSuccess] = useState(false)
 
   // Tag and role state
-  const [, setNewTag] = useState('')
   const [] = useState('')
-  const [, setNewCategory] = useState('')
+  const [] = useState('')
+  const [] = useState('')
 
   // Predefined options
 

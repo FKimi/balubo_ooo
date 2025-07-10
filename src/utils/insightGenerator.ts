@@ -1,9 +1,6 @@
 import type { InputAnalysis } from '@/types/input'
 
-interface InsightData {
-  topGenres: Array<string | { genre: string; count: number }>
-  topTags: Array<string | { tag: string; count: number }>
-}
+
 
 interface InterestAnalysis {
   interestedIn: string[]
@@ -105,7 +102,7 @@ export function analyzeInterestTendencies(inputAnalysis: InputAnalysis | null): 
 
   // ジャンルベースの分析
   if (topGenres && topGenres.length > 0) {
-    const primaryGenre = typeof topGenres[0] === 'string' ? topGenres[0] : topGenres[0].genre
+    const primaryGenre = typeof topGenres[0] === 'string' ? topGenres[0] : (topGenres[0] && topGenres[0].genre)
     
     // 興味がありそうな分野を推測
     const relatedInterests = getRelatedInterests(primaryGenre)
@@ -118,7 +115,7 @@ export function analyzeInterestTendencies(inputAnalysis: InputAnalysis | null): 
 
   // タグベースの分析
   if (topTags && topTags.length > 0) {
-    const primaryTag = typeof topTags[0] === 'string' ? topTags[0] : topTags[0].tag
+    const primaryTag = typeof topTags[0] === 'string' ? topTags[0] : (topTags[0] && topTags[0].tag)
     
     // タグに関連する興味分野を追加
     const tagRelatedInterests = getTagRelatedInterests(primaryTag)

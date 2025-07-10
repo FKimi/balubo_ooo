@@ -236,7 +236,7 @@ export function NotificationBell() {
         console.log('✅ ポーリングインターバルをクリアしました')
       }
     }
-  }, [user, fetchNotifications, subscribeToNotifications])
+  }, [user, fetchNotifications, subscribeToNotifications, setupPolling])
 
   if (!user) {
     return null

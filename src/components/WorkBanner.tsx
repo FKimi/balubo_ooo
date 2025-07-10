@@ -136,7 +136,7 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
     return () => {
       isMounted = false
     }
-  }, [url, bannerImageUrl, initialPreviewData, title]) // 依存配列を追加
+  }, [url, bannerImageUrl, initialPreviewData, title, previewData]) // 依存配列を追加
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.currentTarget
