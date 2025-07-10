@@ -26,14 +26,22 @@ export function NewsTicker() {
 
   // 自動的にニュースを切り替え
   useEffect(() => {
-    if (!isPaused) {
-      const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % newsItems.length)
-      }, 4000) // 4秒ごとに切り替え
-
-      return () => clearInterval(interval)
+    // isPausedがtrue、またはニュース項目がない場合は、タイマーを開始しない
+    if (isPaused || newsItems.length === 0) {
+      return; // この時点で処理を中断
     }
-  }, [isPaused])
+
+    // isPausedがfalseの場合、タイマーを開始
+    const intervalId = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % newsItems.length);
+    }, 4000); // 4秒ごとに切り替え
+
+    // このuseEffectの処理が終わる際（アンマウント時など）に実行される
+    // クリーンアップ関数を必ず返す
+    return () => {
+      clearInterval(intervalId); // 設定したタイマーを停止する
+    };
+  }, [isPaused, newsItems.length])
 
   const currentNews = newsItems[currentIndex]
 
