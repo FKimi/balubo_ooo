@@ -476,10 +476,11 @@ interface WorkFormProps {
     // 必要に応じて他の項目も
   },
   mode?: 'create' | 'edit',
+  // eslint-disable-next-line unused-imports/no-unused-vars
   onSubmit?: (formData: any, analysisResult: any, previewData: any) => Promise<void>
 }
 
-function NewWorkForm({ initialData, mode = 'create', onSubmit }: WorkFormProps = {}) {
+function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   

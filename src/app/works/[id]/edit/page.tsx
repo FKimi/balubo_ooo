@@ -28,207 +28,6 @@ interface LinkPreviewData {
 }
 
 // AI評価セクションコンポーネント
-function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
-
-  const toggleExpanded = (item: string) => {
-    const newExpanded = new Set(expandedItems)
-    if (newExpanded.has(item)) {
-      newExpanded.delete(item)
-    } else {
-      newExpanded.add(item)
-    }
-    setExpandedItems(newExpanded)
-  }
-
-  // 新しい形式のスコアがあるかチェック
-  const hasNewFormat = aiAnalysis.evaluation?.scores
-  // 古い形式のスコアがあるかチェック  
-  const hasLegacyFormat = aiAnalysis.legacyEvaluation?.scores
-
-  // 新しい形式を優先的に表示
-  if (hasNewFormat) {
-    const scores = aiAnalysis.evaluation!.scores
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h4 className="text-lg font-bold text-blue-900">AI評価スコア</h4>
-        </div>
-        
-        {/* 総合評価 */}
-        {scores.overall && (
-          <div className="mb-4 p-3 bg-white rounded-lg border border-green-100">
-            <div 
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => toggleExpanded('overall')}
-            >
-              <span className="font-semibold text-gray-800">総合評価</span>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-green-600">
-                  {scores.overall.score}
-                </span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  scores.overall.score >= 90 ? 'bg-purple-100 text-purple-700' :
-                  scores.overall.score >= 80 ? 'bg-blue-100 text-blue-700' :
-                  scores.overall.score >= 70 ? 'bg-green-100 text-green-700' :
-                  scores.overall.score >= 60 ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-gray-100 text-gray-700'
-                }`}>
-                  {scores.overall.score >= 90 ? 'エキスパート' :
-                   scores.overall.score >= 80 ? '上級者' :
-                   scores.overall.score >= 70 ? '中級者' :
-                   scores.overall.score >= 60 ? '初級者' : 'ビギナー'}
-                </span>
-                <svg 
-                  className={`w-4 h-4 text-gray-400 transition-transform ${
-                    expandedItems.has('overall') ? 'rotate-180' : ''
-                  }`} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            {expandedItems.has('overall') && (
-              <p className="mt-2 text-xs text-gray-600 leading-relaxed">
-                {scores.overall.reason}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* 個別評価項目 */}
-        <div className="grid grid-cols-2 gap-3">
-          {scores.technology && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('technology')}
-              >
-                <span className="text-sm font-medium text-gray-700">技術力</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-gray-700">
-                    {scores.technology.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('technology') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('technology') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.technology.reason}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.expertise && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('expertise')}
-              >
-                <span className="text-sm font-medium text-gray-700">専門性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-blue-600">
-                    {scores.expertise.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('expertise') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('expertise') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.expertise.reason}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.creativity && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('creativity')}
-              >
-                <span className="text-sm font-medium text-gray-700">創造性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-purple-600">
-                    {scores.creativity.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('creativity') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('creativity') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.creativity.reason}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // 古い形式のスコアを表示
-  if (hasLegacyFormat) {
-    const legacyScores = aiAnalysis.legacyEvaluation!.scores
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h4 className="text-lg font-bold text-blue-900">AI評価スコア</h4>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {Object.entries(legacyScores).map(([key, value]) => (
-            <div key={key} className="p-3 bg-white rounded-lg border border-gray-100">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-800">{key}</span>
-                <span className="text-lg font-bold text-blue-600">{value}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  return null
-}
 
 export default function EditWorkPage() {
   const params = useParams()
@@ -249,28 +48,20 @@ export default function EditWorkPage() {
     contentType: '' as string
   })
 
-  const [previewData, setPreviewData] = useState<LinkPreviewData | null>(null)
-  const [previewError, setPreviewError] = useState<string | null>(null)
+  const [, setPreviewData] = useState<LinkPreviewData | null>(null)
+  const [, setPreviewError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null)
+  const [] = useState(false)
+  const [, setAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [showShareSuccess, setShowShareSuccess] = useState(false)
 
   // Tag and role state
-  const [newTag, setNewTag] = useState('')
-  const [newRole, setNewRole] = useState('')
-  const [newCategory, setNewCategory] = useState('')
+  const [, setNewTag] = useState('')
+  const [] = useState('')
+  const [, setNewCategory] = useState('')
 
   // Predefined options
-  const predefinedRoles = ['ライター', '編集者', 'ディレクター', 'デザイナー', 'カメラマン', 'プログラマー']
-  const contentTypes = [
-    { value: 'article', label: '記事' },
-    { value: 'video', label: '動画' },
-    { value: 'image', label: '画像' },
-    { value: 'audio', label: '音声' },
-    { value: 'other', label: 'その他' }
-  ]
 
   // Auth headers helper
   const getAuthHeaders = async () => {
@@ -373,127 +164,22 @@ export default function EditWorkPage() {
   }
 
   // URL change handler
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value
-    setFormData(prev => ({ ...prev, externalUrl: url }))
-    
-    // Debounce link preview fetch
-    const timeoutId = setTimeout(() => {
-      fetchLinkPreview(url)
-    }, 1000)
-
-    return () => clearTimeout(timeoutId)
-  }
 
   // Form data update handler
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
 
   // Tag management
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }))
-      setNewTag('')
-    }
-  }
 
-  const handleTagKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addTag()
-    }
-  }
 
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }))
-  }
 
   // Role management
-  const addRole = (role: string) => {
-    if (role && !formData.roles.includes(role)) {
-      setFormData(prev => ({
-        ...prev,
-        roles: [...prev.roles, role]
-      }))
-    }
-  }
 
-  const addCustomRole = () => {
-    if (newRole.trim() && !formData.roles.includes(newRole.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        roles: [...prev.roles, newRole.trim()]
-      }))
-      setNewRole('')
-    }
-  }
 
-  const removeRole = (roleToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      roles: prev.roles.filter(role => role !== roleToRemove)
-    }))
-  }
 
   // Category management
-  const addCategory = () => {
-    if (newCategory.trim() && !formData.categories.includes(newCategory.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        categories: [...prev.categories, newCategory.trim()]
-      }))
-      setNewCategory('')
-    }
-  }
+  // eslint-disable-next-line unused-imports/no-unused-vars
 
-  const removeCategory = (categoryToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      categories: prev.categories.filter(category => category !== categoryToRemove)
-    }))
-  }
 
   // AI Analysis
-  const handleAIAnalysis = async () => {
-    if (!formData.title.trim() || !formData.description.trim()) {
-      alert('タイトルと説明を入力してください')
-      return
-    }
-
-    setIsAnalyzing(true)
-    try {
-      const response = await fetch('/api/ai-analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          contentType: formData.contentType || 'article'
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('AI分析に失敗しました')
-      }
-
-      const result = await response.json()
-      setAnalysisResult(result)
-    } catch (error) {
-      console.error('AI分析エラー:', error)
-      alert('AI分析に失敗しました')
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }
 
   // 作品データ取得後の初期値セット
   const initialData = {
@@ -508,7 +194,7 @@ export default function EditWorkPage() {
   }
 
   // 保存処理（PUT更新）
-  const handleUpdate = async (formData: any, analysisResult: any, previewData: any) => {
+  const handleUpdate = async (formData: any, analysisResult: any) => {
     try {
       const headers = await getAuthHeaders()
       const workData = {

@@ -24,20 +24,20 @@ export function generateInsightSummary(inputAnalysis: InputAnalysis | null): str
   }
 
   // 主要なジャンルとタグを抽出
-  const primaryGenre = topGenres && topGenres.length > 0 
-    ? (typeof topGenres[0] === 'string' ? topGenres[0] : topGenres[0].genre)
+  const primaryGenre = (topGenres && topGenres.length > 0)
+    ? (typeof topGenres[0] === 'string' ? topGenres[0] : (topGenres[0] && topGenres[0].genre))
     : null
 
-  const secondaryGenre = topGenres && topGenres.length > 1
-    ? (typeof topGenres[1] === 'string' ? topGenres[1] : topGenres[1].genre)
+  const secondaryGenre = (topGenres && topGenres.length > 1)
+    ? (typeof topGenres[1] === 'string' ? topGenres[1] : (topGenres[1] && topGenres[1].genre))
     : null
 
-  const primaryTag = topTags && topTags.length > 0
-    ? (typeof topTags[0] === 'string' ? topTags[0] : topTags[0].tag)
+  const primaryTag = (topTags && topTags.length > 0)
+    ? (typeof topTags[0] === 'string' ? topTags[0] : (topTags[0] && topTags[0].tag))
     : null
 
-  const secondaryTag = topTags && topTags.length > 1
-    ? (typeof topTags[1] === 'string' ? topTags[1] : topTags[1].tag)
+  const secondaryTag = (topTags && topTags.length > 1)
+    ? (typeof topTags[1] === 'string' ? topTags[1] : (topTags[1] && topTags[1].tag))
     : null
 
   // インサイトサマリーの生成
@@ -78,12 +78,12 @@ export function generateInsightSummary(inputAnalysis: InputAnalysis | null): str
 
   // 追加の分析
   if (topGenres && topGenres.length >= 3) {
-    const thirdGenre = typeof topGenres[2] === 'string' ? topGenres[2] : topGenres[2].genre
+    const thirdGenre = typeof topGenres[2] === 'string' ? topGenres[2] : (topGenres[2] && topGenres[2].genre)
     insight += `さらに、【${thirdGenre}】といった多様なジャンルに触れることで、幅広い視点と豊かな表現力を身につけているようです。`
   }
 
   if (topTags && topTags.length >= 3) {
-    const thirdTag = typeof topTags[2] === 'string' ? topTags[2] : topTags[2].tag
+    const thirdTag = typeof topTags[2] === 'string' ? topTags[2] : (topTags[2] && topTags[2].tag)
     insight += `【${thirdTag}】などのキーワードも含めて、あなたの関心事は多岐にわたっており、これらが組み合わさることで独自の創作スタイルを形成していると考えられます。`
   }
 
