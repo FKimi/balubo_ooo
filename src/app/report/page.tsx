@@ -17,6 +17,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
 import AdvancedMetricsGrid from '@/features/report/components/AdvancedMetricsGrid'
 import { EmptyState } from '@/components/common'
+import { calculateCombinedTopTags } from '@/utils/profileUtils'
 
 function ReportContent() {
   const { user } = useAuth()
@@ -528,20 +529,7 @@ function ReportContent() {
         await exportComprehensiveReportToPDF(comprehensiveData)
       } else if (type === 'structured') {
         // 従来の構造化されたPDF出力
-        const topTags = () => {
-          const tagCount: { [key: string]: number } = {}
-          works.forEach(work => {
-            if (work.tags && Array.isArray(work.tags)) {
-              work.tags.forEach(tag => {
-                tagCount[tag] = (tagCount[tag] || 0) + 1
-              })
-            }
-          })
-          return Object.entries(tagCount)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 8)
-            .map(([tag]) => tag)
-        }
+        const topTags = () => calculateCombinedTopTags(works, inputs).slice(0, 8).map(([tag]) => tag)
 
         const topGenres = () => {
           const genreCount: { [key: string]: number } = {}
@@ -608,18 +596,7 @@ function ReportContent() {
     }
 
     // タグを統合集計
-    const tagCount: Record<string, number> = {}
-    ;[...works, ...inputs].forEach((item: any) => {
-      if (Array.isArray(item.tags)) {
-        item.tags.forEach((tag: string) => {
-          tagCount[tag] = (tagCount[tag] || 0) + 1
-        })
-      }
-    })
-
-    const topTags = Object.entries(tagCount)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
+    const topTags = calculateCombinedTopTags(works, inputs)
 
     // 傾向文生成
     const tendencySentences = () => {

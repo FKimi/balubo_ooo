@@ -14,6 +14,7 @@ import { ProfileModals } from '@/features/profile/components/ProfileModals'
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
   displayName: '',
+  title: '',
   bio: '',
   introduction: '',
   professions: [],
@@ -179,6 +180,7 @@ function ProfileContent() {
             const convertedProfile = {
               ...completeDefaultProfileData,
               displayName: profileData.profile.display_name || profileData.profile.displayName || '',
+              title: profileData.profile.title || '',
               bio: profileData.profile.bio || '',
               introduction: profileData.profile.introduction || '',
               professions: profileData.profile.professions || [],
@@ -524,6 +526,7 @@ function ProfileContent() {
 
   // プロフィール情報から表示用データを取得
   const displayName = profileData?.displayName || 'ユーザー'
+  const title = profileData?.title || ''
   const bio = profileData?.bio || ''
   const location = profileData?.location || ''
   const websiteUrl = profileData?.websiteUrl || ''
@@ -543,6 +546,7 @@ function ProfileContent() {
           {/* プロフィールヘッダー */}
           <ProfileHeader
             displayName={displayName}
+            title={title}
             bio={bio}
             location={location}
             websiteUrl={websiteUrl}

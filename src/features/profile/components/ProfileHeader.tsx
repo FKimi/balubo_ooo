@@ -8,6 +8,7 @@ import { FollowStats } from '@/features/follow/components/FollowStats'
 
 interface ProfileHeaderProps {
   displayName: string
+  title?: string
   bio: string
   location: string
   websiteUrl: string
@@ -23,6 +24,7 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({
   displayName,
+  title,
   bio,
   location,
   websiteUrl,
@@ -115,57 +117,46 @@ export function ProfileHeader({
             </div>
 
             {/* 名前とプロフィール情報 */}
-            <div className="flex-1 min-w-0 pt-2 sm:pt-4">
-                <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1 min-w-0">
-                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                        {displayName === 'ユーザー' ? (
-                            <span className="text-gray-500">表示名を設定してください</span>
-                        ) : (
-                            displayName
-                        )}
-                        </h1>
-                    </div>
-                    
-                    {/* 編集・共有ボタン */}
-                    <div className="flex gap-2 ml-4">
-                        {/* 共有ボタン */}
-                        {portfolioVisibility === 'public' && userId && (
-                            <ShareProfileButton userId={userId} slug={slug} displayName={displayName} />
-                        )}
-                        
-                        {/* 編集ボタン */}
-                        <Link href="/profile/edit">
-                            <Button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg text-xs sm:text-sm">
-                            <svg className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            編集
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-                
-                {/* 自己紹介 */}
-                <div className="mb-4">
-                {bio ? (
-                    <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
-                    {bio}
-                    </p>
-                ) : (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                        <svg className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span className="text-blue-900 font-medium text-xs sm:text-sm">自己紹介を追加しましょう</span>
-                    </div>
-                    <p className="text-blue-700 text-xs sm:text-sm leading-relaxed">
-                        あなたの経験、スキル、興味のある分野について教えてください。魅力的な自己紹介で、他のクリエイターとのつながりを深めましょう。
-                    </p>
-                    </div>
+            <div className="flex-1 min-w-0">
+                {/* 肩書き（上部・薄い色・小さめ） */}
+                {title && (
+                  <div className="mb-3">
+                    <span className="inline-block text-base sm:text-lg font-semibold text-indigo-500 tracking-wide bg-indigo-50 px-4 py-1 rounded-full shadow-sm">
+                      {title}
+                    </span>
+                  </div>
                 )}
-                </div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 leading-tight tracking-tight">
+                  {displayName === 'ユーザー' ? (
+                    <span className="text-gray-400">表示名を設定してください</span>
+                  ) : (
+                    displayName
+                  )}
+                </h1>
+                {/* 自己紹介文 */}
+                {bio && (
+                  <p className="text-base sm:text-lg text-gray-700 font-normal leading-relaxed mb-2 sm:mb-4 max-w-2xl">
+                    {bio}
+                  </p>
+                )}
+            </div>
+            
+            {/* 編集・共有ボタン */}
+            <div className="flex gap-2 ml-4">
+                {/* 共有ボタン */}
+                {portfolioVisibility === 'public' && userId && (
+                    <ShareProfileButton userId={userId} slug={slug} displayName={displayName} />
+                )}
+                
+                {/* 編集ボタン */}
+                <Link href="/profile/edit">
+                    <Button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg text-xs sm:text-sm">
+                    <svg className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    編集
+                    </Button>
+                </Link>
             </div>
         </div>
 

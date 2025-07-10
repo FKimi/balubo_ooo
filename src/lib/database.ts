@@ -154,24 +154,24 @@ export class DatabaseClient {
       
       const profileToSave = {
         user_id: userId,
-        // display_name はPUTルート経由で snake_case のまま来ることがあるためフォールバックを追加
         display_name: profileData.displayName ?? profileData.display_name ?? existingProfile?.display_name ?? '',
-        bio: profileData.bio || '',
-        introduction: profileData.bio || profileData.introduction || '', // フォームのbioを自己紹介として保存
-        professions: profileData.professions || [],
-        skills: profileData.skills || [],
-        location: profileData.location || '',
-        website_url: profileData.websiteUrl || '',
-        portfolio_visibility: profileData.portfolioVisibility || 'public',
-        background_image_url: profileData.backgroundImageUrl || '',
-        avatar_image_url: profileData.avatarImageUrl || '',
-        desired_rate: profileData.desiredRate || '',
-        job_change_intention: profileData.jobChangeIntention || 'not_considering',
-        side_job_intention: profileData.sideJobIntention || 'not_considering',
-        project_recruitment_status: profileData.projectRecruitmentStatus || 'not_recruiting',
-        experience_years: profileData.experienceYears || null,
-        working_hours: profileData.workingHours || '',
-        career: profileData.career || [],
+        title: profileData.title ?? existingProfile?.title ?? '',
+        bio: profileData.bio ?? existingProfile?.bio ?? '',
+        introduction: profileData.introduction ?? existingProfile?.introduction ?? '',
+        professions: profileData.professions ?? existingProfile?.professions ?? [],
+        skills: profileData.skills ?? existingProfile?.skills ?? [],
+        location: profileData.location ?? existingProfile?.location ?? '',
+        website_url: profileData.websiteUrl ?? existingProfile?.website_url ?? '',
+        portfolio_visibility: profileData.portfolioVisibility ?? existingProfile?.portfolio_visibility ?? 'public',
+        background_image_url: profileData.backgroundImageUrl ?? existingProfile?.background_image_url ?? '',
+        avatar_image_url: profileData.avatarImageUrl ?? existingProfile?.avatar_image_url ?? '',
+        desired_rate: profileData.desiredRate ?? existingProfile?.desired_rate ?? '',
+        job_change_intention: profileData.jobChangeIntention ?? existingProfile?.job_change_intention ?? 'not_considering',
+        side_job_intention: profileData.sideJobIntention ?? existingProfile?.side_job_intention ?? 'not_considering',
+        project_recruitment_status: profileData.projectRecruitmentStatus ?? existingProfile?.project_recruitment_status ?? 'not_recruiting',
+        experience_years: profileData.experienceYears ?? existingProfile?.experience_years ?? null,
+        working_hours: profileData.workingHours ?? existingProfile?.working_hours ?? '',
+        career: profileData.career ?? existingProfile?.career ?? [],
         updated_at: new Date().toISOString()
       }
 

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProfile } from '@/hooks/useProfile'
 import { ProfileAvatar } from '@/components/common/ProfileAvatar'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { Home, User, BarChart2, Plus, MessageSquare } from 'lucide-react'
 
 export function Header() {
@@ -80,6 +81,9 @@ export function Header() {
           <div className="flex items-center gap-4">
             {user ? (
               <>
+                {/* 通知ベル */}
+                <NotificationBell />
+
                 {/* 作品追加ボタン */}
                 <Button asChild className="shadow-sm hover:shadow-md transition-shadow">
                   <Link href="/works/new">

@@ -40,6 +40,7 @@ export default function ProfileEditPage() {
           // データベースから取得したデータをフォームに設定
           const convertedProfile: ProfileData = {
             displayName: dbProfile.display_name || user?.user_metadata?.display_name || '',
+            title: dbProfile.title || '',
             bio: dbProfile.bio || dbProfile.introduction || '',
             professions: dbProfile.professions || [],
             skills: dbProfile.skills || [],
@@ -95,6 +96,7 @@ export default function ProfileEditPage() {
   const [formData, setFormData] = useState<ProfileData>(() => {
     const baseData = {
       displayName: user?.user_metadata?.display_name || '',
+      title: '',
       bio: '',
       professions: [],
       skills: [],
@@ -499,6 +501,20 @@ export default function ProfileEditPage() {
                       required
                       className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                     />
+                  </div>
+
+                  {/* 肩書き */}
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="text-sm font-medium text-gray-700">肩書き・役職</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      placeholder="例: フロントエンドエンジニア、デザイナー、ライター"
+                      className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
+                    />
+                    <p className="text-xs text-gray-500">あなたの現在の肩書きや役職を入力してください</p>
                   </div>
 
                   {/* 自己紹介 */}

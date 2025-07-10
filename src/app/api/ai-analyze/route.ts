@@ -224,7 +224,7 @@ const getContentTypePrompt = (contentType: string) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { description, title, url, contentType } = await request.json()
+    const { description, title, url, contentType, productionNotes, fullContent } = await request.json()
 
     if (!description && !title && !url) {
       return NextResponse.json(
@@ -236,13 +236,27 @@ export async function POST(request: NextRequest) {
     // コンテンツタイプ別のプロンプト設定を取得
     const contentConfig = getContentTypePrompt(contentType || 'other')
 
+    // 本文の最大長（1万字）
+    const MAX_CONTENT_LENGTH = 10000;
+    let fullContentText = '';
+    if (fullContent) {
+      if (fullContent.length > MAX_CONTENT_LENGTH) {
+        fullContentText = `記事本文: ${fullContent.substring(0, MAX_CONTENT_LENGTH)}...(本文が長いため一部省略)`;
+      } else {
+        fullContentText = `記事本文: ${fullContent}`;
+      }
+    }
     // 分析用のプロンプトを作成
     const analysisPrompt = `
 あなたは${contentConfig.focus}の専門家・分析者です。以下の作品を詳細に分析し、個別性の高い具体的なタグを10個以上生成してください。
 
+【重要】作品説明、制作メモ、記事本文のすべてを参考に、必ず分析・評価・タグ生成の根拠に含めてください。特に制作メモには作品の目的やターゲットなど重要な意図が含まれているため、無視せず必ず活用してください。
+
 作品タイトル: ${title || '未設定'}
 作品URL: ${url || '未設定'}
 作品説明: ${description || '未設定'}
+${productionNotes ? `制作メモ・目的・背景: ${productionNotes}` : ''}
+${fullContentText}
 コンテンツタイプ: ${contentConfig.focus}
 
 ## 詳細分析観点

@@ -70,6 +70,7 @@ export function WorkCard({ work, onDelete }: WorkCardProps) {
       </Link>
       
       {/* 削除ボタン */}
+      {/*
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
         <button
           onClick={handleDelete}
@@ -81,6 +82,41 @@ export function WorkCard({ work, onDelete }: WorkCardProps) {
           </svg>
         </button>
       </div>
+      */}
+
+      {/* モダンな削除確認モーダル */}
+      {/*
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50 transition-opacity" onClick={() => setShowDeleteModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">作品を削除</h3>
+            <p className="text-gray-600 mb-6">
+              「{work.title}」を削除してもよろしいですか？<br />
+              この操作は元に戻せません。
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="flex-1"
+              >
+                キャンセル
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="flex-1"
+              >
+                {deleting ? '削除中...' : '削除する'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      */}
     </div>
   )
 } 

@@ -105,6 +105,13 @@ export function ShareModal({ isOpen, onClose, type, data, userDisplayName }: Sha
                     <span className="truncate">{shareData.url}</span>
                   </div>
                 )}
+                {/* 作品の外部リンクがある場合は追加で表示 */}
+                {type === 'work' && (data as any).external_url && (
+                  <div className="mt-2 flex items-center gap-2 text-gray-500 text-xs">
+                    <ExternalLink className="w-3 h-3" />
+                    <span className="truncate">実際の作品: {(data as any).external_url}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -186,53 +193,66 @@ interface ShareSuccessToastProps {
 }
 
 export function ShareSuccessToast({ isOpen, onClose, type, onShare }: ShareSuccessToastProps) {
-  if (!isOpen) return null
+  console.log('ShareSuccessToast render - isOpen:', isOpen, 'type:', type)
+  
+  if (!isOpen) {
+    console.log('ShareSuccessToast: returning null because isOpen is false')
+    return null
+  }
 
+  console.log('ShareSuccessToast: rendering toast')
+  
   return (
-    <div className="fixed bottom-4 right-4 z-50 transform transition-all duration-300">
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm">
-        <div className="flex items-center gap-3 mb-3">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            'bg-blue-100'
-          }`}>
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {type === 'work' ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              )}
+    <div 
+      className="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-[99999] animate-slide-up" 
+      style={{ 
+        position: 'fixed', 
+        bottom: '130px', 
+        left: '50%', 
+        transform: 'translateX(-50%)', 
+        zIndex: 99999,
+        width: '360px'
+      }}
+    >
+      <div 
+        className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 backdrop-blur-sm"
+        style={{
+          backgroundColor: 'white',
+          border: '1px solid #e5e7eb',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+        }}
+      >
+        <div className="text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <div className="flex-1">
-            <div className="font-medium text-gray-900 text-sm">
-              {type === 'work' ? '作品を追加しました！' : 'インプットを追加しました！'}
-            </div>
-            <div className="text-xs text-gray-500">
-              みんなに共有しませんか？
-            </div>
+          <div className="text-2xl font-bold text-gray-900 mb-2">
+            🎉 作品を追加しました！
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button
-            onClick={onShare}
-            size="sm"
-            className="flex-1 bg-black hover:bg-gray-800 text-white text-xs"
-          >
-            <Twitter className="w-3 h-3 mr-1" />
-            X共有
-          </Button>
-          <Button
-            onClick={onClose}
-            variant="outline"
-            size="sm"
-            className="text-xs"
-          >
-            後で
-          </Button>
+          <div className="text-sm text-gray-600 mb-6">
+            みんなに共有しませんか？
+          </div>
+          <div className="flex gap-3 justify-center">
+            <Button
+              onClick={onShare}
+              size="sm"
+              className="bg-black hover:bg-gray-800 text-white text-sm font-semibold px-6 py-2 rounded-full"
+            >
+              <Twitter className="w-4 h-4 mr-2" />
+              X共有
+            </Button>
+            <Button
+              onClick={onClose}
+              variant="outline"
+              size="sm"
+              className="text-sm text-gray-600 border-gray-300 hover:bg-gray-50 px-6 py-2 rounded-full"
+            >
+              後で
+            </Button>
+          </div>
         </div>
       </div>
     </div>

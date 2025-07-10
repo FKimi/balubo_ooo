@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from '@/app/share/profile/[userId]/public-profile-content'
+import { calculateInputTopTags, calculateGenreDistribution } from '@/utils/profileUtils'
 
 async function getPublicProfileBySlug(slug: string) {
   // anon クライアントで公開プロフィールを取得
@@ -82,39 +83,8 @@ async function getPublicProfileBySlug(slug: string) {
       return acc
     }, {})
 
-    const genresDistribution = inputs.reduce((acc: any, input: any) => {
-      if (input.genres && Array.isArray(input.genres)) {
-        input.genres.forEach((genre: string) => {
-          acc[genre] = (acc[genre] || 0) + 1
-        })
-      }
-      return acc
-    }, {})
-
-    const topGenres = Object.entries(genresDistribution)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count: count as number }))
-
-    // インプットからタグを抽出してtopTagsを作成
-    const tagCount: { [key: string]: number } = {}
-    inputs.forEach((input: any) => {
-      if (input.tags && Array.isArray(input.tags)) {
-        console.log(`[slug] インプット "${input.title}" のタグ:`, input.tags)
-        input.tags.forEach((tag: string) => {
-          tagCount[tag] = (tagCount[tag] || 0) + 1
-        })
-      } else {
-        console.log(`[slug] インプット "${input.title}" にはタグがありません:`, input.tags)
-      }
-    })
-    
-    console.log('[slug] 集計されたタグ:', tagCount)
-    
-    const topTags = Object.entries(tagCount)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 15)
-      .map(([tag, count]) => ({ tag, count: count as number }))
+    const topGenres = calculateGenreDistribution(inputs).map(([name, count]) => ({ name, count }))
+    const topTags = calculateInputTopTags(inputs).map(([tag, count]) => ({ tag, count }))
 
     inputAnalysis = {
       totalInputs,

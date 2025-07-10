@@ -2,6 +2,7 @@
 export { useProfile } from './useProfile'
 export { useWorkCategories } from './useWorkCategories'
 export { useWorkStatistics } from './useWorkStatistics'
+export { useTagStatistics } from './useTagStatistics'
 
 // スクロールアニメーション用フック
 import { useEffect, useRef, useState } from 'react'

@@ -49,10 +49,13 @@ export async function fetcher<T = unknown>(
     }
 
     token = session?.access_token
+    console.log('[fetcher] token:', token)
+    if (!token) {
+      throw new Error('認証トークンが取得できません。ログインし直してください。')
+    }
   } catch (err) {
     console.warn('[fetcher] セッショントークン取得失敗:', err)
-    // サーバーサイドやセッション未初期化の場合はトークンなし
-    token = undefined
+    throw new Error('認証トークンの取得に失敗しました。ログインし直してください。')
   }
 
   const headers: Record<string, string> = {

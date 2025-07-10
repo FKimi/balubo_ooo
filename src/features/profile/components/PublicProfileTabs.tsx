@@ -12,9 +12,11 @@ import { RolePieChart } from './RolePieChart'
 import { calculateTopTags } from '@/utils/profileUtils'
 import { EmptyState } from '@/components/common'
 import { CreatorIntroCard } from './CreatorIntroCard'
+import { useTagStatistics } from '@/hooks/useTagStatistics'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'inputs' | 'details'
+  // eslint-disable-next-line unused-imports/no-unused-vars
   setActiveTab: (tab: 'profile' | 'works' | 'inputs' | 'details') => void
   profile: any
   works: any[]
@@ -37,6 +39,7 @@ export function PublicProfileTabs({
 }: PublicProfileTabsProps) {
   // 作品統計の計算（プライベートプロフィールと同じフックを使用）
   const workStats = useWorkStatistics(works)
+  const { data: tagStatistics, getTagStatistic, getTagRanking } = useTagStatistics()
 
   // インプット分析の計算（propsで渡された場合はそれを優先、なければ自分で計算）
   const inputAnalysis = useMemo(() => {
@@ -371,40 +374,95 @@ export function PublicProfileTabs({
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900">よく使用するタグ</h3>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">よく使用するタグ</h3>
+                      <p className="text-gray-600 mt-1">得意分野・専門領域の分析</p>
+                    </div>
                     <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                      得意分野・専門領域
+                      トップ7
                     </div>
                   </div>
                   
-                  <div className="space-y-3">
-                    {topTags.slice(0, 5).map(([tag, count]: [string, number], index: number) => (
+                  {/* トップ7タグ（コンパクト表示） */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                    {topTags.slice(0, 7).map(([tag, count]: [string, number], index: number) => (
                       <div 
                         key={tag} 
-                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm hover:shadow-blue-400/20 transition-all duration-300"
+                        className="flex items-center justify-between p-2 rounded-md border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                            index < 3 
-                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-400/30' 
-                              : 'bg-blue-50 text-blue-600 border border-blue-200'
+                        <div className="flex items-center space-x-2">
+                          {/* ランキングバッジ */}
+                          <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                            index === 0 
+                              ? 'bg-yellow-500 text-white' 
+                              : index === 1
+                              ? 'bg-gray-400 text-white'
+                              : index === 2
+                              ? 'bg-amber-600 text-white'
+                              : 'bg-blue-500 text-white'
                           }`}>
                             {index + 1}
                           </div>
-                          <span className="text-base font-medium text-gray-900">
+                          
+                          {/* タグ名 */}
+                          <span className="text-sm font-medium text-gray-900 truncate">
                             {tag}
                           </span>
                         </div>
+                        
+                        {/* 使用回数 */}
                         <div className="text-right">
-                          <div className={`text-lg font-bold ${
-                            index < 3 ? 'text-blue-600' : 'text-blue-400'
+                          <div className={`text-sm font-bold ${
+                            index < 3 ? 'text-blue-600' : 'text-gray-600'
                           }`}>
                             {count}
                           </div>
-                          <div className="text-xs text-gray-500">件の作品</div>
                         </div>
                       </div>
                     ))}
+                  </div>
+                  
+                  {/* その他のタグ（パラパラ表示） */}
+                  {topTags.length > 7 && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">その他のタグ</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {topTags.slice(7).map(([tag, count]: [string, number]) => (
+                          <span 
+                            key={tag}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200 transition-colors"
+                          >
+                            {tag}
+                            <span className="ml-1 text-gray-500">({count})</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 専門性サマリー（コンパクト） */}
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h4 className="text-sm font-semibold text-gray-800">専門性分析</h4>
+                          {tagStatistics && (
+                            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                              全{tagStatistics.totalWorks}件のデータ
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600">
+                          {topTags[0]?.[0] || 'なし'}を中心とした{topTags.slice(0, 3).map(([tag]) => tag).join('・')}の分野で専門性を発揮
+                        </p>
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="text-lg font-bold text-blue-600">
+                          {topTags.length}
+                        </div>
+                        <div className="text-xs text-gray-500">分野</div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

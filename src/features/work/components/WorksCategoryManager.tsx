@@ -13,6 +13,7 @@ import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { WorkCard } from '@/features/work/components/WorkCard'
 import type { WorkData } from '@/types/work'
 import { EmptyState } from '@/components/common'
+import { Button } from '@/components/ui/button'
 
 interface Category {
   id: string
@@ -25,12 +26,17 @@ interface WorksCategoryManagerProps {
   savedWorks: WorkData[]
   categories: Category[]
   addCategory: () => string // 新しく作成されたカテゴリのIDを返す
+  // eslint-disable-next-line unused-imports/no-unused-vars
   updateCategory: (categoryId: string, newName: string, newColor: string) => void
+  // eslint-disable-next-line unused-imports/no-unused-vars
   deleteCategory: (categoryId: string) => void
+  // eslint-disable-next-line unused-imports/no-unused-vars
   deleteWork: (workId: string) => void
+  // eslint-disable-next-line unused-imports/no-unused-vars
   updateWorkCategory: (workId: string, categoryId: string) => void
 }
 
+// eslint-disable-next-line unused-imports/no-unused-vars
 function DraggableWorkCard({ work, onDelete }: { work: WorkData, onDelete: (workId: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: work.id,
@@ -73,6 +79,7 @@ function DroppableCategoryTab({
 }: { 
   category: { id: string }, 
   selectedCategory: string, 
+  // eslint-disable-next-line unused-imports/no-unused-vars
   onSelect: (id: string) => void,
   children: React.ReactNode,
   isDragActive?: boolean
@@ -153,6 +160,10 @@ export function WorksCategoryManager({
   const [isDragActive, setIsDragActive] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  // カテゴリ削除用モーダルの状態
+  const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false)
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null)
+  const [deleteCategoryMessage, setDeleteCategoryMessage] = useState('')
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -163,6 +174,7 @@ export function WorksCategoryManager({
     })
   )
 
+  // eslint-disable-next-line unused-imports/no-unused-vars
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragActive(true)
   }
@@ -175,13 +187,11 @@ export function WorksCategoryManager({
       const categoryId = over.id as string
       const work = savedWorks.find(w => w.id === workId)
       const targetCategory = allCategoriesWithAll.find(cat => cat.id === categoryId)
-      
       // 楽観的UI更新の前に成功メッセージを準備
       const workTitle = work?.title || '作品'
       const categoryName = targetCategory?.name || 'カテゴリ'
-      
       try {
-        updateWorkCategory(workId, categoryId)
+        updateWorkCategory(workId, categoryName)
         // 成功フィードバック
         setSuccessMessage(`「${workTitle}」を「${categoryName}」に移動しました`)
         setTimeout(() => setSuccessMessage(null), 3000)
@@ -255,35 +265,40 @@ export function WorksCategoryManager({
   // カテゴリ削除
   const handleDeleteCategory = async (categoryId: string) => {
     if (categoryId === 'all') return
-    
     const category = categories.find(cat => cat.id === categoryId)
     if (!category) return
-
     const workCount = category.works.length
     const confirmMessage = workCount > 0 
       ? `「${category.name}」カテゴリを削除しますか？\n\nこのカテゴリに属する${workCount}件の作品は「カテゴリなし」に移動されます。`
       : `「${category.name}」カテゴリを削除しますか？`
+    setDeletingCategoryId(categoryId)
+    setDeleteCategoryMessage(confirmMessage)
+    setIsDeleteCategoryModalOpen(true)
+  }
 
-    if (confirm(confirmMessage)) {
-      try {
-        await deleteCategory(categoryId)
-        
-        if (selectedCategory === categoryId) {
-          setSelectedCategory('all')
-        }
-
-        if (workCount > 0) {
-          setSuccessMessage(`「${category.name}」カテゴリを削除しました。${workCount}件の作品を「カテゴリなし」に移動しました。`)
-        } else {
-          setSuccessMessage(`「${category.name}」カテゴリを削除しました。`)
-        }
-        setTimeout(() => setSuccessMessage(null), 3000)
-
-      } catch (error) {
-        console.error('カテゴリ削除エラー:', error)
-        setErrorMessage(`カテゴリの削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
-        setTimeout(() => setErrorMessage(null), 5000)
+  const confirmDeleteCategory = async () => {
+    if (!deletingCategoryId) return
+    try {
+      await deleteCategory(deletingCategoryId)
+      if (selectedCategory === deletingCategoryId) {
+        setSelectedCategory('all')
       }
+      const category = categories.find(cat => cat.id === deletingCategoryId)
+      const workCount = category?.works.length || 0
+      if (workCount > 0) {
+        setSuccessMessage(`「${category?.name}」カテゴリを削除しました。${workCount}件の作品を「カテゴリなし」に移動しました。`)
+      } else {
+        setSuccessMessage(`「${category?.name}」カテゴリを削除しました。`)
+      }
+      setTimeout(() => setSuccessMessage(null), 3000)
+    } catch (error) {
+      console.error('カテゴリ削除エラー:', error)
+      setErrorMessage(`カテゴリの削除に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
+      setTimeout(() => setErrorMessage(null), 5000)
+    } finally {
+      setIsDeleteCategoryModalOpen(false)
+      setDeletingCategoryId(null)
+      setDeleteCategoryMessage('')
     }
   }
 
@@ -294,18 +309,26 @@ export function WorksCategoryManager({
   }
 
   const handleSaveCategory = async (categoryId:string) => {
-    if (editCategoryName.trim()) {
-      try {
-        const category = categories.find(cat => cat.id === categoryId)
-        if (category) {
-          await updateCategory(categoryId, editCategoryName.trim(), category.color)
-        }
-      } catch (error) {
-        console.error('カテゴリ名変更エラー:', error)
-        setErrorMessage(`カテゴリ名の変更に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
-        setTimeout(() => setErrorMessage(null), 5000)
-      }
+    if (!editCategoryName.trim()) {
+      setErrorMessage('カテゴリ名を入力してください')
+      setTimeout(() => setErrorMessage(null), 3000)
+      return
     }
+
+    try {
+      const category = categories.find(cat => cat.id === categoryId)
+      if (category) {
+        await updateCategory(categoryId, editCategoryName.trim(), category.color)
+        setSuccessMessage(`カテゴリ名を「${editCategoryName.trim()}」に変更しました`)
+        setTimeout(() => setSuccessMessage(null), 3000)
+      }
+    } catch (error) {
+      console.error('カテゴリ名変更エラー:', error)
+      setErrorMessage(`カテゴリ名の変更に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
+      setTimeout(() => setErrorMessage(null), 5000)
+      return // エラー時は編集モードを維持
+    }
+    
     setIsEditingCategory(null)
     setEditCategoryName('')
   }
@@ -363,37 +386,25 @@ export function WorksCategoryManager({
           </div>
         )}
 
-        {/* ドラッグ操作のガイド */}
-        {!isDragActive && savedWorks.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 text-blue-800">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-sm font-medium">
-                作品カードを<strong className="px-1">長押し</strong>してドラッグし、移動先のカテゴリにドロップしてください
-              </span>
-            </div>
-          </div>
-        )}
 
-        {/* 空のカテゴリがある場合のヒント */}
-        {!isDragActive && categories.some(cat => cat.works.length === 0) && (
-          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-center gap-2 text-amber-800">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-              <span className="text-sm font-medium">空のカテゴリは作品をドラッグ&ドロップで移動すると保存されます</span>
-            </div>
-          </div>
-        )}
 
         {/* カテゴリタブ */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <h3 className="text-lg font-semibold text-gray-900">カテゴリ</h3>
             <span className="text-sm text-gray-500">作品をカテゴリにドラッグ＆ドロップして整理</span>
+          </div>
+          
+          {/* カテゴリ管理のヒント */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 text-blue-800">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-medium">
+                カテゴリの管理：<strong className="px-1">＋追加</strong>で新規作成、<strong className="px-1">編集・削除</strong>ボタンでカテゴリ名の変更・削除ができます
+              </span>
+            </div>
           </div>
           
           {/* カテゴリボックス（横一列） */}
@@ -417,17 +428,21 @@ export function WorksCategoryManager({
                         onChange={(e) => setEditCategoryName(e.target.value)}
                         className="w-full text-sm bg-transparent outline-none text-center font-medium"
                         onKeyPress={(e) => e.key === 'Enter' && handleSaveCategory(category.id)}
-                        onBlur={() => handleSaveCategory(category.id)}
+                        onKeyDown={(e) => e.key === 'Escape' && setIsEditingCategory(null)}
                         autoFocus
                         placeholder="カテゴリ名"
+                        maxLength={20}
                       />
                       <div className="flex justify-center gap-1 mt-1">
-                        <button onClick={() => handleSaveCategory(category.id)} className="text-green-600 hover:text-green-800" title="保存">
+                        <button onClick={() => handleSaveCategory(category.id)} className="text-green-600 hover:text-green-800" title="保存 (Enter)">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                         </button>
-                        <button onClick={() => setIsEditingCategory(null)} className="text-red-600 hover:text-red-800" title="キャンセル">
+                        <button onClick={() => setIsEditingCategory(null)} className="text-red-600 hover:text-red-800" title="キャンセル (Esc)">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1 text-center">
+                        {editCategoryName.length}/20文字
                       </div>
                     </div>
                   </div>
@@ -472,12 +487,17 @@ export function WorksCategoryManager({
             {/* カテゴリ追加ボタン */}
             <button
               onClick={handleAddCategory}
-              className="px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 min-w-[100px] flex items-center justify-center gap-2 text-sm font-medium"
+              className="px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 min-w-[100px] flex items-center justify-center gap-2 text-sm font-medium group"
+              title="新しいカテゴリを追加"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               追加
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                新規カテゴリ作成
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+              </div>
             </button>
           </div>
 
@@ -532,6 +552,63 @@ export function WorksCategoryManager({
           </div>
         </div>
       </div>
+      {/* カテゴリ削除モーダル */}
+      {isDeleteCategoryModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">カテゴリを削除</h3>
+                  <p className="text-sm text-gray-600 mt-1">この操作は取り消せません。</p>
+                </div>
+              </div>
+              <p className="text-gray-700 mb-6 whitespace-pre-line">{deleteCategoryMessage}</p>
+              
+              {/* 削除時の注意事項 */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+                <div className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <div className="text-sm text-amber-800">
+                    <div className="font-medium mb-1">削除後の動作</div>
+                    <ul className="text-xs space-y-1">
+                      <li>• カテゴリ内の作品は「未分類」に自動移動されます</li>
+                      <li>• この操作は取り消すことができません</li>
+                      <li>• 作品データ自体は削除されません</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={confirmDeleteCategory}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  削除する
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsDeleteCategoryModalOpen(false)
+                    setDeletingCategoryId(null)
+                    setDeleteCategoryMessage('')
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  キャンセル
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DndContext>
   )
 } 

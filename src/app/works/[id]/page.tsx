@@ -3,30 +3,23 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Head from 'next/head'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { WorkBanner } from '@/components/WorkBanner'
 import LikeButton from '@/features/work/components/LikeButton'
 import CommentsSection from '@/features/comment/components/CommentsSection'
-import { AIAnalysisResult } from '@/types/work'
+import { ShareModal } from '@/features/social/components/ShareModal'
+import { WorkData, AIAnalysisResult } from '@/types/work'
 // import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
-interface WorkData {
-  id: string
+interface WorkDetailData extends WorkData {
   user_id: string
-  title: string
-  description: string
-  externalUrl: string
-  productionDate: string
-  tags: string[]
-  roles: string[]
-  categories: string[]
+  externalUrl?: string
+  productionDate?: string
   previewData?: any
   preview_data?: any
-  banner_image_url?: string
-  ai_analysis_result?: any
-  production_notes?: string
   createdAt: string
   updatedAt: string
 }
@@ -467,14 +460,24 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
 export default function WorkDetailPage() {
   const params = useParams()
   const workId = params.id as string
-  const [work, setWork] = useState<WorkData | null>(null)
+  const [work, setWork] = useState<WorkDetailData | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchWork = async () => {
       try {
+        // workIdの検証
+        if (!workId || typeof workId !== 'string') {
+          console.error('無効な作品ID:', workId)
+          setError('無効な作品IDです')
+          return
+        }
+
+        console.log('作品詳細を取得中...', { workId })
+
         // 認証トークンを取得
         const { supabase } = await import('@/lib/supabase')
         const { data: { session } } = await supabase.auth.getSession()
@@ -483,16 +486,69 @@ export default function WorkDetailPage() {
         // 現在のユーザー情報を取得
         if (session?.user) {
           setCurrentUser(session.user)
+          console.log('ユーザーが認証されています:', session.user.id)
+        } else {
+          console.log('ユーザーは未認証です')
         }
 
         const response = await fetch(`/api/works/${workId}`, {
           headers: {
+            'Content-Type': 'application/json',
             ...(token && { 'Authorization': `Bearer ${token}` }),
           },
         })
-        const data = await response.json()
 
-        if (response.ok) {
+        // レスポンスの詳細情報を取得
+        const contentType = response.headers.get('content-type')
+        const responseText = await response.text() // レスポンス本文をテキストとして取得
+        
+        console.log('APIレスポンスの詳細:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          contentType,
+          responseLength: responseText.length,
+          responsePreview: responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''),
+          headers: Object.fromEntries(response.headers.entries())
+        })
+
+        // レスポンスがJSONかどうかをチェック
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error('APIがJSON以外のレスポンスを返しました:', {
+            contentType,
+            status: response.status,
+            statusText: response.statusText,
+            url: response.url,
+            responseBody: responseText.substring(0, 500) // 最初の500文字を表示
+          })
+          
+          // HTMLレスポンスの場合、404ページの可能性が高い
+          if (response.status === 404 || contentType?.includes('text/html')) {
+            setError('作品が見つかりません。この作品は削除されたか、非公開設定になっている可能性があります。')
+          } else if (response.status === 0 || !response.status) {
+            setError('サーバーに接続できません。ネットワーク接続を確認してください。')
+          } else {
+            setError(`APIエラー: サーバーが不正なレスポンスを返しました (${response.status})`)
+          }
+          return
+        }
+
+        // JSONとしてパース
+        let data
+        try {
+          data = JSON.parse(responseText)
+        } catch (parseError) {
+          console.error('JSONパースエラー:', {
+            error: parseError,
+            responseText: responseText.substring(0, 500)
+          })
+          setError('APIレスポンスの解析に失敗しました')
+          return
+        }
+
+        if (response.ok && data.work) {
+          console.log('作品データを正常に取得:', data.work.title)
+          
           // データ構造を統一（APIから返されるデータをフロントエンド用に変換）
           const workData = {
             ...data.work,
@@ -519,12 +575,23 @@ export default function WorkDetailPage() {
           })
           setWork(workData)
         } else {
-          console.error('API Error:', data.error)
-          setError(data.details || data.error || '作品データの取得に失敗しました')
+          console.error('作品データの取得に失敗:', {
+            status: response.status,
+            error: data.error,
+            details: data.details
+          })
+          
+          if (response.status === 404) {
+            setError('作品が見つかりません。削除されたか、非公開設定になっている可能性があります。')
+          } else if (response.status === 401) {
+            setError('この作品を閲覧する権限がありません。')
+          } else {
+            setError(data.details || data.error || '作品データの取得に失敗しました')
+          }
         }
       } catch (error) {
         console.error('作品取得エラー:', error)
-        setError('作品データの取得に失敗しました')
+        setError(`作品データの取得中にエラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
       } finally {
         setIsLoading(false)
       }
@@ -595,6 +662,23 @@ export default function WorkDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <Head>
+        <title>{work.title} - 作品詳細</title>
+        <meta name="description" content={work.description || `${work.title}の作品詳細ページです。`} />
+        <meta property="og:title" content={work.title} />
+        <meta property="og:description" content={work.description || `${work.title}の作品詳細ページです。`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`${typeof window !== 'undefined' ? window.location.origin : ''}/works/${work.id}`} />
+        {work.banner_image_url && (
+          <meta property="og:image" content={work.banner_image_url} />
+        )}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={work.title} />
+        <meta name="twitter:description" content={work.description || `${work.title}の作品詳細ページです。`} />
+        {work.banner_image_url && (
+          <meta name="twitter:image" content={work.banner_image_url} />
+        )}
+      </Head>
       <Header />
       
       <main className="container mx-auto px-4 py-8">
@@ -629,9 +713,9 @@ export default function WorkDetailPage() {
           <Card className="overflow-hidden shadow-xl border-0 bg-white/90 backdrop-blur-sm">
             {/* バナー画像 */}
             <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
-              {work.externalUrl || work.banner_image_url || work.previewData?.image || work.preview_data?.image ? (
+              {work.external_url || work.banner_image_url || work.previewData?.image || work.preview_data?.image ? (
                 <WorkBanner 
-                  url={work.externalUrl || ''} 
+                  url={work.external_url || ''} 
                   title={work.title}
                   previewData={work.previewData || work.preview_data}
                   bannerImageUrl={work.banner_image_url || ''}
@@ -879,7 +963,7 @@ export default function WorkDetailPage() {
               )}
 
               {/* 外部リンク */}
-              {work.externalUrl && (
+              {work.external_url && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
                     <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -888,7 +972,7 @@ export default function WorkDetailPage() {
                     作品を見る
                   </h2>
                   <a 
-                    href={work.externalUrl} 
+                    href={work.external_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-xl font-medium transition-all duration-200 hover:shadow-xl transform hover:-translate-y-1"
@@ -901,10 +985,20 @@ export default function WorkDetailPage() {
                 </div>
               )}
 
-              {/* いいねボタン */}
+              {/* いいねボタンと共有ボタン */}
               <div className="mb-8">
                 <div className="flex items-center gap-4">
                   <LikeButton workId={work.id} />
+                  <Button
+                    onClick={() => setIsShareModalOpen(true)}
+                    variant="outline"
+                    className="flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 border border-gray-300 shadow-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                    </svg>
+                    共有
+                  </Button>
                 </div>
               </div>
 
@@ -926,6 +1020,15 @@ export default function WorkDetailPage() {
           </div>
         </div>
       </main>
+
+      {/* 共有モーダル */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        type="work"
+        data={work as WorkData}
+        userDisplayName={currentUser?.user_metadata?.display_name || 'クリエイター'}
+      />
     </div>
   )
 } 

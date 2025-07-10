@@ -17,7 +17,74 @@ export function calculateTopTags(works: WorkData[]): [string, number][] {
   
   return Object.entries(tagCount)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
+    .slice(0, 7)
+}
+
+/**
+ * インプットデータからよく使用するタグを計算する
+ */
+export function calculateInputTopTags(inputs: InputData[]): [string, number][] {
+  const tagCount: { [key: string]: number } = {}
+  
+  inputs.forEach(input => {
+    if (input.tags && Array.isArray(input.tags)) {
+      input.tags.forEach(tag => {
+        tagCount[tag] = (tagCount[tag] || 0) + 1
+      })
+    }
+  })
+  
+  return Object.entries(tagCount)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 7)
+}
+
+/**
+ * 作品とインプットの両方からタグを統合集計する
+ */
+export function calculateCombinedTopTags(works: WorkData[], inputs: InputData[]): [string, number][] {
+  const tagCount: { [key: string]: number } = {}
+  
+  // 作品のタグを集計
+  works.forEach(work => {
+    if (work.tags && Array.isArray(work.tags)) {
+      work.tags.forEach(tag => {
+        tagCount[tag] = (tagCount[tag] || 0) + 1
+      })
+    }
+  })
+  
+  // インプットのタグを集計
+  inputs.forEach(input => {
+    if (input.tags && Array.isArray(input.tags)) {
+      input.tags.forEach(tag => {
+        tagCount[tag] = (tagCount[tag] || 0) + 1
+      })
+    }
+  })
+  
+  return Object.entries(tagCount)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 7)
+}
+
+/**
+ * インプットデータからジャンル分布を計算する
+ */
+export function calculateGenreDistribution(inputs: InputData[]): [string, number][] {
+  const genreCount: { [key: string]: number } = {}
+  
+  inputs.forEach(input => {
+    if (input.genres && Array.isArray(input.genres)) {
+      input.genres.forEach(genre => {
+        genreCount[genre] = (genreCount[genre] || 0) + 1
+      })
+    }
+  })
+  
+  return Object.entries(genreCount)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
 }
 
 /**
@@ -92,4 +159,44 @@ export function summarizeTopTags(topTags: [string, number][]): string {
     return `${tagNames[0]}や${tagNames[1]}などの分野で多くの作品を制作しています。`
   }
   return `${tagNames[0]}、${tagNames[1]}、${tagNames[2]}などの分野で多くの作品を制作しています。`
+} 
+
+/**
+ * 作品データ配列をカテゴリごとにグループ化する（UIでのカテゴリ表示用）
+ * @param works WorkData[]
+ * @returns WorkCategory[]
+ */
+export function groupWorksByCategory(works: WorkData[]): WorkCategory[] {
+  const categorizedWorks: WorkCategory[] = []
+  works.forEach(work => {
+    if (work.categories && work.categories.length > 0) {
+      work.categories.forEach(categoryName => {
+        const existingCategory = categorizedWorks.find(cat => cat.name === categoryName)
+        if (existingCategory) {
+          existingCategory.works.push(work)
+        } else {
+          const newCategory: WorkCategory = {
+            id: `category_${categoryName.replace(/\s+/g, '_').toLowerCase()}`,
+            name: categoryName,
+            color: '#F59E0B',
+            works: [work]
+          }
+          categorizedWorks.push(newCategory)
+        }
+      })
+    } else {
+      let uncategorized = categorizedWorks.find(cat => cat.id === 'uncategorized')
+      if (!uncategorized) {
+        uncategorized = {
+          id: 'uncategorized',
+          name: '未分類',
+          color: '#6B7280',
+          works: []
+        }
+        categorizedWorks.push(uncategorized)
+      }
+      uncategorized.works.push(work)
+    }
+  })
+  return categorizedWorks
 } 

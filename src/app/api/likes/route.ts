@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
+import { createLikeNotification } from '@/lib/notificationUtils'
 
 // 動的レンダリングを強制
 export const runtime = 'nodejs'
@@ -75,6 +76,13 @@ export async function POST(request: NextRequest) {
 
     console.log('いいね追加処理:', { userId, workId, targetType: finalTargetType })
 
+    // 作品情報を取得（通知用）
+    const { data: work } = await supabase
+      .from('works')
+      .select('title, user_id')
+      .eq('id', workId)
+      .single()
+
     // いいね追加
     const { data: newLike, error } = await supabase
       .from('likes')
@@ -100,6 +108,46 @@ export async function POST(request: NextRequest) {
         details: error.message,
         code: error.code 
       }, { status: 500 })
+    }
+
+    // 通知を作成（作品の所有者が自分でない場合のみ）
+    console.log('通知作成判定:', { 
+      hasWork: !!work, 
+      workUserId: work?.user_id, 
+      currentUserId: userId, 
+      shouldCreateNotification: work && work.user_id !== userId 
+    })
+    
+    if (work && work.user_id !== userId) {
+      try {
+        // いいねしたユーザーのプロフィール情報を取得
+        const { data: likerProfile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', userId)
+          .single()
+
+        const likerName = likerProfile?.display_name || 'ユーザー'
+        console.log('通知作成直前', { userId, workOwnerId: work.user_id, workId, likerName, workTitle: work.title })
+        const notificationResult = await createLikeNotification(
+          userId,
+          work.user_id,
+          workId,
+          likerName,
+          work.title
+        )
+        console.log('通知作成直後', notificationResult)
+        
+        if (notificationResult) {
+          console.log('✅ いいね通知が正常に作成されました')
+        } else {
+          console.log('❌ いいね通知の作成に失敗しました')
+        }
+      } catch (notifyError) {
+        console.error('❌ 通知作成エラー:', notifyError)
+      }
+    } else {
+      console.log('通知作成をスキップ:', work ? '自分の作品' : '作品が見つからない')
     }
 
     return NextResponse.json({ like: newLike }, { status: 201 })

@@ -91,6 +91,10 @@
     background-color: #4caf50;
   }
   
+  .bg-accent-dark-blue {
+    background-color: #1976d2;
+  }
+  
   /* Text colors */
   .text-text-primary {
     color: #1a1a1a;
@@ -120,11 +124,6 @@
   /* Hover colors */
   .hover\\:bg-primary-blue:hover {
     background-color: #2196f3;
-  }
-  
-  /* Background utilities */
-  .bg-accent-dark-blue {
-    background-color: #1976d2;
   }
 }
 

@@ -15,6 +15,7 @@ import {
   VoicesSection,
   FinalCTASection,
 } from '@/components/landing'
+import { NewsTicker } from '@/components/landing/NewsTicker'
 import SectionDivider from '@/components/landing/SectionDivider'
 
 function Footer() {
@@ -125,8 +126,8 @@ export default function HomePage() {
 
       <main id="main">
         <HeroSection />
-        {/* HeroとPainPoints間の区切り (シンプル余白) */}
-        <div className="h-10 bg-white" />
+        {/* ニュースティッカー */}
+        <NewsTicker />
         <PainPointsSection />
         {/* PainPoints (白) → Elements (白) : 波形で軽い変化 (同系色なので subtle) */}
         <SectionDivider colorClass="text-white" heightClass="h-12" />

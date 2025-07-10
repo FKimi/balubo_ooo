@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from './public-profile-content'
+import { calculateInputTopTags, calculateGenreDistribution } from '@/utils/profileUtils'
 
 async function getPublicProfile(userId: string) {
   console.log('公開プロフィール取得開始:', userId)
@@ -162,34 +163,8 @@ async function getPublicProfile(userId: string) {
         return acc
       }, {})
 
-      const genresDistribution = inputs.reduce((acc: any, input: any) => {
-        if (input.genres && Array.isArray(input.genres)) {
-          input.genres.forEach((genre: string) => {
-            acc[genre] = (acc[genre] || 0) + 1
-          })
-        }
-        return acc
-      }, {})
-
-      const topGenres = Object.entries(genresDistribution)
-        .sort(([, a], [, b]) => (b as number) - (a as number))
-        .slice(0, 5)
-        .map(([name, count]) => ({ name, count: count as number }))
-
-      // インプットからタグを抽出してtopTagsを作成
-      const tagCount: { [key: string]: number } = {}
-      inputs.forEach((input: any) => {
-        if (input.tags && Array.isArray(input.tags)) {
-          input.tags.forEach((tag: string) => {
-            tagCount[tag] = (tagCount[tag] || 0) + 1
-          })
-        }
-      })
-      
-      const topTags = Object.entries(tagCount)
-        .sort(([, a], [, b]) => (b as number) - (a as number))
-        .slice(0, 15)
-        .map(([tag, count]) => ({ tag, count: count as number }))
+      const topGenres = calculateGenreDistribution(inputs).map(([name, count]) => ({ name, count }))
+      const topTags = calculateInputTopTags(inputs).map(([tag, count]) => ({ tag, count }))
 
       inputAnalysis = {
         totalInputs,

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { WorkData } from '@/types/work'
+import { calculateTopTags } from '@/utils/profileUtils'
 
 interface AIFieldSummary {
   averageScore: number
@@ -28,19 +29,7 @@ interface WorksSectionProps {
 
 export function WorksSection({ works, workStats, analysis }: WorksSectionProps) {
   // タグ分析（トップ3のみ）
-  const tagAnalysis = () => {
-    const tagCount: { [key: string]: number } = {}
-    works.forEach(work => {
-      if (work.tags && Array.isArray(work.tags)) {
-        work.tags.forEach(tag => {
-          tagCount[tag] = (tagCount[tag] || 0) + 1
-        })
-      }
-    })
-    return Object.entries(tagCount)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3)
-  }
+  const tagAnalysis = () => calculateTopTags(works).slice(0, 3)
 
   // カテゴリ分析（トップ3のみ）
   const categoryAnalysis = () => {

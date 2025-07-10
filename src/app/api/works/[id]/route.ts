@@ -6,47 +6,87 @@ export async function GET(
   request: NextRequest,
   context: any
 ) {
+  const startTime = Date.now()
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  
   try {
+    console.log(`[${requestId}] GET /api/works/[id] - リクエスト開始`)
+    
+    // パラメータの検証
+    if (!context?.params) {
+      console.log(`[${requestId}] エラー: パラメータが無効`)
+      return NextResponse.json(
+        { error: 'パラメータが無効です' },
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     const { id } = await context.params
+    
+    if (!id || typeof id !== 'string') {
+      console.log(`[${requestId}] エラー: 作品IDが無効 - ID:`, id)
+      return NextResponse.json(
+        { error: '作品IDが無効です' },
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     const authHeader = request.headers.get('authorization')
     
-    console.log('GET /api/works/[id] - ID:', id, 'Auth:', !!authHeader)
+    console.log(`[${requestId}] GET /api/works/[id] - ID: ${id}, Auth: ${!!authHeader}`)
+    
+    // 環境変数の確認
+    const hasSupabaseUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
+    const hasSupabaseServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    console.log(`[${requestId}] 環境変数確認:`, {
+      hasSupabaseUrl,
+      hasSupabaseServiceKey,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20) + '...'
+    })
     
     // 認証の有無に関わらず、同じロジックを使用（Service roleクライアント）
     let work = null
       
       // まずJSONファイルから検索
       try {
+        console.log(`[${requestId}] JSONファイルからの検索を開始`)
         const fs = await import('fs')
         const path = await import('path')
         const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'works.json')
         
-        console.log('JSONファイルパス:', DATA_FILE_PATH)
-        console.log('ファイル存在確認:', fs.existsSync(DATA_FILE_PATH))
+        console.log(`[${requestId}] JSONファイルパス:`, DATA_FILE_PATH)
+        console.log(`[${requestId}] ファイル存在確認:`, fs.existsSync(DATA_FILE_PATH))
         
         if (fs.existsSync(DATA_FILE_PATH)) {
           const data = fs.readFileSync(DATA_FILE_PATH, 'utf-8')
           const works = JSON.parse(data)
-          console.log('利用可能なJSONファイル作品ID:', works.map((w: any) => w.id))
+          console.log(`[${requestId}] 利用可能なJSONファイル作品ID:`, works.map((w: any) => w.id))
           
           work = works.find((w: any) => w.id === id)
-          console.log('JSONファイルで見つかった作品:', !!work)
+          console.log(`[${requestId}] JSONファイルで見つかった作品:`, !!work)
         }
       } catch (error) {
-        console.log('JSONファイルの読み込みに失敗:', error)
+        console.log(`[${requestId}] JSONファイルの読み込みに失敗:`, error)
       }
       
       // JSONファイルで見つからない場合、Supabaseから検索（public作品のみ）
       if (!work) {
         try {
-          console.log('Supabaseで公開作品を検索中:', id)
+          console.log(`[${requestId}] Supabaseで公開作品を検索中:`, id)
           
           // Service roleクライアントを使用（フィードAPIと同じアプローチ）
           const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
           const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
           
           if (!supabaseUrl || !supabaseServiceKey) {
-            console.log('Supabase環境変数が設定されていません')
+            console.log(`[${requestId}] Supabase環境変数が設定されていません`)
             throw new Error('Supabase設定エラー')
           }
           
@@ -60,18 +100,19 @@ export async function GET(
           
            
            // まず作品のみを検索（profilesの結合なし）
+           console.log(`[${requestId}] Supabaseクエリ実行中...`)
            const { data: supabaseWork, error: supabaseError } = await supabaseForPublic
              .from('works')
              .select('*')
              .eq('id', id)
              .single()
           
-                     if (supabaseError) {
-             console.log('Supabase検索エラー:', supabaseError.message)
-             console.log('Supabase検索エラー詳細:', supabaseError)
+           if (supabaseError) {
+             console.log(`[${requestId}] Supabase検索エラー:`, supabaseError.message)
+             console.log(`[${requestId}] Supabase検索エラー詳細:`, supabaseError)
            } else if (supabaseWork) {
-             console.log('Supabaseで作品が見つかりました:', supabaseWork.title)
-             console.log('作品データ:', { id: supabaseWork.id, title: supabaseWork.title, user_id: supabaseWork.user_id })
+             console.log(`[${requestId}] Supabaseで作品が見つかりました:`, supabaseWork.title)
+             console.log(`[${requestId}] 作品データ:`, { id: supabaseWork.id, title: supabaseWork.title, user_id: supabaseWork.user_id })
              
              // profilesデータを別途取得
              let profileData = null
@@ -121,7 +162,7 @@ export async function GET(
       }
           
           if (!work) {
-        console.log('どこからも作品が見つかりませんでした ID:', id)
+        console.log(`[${requestId}] どこからも作品が見つかりませんでした ID:`, id)
         
         // 利用可能なIDを取得してエラーレスポンスに含める
         let availableIds: string[] = []
@@ -179,15 +220,33 @@ export async function GET(
             )
           }
           
+          const endTime = Date.now()
+          console.log(`[${requestId}] 成功: 作品データを返却 - 処理時間: ${endTime - startTime}ms`)
+          
           return NextResponse.json({ work }, {
             headers: {
               'Content-Type': 'application/json',
             },
           })
   } catch (error) {
-    console.error('作品取得エラー:', error)
+    console.error(`[${requestId}] 作品取得エラー:`, error)
+    
+    // エラーの詳細を含める
+    let errorMessage = '作品データの取得に失敗しました'
+    let errorDetails = null
+    
+    if (error instanceof Error) {
+      errorMessage = error.message
+      errorDetails = error.stack
+    }
+    
     return NextResponse.json(
-      { error: '作品データの取得に失敗しました' },
+      { 
+        error: errorMessage,
+        details: errorDetails,
+        timestamp: new Date().toISOString(),
+        requestId: requestId
+      },
       { 
         status: 500,
         headers: {

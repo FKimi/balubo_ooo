@@ -65,11 +65,40 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
     return newCategoryId
   }
 
+  // カテゴリ名のバリデーション
+  const validateCategoryName = (name: string, excludeId?: string): { isValid: boolean; error?: string } => {
+    if (!name.trim()) {
+      return { isValid: false, error: 'カテゴリ名を入力してください' }
+    }
+    
+    if (name.trim().length > 20) {
+      return { isValid: false, error: 'カテゴリ名は20文字以内で入力してください' }
+    }
+    
+    // 重複チェック（編集時は自分自身を除外）
+    const existingCategory = categories.find(cat => 
+      cat.name.toLowerCase() === name.trim().toLowerCase() && cat.id !== excludeId
+    )
+    if (existingCategory) {
+      return { isValid: false, error: `「${existingCategory.name}」と同じ名前のカテゴリが既に存在します` }
+    }
+    
+    return { isValid: true }
+  }
+
   // カテゴリ情報を更新（データベースと連携）
   const updateCategory = async (categoryId: string, newName: string, newColor: string) => {
     try {
+      // バリデーション
+      const validation = validateCategoryName(newName, categoryId)
+      if (!validation.isValid) {
+        throw new Error(validation.error)
+      }
+
       const category = categories.find(cat => cat.id === categoryId)
-      if (!category) return
+      if (!category) {
+        throw new Error('カテゴリが見つかりません')
+      }
 
       const oldName = category.name
       
@@ -120,7 +149,7 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
 
     } catch (error) {
       console.error('カテゴリ更新エラー:', error)
-      alert(`カテゴリの更新に失敗しました: ${error instanceof Error ? error.message : '不明なエラー'}`)
+      throw error // エラーを上位に投げて、UI側で適切に処理
     }
   }
 
@@ -211,6 +240,7 @@ export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works:
     addCategory,
     updateCategory,
     deleteCategory,
-    updateWorkCategory
+    updateWorkCategory,
+    validateCategoryName
   }
 } 

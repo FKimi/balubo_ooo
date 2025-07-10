@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TabNavigation } from '@/components/ui/TabNavigation'
+import { WordCloud } from '@/components/ui/WordCloud'
 import type { InputData, InputAnalysis } from '@/types/input'
 import type { WorkData } from '@/types/work'
 import type { ProfileData, CareerItem } from '@/types/profile'
@@ -15,11 +16,13 @@ import { WorksCategoryManager } from '@/features/work/components/WorksCategoryMa
 import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelector'
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
-import { calculateTopTags, getMediaTypeLabel } from '@/utils/profileUtils'
+import { calculateTopTags } from '@/utils/profileUtils'
+import { generateInsightSummary, analyzeInterestTendencies } from '@/utils/insightGenerator'
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
 import { EmptyState } from '@/components/common'
 import { CreatorIntroCard } from './CreatorIntroCard'
+import { useTagStatistics } from '@/hooks/useTagStatistics'
 
 interface ProfileTabsProps {
   activeTab: string
@@ -75,6 +78,7 @@ export function ProfileTabs({
   // カスタムフックからデータを取得
   const workStats = useWorkStatistics(savedWorks)
   const { categories, addCategory, updateCategory, deleteCategory, updateWorkCategory } = useWorkCategories(savedWorks, setSavedWorks)
+  const { data: tagStatistics, getTagStatistic, getTagRanking } = useTagStatistics()
   
   // コンテンツタイプ選択モーダルの状態
   const [isContentTypeSelectorOpen, setIsContentTypeSelectorOpen] = useState(false)
@@ -89,6 +93,16 @@ export function ProfileTabs({
     { key: 'inputs', label: 'インプット' },
     { key: 'details', label: 'クリエイター詳細' }
   ]
+
+  // タグランキングサマリー生成
+  const summary =
+    topTags.length === 0
+      ? ''
+      : topTags.length === 1
+        ? `${topTags[0]?.[0] ?? ''}が特に多く使われています。`
+        : topTags.length === 2
+          ? `${topTags[0]?.[0] ?? ''}・${topTags[1]?.[0] ?? ''}が特に多く使われています。`
+          : `${topTags[0]?.[0] ?? ''}・${topTags[1]?.[0] ?? ''}・${topTags[2]?.[0] ?? ''}が特に多く使われています。`;
 
   return (
     <div className="space-y-6">
@@ -339,13 +353,6 @@ export function ProfileTabs({
                 <p className="text-gray-600 text-sm sm:text-base">カテゴリ別に整理された作品をご覧ください</p>
               </div>
               <div className="flex gap-2">
-                <Button
-                  onClick={addCategory}
-                  variant="outline"
-                  className="text-sm sm:text-base"
-                >
-                  カテゴリ追加
-                </Button>
                 <Button 
                   onClick={() => setIsContentTypeSelectorOpen(true)}
                   className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-400/30 text-sm sm:text-base w-full sm:w-auto rounded-2xl transition-all duration-300"
@@ -496,47 +503,83 @@ export function ProfileTabs({
               </CardContent>
             </Card>
 
-            {/* よく使用するタグ */}
+                        {/* よく使用するタグ */}
             {topTags.length > 0 && (
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900">よく使用するタグ</h3>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">専門領域の可視化</h3>
+                      <p className="text-gray-600 mt-1">作品のタグからあなたの得意分野を分析します。</p>
+                    </div>
                     <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                      得意分野・専門領域
+                      トップ7
                     </div>
                   </div>
                   
-                  {/* バーグラフを削除。ランキングリストのみ表示 */}
-                  <div className="space-y-3">
-                    {topTags.slice(0, 5).map(([tag, count], _index) => (
+                  {/* トップ7タグ（コンパクト表示） */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                    {topTags.slice(0, 7).map(([tag, count], _index) => (
                       <div 
                         key={tag} 
-                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm hover:shadow-blue-400/20 transition-all duration-300"
+                        className="flex items-center justify-between p-2 rounded-md border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                            _index < 3 
-                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-400/30' 
-                              : 'bg-blue-50 text-blue-600 border border-blue-200'
+                        <div className="flex items-center space-x-2">
+                          {/* ランキングバッジ */}
+                          <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                            _index === 0
+                              ? 'bg-yellow-400 text-gray-900'
+                              : _index === 1
+                              ? 'bg-gray-300 text-gray-900'
+                              : _index === 2
+                              ? 'bg-orange-500 text-gray-900'
+                              : 'bg-blue-500 text-white'
                           }`}>
                             {_index + 1}
                           </div>
-                          <span className="text-base font-medium text-gray-900">
+                          
+                          {/* タグ名 */}
+                          <span className="text-sm font-medium text-gray-900 truncate">
                             {tag}
                           </span>
                         </div>
+                        
+                        {/* 使用回数 */}
                         <div className="text-right">
-                          <div className={`text-lg font-bold ${
-                            _index < 3 ? 'text-blue-600' : 'text-blue-400'
+                          <div className={`text-sm font-bold ${
+                            _index < 3 ? 'text-blue-600' : 'text-gray-600'
                           }`}>
                             {count}
                           </div>
-                          <div className="text-xs text-gray-500">件の作品</div>
                         </div>
                       </div>
                     ))}
                   </div>
+                  
+                  {/* その他のタグ（パラパラ表示） */}
+                  {topTags.length > 7 && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">その他のタグ</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {topTags.slice(7).map(([tag, count]) => (
+                          <span 
+                            key={tag}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200 transition-colors"
+                          >
+                            {tag}
+                            <span className="ml-1 text-gray-500">({count})</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* タグランキングサマリー */}
+                  {summary && (
+                    <div className="mt-6 text-sm text-blue-700 font-medium">
+                      {summary}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -552,41 +595,8 @@ export function ProfileTabs({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* 好きなメディアタイプ */}
-                    <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-5 border border-blue-200">
-                      <h4 className="text-lg font-semibold text-blue-600 mb-4">
-                        好きなメディア
-                      </h4>
-                      {inputAnalysis.typeDistribution && Object.keys(inputAnalysis.typeDistribution).length > 0 ? (
-                        <div className="space-y-3">
-                          {Object.entries(inputAnalysis.typeDistribution).slice(0, 4).map(([type, count], index) => (
-                            <div key={type} className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700 capitalize">
-                                  {getMediaTypeLabel(type)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-16 bg-blue-100 rounded-full h-2">
-                                  <div 
-                                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300" 
-                                    style={{ 
-                                      width: `${Math.min((count / Math.max(...Object.values(inputAnalysis.typeDistribution || {}))) * 100, 100)}%` 
-                                    }}
-                                  />
-                                </div>
-                                <span className="text-sm font-bold text-blue-600 w-6 text-right">{count}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <EmptyState title="データが不足しています" />
-                      )}
-                    </div>
-
-                    {/* 興味のあるジャンル */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* 好きなジャンル（ランキング形式） */}
                     <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-5 border border-blue-200">
                       <h4 className="text-lg font-semibold text-blue-700 mb-4">
                         好きなジャンル
@@ -624,38 +634,22 @@ export function ProfileTabs({
                       )}
                     </div>
 
-                    {/* よく使うタグ */}
+                    {/* 関心キーワード（ワードクラウド） */}
                     <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-5 border border-gray-200">
                       <h4 className="text-lg font-semibold text-gray-700 mb-4">
                         関心キーワード
                       </h4>
                       {inputAnalysis.topTags && inputAnalysis.topTags.length > 0 ? (
-                        <div className="space-y-3">
-                          {inputAnalysis.topTags.slice(0, 5).map((tagItem, index) => (
-                            <div key={index} className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-blue-400/30">
-                                  {index + 1}
-                                </div>
-                                <Badge variant="outline" className="text-xs border-blue-300 text-blue-700 bg-white">
-                                  {typeof tagItem === 'string' ? tagItem : tagItem.tag}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-16 bg-blue-100 rounded-full h-2">
-                                  <div 
-                                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300" 
-                                    style={{ 
-                                      width: `${Math.min(((typeof tagItem === 'object' && tagItem.count ? tagItem.count : 1) / Math.max(...inputAnalysis.topTags.map(t => typeof t === 'object' && t.count ? t.count : 1))) * 100, 100)}%` 
-                                    }}
-                                  />
-                                </div>
-                                <span className="text-sm font-bold text-blue-600 w-6 text-right">
-                                  {typeof tagItem === 'object' && tagItem.count ? tagItem.count : ''}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
+                        <div className="h-48 sm:h-52 flex items-center justify-center">
+                          <WordCloud
+                            data={inputAnalysis.topTags.map(tagItem => ({
+                              value: typeof tagItem === 'string' ? tagItem : tagItem.tag,
+                              count: typeof tagItem === 'object' && tagItem.count ? tagItem.count : 1
+                            }))}
+                            minSize={14}
+                            maxSize={32}
+                            className="w-full h-full"
+                          />
                         </div>
                       ) : (
                         <EmptyState title="まだタグが登録されていません" />
@@ -663,37 +657,126 @@ export function ProfileTabs({
                     </div>
                   </div>
 
-                  {/* 分析サマリー */}
-                  <div className="mt-6 p-4 bg-gradient-to-r from-blue-50/60 to-blue-100/30 rounded-lg border border-blue-200">
+                  {/* インサイトサマリー */}
+                  <div className="mt-6 p-6 bg-gradient-to-r from-blue-50/60 to-blue-100/30 rounded-lg border border-blue-200">
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
-                        <h5 className="font-semibold text-gray-800 mb-2">あなたの興味・関心プロフィール</h5>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                          <div>
-                            <span className="font-medium">最も消費するメディア:</span>
-                            <span className="ml-2 text-blue-600 font-semibold">
-                              {inputAnalysis.typeDistribution ? 
-                                getMediaTypeLabel(Object.entries(inputAnalysis.typeDistribution)
-                                  .sort(([, a], [, b]) => b - a)[0]?.[0] || '')
-                                : 'データなし'}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="font-medium">主要な関心分野:</span>
-                            <span className="ml-2 text-blue-600 font-semibold">
-                              {inputAnalysis.topGenres && inputAnalysis.topGenres[0] ?
-                                (typeof inputAnalysis.topGenres[0] === 'string' ? inputAnalysis.topGenres[0] : inputAnalysis.topGenres[0].genre)
-                                : 'データなし'}
-                            </span>
-                          </div>
+                        <h5 className="font-semibold text-gray-800 mb-3 text-lg">あなたの興味・関心インサイト</h5>
+                        <div className="bg-white/70 rounded-lg p-4 border border-blue-200/50 shadow-sm">
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {generateInsightSummary(inputAnalysis)}
+                          </p>
                         </div>
                         <p className="mt-3 text-xs text-gray-500">
                           この分析は、あなたが記録したインプットデータを基に自動生成されています。
                           より正確な分析のために、ジャンルやタグの設定を充実させることをお勧めします。
                         </p>
+                        <div className="mt-3 pt-3 border-t border-blue-200/50">
+                          <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-xs text-blue-600">
+                              このインサイトはAIによる分析結果です。実際の興味・関心は人それぞれ異なるため、参考程度にお考えください。
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* 興味傾向分析 */}
+                  {(() => {
+                    const interestAnalysis = analyzeInterestTendencies(inputAnalysis)
+                    return (
+                      <div className="mt-6">
+                        {/* 分析の説明 */}
+                        <div className="mb-4 p-3 bg-blue-50/60 rounded-lg border border-blue-200">
+                          <div className="flex items-start gap-2">
+                            <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                              <p className="text-sm text-blue-800 font-medium mb-1">AIによる興味傾向の推察</p>
+                              <p className="text-xs text-blue-700">
+                                以下の分析は、あなたのインプットデータを基にAIが推測したものです。
+                                あくまで参考程度にお考えいただき、実際の興味・関心は人それぞれ異なります。
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {/* 興味がありそうな分野 */}
+                          <div className="bg-gradient-to-br from-green-50/80 to-green-100/50 rounded-xl p-5 border border-green-200">
+                            <h4 className="text-lg font-semibold text-green-700 mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              興味がありそうな分野
+                            </h4>
+                            {interestAnalysis.interestedIn.length > 0 ? (
+                              <div className="space-y-2">
+                                {interestAnalysis.interestedIn.map((interest, index) => (
+                                  <div key={index} className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                    <span className="text-sm text-gray-700">{interest}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500">データが不足しています</p>
+                            )}
+                          </div>
+
+                          {/* あまり興味がなさそうな分野 */}
+                          <div className="bg-gradient-to-br from-orange-50/80 to-orange-100/50 rounded-xl p-5 border border-orange-200">
+                            <h4 className="text-lg font-semibold text-orange-700 mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              あまり興味がなさそうな分野
+                            </h4>
+                            {interestAnalysis.notInterestedIn.length > 0 ? (
+                              <div className="space-y-2">
+                                {interestAnalysis.notInterestedIn.map((interest, index) => (
+                                  <div key={index} className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                    <span className="text-sm text-gray-700">{interest}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500">データが不足しています</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {/* 興味傾向分析の推論 */}
+                  {(() => {
+                    const interestAnalysis = analyzeInterestTendencies(inputAnalysis)
+                    if (interestAnalysis.reasoning) {
+                      return (
+                        <div className="mt-4 p-4 bg-white/60 rounded-lg border border-gray-200">
+                          <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                            {interestAnalysis.reasoning}
+                          </p>
+                          <div className="flex items-start gap-2 pt-3 border-t border-gray-200">
+                            <svg className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-xs text-gray-500">
+                              この推論は、限られたデータに基づくAIの推測です。実際の興味・関心は多様で、個人差があります。
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    }
+                    return null
+                  })()}
                 </CardContent>
               </Card>
             )}
@@ -709,3 +792,4 @@ export function ProfileTabs({
     </div>
   )
 }
+

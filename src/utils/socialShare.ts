@@ -85,8 +85,9 @@ export function generateWorkShareMessage(work: WorkData, userDisplayName: string
     hashtags: hashtags.slice(0, 10) // 最大10個まで
   }
 
-  if (work.external_url) {
-    result.url = work.external_url
+  // 作品詳細ページのURLを使用（external_urlの代わりに）
+  if (work.id && typeof window !== 'undefined') {
+    result.url = `${window.location.origin}/works/${work.id}`
   }
 
   return result
@@ -186,8 +187,9 @@ export function generateInputShareMessage(input: InputData, userDisplayName: str
     hashtags: hashtags.slice(0, 10) // 最大10個まで
   }
 
-  if (input.externalUrl) {
-    result.url = input.externalUrl
+  // インプット詳細ページのURLを使用（external_urlの代わりに）
+  if (input.id && typeof window !== 'undefined') {
+    result.url = `${window.location.origin}/profile/inputs/${input.id}`
   }
 
   return result
