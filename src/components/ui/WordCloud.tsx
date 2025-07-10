@@ -68,7 +68,7 @@ export function WordCloud({
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'scale(1)'
-              e.currentTarget.style.opacity = 0.7 + (size / maxSize) * 0.3
+              e.currentTarget.style.opacity = String(0.7 + (size / maxSize) * 0.3)
               e.currentTarget.style.zIndex = 'auto'
             }}
           >
