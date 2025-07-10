@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Bell } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/contexts/AuthContext'
@@ -31,7 +31,7 @@ export function NotificationBell() {
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // 通知データを取得（リトライ機能付き）
-  const fetchNotifications = async (retryCount = 0) => {
+  const fetchNotifications = useCallback(async (retryCount = 0) => {
     if (!user) return
 
     try {
@@ -51,7 +51,7 @@ export function NotificationBell() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user])
 
   // 通知を既読にマーク
   const markAsRead = async (notificationIds: string[]) => {
@@ -98,7 +98,7 @@ export function NotificationBell() {
   }
 
   // リアルタイム通知の購読
-  const subscribeToNotifications = () => {
+  const subscribeToNotifications = useCallback(() => {
     if (!user) return
 
     try {
@@ -176,7 +176,7 @@ export function NotificationBell() {
       // エラーが発生した場合は即座にポーリングに切り替え
       setupPolling()
     }
-  }
+  }, [user])
 
   // ポーリング設定（リアルタイム通知のフォールバック）
   const setupPolling = () => {
@@ -233,7 +233,7 @@ export function NotificationBell() {
     } else {
       console.log('👻 ユーザーがログアウトしています')
     }
-  }, [user])
+  }, [user, fetchNotifications, subscribeToNotifications])
 
   if (!user) {
     return null

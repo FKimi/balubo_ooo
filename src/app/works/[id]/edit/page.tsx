@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -252,25 +252,10 @@ export default function EditWorkPage() {
   const [previewData, setPreviewData] = useState<LinkPreviewData | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null)
-  const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
   const [showShareSuccess, setShowShareSuccess] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
-
-  // Form refs
-  const titleRef = useRef<HTMLInputElement>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement>(null)
-  const urlRef = useRef<HTMLInputElement>(null)
-  const productionDateRef = useRef<HTMLInputElement>(null)
-  const productionNotesRef = useRef<HTMLTextAreaElement>(null)
-  const newTagRef = useRef<HTMLInputElement>(null)
-  const newRoleRef = useRef<HTMLInputElement>(null)
-  const newCategoryRef = useRef<HTMLInputElement>(null)
 
   // Tag and role state
   const [newTag, setNewTag] = useState('')

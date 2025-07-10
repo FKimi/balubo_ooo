@@ -32,7 +32,7 @@ export function FollowModal({ isOpen, onClose, userId, initialTab }: FollowModal
       setActiveTab(initialTab)
       fetchData()
     }
-  }, [isOpen, initialTab, userId])
+  }, [isOpen, initialTab, userId, fetchData])
 
   const fetchData = async () => {
     setLoading(true)

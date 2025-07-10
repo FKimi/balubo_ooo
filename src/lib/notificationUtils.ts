@@ -1,7 +1,4 @@
 import { supabase } from './supabase'
-import { Users, Heart, MessageSquare, User } from 'lucide-react'
-import { ReactNode } from 'react'
-import React from 'react'
 
 export type NotificationType = 
   | 'connection_request'

@@ -112,7 +112,7 @@ export function TagSummarySection({ tags }: TagSummarySectionProps) {
                       Coming Soon Preview
                     </div>
                     <p className="text-xs text-slate-600 mt-3 leading-relaxed">
-                      AIが自動生成する"納得感・学び・自己肯定感"レポートをお届けします。まもなく公開！
+                      AIが自動生成する&quot;納得感・学び・自己肯定感&quot;レポートをお届けします。まもなく公開！
                     </p>
                   </div>
                 </div>

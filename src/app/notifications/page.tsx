@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
 import { fetcher } from '@/utils/fetcher'
-import { Users, Heart, MessageSquare, User } from 'lucide-react'
+import { Users, Heart, MessageSquare, User, CheckCheck, Trash2 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { getNotificationIconName, getNotificationColor } from '@/lib/notificationUtils'
 
@@ -39,7 +39,7 @@ export default function NotificationsPage() {
   const [hasMore, setHasMore] = useState(false)
 
   // 通知データを取得
-  const fetchNotifications = async (page = 1) => {
+  const fetchNotifications = useCallback(async (page = 1) => {
     if (!user) return
 
     try {
@@ -60,7 +60,7 @@ export default function NotificationsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user])
 
   // 通知を既読にマーク
   const markAsRead = async (notificationIds: string[]) => {
@@ -143,7 +143,7 @@ export default function NotificationsPage() {
     if (user) {
       fetchNotifications(1)
     }
-  }, [user])
+  }, [user, fetchNotifications])
 
   return (
     <ProtectedRoute>
