@@ -26,7 +26,7 @@ export default function SampleInputsPage() {
       genres: ['少年漫画', 'バトル', 'アドベンチャー'],
       status: 'reading',
       favorite: true,
-      consumptionDate: new Date().toISOString().split('T')[0],
+      consumptionDate: new Date().toISOString().split('T')[0]!,
       notes: '仲間との絆が描かれている名作'
     },
     {
@@ -40,7 +40,7 @@ export default function SampleInputsPage() {
       genres: ['アニメ映画', 'ロマンス', 'ドラマ'],
       status: 'completed',
       favorite: true,
-      consumptionDate: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+      consumptionDate: new Date(Date.now() - 86400000).toISOString().split('T')[0]!,
       notes: '映像美が印象的'
     },
     {
@@ -54,7 +54,7 @@ export default function SampleInputsPage() {
       genres: ['アクションRPG', 'アドベンチャー'],
       status: 'completed',
       favorite: true,
-      consumptionDate: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+      consumptionDate: new Date(Date.now() - 172800000).toISOString().split('T')[0]!,
       notes: '神ゲー。何周でもできる'
     },
     {
@@ -68,7 +68,7 @@ export default function SampleInputsPage() {
       genres: ['バトルアニメ', '時代劇'],
       status: 'completed',
       favorite: false,
-      consumptionDate: new Date(Date.now() - 259200000).toISOString().split('T')[0],
+      consumptionDate: new Date(Date.now() - 259200000).toISOString().split('T')[0]!,
       notes: '映像クオリティが高い'
     },
     {
@@ -82,7 +82,7 @@ export default function SampleInputsPage() {
       genres: ['ファンタジー', '児童文学'],
       status: 'completed',
       favorite: true,
-      consumptionDate: new Date(Date.now() - 345600000).toISOString().split('T')[0],
+      consumptionDate: new Date(Date.now() - 345600000).toISOString().split('T')[0]!,
       notes: '魔法世界への憧れが蘇る'
     },
     {
@@ -96,7 +96,7 @@ export default function SampleInputsPage() {
       genres: ['シミュレーション', 'ライフスタイル'],
       status: 'playing',
       favorite: false,
-      consumptionDate: new Date(Date.now() - 432000000).toISOString().split('T')[0],
+      consumptionDate: new Date(Date.now() - 432000000).toISOString().split('T')[0]!,
       notes: 'ストレス解消に最適'
     }
   ]

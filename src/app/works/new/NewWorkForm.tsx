@@ -775,7 +775,7 @@ function NewWorkForm({ initialData, mode = 'create', onSubmit }: WorkFormProps =
         title: formData.title || '無題の作品',
         description: formData.description,
         external_url: formData.externalUrl,
-        production_date: formData.productionDate ? new Date(formData.productionDate).toISOString().split('T')[0] : null,
+        production_date: formData.productionDate ? new Date(formData.productionDate).toISOString().split('T')[0]! : null,
         tags: formData.tags,
         roles: formData.roles.length > 0 ? formData.roles : [],
         categories: getContentTypeCategory(contentType),

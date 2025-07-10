@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { X, Users, UserCheck } from 'lucide-react'
 import { fetcher } from '@/utils/fetcher'
@@ -27,14 +27,7 @@ export function FollowModal({ isOpen, onClose, userId, initialTab }: FollowModal
   const [following, setFollowing] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (isOpen) {
-      setActiveTab(initialTab)
-      fetchData()
-    }
-  }, [isOpen, initialTab, userId, fetchData])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       console.log('フォローデータ取得開始:', userId)
@@ -50,7 +43,14 @@ export function FollowModal({ isOpen, onClose, userId, initialTab }: FollowModal
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId])
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab)
+      fetchData()
+    }
+  }, [isOpen, initialTab, fetchData])
 
   if (!isOpen) return null
 
