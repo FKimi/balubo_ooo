@@ -120,7 +120,7 @@ export class InputAnalysisEnhancer {
   static async enhanceInputAnalysis(
     input: InputData, 
     aiAnalysis: any, 
-    _externalData?: any
+    externalData?: any
   ): Promise<EnhancedAnalysisResult> {
     
     let accuracy = 0.7 // 基本精度
