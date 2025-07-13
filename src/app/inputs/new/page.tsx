@@ -62,6 +62,7 @@ export default function NewInputPage() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [aiAnalysisExecuted, setAiAnalysisExecuted] = useState(false)
   const [userDisplayName, setUserDisplayName] = useState<string>('')
+  const [savedInputData, setSavedInputData] = useState<any>(null)
 
   // URL自動取得機能
   const fetchPreviewData = async () => {
@@ -196,6 +197,22 @@ export default function NewInputPage() {
 
   
 
+  // タグ削除関数
+  const removeTag = (tagToRemove: string) => {
+    setInputData(prev => ({
+      ...prev,
+      tags: prev.tags?.filter(tag => tag !== tagToRemove) || []
+    }))
+  }
+
+  // ジャンル削除関数
+  const removeGenre = (genreToRemove: string) => {
+    setInputData(prev => ({
+      ...prev,
+      genres: prev.genres?.filter(genre => genre !== genreToRemove) || []
+    }))
+  }
+
   // インプット保存処理
   const handleSubmit = async () => {
     if (!inputData.title) {
@@ -267,8 +284,8 @@ export default function NewInputPage() {
       setUserDisplayName(displayName)
       
       // 共有モーダルを表示（一時的に無効化）
-      // setSavedInputData(dataToSave)
-      // setShowShareModal(true)
+      setSavedInputData(dataToSave)
+      setShowShareModal(true)
       
       // 保存成功後、プロフィールページに遷移
       router.push('/profile?tab=inputs')
