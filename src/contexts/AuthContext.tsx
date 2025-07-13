@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { auth, supabase } from '@/lib/supabase'
-import { slugify } from '@/utils'
 
 // 型定義の改善
 interface AuthError {
@@ -22,8 +21,8 @@ interface AuthResult {
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signUp: (email: string, password: string, displayName: string) => Promise<AuthResult>
-  signIn: (email: string, password: string) => Promise<AuthResult>
+  signUp: (_email: string, _password: string, _displayName: string) => Promise<AuthResult>
+  signIn: (_email: string, _password: string) => Promise<AuthResult>
   signInWithGoogle: () => Promise<AuthResult>
   signOut: () => Promise<{ error: AuthError | null }>
 }
@@ -39,7 +38,7 @@ const getErrorMessage = (error: unknown): string => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) // 初期状態を true に変更
 
   useEffect(() => {
     // ガード節：Supabaseが設定されていない場合は早期return
@@ -238,10 +237,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!signedInUser) return
 
-      // 既にプロフィールが存在するか確認 (slug と display_name も取得)
+      // 既にプロフィールが存在するか確認
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, slug, display_name')
+        .select('user_id, display_name')
         .eq('user_id', signedInUser.id)
         .single() as { data: any; error: any }
 
@@ -251,62 +250,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      const generateUniqueSlug = async (displayName: string) => {
-        const baseSlug = slugify(displayName) || 'user'
-        let slugCandidate = baseSlug
-        let attempt = 0
-        while (true) {
-          const { data: existing } = await supabase
-            .from('profiles')
-            .select('slug')
-            .eq('slug', slugCandidate)
-            .single()
-
-          if (!existing) break
-          attempt += 1
-          slugCandidate = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
-          if (attempt > 5) {
-            slugCandidate = `${baseSlug}-${signedInUser.id.substring(0, 6)}`
-            break
-          }
-        }
-        return slugCandidate
-      }
-
       // PGRST116: Row not found → 新規作成
       if (!data) {
         const displayName = (signedInUser.user_metadata?.display_name as string | undefined) || 'ユーザー'
-        const slug = await generateUniqueSlug(displayName)
 
         const { error: insertError } = await supabase
           .from('profiles')
           .upsert({
             user_id: signedInUser.id,
             display_name: displayName,
-            slug,
           }, { onConflict: 'user_id', ignoreDuplicates: true })
 
         if (insertError && insertError.code !== '23505') { // 23505 = unique_violation
           console.error('[AuthContext] ensureProfile: プロフィール作成エラー:', insertError)
         } else {
           console.log('[AuthContext] ensureProfile: プロフィールを自動作成しました')
-        }
-      } else {
-        // 既存プロフィールだが slug が空の場合は付与
-        if (!data.slug || data.slug.length === 0) {
-          const displayName = data.display_name || (signedInUser.user_metadata?.display_name as string | undefined) || 'ユーザー'
-          const newSlug = await generateUniqueSlug(displayName)
-
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ slug: newSlug })
-            .eq('user_id', signedInUser.id)
-
-          if (updateError) {
-            console.error('[AuthContext] ensureProfile: slug バックフィル失敗:', updateError)
-          } else {
-            console.log('[AuthContext] ensureProfile: slug をバックフィルしました')
-          }
         }
       }
     } catch (err) {

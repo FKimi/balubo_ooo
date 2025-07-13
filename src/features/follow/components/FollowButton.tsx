@@ -113,7 +113,7 @@ export default function FollowButton({ targetUserId, compact = false }: FollowBu
     return () => {
       isMounted = false
     }
-  }, [targetUserId, isInitialized, supabase.auth]) // 依存配列を追加
+  }, [targetUserId, isInitialized, supabase.auth])
 
   const handleFollow = async () => {
     if (!currentUserId || isLoading) return

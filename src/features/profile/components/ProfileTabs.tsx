@@ -425,7 +425,7 @@ export function ProfileTabs({
                   <InputCard
                     key={input.id}
                     input={input}
-                    linkPath={`/profile/inputs/${input.id}`}
+                    linkPath={`/inputs/${input.id}`}
                   />
                 ))}
               </div>

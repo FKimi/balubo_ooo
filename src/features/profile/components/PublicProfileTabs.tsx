@@ -39,7 +39,7 @@ export function PublicProfileTabs({
 }: PublicProfileTabsProps) {
   // 作品統計の計算（プライベートプロフィールと同じフックを使用）
   const workStats = useWorkStatistics(works)
-  const { data: tagStatistics, getTagStatistic, getTagRanking } = useTagStatistics()
+  const { data: tagStatistics, getTagStatistic: _getTagStatistic, getTagRanking: _getTagRanking } = useTagStatistics()
 
   // インプット分析の計算（propsで渡された場合はそれを優先、なければ自分で計算）
   const inputAnalysis = useMemo(() => {

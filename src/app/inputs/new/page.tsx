@@ -11,8 +11,7 @@ import Link from 'next/link'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import Image from 'next/image'
 import { Header } from '@/components/layout/header'
-import { ShareSuccessToast } from '@/features/social/components/ShareModal'
-import { shareToTwitter } from '@/utils/socialShare'
+import { ShareModal } from '@/features/social/components/ShareModal'
 import { InputType, InputData, inputTypeLabels, defaultInputData } from '@/types/input'
 
 interface PreviewData {
@@ -60,9 +59,9 @@ export default function NewInputPage() {
     ...defaultInputData,
     userId: user?.id || ''
   })
-  const [showShareToast, setShowShareToast] = useState(false)
-  const [savedInputData, setSavedInputData] = useState<any>(null)
+  const [showShareModal, setShowShareModal] = useState(false)
   const [aiAnalysisExecuted, setAiAnalysisExecuted] = useState(false)
+  const [userDisplayName, setUserDisplayName] = useState<string>('')
 
   // URL自動取得機能
   const fetchPreviewData = async () => {
@@ -195,41 +194,7 @@ export default function NewInputPage() {
     }
   }
 
-  // タグを追加する関数
-  const addTag = (tag: string) => {
-    if (tag && !inputData.tags?.includes(tag)) {
-      setInputData(prev => ({
-        ...prev,
-        tags: [...(prev.tags || []), tag]
-      }))
-    }
-  }
-
-  // タグを削除する関数
-  const removeTag = (tagToRemove: string) => {
-    setInputData(prev => ({
-      ...prev,
-      tags: prev.tags?.filter(tag => tag !== tagToRemove) || []
-    }))
-  }
-
-  // ジャンルを追加する関数
-  const addGenre = (genre: string) => {
-    if (genre && !inputData.genres?.includes(genre)) {
-      setInputData(prev => ({
-        ...prev,
-        genres: [...(prev.genres || []), genre]
-      }))
-    }
-  }
-
-  // ジャンルを削除する関数
-  const removeGenre = (genreToRemove: string) => {
-    setInputData(prev => ({
-      ...prev,
-      genres: prev.genres?.filter(genre => genre !== genreToRemove) || []
-    }))
-  }
+  
 
   // インプット保存処理
   const handleSubmit = async () => {
@@ -291,14 +256,22 @@ export default function NewInputPage() {
 
       console.log('インプット保存成功:', data)
       
-      // 共有トーストを表示
-      setSavedInputData(dataToSave)
-      setShowShareToast(true)
-
-      // 3秒後にプロフィールページに遷移
-      setTimeout(() => {
-        router.push('/profile?tab=inputs')
-      }, 3000)
+      // ユーザー名を取得
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('display_name, full_name')
+        .eq('id', user?.id)
+        .single()
+      
+      const displayName = profileData?.display_name || profileData?.full_name || user?.email?.split('@')[0] || 'ユーザー'
+      setUserDisplayName(displayName)
+      
+      // 共有モーダルを表示（一時的に無効化）
+      // setSavedInputData(dataToSave)
+      // setShowShareModal(true)
+      
+      // 保存成功後、プロフィールページに遷移
+      router.push('/profile?tab=inputs')
 
     } catch (error) {
       console.error('インプット保存エラー:', error)
@@ -737,18 +710,17 @@ export default function NewInputPage() {
           </div>
         </main>
 
-        {/* 共有トースト */}
-        <ShareSuccessToast
-          isOpen={showShareToast}
-          onClose={() => setShowShareToast(false)}
-          type="input"
-          onShare={() => {
-            if (savedInputData) {
-              shareToTwitter('input', savedInputData)
-              setShowShareToast(false)
-              router.push('/profile?tab=inputs')
-            }
+        {/* 共有モーダル */}
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => {
+            setShowShareModal(false)
+            // 共有ポップアップを閉じた時にプロフィールページに遷移
+            router.push('/profile?tab=inputs')
           }}
+          type="input"
+          data={savedInputData || {}}
+          userDisplayName={userDisplayName}
         />
       </div>
     </ProtectedRoute>

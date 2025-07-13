@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react'
 import { fetcher } from '@/utils/fetcher'
 import type { WorkData, WorkCategory } from '@/types/work'
 
-// デフォルトカテゴリは削除し、空の配列から開始
-const DEFAULT_CATEGORIES: WorkCategory[] = []
-
+// eslint-disable-next-line unused-imports/no-unused-vars
 export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works: WorkData[]) => void) {
-  const [categories, setCategories] = useState<WorkCategory[]>(DEFAULT_CATEGORIES)
+  const [categories, setCategories] = useState<WorkCategory[]>([])
 
   // 作品をカテゴリに分類
   useEffect(() => {

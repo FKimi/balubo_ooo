@@ -20,8 +20,11 @@ export interface ApiResponse<T = unknown> {
  */
 export async function fetcher<T = unknown>(
   input: string | URL | Request,
-  init: RequestInit = {}
+  init: RequestInit = {},
+  options?: { requireAuth?: boolean }
 ): Promise<T> {
+  const { requireAuth = true } = options || {}
+  
   // 共有 Supabase クライアントからアクセストークンを取得
   let token: string | undefined
   try {
@@ -35,8 +38,9 @@ export async function fetcher<T = unknown>(
     }
 
     const needsRefresh =
-      !session ||
-      (session.expires_at && session.expires_at * 1000 < Date.now() + 60_000)
+      session &&
+      session.expires_at && 
+      session.expires_at * 1000 < Date.now() + 60_000
 
     if (needsRefresh) {
       const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession()
@@ -44,18 +48,20 @@ export async function fetcher<T = unknown>(
         console.warn('[fetcher] refreshSession error:', refreshError)
       } else {
         session = refreshed.session
-        console.log('[fetcher] アクセストークンをリフレッシュしました (needsRefresh=', needsRefresh, ')')
       }
     }
 
     token = session?.access_token
-    console.log('[fetcher] token:', token)
-    if (!token) {
-      throw new Error('認証トークンが取得できません。ログインし直してください。')
+    
+    if (requireAuth && !token) {
+      console.error('[fetcher] 認証トークンが取得できませんでした')
+      throw new Error('認証が必要です')
     }
   } catch (err) {
-    console.warn('[fetcher] セッショントークン取得失敗:', err)
-    throw new Error('認証トークンの取得に失敗しました。ログインし直してください。')
+    if (requireAuth) {
+      console.warn('[fetcher] セッショントークン取得失敗:', err)
+      throw new Error('認証が必要です')
+    }
   }
 
   const headers: Record<string, string> = {
@@ -72,9 +78,11 @@ export async function fetcher<T = unknown>(
     let message: string
     try {
       const data = await response.json()
-      message = data.error || JSON.stringify(data)
+      message = (data && typeof data === 'object' && 'error' in data) ? data.error : JSON.stringify(data)
+      console.error('[fetcher] API Error:', response.status, message)
     } catch (_) {
       message = response.statusText
+      console.error('[fetcher] API Error:', response.status, message)
     }
     throw new Error(message || 'Fetch error')
   }

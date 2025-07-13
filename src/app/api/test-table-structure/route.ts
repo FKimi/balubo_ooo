@@ -31,7 +31,7 @@ export async function GET(_request: NextRequest) {
 
     // 1. likesテーブルの構造確認（空のSELECTでカラム情報を取得）
     try {
-      const { data: likesData, error: likesError } = await supabase
+      const { data: _likesData, error: likesError } = await supabase
         .from('likes')
         .select('*')
         .limit(0)  // データは取得せず、構造のみ確認
@@ -61,7 +61,7 @@ export async function GET(_request: NextRequest) {
 
     // 2. commentsテーブルの構造確認
     try {
-      const { data: commentsData, error: commentsError } = await supabase
+      const { data: _commentsData, error: commentsError } = await supabase
         .from('comments')
         .select('*')
         .limit(0)

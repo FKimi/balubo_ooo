@@ -189,7 +189,7 @@ export async function GET(
             }
           )
           
-                     const { data: supabaseWorks, error: supabaseWorksError } = await supabaseForIds
+                     const { data: supabaseWorks, error: _supabaseWorksError } = await supabaseForIds
              .from('works')
              .select('id')
              .limit(10)

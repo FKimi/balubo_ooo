@@ -11,8 +11,8 @@ import type { WorkCategory, WorkData } from '@/types/work'
 interface CategoryDropZoneProps {
   category: WorkCategory
   works: WorkData[]
-  onDeleteWork: (id: string) => void
-  onUpdateCategory: (categoryId: string, newName: string, newColor: string) => void
+  onDeleteWork: (_id: string) => void,
+  onUpdateCategory: (_categoryId: string, _newName: string, _newColor: string) => void
 }
 
 export function CategoryDropZone({ 
@@ -84,7 +84,7 @@ export function CategoryDropZone({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragEnd={(event) => {
+        onDragEnd={(_event) => {
           // ドラッグエンドの処理は親コンポーネントで処理
         }}
       >

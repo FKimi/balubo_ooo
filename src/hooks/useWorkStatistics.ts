@@ -47,8 +47,6 @@ const ROLE_COLORS = [
 
 export function useWorkStatistics(works: WorkData[]): WorkStatistics {
   return useMemo(() => {
-    //console.log('useWorkStatistics received works:', works);
-
     const totalWorks = works.length
 
     // 総文字数の計算（記事タイプの作品のみ）
@@ -73,8 +71,6 @@ export function useWorkStatistics(works: WorkData[]): WorkStatistics {
       }
     })
 
-    //console.log('DEBUG: Role counts:', roleCount);
-
     const totalRoles = Object.values(roleCount).reduce((sum, count) => sum + count, 0)
 
     const roleDistribution = Object.entries(roleCount)
@@ -85,8 +81,6 @@ export function useWorkStatistics(works: WorkData[]): WorkStatistics {
         color: ROLE_COLORS[index % ROLE_COLORS.length] || '#6B7280'
       }))
       .sort((a, b) => b.count - a.count)
-
-    //console.log('DEBUG: Calculated roleDistribution:', roleDistribution);
 
     // 月別アクティビティの計算
     const monthlyActivityMap: { [key: string]: MonthlyActivity } = {}

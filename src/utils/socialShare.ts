@@ -9,7 +9,7 @@ interface ShareData {
 }
 
 // 作品共有用メッセージ生成
-export function generateWorkShareMessage(work: WorkData, userDisplayName: string = 'クリエイター'): ShareData {
+export function generateWorkShareMessage(work: WorkData, _userDisplayName: string = 'クリエイター'): ShareData {
   const contentTypeMap = {
     'article': '記事',
     'design': 'デザイン',
@@ -94,7 +94,7 @@ export function generateWorkShareMessage(work: WorkData, userDisplayName: string
 }
 
 // インプット共有用メッセージ生成
-export function generateInputShareMessage(input: InputData, userDisplayName: string = 'クリエイター'): ShareData {
+export function generateInputShareMessage(input: InputData, _userDisplayName: string = 'クリエイター'): ShareData {
   const typeMap = {
     'book': '本',
     'movie': '映画',

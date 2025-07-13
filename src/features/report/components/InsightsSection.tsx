@@ -186,7 +186,7 @@ export function InsightsSection({ works, inputs, workStats }: InsightsSectionPro
 
   const monthlyData = getMonthlyActivity()
   const suggestions = generatePracticalSuggestions()
-  const maxActivity = Math.max(...monthlyData.map(m => m.total), 1)
+  const _maxActivity = Math.max(...monthlyData.map(m => m.total), 1)
   const interestAnalysis = getInterestAnalysis()
   const creatorSummary = generateCreatorSummary()
 
@@ -282,7 +282,7 @@ export function InsightsSection({ works, inputs, workStats }: InsightsSectionPro
           </CardHeader>
           <CardContent className="pt-0">
             <div className="space-y-3">
-              {suggestions.map((suggestion, index) => (
+              {suggestions.map((suggestion, _index) => (
                 <div 
                   key={index} 
                   className={`rounded-lg p-4 border-l-4 ${

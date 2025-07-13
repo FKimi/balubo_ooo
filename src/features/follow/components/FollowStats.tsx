@@ -24,10 +24,21 @@ export function FollowStats({ userId }: FollowStatsProps) {
     if (!userId) return
 
     try {
+      setLoading(true)
+      console.log('フォロー統計取得開始:', userId)
+      
       const data = await fetcher<FollowStatsData>(`/api/connections/stats?userId=${userId}`)
+      console.log('フォロー統計取得成功:', data)
       setStats(data)
     } catch (error) {
       console.error('フォロー統計取得エラー:', error)
+      console.error('エラー詳細:', {
+        userId,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined
+      })
+      // エラー時はデフォルト値を設定
+      setStats({ followerCount: 0, followingCount: 0 })
     } finally {
       setLoading(false)
     }

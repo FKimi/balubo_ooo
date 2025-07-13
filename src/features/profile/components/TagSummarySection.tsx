@@ -6,7 +6,7 @@ interface TagSummarySectionProps {
 }
 
 export function TagSummarySection({ tags }: TagSummarySectionProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [summary, setSummary] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -30,9 +30,13 @@ export function TagSummarySection({ tags }: TagSummarySectionProps) {
         if (res.ok) {
           const data = await res.json()
           setSummary(data.summary || '')
+        } else {
+          console.log('キャッシュなし:', res.status)
         }
       })
-      .catch(() => {})
+      .catch((error) => {
+        console.error('初期ロードエラー:', error)
+      })
       .finally(() => setInitialLoading(false))
   }, [tagsPayload])
 
@@ -45,11 +49,18 @@ export function TagSummarySection({ tags }: TagSummarySectionProps) {
       body: JSON.stringify({ tags: tagsPayload })
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error('failed')
+        if (!res.ok) {
+          const errorText = await res.text()
+          console.error('AI分析APIエラー:', res.status, errorText)
+          throw new Error(`API Error: ${res.status}`)
+        }
         const data = await res.json()
         setSummary(data.summary)
       })
-      .catch(() => setError('生成に失敗しました'))
+      .catch((error) => {
+        console.error('AI分析エラー詳細:', error)
+        setError('生成に失敗しました')
+      })
       .finally(() => setLoading(false))
   }
 

@@ -3,7 +3,7 @@ export interface NewsItem {
   title: string
   description: string
   date: string
-  category: 'アップデート' | 'お知らせ' | '新機能' | 'メンテナンス'
+  category: 'アップデート' | 'お知らせ' | '新機能' | 'メンテナンス' | 'リリース'
   link?: string
   featured?: boolean
 }
@@ -87,6 +87,11 @@ export const categoryStyles = {
     badge: 'bg-yellow-100 text-yellow-800',
     icon: '🔧',
     color: 'yellow'
+  },
+  'リリース': {
+    badge: 'bg-red-100 text-red-800',
+    icon: '🚀',
+    color: 'red'
   }
 }
 

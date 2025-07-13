@@ -45,7 +45,7 @@ function ProfileLoadingFallback() {
 
 function ProfileContent() {
   const { user } = useAuth()
-  const router = useRouter()
+  const _router = useRouter()
   const searchParams = useSearchParams()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
@@ -90,7 +90,7 @@ function ProfileContent() {
   const [isUpdatingCareer, setIsUpdatingCareer] = useState(false)
   
   const [savedWorks, setSavedWorks] = useState<any[]>([])
-  const [isLoadingWorks, setIsLoadingWorks] = useState(false)
+  const [_isLoadingWorks, setIsLoadingWorks] = useState(false)
   
   // インプット関連のstate
   const [inputs, setInputs] = useState<InputData[]>([])
@@ -133,7 +133,7 @@ function ProfileContent() {
       }
 
       // 削除成功後、作品一覧を再取得
-      const worksResponse = await fetch(`/api/works?userId=${user.id}`, { headers })
+      const worksResponse = await fetch(`/api/works`, { headers })
       if (worksResponse.ok) {
         const worksData = await worksResponse.json()
         setSavedWorks(worksData.works || [])
@@ -155,48 +155,67 @@ function ProfileContent() {
       try {
         // プロフィールデータの取得
         const { supabase } = await import('@/lib/supabase')
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
+        console.log('[Profile] getSession結果:', { sessionExists: !!session, accessTokenExists: !!session?.access_token, accessToken: session?.access_token, sessionError: sessionError?.message })
+
+        if (sessionError || !session?.access_token) {
+          console.error('[Profile] セッションまたはアクセストークンがありません。APIリクエストをスキップします。', sessionError?.message || '不明なエラー')
+          setProfileData(completeDefaultProfileData)
+          setSavedWorks([])
+          setInputs([])
+          setInputAnalysis(null)
+          setIsLoadingWorks(false)
+          setIsLoadingInputs(false)
+          return
+        }
+
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-        }
-        
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         }
 
         // 並列でデータを取得
+        console.log('[Profile] データ取得開始', { userId: user.id, hasToken: !!session?.access_token })
         const [profileResponse, worksResponse, inputsResponse, analysisResponse] = await Promise.all([
-          fetch(`/api/profile?userId=${user.id}`, { headers }),
-          fetch(`/api/works?userId=${user.id}`, { headers }),
-          fetch(`/api/inputs?userId=${user.id}`, { headers }),
-          fetch(`/api/inputs/analysis?userId=${user.id}`, { headers })
+          fetch(`/api/profile`, { headers }),
+          fetch(`/api/works`, { headers }),
+          fetch(`/api/inputs`, { headers }),
+          fetch(`/api/inputs/analysis`, { headers })
         ])
+        
+        console.log('[Profile] API レスポンス状況:', {
+          profile: profileResponse.status,
+          works: worksResponse.status,
+          inputs: inputsResponse.status,
+          analysis: analysisResponse.status
+        })
 
         // プロフィールデータの処理
         if (profileResponse.ok) {
-          const profileData = await profileResponse.json()
-          if (profileData.profile) {
+          const profileJson = await profileResponse.json()
+          if (profileJson.data) {
+            const profileData = profileJson.data
             const convertedProfile = {
               ...completeDefaultProfileData,
-              displayName: profileData.profile.display_name || profileData.profile.displayName || '',
-              title: profileData.profile.title || '',
-              bio: profileData.profile.bio || '',
-              introduction: profileData.profile.introduction || '',
-              professions: profileData.profile.professions || [],
-              skills: profileData.profile.skills || [],
-              location: profileData.profile.location || '',
-              websiteUrl: profileData.profile.website_url || profileData.profile.websiteUrl || '',
-              slug: profileData.profile.slug || '',
-              portfolioVisibility: profileData.profile.portfolio_visibility || profileData.profile.portfolioVisibility || 'public',
-              backgroundImageUrl: profileData.profile.background_image_url || profileData.profile.backgroundImageUrl || '',
-              avatarImageUrl: profileData.profile.avatar_image_url || profileData.profile.avatarImageUrl || '',
-              desiredRate: profileData.profile.desired_rate || profileData.profile.desiredRate || '',
-              jobChangeIntention: profileData.profile.job_change_intention || profileData.profile.jobChangeIntention || 'not_considering',
-              sideJobIntention: profileData.profile.side_job_intention || profileData.profile.sideJobIntention || 'not_considering',
-              projectRecruitmentStatus: profileData.profile.project_recruitment_status || profileData.profile.projectRecruitmentStatus || 'not_recruiting',
-              workingHours: profileData.profile.working_hours || profileData.profile.workingHours || '',
-              career: profileData.profile.career || []
+              displayName: profileData.display_name || profileData.displayName || '',
+              title: profileData.title || '',
+              bio: profileData.bio || '',
+              introduction: profileData.introduction || '',
+              professions: profileData.professions || [],
+              skills: profileData.skills || [],
+              location: profileData.location || '',
+              websiteUrl: profileData.website_url || profileData.websiteUrl || '',
+              slug: profileData.slug || '',
+              portfolioVisibility: profileData.portfolio_visibility || profileData.portfolioVisibility || 'public',
+              backgroundImageUrl: profileData.background_image_url || profileData.backgroundImageUrl || '',
+              avatarImageUrl: profileData.avatar_image_url || profileData.avatarImageUrl || '',
+              desiredRate: profileData.desired_rate || profileData.desiredRate || '',
+              jobChangeIntention: profileData.job_change_intention || profileData.jobChangeIntention || 'not_considering',
+              sideJobIntention: profileData.side_job_intention || profileData.sideJobIntention || 'not_considering',
+              projectRecruitmentStatus: profileData.project_recruitment_status || profileData.projectRecruitmentStatus || 'not_recruiting',
+              workingHours: profileData.working_hours || profileData.workingHours || '',
+              career: profileData.career || []
             }
             setProfileData(convertedProfile)
           } else {
@@ -209,16 +228,22 @@ function ProfileContent() {
         // 作品データの処理
         if (worksResponse.ok) {
           const worksData = await worksResponse.json()
+          console.log('[Profile] 作品データ取得成功:', worksData)
           setSavedWorks(worksData.works || [])
         } else {
+          const errorText = await worksResponse.text()
+          console.error('[Profile] 作品データ取得失敗:', worksResponse.status, errorText)
           setSavedWorks([])
         }
 
         // インプットデータの処理
         if (inputsResponse.ok) {
           const inputsData = await inputsResponse.json()
+          console.log('[Profile] インプットデータ取得成功:', inputsData)
           setInputs(inputsData.inputs || [])
         } else {
+          const errorText = await inputsResponse.text()
+          console.error('[Profile] インプットデータ取得失敗:', inputsResponse.status, errorText)
           setInputs([])
         }
 

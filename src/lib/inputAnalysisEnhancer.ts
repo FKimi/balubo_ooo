@@ -1,12 +1,7 @@
 // インプット分析精度向上ライブラリ
 import { InputData } from '@/types/input'
 
-interface ExternalAPIData {
-  isbn?: string
-  tmdbId?: string
-  spotifyId?: string
-  steamId?: string
-}
+
 
 interface EnhancedAnalysisResult {
   accuracy: number
@@ -36,18 +31,11 @@ export class InputAnalysisEnhancer {
       // Google Books API（環境変数から取得）
       const apiKey = process.env.GOOGLE_BOOKS_API_KEY
       if (!apiKey) {
-        console.log('Google Books API キーが設定されていません')
         return null
       }
       
-      console.log('Google Books API キー確認:', !!apiKey)
-      console.log('Google Books API キー（最初の10文字）:', apiKey.substring(0, 10))
-      
       const query = author ? `${title} inauthor:${author}` : title
       const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=1&key=${apiKey}`
-      
-      console.log('Google Books API 呼び出し:', { title, author, query })
-      console.log('Google Books API URL:', apiKey ? url.replace(apiKey, 'API_KEY_HIDDEN') : url)
       
       const response = await fetch(url)
       
@@ -132,7 +120,7 @@ export class InputAnalysisEnhancer {
   static async enhanceInputAnalysis(
     input: InputData, 
     aiAnalysis: any, 
-    externalData?: any
+    _externalData?: any
   ): Promise<EnhancedAnalysisResult> {
     
     let accuracy = 0.7 // 基本精度
@@ -273,7 +261,7 @@ export class InputAnalysisEnhancer {
     currentInput: InputData
   ): Promise<Array<{ title: string; score: number; reason: string }>> {
     // ユーザーの好みパターン分析
-    const userPreferences = this.analyzeUserPreferences(userInputs)
+    const _userPreferences = this.analyzeUserPreferences(userInputs)
     
     // 現在のインプットとの類似度計算
     const recommendations: Array<{ title: string; score: number; reason: string }> = []

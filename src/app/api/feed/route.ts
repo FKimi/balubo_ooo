@@ -131,13 +131,13 @@ async function processFeedRequest(request: NextRequest) {
     .from('works')
     .select('id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at')
     .order('created_at', { ascending: false })
-    .limit(10) // パフォーマンス重視でデータ量を制限
+    .limit(50) // パフォーマンス重視でデータ量を制限
 
   const inputsPromise = supabase
     .from('inputs')
     .select('id, user_id, title, author_creator, rating, tags, cover_image_url, created_at')
     .order('created_at', { ascending: false })
-    .limit(10) // パフォーマンス重視でデータ量を制限
+    .limit(50) // パフォーマンス重視でデータ量を制限
 
   const dataTimeout = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('データ取得タイムアウト')), 15000) // 15秒に延長

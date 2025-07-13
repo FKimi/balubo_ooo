@@ -1,4 +1,4 @@
-import { createAuthenticatedClient } from './supabase-client'
+import { supabase } from './supabase-client'
 import { processDbArrayResult } from './api-utils'
 
 // データベース操作のヘルパー関数（認証対応版）
@@ -17,7 +17,7 @@ export class DatabaseClient {
   private static readonly MAX_REQUESTS_PER_WINDOW = 5 // 10秒間に最大5回
 
   // プロフィール関連操作
-  static async getProfile(userId: string, token?: string) {
+  static async getProfile(userId: string, _token?: string) {
     try {
       // 基本的な検証
       if (!userId || typeof userId !== 'string') {
@@ -26,26 +26,18 @@ export class DatabaseClient {
       }
 
       // キャッシュをチェック
-      const cacheKey = `${userId}-${token ? 'auth' : 'anon'}`
+      const cacheKey = `${userId}-${_token ? 'auth' : 'anon'}`
       const cached = this.profileCache.get(cacheKey)
       const now = Date.now()
       
       if (cached && (now - cached.timestamp < this.CACHE_DURATION)) {
-        console.log('DatabaseClient: プロフィールキャッシュヒット:', userId)
         return cached.data
       }
 
       // 進行中のリクエストがある場合は、それを待つ
       const pendingRequest = this.pendingProfileRequests.get(cacheKey)
       if (pendingRequest) {
-        console.log('DatabaseClient: プロフィール取得待機中...', userId)
-        try {
-          return await pendingRequest
-        } catch (error) {
-          // 進行中のリクエストがエラーの場合、それを削除して再試行
-          this.pendingProfileRequests.delete(cacheKey)
-          console.log('DatabaseClient: 待機中のリクエストでエラー、再試行します:', error)
-        }
+        return await pendingRequest
       }
 
       // レート制限チェック
@@ -56,7 +48,6 @@ export class DatabaseClient {
         console.warn(`DatabaseClient: レート制限に達しました: ${userId}`)
         // キャッシュがあれば古くても返す
         if (cached) {
-          console.log('DatabaseClient: レート制限のため古いキャッシュを返します:', userId)
           return cached.data
         }
         throw new Error('プロフィール取得のレート制限に達しました')
@@ -66,14 +57,10 @@ export class DatabaseClient {
       recentRequests.push(now)
       this.recentRequests.set(userId, recentRequests)
 
-      console.log('DatabaseClient: プロフィール取得中...', userId)
-      
       // リクエストを作成してpendingに追加
       const requestPromise = (async () => {
         try {
-          const supabase = createAuthenticatedClient(token)
-          
-          // プロフィール取得にタイムアウトを設定（5秒）
+          // プロフィール取得にタイムアウトを設定（15秒）
           const profilePromise = supabase
             .from('profiles')
             .select('*')
@@ -81,7 +68,7 @@ export class DatabaseClient {
             .single()
           
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 5000)
+            setTimeout(() => reject(new Error('プロフィール取得タイムアウト')), 15000)
           })
           
           const { data, error } = await Promise.race([profilePromise, timeoutPromise]) as any
@@ -100,14 +87,11 @@ export class DatabaseClient {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log('DatabaseClient: プロフィールが見つかりません')
           return null
         }
         throw error
       }
 
-      console.log('DatabaseClient: プロフィール取得成功')
-      
       // introductionフィールドをbioにマッピング（フォーム表示用）
       if (data && data.introduction && !data.bio) {
         data.bio = data.introduction
@@ -136,137 +120,95 @@ export class DatabaseClient {
   }
 
   // プロフィール関連操作（RLS対応強化版）
-  static async saveProfile(userId: string, profileData: any, token?: string) {
+  static async saveProfile(userId: string, profileData: any, _token?: string) {
     try {
-      console.log('DatabaseClient: プロフィール保存中...', userId)
-      
-      // まず通常の認証クライアントで試行
-      const supabase = createAuthenticatedClient(token)
-      
-      // 既存プロフィールの確認
-      let existingProfile
-      try {
-        existingProfile = await this.getProfile(userId, token)
-      } catch (getError) {
-        console.warn('プロフィール取得でエラー、新規作成を試行:', getError)
-        existingProfile = null
-      }
-      
+      const { createClient } = await import('@supabase/supabase-js')
+      const dbClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          global: {
+            headers: _token ? { Authorization: `Bearer ${_token}` } : {},
+          },
+        }
+      )
+
       const profileToSave = {
         user_id: userId,
-        display_name: profileData.displayName ?? profileData.display_name ?? existingProfile?.display_name ?? '',
-        title: profileData.title ?? existingProfile?.title ?? '',
-        bio: profileData.bio ?? existingProfile?.bio ?? '',
-        introduction: profileData.introduction ?? existingProfile?.introduction ?? '',
-        professions: profileData.professions ?? existingProfile?.professions ?? [],
-        skills: profileData.skills ?? existingProfile?.skills ?? [],
-        location: profileData.location ?? existingProfile?.location ?? '',
-        website_url: profileData.websiteUrl ?? existingProfile?.website_url ?? '',
-        portfolio_visibility: profileData.portfolioVisibility ?? existingProfile?.portfolio_visibility ?? 'public',
-        background_image_url: profileData.backgroundImageUrl ?? existingProfile?.background_image_url ?? '',
-        avatar_image_url: profileData.avatarImageUrl ?? existingProfile?.avatar_image_url ?? '',
-        desired_rate: profileData.desiredRate ?? existingProfile?.desired_rate ?? '',
-        job_change_intention: profileData.jobChangeIntention ?? existingProfile?.job_change_intention ?? 'not_considering',
-        side_job_intention: profileData.sideJobIntention ?? existingProfile?.side_job_intention ?? 'not_considering',
-        project_recruitment_status: profileData.projectRecruitmentStatus ?? existingProfile?.project_recruitment_status ?? 'not_recruiting',
-        experience_years: profileData.experienceYears ?? existingProfile?.experience_years ?? null,
-        working_hours: profileData.workingHours ?? existingProfile?.working_hours ?? '',
-        career: profileData.career ?? existingProfile?.career ?? [],
-        updated_at: new Date().toISOString()
+        ...profileData,
+        updated_at: new Date().toISOString(),
       }
 
-      let result
-      if (existingProfile) {
-        // 更新
-        const { data, error } = await supabase
-          .from('profiles')
-          .update(profileToSave)
-          .eq('user_id', userId)
-          .select()
-          .single()
-        
-        if (error) {
-          console.error('プロフィール更新でRLSエラー:', error)
-          throw error
-        }
-        result = data
-        console.log('DatabaseClient: プロフィール更新成功')
-        // キャッシュを即時更新
-        const authCacheKey = `${userId}-${token ? 'auth' : 'anon'}`
-        this.profileCache.set(authCacheKey, { data, timestamp: Date.now() })
-        // anon側キャッシュも更新
-        const anonCacheKey = `${userId}-anon`
-        this.profileCache.set(anonCacheKey, { data, timestamp: Date.now() })
-      } else {
-        // 新規作成
-        const profileToCreate = {
-          ...profileToSave,
-          created_at: new Date().toISOString()
-        }
-        
-        const { data, error } = await supabase
-          .from('profiles')
-          .insert(profileToCreate)
-          .select()
-          .single()
-        
-        if (error) {
-          console.error('プロフィール作成でRLSエラー:', error)
-          
-          // RLSポリシーエラーの場合、より詳細なエラー情報を提供
-          if (error.code === '42501') {
-            const detailedError = {
-              ...error,
-              debugInfo: {
-                userId,
-                hasToken: !!token,
-                operation: 'INSERT',
-                table: 'profiles',
-                suggestion: 'Supabaseダッシュボードでprofilesテーブルの"Enable RLS"と"INSERT policy for authenticated users"を確認してください'
-              }
-            }
-            throw detailedError
-          }
-          
-          throw error
-        }
-        result = data
-        console.log('DatabaseClient: プロフィール作成成功')
-        // キャッシュを即時更新
-        const authCacheKey = `${userId}-${token ? 'auth' : 'anon'}`
-        this.profileCache.set(authCacheKey, { data, timestamp: Date.now() })
-        const anonCacheKey = `${userId}-anon`
-        this.profileCache.set(anonCacheKey, { data, timestamp: Date.now() })
-      }
+      // `id`フィールドは`upsert`で自動的に処理されるため、削除
+      delete profileToSave.id
 
-      return result
-    } catch (error) {
-      console.error('DatabaseClient: プロフィール保存エラー:', error)
-      
-      // RLSエラーの場合は詳細な情報を含めて再スロー
-      if ((error as any)?.code === '42501') {
-        const rlsError = new Error(`プロフィール保存でRLSポリシー違反が発生しました。Supabaseダッシュボードで以下を確認してください:
+      const { data: result, error } = await dbClient
+        .from('profiles')
+        .upsert(profileToSave, { onConflict: 'user_id' })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('DatabaseClient: Supabaseエラー詳細:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        })
+        // RLSエラーの場合は詳細な情報を含めて再スロー
+        if ((error as any)?.code === '42501') {
+          const rlsError = new Error(`プロフィール保存でRLSポリシー違反が発生しました。Supabaseダッシュボードで以下を確認してください:
 1. profilesテーブルのRLSが有効になっている
 2. 認証されたユーザーのINSERT/UPDATEポリシーが設定されている
 3. ポリシー条件: auth.uid() = user_id
 
 元のエラー: ${(error as any)?.message || error}`) as any
-        ;(rlsError as any).code = (error as any)?.code
-        ;(rlsError as any).originalError = error
-        throw rlsError
+          ;(rlsError as any).code = (error as any)?.code
+          ;(rlsError as any).originalError = error
+          throw rlsError
+        }
+        throw error
       }
-      
+
+      // キャッシュを更新
+      const cacheKey = `${userId}-${_token ? 'auth' : 'anon'}`
+      this.profileCache.set(cacheKey, { data: result, timestamp: Date.now() })
+
+      return result
+    } catch (error) {
+      console.error('DatabaseClient: プロフィール保存エラー:', error)
       throw error
     }
   }
 
   // 作品関連操作（認証対応）
-  static async getWorks(userId: string, token?: string) {
+  static async getWorks(userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: 作品一覧取得中...', userId, 'token:', !!token)
+      console.log('DatabaseClient: 作品一覧取得開始', { userId, hasToken: !!_token })
       
-      const supabase = createAuthenticatedClient(token)
-      const { data, error } = await supabase
+      // 認証されたクライアントを作成
+      const { createClient } = await import('@supabase/supabase-js')
+      const dbClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          global: {
+            headers: _token ? { Authorization: `Bearer ${_token}` } : {}
+          }
+        }
+      )
+      
+      if (_token) {
+        // 認証トークンがある場合は、セッションを設定
+        const { data: { user }, error: userError } = await dbClient.auth.getUser(_token)
+        if (userError) {
+          console.error('認証エラー:', userError)
+          throw new Error('認証が無効です')
+        }
+        console.log('認証されたユーザー:', user?.id)
+      }
+      
+      const { data, error } = await dbClient
         .from('works')
         .select('*, is_featured, featured_order')
         .eq('user_id', userId)
@@ -274,8 +216,12 @@ export class DatabaseClient {
         .order('featured_order', { ascending: true })
         .order('created_at', { ascending: false })
 
+      console.log('作品取得結果:', { count: data?.length || 0, hasError: !!error })
+      if (error) {
+        console.error('作品取得エラー詳細:', error)
+      }
+
       const result = processDbArrayResult(data, error)
-      console.log('DatabaseClient: 作品一覧取得成功:', result.length, '件')
       return result
     } catch (error) {
       console.error('DatabaseClient: 作品一覧取得エラー:', error)
@@ -283,12 +229,11 @@ export class DatabaseClient {
     }
   }
 
-  static async getWork(workId: string, userId: string, token?: string) {
+  static async getWork(workId: string, userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: 作品取得中...', workId)
       
-      const supabase = createAuthenticatedClient(token)
-      const { data, error } = await supabase
+      const dbClient = supabase
+      const { data, error } = await dbClient
         .from('works')
         .select('*')
         .eq('id', workId)
@@ -297,13 +242,11 @@ export class DatabaseClient {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log('DatabaseClient: 作品が見つかりません')
           return null
         }
         throw error
       }
 
-      console.log('DatabaseClient: 作品取得成功')
       return data
     } catch (error) {
       console.error('DatabaseClient: 作品取得エラー:', error)
@@ -311,12 +254,10 @@ export class DatabaseClient {
     }
   }
 
-  static async saveWork(userId: string, workData: any, token?: string) {
+  static async saveWork(userId: string, workData: any, _token?: string) {
     try {
-      console.log('DatabaseClient: 作品保存中...', userId)
-      console.log('DatabaseClient: 受信したworkData:', workData)
       
-      const supabase = createAuthenticatedClient(token)
+      const dbClient = supabase
       const workToSave = {
         user_id: userId,
         title: workData.title || '',
@@ -335,7 +276,7 @@ export class DatabaseClient {
 
       console.log('DatabaseClient: 保存用データ:', workToSave)
 
-      const { data, error } = await supabase
+      const { data, error } = await dbClient
         .from('works')
         .insert(workToSave)
         .select()
@@ -351,7 +292,6 @@ export class DatabaseClient {
         throw error
       }
 
-      console.log('DatabaseClient: 作品保存成功', data)
       return data
     } catch (error) {
       console.error('DatabaseClient: 作品保存エラー:', error)
@@ -359,11 +299,10 @@ export class DatabaseClient {
     }
   }
 
-  static async updateWork(workId: string, userId: string, workData: any, token?: string) {
+  static async updateWork(workId: string, userId: string, workData: any, _token?: string) {
     try {
-      console.log('DatabaseClient: 作品更新中...', workId)
       
-      const supabase = createAuthenticatedClient(token)
+      const dbClient = supabase
       const workToUpdate = {
         title: workData.title || '',
         description: workData.description || '',
@@ -378,7 +317,7 @@ export class DatabaseClient {
         updated_at: new Date().toISOString()
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await dbClient
         .from('works')
         .update(workToUpdate)
         .eq('id', workId)
@@ -388,7 +327,6 @@ export class DatabaseClient {
       
       if (error) throw error
 
-      console.log('DatabaseClient: 作品更新成功')
       return data
     } catch (error) {
       console.error('DatabaseClient: 作品更新エラー:', error)
@@ -396,12 +334,11 @@ export class DatabaseClient {
     }
   }
 
-  static async deleteWork(workId: string, userId: string, token?: string) {
+  static async deleteWork(workId: string, userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: 作品削除中...', workId)
       
-      const supabase = createAuthenticatedClient(token)
-      const { error } = await supabase
+      const dbClient = supabase
+      const { error } = await dbClient
         .from('works')
         .delete()
         .eq('id', workId)
@@ -409,7 +346,6 @@ export class DatabaseClient {
       
       if (error) throw error
 
-      console.log('DatabaseClient: 作品削除成功')
       return true
     } catch (error) {
       console.error('DatabaseClient: 作品削除エラー:', error)
@@ -420,19 +356,17 @@ export class DatabaseClient {
   // データベース接続確認（基本的な接続テストのみ）
   static async testConnection() {
     try {
-      console.log('DatabaseClient: 接続テスト中...')
       
       // 基本的な接続テストのみ（認証が不要な操作）
-      const supabase = createAuthenticatedClient()
+      const dbClient = supabase
       
       // RLSポリシーの影響を受けない基本的な接続確認
       // プロフィールテーブルではなく、基本的なSupabase機能をテスト
       try {
         // Supabaseの基本機能のテスト（認証状況確認）
-        const { data, error } = await supabase.auth.getSession()
+        const { data: _data, error: _error } = await dbClient.auth.getSession()
         
         // エラーがあっても接続自体は成功している
-        console.log('DatabaseClient: 接続テスト成功（基本接続確認）')
         return true
       } catch (connectionError) {
         console.error('DatabaseClient: 基本接続エラー:', connectionError)
@@ -447,8 +381,7 @@ export class DatabaseClient {
   // ユーザー認証状態の確認
   static async getCurrentUser() {
     try {
-      const { data: { user }, error } = await createAuthenticatedClient()
-        .auth.getUser()
+      const { data: { user }, error } = await supabase.auth.getUser()
       
       if (error) throw error
       
@@ -460,19 +393,34 @@ export class DatabaseClient {
   }
 
   // インプット関連操作（認証対応）
-  static async getInputs(userId: string, token?: string) {
+  static async getInputs(userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: インプット一覧取得中...', userId, 'token:', !!token)
+      console.log('DatabaseClient: インプット一覧取得開始', { userId, hasToken: !!_token })
       
-      const supabase = createAuthenticatedClient(token)
-      const { data, error } = await supabase
+      // 認証されたクライアントを作成
+      const { createClient } = await import('@supabase/supabase-js')
+      const dbClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          global: {
+            headers: _token ? { Authorization: `Bearer ${_token}` } : {}
+          }
+        }
+      )
+      
+      const { data, error } = await dbClient
         .from('inputs')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
+      console.log('インプット取得結果:', { count: data?.length || 0, hasError: !!error })
+      if (error) {
+        console.error('インプット取得エラー詳細:', error)
+      }
+
       const result = processDbArrayResult(data, error)
-      console.log('DatabaseClient: インプット一覧取得成功:', result.length, '件')
       return result
     } catch (error) {
       console.error('DatabaseClient: インプット一覧取得エラー:', error)
@@ -480,12 +428,11 @@ export class DatabaseClient {
     }
   }
 
-  static async getInput(inputId: string, userId: string, token?: string) {
+  static async getInput(inputId: string, userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: インプット取得中...', inputId)
       
-      const supabase = createAuthenticatedClient(token)
-      const { data, error } = await supabase
+      const dbClient = supabase
+      const { data, error } = await dbClient
         .from('inputs')
         .select('*')
         .eq('id', inputId)
@@ -494,13 +441,11 @@ export class DatabaseClient {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log('DatabaseClient: インプットが見つかりません')
           return null
         }
         throw error
       }
 
-      console.log('DatabaseClient: インプット取得成功')
       return data
     } catch (error) {
       console.error('DatabaseClient: インプット取得エラー:', error)
@@ -508,14 +453,30 @@ export class DatabaseClient {
     }
   }
 
-  static async getInputWithUser(inputId: string, currentUserId?: string | null, token?: string | null) {
+  static async getInputWithUser(inputId: string, _currentUserId?: string | null, _token?: string | null) {
     try {
-      console.log('DatabaseClient: ユーザー情報付きインプット取得中...', inputId)
-      
-      const supabase = createAuthenticatedClient(token || undefined)
+      const { createClient } = await import('@supabase/supabase-js')
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      if (!supabaseUrl || !supabaseServiceKey) {
+        throw new Error('Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY) are not set.');
+      }
+
+      const dbClient = createClient(
+        supabaseUrl,
+        supabaseServiceKey,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        }
+      )
       
       // まずインプットを取得
-      const { data: inputData, error: inputError } = await supabase
+      const { data: inputData, error: inputError } = await dbClient
         .from('inputs')
         .select('*')
         .eq('id', inputId)
@@ -523,7 +484,6 @@ export class DatabaseClient {
 
       if (inputError) {
         if (inputError.code === 'PGRST116') {
-          console.log('DatabaseClient: インプットが見つかりません')
           return null
         }
         console.error('DatabaseClient: インプット取得エラー:', inputError)
@@ -534,7 +494,7 @@ export class DatabaseClient {
       let userData = null
       if (inputData.user_id) {
         try {
-          const { data: profileData, error: profileError } = await supabase
+          const { data: profileData, error: profileError } = await dbClient
             .from('profiles')
             .select('user_id, display_name, avatar_image_url')
             .eq('user_id', inputData.user_id)
@@ -566,12 +526,12 @@ export class DatabaseClient {
     }
   }
 
-  static async saveInput(userId: string, inputData: any, token?: string) {
+  static async saveInput(userId: string, inputData: any, _token?: string) {
     try {
       console.log('DatabaseClient: インプット保存中...', userId)
       console.log('DatabaseClient: 受信したinputData:', inputData)
       
-      const supabase = createAuthenticatedClient(token)
+      const dbClient = supabase
       const inputToSave = {
         user_id: userId,
         title: inputData.title || '',
@@ -594,9 +554,7 @@ export class DatabaseClient {
         updated_at: new Date().toISOString()
       }
 
-      console.log('DatabaseClient: 保存用データ:', inputToSave)
-
-      const { data, error } = await supabase
+      const { data, error } = await dbClient
         .from('inputs')
         .insert(inputToSave)
         .select()
@@ -612,7 +570,6 @@ export class DatabaseClient {
         throw error
       }
 
-      console.log('DatabaseClient: インプット保存成功', data)
       return data
     } catch (error) {
       console.error('DatabaseClient: インプット保存エラー:', error)
@@ -620,11 +577,10 @@ export class DatabaseClient {
     }
   }
 
-  static async updateInput(inputId: string, userId: string, inputData: any, token?: string) {
+  static async updateInput(inputId: string, userId: string, inputData: any, _token?: string) {
     try {
-      console.log('DatabaseClient: インプット更新中...', inputId)
       
-      const supabase = createAuthenticatedClient(token)
+      const dbClient = supabase
       const inputToUpdate = {
         title: inputData.title || '',
         type: inputData.type || 'book',
@@ -645,7 +601,7 @@ export class DatabaseClient {
         updated_at: new Date().toISOString()
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await dbClient
         .from('inputs')
         .update(inputToUpdate)
         .eq('id', inputId)
@@ -655,7 +611,6 @@ export class DatabaseClient {
       
       if (error) throw error
 
-      console.log('DatabaseClient: インプット更新成功')
       return data
     } catch (error) {
       console.error('DatabaseClient: インプット更新エラー:', error)
@@ -663,12 +618,11 @@ export class DatabaseClient {
     }
   }
 
-  static async deleteInput(inputId: string, userId: string, token?: string) {
+  static async deleteInput(inputId: string, userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: インプット削除中...', inputId)
       
-      const supabase = createAuthenticatedClient(token)
-      const { error } = await supabase
+      const dbClient = supabase
+      const { error } = await dbClient
         .from('inputs')
         .delete()
         .eq('id', inputId)
@@ -676,7 +630,6 @@ export class DatabaseClient {
       
       if (error) throw error
 
-      console.log('DatabaseClient: インプット削除成功')
       return true
     } catch (error) {
       console.error('DatabaseClient: インプット削除エラー:', error)
@@ -685,11 +638,10 @@ export class DatabaseClient {
   }
 
   // インプット分析（AI機能強化版）
-  static async analyzeInputs(userId: string, token?: string) {
+  static async analyzeInputs(userId: string, _token?: string) {
     try {
-      console.log('DatabaseClient: インプット分析中...', userId)
       
-      const inputs = await DatabaseClient.getInputs(userId, token)
+      const inputs = await DatabaseClient.getInputs(userId, _token)
       
       // 基本統計
       const tagFrequency: Record<string, number> = {}
@@ -879,12 +831,6 @@ export class DatabaseClient {
         analysisCompleteness: (inputs.filter(input => input.ai_analysis_result).length / inputs.length * 100).toFixed(1),
         lastUpdated: new Date().toISOString()
       }
-      
-      console.log('DatabaseClient: インプット分析完了:', {
-        totalInputs: analysis.totalInputs,
-        aiAnalysisCount: analysis.aiAnalysisCount,
-        topCreativeDirection: analysis.creativeInsights.overallCreativeDirection
-      })
       
       return analysis
     } catch (error) {

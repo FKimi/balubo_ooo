@@ -69,40 +69,9 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
   // 役割分布（トップ3のみ）
   const topRoles = workStats.roleDistribution.slice(0, 3)
 
-  const renderScoreScale = () => (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 mb-8">
-      <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
-        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        AI評価スコア基準
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-blue-800">
-        <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-          <div className="font-bold text-purple-700">90-100点</div>
-          <div className="text-purple-600">エキスパート</div>
-          <div className="text-xs text-purple-500 mt-1">プロフェッショナルレベル</div>
-        </div>
-        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-          <div className="font-bold text-blue-700">80-89点</div>
-          <div className="text-blue-600">上級者</div>
-          <div className="text-xs text-blue-500 mt-1">高い品質</div>
-        </div>
-        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-          <div className="font-bold text-green-700">70-79点</div>
-          <div className="text-green-600">中級者</div>
-          <div className="text-xs text-green-500 mt-1">標準的な品質</div>
-        </div>
-        <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-          <div className="font-bold text-yellow-700">60-69点</div>
-          <div className="text-yellow-600">初級者</div>
-          <div className="text-xs text-yellow-500 mt-1">基本的な品質</div>
-        </div>
-      </div>
-    </div>
-  )
+  
 
-  const renderFieldCard = (title: string, gradient: string, field: AIFieldSummary, colorPrefix: string) => {
+  const renderFieldCard = (title: string, gradient: string, field: AIFieldSummary, _colorPrefix: string) => {
     const topInsight = field.topWorks?.[0]?.reason || field.insights?.[0] || "分析結果がありません";
 
     return (

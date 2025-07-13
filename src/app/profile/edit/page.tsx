@@ -225,7 +225,7 @@ export default function ProfileEditPage() {
         return
       }
 
-      if (data?.success) {
+      if (data) {
         // ローカルストレージにも保存（バックアップ用）
         localStorage.setItem('profileData', JSON.stringify(formData))
 

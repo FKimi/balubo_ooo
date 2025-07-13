@@ -1,19 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-interface NewsItem {
-  id: string
-  text: string
-  date: string
-  category: 'リリース' | 'アップデート' | 'お知らせ'
-  link?: string
-}
+import type { NewsItem } from '@/data/news'
 
 const newsItems: NewsItem[] = [
   {
     id: '1',
-    text: 'balubo ベータ版をリリースしました',
+    title: 'balubo ベータ版をリリースしました',
+    description: 'クリエイター向けポートフォリオシステムのベータ版をリリースしました',
     date: new Date().toISOString().split('T')[0]!,
     category: 'リリース',
     link: '#'
@@ -80,7 +74,7 @@ export function NewsTicker() {
                       <div className="absolute -inset-1 bg-blue-500 rounded-full animate-ping opacity-30" />
                     </div>
                     <span className="text-slate-900 font-semibold text-sm">
-                      {currentNews.text}
+                      {currentNews.title}
                     </span>
                   </div>
                   

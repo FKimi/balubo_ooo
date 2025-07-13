@@ -27,8 +27,10 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<NotificationData['notifications']>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const subscriptionRef = useRef<any>(null)
+  const channelRef = useRef<any>(null)
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const channelNameRef = useRef<string>('')
+  const isSubscribedRef = useRef<boolean>(false)
 
   // 通知データを取得（リトライ機能付き）
   const fetchNotifications = useCallback(async (retryCount = 0) => {
@@ -36,11 +38,32 @@ export function NotificationBell() {
 
     try {
       setIsLoading(true)
-      const data: NotificationData = await fetcher('/api/notifications?limit=10')
+      
+      // 認証トークンを取得
+      const supabase = getSupabaseBrowserClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const authToken = session?.access_token
+      
+      if (!authToken) {
+        console.log('通知取得: 認証トークンがありません')
+        setNotifications([])
+        setUnreadCount(0)
+        return
+      }
+      
+      const data: NotificationData = await fetcher('/api/notifications?limit=10', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
       setNotifications(data.notifications)
       setUnreadCount(data.unreadCount)
     } catch (error) {
       console.error('通知取得エラー:', error)
+      
+      // エラー時は空の配列を設定
+      setNotifications([])
+      setUnreadCount(0)
       
       // 3回まで再試行
       if (retryCount < 3) {
@@ -58,8 +81,21 @@ export function NotificationBell() {
     if (!user) return
 
     try {
+      // 認証トークンを取得
+      const supabase = getSupabaseBrowserClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const authToken = session?.access_token
+      
+      if (!authToken) {
+        console.log('既読マーク: 認証トークンがありません')
+        return
+      }
+      
       await fetcher('/api/notifications', {
         method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        },
         body: JSON.stringify({ notificationIds })
       })
       
@@ -82,8 +118,21 @@ export function NotificationBell() {
     if (!user) return
 
     try {
+      // 認証トークンを取得
+      const supabase = getSupabaseBrowserClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const authToken = session?.access_token
+      
+      if (!authToken) {
+        console.log('全既読マーク: 認証トークンがありません')
+        return
+      }
+      
       await fetcher('/api/notifications', {
         method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        },
         body: JSON.stringify({ markAllAsRead: true })
       })
       
@@ -97,6 +146,25 @@ export function NotificationBell() {
     }
   }
 
+  // チャンネルのクリーンアップ
+  const cleanupChannel = useCallback(() => {
+    if (channelRef.current) {
+      try {
+        // チャンネルオブジェクトを直接削除
+        const supabase = getSupabaseBrowserClient()
+        supabase.removeChannel(channelRef.current)
+        console.log('✅ チャンネルを削除しました')
+      } catch (error) {
+        console.error('❌ チャンネル削除でエラー:', error)
+      }
+      channelRef.current = null
+    }
+    
+    // チャンネル名をクリア
+    channelNameRef.current = ''
+    isSubscribedRef.current = false
+  }, [])
+
   // ポーリング設定（リアルタイム通知のフォールバック）
   const setupPolling = useCallback(() => {
     console.log('🔄 ポーリングモードに切り替えます')
@@ -106,11 +174,11 @@ export function NotificationBell() {
       clearTimeout(retryTimeoutRef.current)
     }
     
-    // 30秒ごとにポーリング
+    // 60秒ごとにポーリング（頻度を下げる）
     const interval = setInterval(() => {
       console.log('📡 ポーリングで通知を取得中...')
       fetchNotifications()
-    }, 30 * 1000)
+    }, 60 * 1000)
     
     // インターバルIDを保存してクリーンアップできるようにする
     retryTimeoutRef.current = interval as any
@@ -120,15 +188,19 @@ export function NotificationBell() {
 
   // リアルタイム通知の購読
   const subscribeToNotifications = useCallback(() => {
-    if (!user) return
+    if (!user || isSubscribedRef.current) return
 
     try {
       const supabase = getSupabaseBrowserClient()
       
-      // チャンネル名をユニークにする
-      const channelName = `notifications_${user.id}_${Date.now()}`
+      // 既存のチャンネルをクリーンアップ
+      cleanupChannel()
       
-      subscriptionRef.current = supabase
+      // チャンネル名をユニークにする（タイムスタンプ付き）
+      const channelName = `notifications_${user.id}_${Date.now()}`
+      channelNameRef.current = channelName
+      
+      const channel = supabase
         .channel(channelName, {
           config: {
             presence: {
@@ -168,42 +240,52 @@ export function NotificationBell() {
             setUnreadCount(prev => Math.max(0, prev - 1))
           }
         })
-        .subscribe((status, err) => {
-          console.log('リアルタイム購読ステータス:', status, err)
-          
-          if (status === 'SUBSCRIBED') {
-            console.log('✅ 通知のリアルタイム購読が開始されました')
-          } else if (status === 'CHANNEL_ERROR') {
-            console.error('❌ リアルタイム通知でエラーが発生しました:', err)
-            // フォールバック: ポーリングに切り替え
-            setupPolling()
-          } else if (status === 'TIMED_OUT') {
-            console.warn('⚠️ リアルタイム接続がタイムアウトしました')
-            // 再接続を試行
-            setTimeout(() => {
-              if (subscriptionRef.current) {
-                subscriptionRef.current.unsubscribe()
-              }
-              subscribeToNotifications()
-            }, 5000)
-          } else if (status === 'CLOSED') {
-            console.warn('⚠️ リアルタイム接続が閉じられました')
-            // 自動的にポーリングに切り替え
-            setupPolling()
-          }
-        })
+      
+      // 購読を開始
+      const _subscription = channel.subscribe((status, err) => {
+        console.log('リアルタイム購読ステータス:', status, err)
+        
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ 通知のリアルタイム購読が開始されました')
+          isSubscribedRef.current = true
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ リアルタイム通知でエラーが発生しました:', err)
+          isSubscribedRef.current = false
+          // フォールバック: ポーリングに切り替え
+          setupPolling()
+        } else if (status === 'TIMED_OUT') {
+          console.warn('⚠️ リアルタイム接続がタイムアウトしました')
+          isSubscribedRef.current = false
+          // 再接続を試行
+          setTimeout(() => {
+            cleanupChannel()
+            subscribeToNotifications()
+          }, 10000) // 10秒後に再試行
+        } else if (status === 'CLOSED') {
+          console.warn('⚠️ リアルタイム接続が閉じられました')
+          isSubscribedRef.current = false
+          // 自動的にポーリングに切り替え
+          setupPolling()
+        }
+      })
+      
+      // チャンネルオブジェクトを保存
+      channelRef.current = channel
+      
     } catch (error) {
       console.error('リアルタイム購読の設定中にエラーが発生:', error)
+      isSubscribedRef.current = false
       // エラーが発生した場合は即座にポーリングに切り替え
       setupPolling()
     }
-  }, [user, setupPolling])
+  }, [user, setupPolling, cleanupChannel])
 
   // 初回読み込みとリアルタイム通知の設定
   useEffect(() => {
     // ユーザーがログアウトしている場合は何もしない
     if (!user) {
       console.log('👻 ユーザーがログアウトしています')
+      cleanupChannel()
       return
     }
 
@@ -219,15 +301,8 @@ export function NotificationBell() {
     return () => {
       console.log('🧹 通知システムをクリーンアップ中...')
       
-      // リアルタイム購読の解除
-      if (subscriptionRef.current) {
-        try {
-          subscriptionRef.current.unsubscribe()
-          console.log('✅ リアルタイム購読を解除しました')
-        } catch (error) {
-          console.error('❌ リアルタイム購読の解除でエラー:', error)
-        }
-      }
+      // チャンネルのクリーンアップ
+      cleanupChannel()
       
       // タイマーやインターバルのクリア
       if (retryTimeoutRef.current) {
@@ -236,7 +311,7 @@ export function NotificationBell() {
         console.log('✅ ポーリングインターバルをクリアしました')
       }
     }
-  }, [user, fetchNotifications, subscribeToNotifications, setupPolling])
+  }, [user, fetchNotifications, subscribeToNotifications, setupPolling, cleanupChannel])
 
   if (!user) {
     return null

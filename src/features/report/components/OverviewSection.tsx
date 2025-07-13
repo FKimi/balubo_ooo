@@ -468,7 +468,7 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
                   注目作品
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {works.slice(0, 2).map((work, i) => (
+                  {works.slice(0, 2).map((work, _i) => (
                     <div key={i} className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 border border-gray-200">
                       <h5 className="font-semibold text-gray-800 mb-2 line-clamp-2">{work.title}</h5>
                       <div className="flex flex-wrap gap-2 mb-2">

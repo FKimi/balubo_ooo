@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { fetcher } from '@/utils/fetcher'
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -29,12 +28,19 @@ export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
 
   const fetchProfile = useCallback(async () => {
-    if (!user) {
+    // 認証が完了していない場合は何もしない
+    if (authLoading) {
+      return
+    }
+
+    // ユーザーが存在しない場合は状態をリセット
+    if (!user?.id) {
       setProfile(null)
       setLoading(false)
+      setError(null)
       return
     }
 
@@ -42,25 +48,52 @@ export function useProfile() {
       setLoading(true)
       setError(null)
 
-      const data = await fetcher<{ profile: Profile }>('/api/profile')
-      setProfile(data.profile)
+      console.log('[useProfile] プロフィール取得開始:', user.id)
+      
+      // 直接Supabaseからプロフィールを取得（より高速）
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // プロフィールが存在しない場合
+          console.log('[useProfile] プロフィールが存在しません')
+          setProfile(null)
+          return
+        }
+        throw error
+      }
+      
+      console.log('[useProfile] プロフィール取得成功:', data)
+      setProfile(data)
     } catch (err) {
-      console.error('プロフィール取得エラー:', err)
-      setError(err instanceof Error ? err.message : 'プロフィール取得でエラーが発生しました')
+      console.error('[useProfile] プロフィール取得エラー:', err)
+      const errorMessage = err instanceof Error ? err.message : 'プロフィール取得でエラーが発生しました'
+      
+      // 認証エラーの場合は、プロフィールをnullにして静かに失敗
+      if (errorMessage.includes('認証が必要です') || errorMessage.includes('認証トークン')) {
+        console.log('[useProfile] 認証エラーによりプロフィール取得をスキップ')
+        setProfile(null)
+        setError(null) // 認証エラーは表示しない
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user?.id, authLoading])
 
   useEffect(() => {
-    if (user) {
-      fetchProfile()
-    }
-  }, [user?.id]) // user.idの変更時のみ実行
+    fetchProfile()
+  }, [fetchProfile])
 
   return {
     profile,
-    loading,
+    loading: authLoading || loading, // 認証中も含めてローディング状態とする
     error,
     refetch: fetchProfile
   }

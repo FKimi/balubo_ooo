@@ -41,7 +41,6 @@ export default function SettingsPage() {
     
     try {
       // TODO: アカウント情報更新API呼び出し
-      console.log('Updating account:', accountData)
       
       // 成功メッセージ表示
       alert('アカウント情報を更新しました')
@@ -65,7 +64,6 @@ export default function SettingsPage() {
     
     try {
       // TODO: パスワード変更API呼び出し
-      console.log('Changing password')
       
       // パスワードフィールドをクリア
       setAccountData(prev => ({
@@ -91,7 +89,6 @@ export default function SettingsPage() {
     
     try {
       // TODO: プライバシー設定更新API呼び出し
-      console.log('Updating privacy settings:', privacySettings)
       
       alert('プライバシー設定を更新しました')
     } catch (error) {
@@ -115,7 +112,6 @@ export default function SettingsPage() {
     
     try {
       // TODO: アカウント削除API呼び出し
-      console.log('Deleting account')
       
       // ログアウトしてトップページにリダイレクト
       await signOut()

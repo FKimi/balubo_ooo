@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseManager } from './supabase-client'
+import { createClient } from '@supabase/supabase-js'
+
+// Server-side用のSupabaseクライアント（認証専用）
+const supabaseAuth = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false
+    }
+  }
+)
 
 /**
  * API共通エラーレスポンス
@@ -27,10 +40,12 @@ export function createSuccessResponse(data: any, status = 200) {
  */
 export function getAuthToken(req: NextRequest): string | null {
   const authHeader = req.headers.get('authorization')
+  console.log('[API-Utils] Authorization Header:', authHeader ? '存在します' : '存在しません', authHeader)
   if (!authHeader) {
     return null
   }
   const token = authHeader.split(' ')[1]
+  console.log('[API-Utils] Extracted Token (first 10 chars):', token ? token.substring(0, 10) + '...' : 'なし')
   return token || null
 }
 
@@ -39,20 +54,30 @@ export function getAuthToken(req: NextRequest): string | null {
  */
 export async function withAuth<T>(
   request: NextRequest,
-  handler: (userId: string, token: string) => Promise<T>
+  handler: (_userId: string, _token: string) => Promise<T>
 ): Promise<NextResponse<T> | NextResponse<{ error: string }>> {
   try {
     const token = getAuthToken(request)
+    console.log('[API-Utils] withAuth: Token from getAuthToken:', token ? token.substring(0, 10) + '...' : 'なし')
     if (!token) {
+      console.error('[API-Utils] withAuth: 認証トークンがありません')
       return createErrorResponse('認証トークンが必要です', 401)
     }
 
-    const { userId } = await supabaseManager.verifyToken(token)
-    const result = await handler(userId, token)
+    // Supabaseでトークンを検証
+    const { data: { user }, error } = await supabaseAuth.auth.getUser(token)
+    console.log('[API-Utils] withAuth: Supabase getUser結果:', { userExists: !!user, authError: error?.message })
+    if (error || !user) {
+      console.error('[API-Utils] withAuth: 認証検証エラー:', error?.message || '不明なエラー')
+      console.error('[API-Utils] withAuth: ユーザー情報:', user)
+      return createErrorResponse('認証に失敗しました', 401)
+    }
+
+    const result = await handler(user.id, token)
     
     return createSuccessResponse(result)
   } catch (error) {
-    console.error('API認証エラー:', error)
+    console.error('[API-Utils] withAuth: API認証エラー:', error)
     return createErrorResponse(
       error instanceof Error ? error.message : '認証に失敗しました',
       401
@@ -65,19 +90,24 @@ export async function withAuth<T>(
  */
 export async function withOptionalAuth<T>(
   request: NextRequest,
-  handler: (userId: string | null, token: string | null) => Promise<T>
+  handler: (_userId: string | null, _token: string | null) => Promise<T>
 ): Promise<NextResponse<T> | NextResponse<{ error: string }>> {
   try {
     const token = getAuthToken(request)
     let userId: string | null = null
 
+    console.log('[API-Utils] withOptionalAuth: Token from getAuthToken:', token ? token.substring(0, 10) + '...' : 'なし')
+
     if (token) {
       try {
-        const authResult = await supabaseManager.verifyToken(token)
-        userId = authResult.userId
+        const { data: { user }, error } = await supabaseAuth.auth.getUser(token)
+        console.log('[API-Utils] withOptionalAuth: Supabase getUser結果:', { userExists: !!user, authError: error?.message })
+        if (!error && user) {
+          userId = user.id
+        }
       } catch (authError) {
         // 認証エラーでも処理を続行（匿名アクセス）
-        console.warn('認証トークンが無効ですが、匿名アクセスとして続行します:', authError)
+        console.warn('[API-Utils] withOptionalAuth: 認証トークンが無効ですが、匿名アクセスとして続行します:', authError)
       }
     }
 

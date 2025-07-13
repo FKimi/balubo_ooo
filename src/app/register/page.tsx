@@ -141,7 +141,7 @@ export default function RegisterPage() {
     setIsLoading(true)
     
     try {
-      const { data, error } = await signInWithGoogle()
+      const { data: _data, error } = await signInWithGoogle()
 
       // ガード節：エラー時は早期return
       if (error) {

@@ -20,22 +20,29 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 // 通知一覧取得
 export async function GET(request: NextRequest) {
   try {
+    console.log('通知API: リクエスト開始')
+    
     const authHeader = request.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
+      console.log('通知API: 認証ヘッダーがありません')
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
     }
 
     const token = authHeader.split(' ')[1]
     if (!token) {
+      console.log('通知API: トークンがありません')
       return NextResponse.json({ error: 'トークンが必要です' }, { status: 401 })
     }
     
     const decoded = jwt.decode(token) as any
     if (!decoded?.sub) {
+      console.log('通知API: 無効なトークンです')
       return NextResponse.json({ error: '無効なトークンです' }, { status: 401 })
     }
 
     const userId = decoded.sub
+    console.log('通知API: ユーザーID確認', { userId })
+    
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
@@ -65,7 +72,7 @@ export async function GET(request: NextRequest) {
       console.error('未読件数取得エラー:', countError)
     }
 
-    return NextResponse.json({
+    const result = {
       notifications: notifications || [],
       unreadCount: unreadCount || 0,
       pagination: {
@@ -73,7 +80,14 @@ export async function GET(request: NextRequest) {
         limit,
         hasMore: (notifications?.length || 0) === limit
       }
+    }
+
+    console.log('通知API: レスポンス', { 
+      notificationsCount: result.notifications.length,
+      unreadCount: result.unreadCount 
     })
+
+    return NextResponse.json(result)
 
   } catch (error) {
     console.error('通知取得エラー:', error)

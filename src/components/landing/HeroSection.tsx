@@ -32,7 +32,7 @@ export default function HeroSection() {
     return () => clearInterval(stepInterval)
   }, [prefersReducedMotion])
 
-  const analysisSteps = [
+  const _analysisSteps = [
     { label: '概要', color: 'blue', content: '経営戦略をテーマにした深い洞察を提供する記事。業界の第一人者へのインタビューを通じて、読者に実践的な価値を提供' },
     { label: '強み分析', color: 'purple', content: '独自の視点から業界動向を分析し、深い経営知識と実践的なインサイトを提供' },
     { label: 'タグ生成', color: 'green', content: 'リーダーシップ、経営戦略、インタビューなどの関連タグを自動生成' }

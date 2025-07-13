@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { AIAnalysisDetailModal } from '@/features/work/components/AIAnalysisDetailModal'
-import { ShareSuccessToast } from '@/features/social/components/ShareModal'
-import { shareToTwitter } from '@/utils/socialShare'
+import { ShareModal } from '@/features/social/components/ShareModal'
 import { ArrowLeft, Sparkles, X } from 'lucide-react'
 import { AIAnalysisResult } from '@/types/work'
 import { supabase } from '@/lib/supabase'
@@ -508,9 +507,10 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   const [uploadedFiles] = useState<File[]>([])
   const [articleContent, setArticleContent] = useState('')
   const [useFullContent, setUseFullContent] = useState(false)
-  const [showShareToast, setShowShareToast] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
   const [savedWorkData, setSavedWorkData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('description')
+  const [userDisplayName, setUserDisplayName] = useState<string>('')
 
   // 定義済みの役割
   const predefinedRoles = ['編集', '撮影', '企画', '取材', '執筆', 'デザイン']
@@ -810,6 +810,16 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         return
       }
 
+      // ユーザー名を取得
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('display_name, full_name')
+        .eq('id', user.id)
+        .single()
+      
+      const displayName = profileData?.display_name || profileData?.full_name || user.email?.split('@')[0] || 'ユーザー'
+      setUserDisplayName(displayName)
+
       const { data, error } = await supabase
         .from('works')
         .insert({
@@ -826,46 +836,26 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
       }
 
       console.log('Work saved successfully:', data)
+      console.log(`記事文字数: ${articleStats.article_word_count}文字`)
       
-      // 記事の場合、文字数も表示
-      if (contentType === 'article' && articleStats.article_word_count > 0) {
-        console.log(`記事文字数: ${articleStats.article_word_count}文字`)
-      }
-
-      // AI分析の保存（分析結果がある場合）
-      if (analysisResult && data.id) {
-        const { error: analysisError } = await supabase
-          .from('works')
-          .update({ ai_analysis_result: analysisResult })
-          .eq('id', data.id)
-
-        if (analysisError) {
-          console.error('AI分析結果の保存エラー:', analysisError)
-          console.error('エラー詳細:', {
-            code: analysisError.code,
-            message: analysisError.message,
-            details: analysisError.details,
-            hint: analysisError.hint
-          })
-        } else {
-          console.log('AI分析結果を正常に保存しました')
-        }
-      }
-
-      // 共有トーストを表示（保存したデータを設定）
+      // 保存されたデータを設定
       setSavedWorkData(data)
-      setShowShareToast(true)
-
-      // 3秒後にプロフィールページに遷移
-      setTimeout(() => {
-        router.push('/profile')
-      }, 3000)
+      
+      // シェアモーダルを表示（一時的に無効化）
+      // setShowShareModal(true)
+      
+      // 保存成功後、プロフィールページに遷移
+      router.push('/profile')
 
     } catch (error) {
-      console.error('Submit error:', error)
-      alert('エラーが発生しました')
+      console.error('Work save error:', error)
+      alert('作品の保存に失敗しました')
+    } finally {
+      setIsAnalyzing(false)
     }
   }
+
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1518,18 +1508,17 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         contentType="article"
       />
 
-      {/* 共有トースト */}
-      <ShareSuccessToast
-        isOpen={showShareToast}
-        onClose={() => setShowShareToast(false)}
-        type="work"
-        onShare={() => {
-          if (savedWorkData) {
-            shareToTwitter('work', savedWorkData)
-            setShowShareToast(false)
-            router.push('/profile')
-          }
+      {/* 共有モーダル */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => {
+          setShowShareModal(false)
+          // 共有ポップアップを閉じた時にプロフィールページに遷移
+          router.push('/profile')
         }}
+        type="work"
+        data={savedWorkData || {}}
+        userDisplayName={userDisplayName}
       />
     </div>
   )

@@ -30,8 +30,6 @@ export function FollowModal({ isOpen, onClose, userId, initialTab }: FollowModal
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      console.log('フォローデータ取得開始:', userId)
-      
       const [followersData, followingData] = await Promise.all([
         fetcher<User[]>(`/api/connections/followers?userId=${userId}`),
         fetcher<User[]>(`/api/connections/following?userId=${userId}`),

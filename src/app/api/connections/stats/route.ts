@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const targetUserId = searchParams.get('userId')
 
+    console.log('フォロー統計API: リクエスト開始', { targetUserId })
+
     if (!targetUserId) {
       return NextResponse.json({ error: 'ユーザーIDが必要です' }, { status: 400 })
     }
@@ -59,10 +61,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'フォロー中数の取得に失敗しました' }, { status: 500 })
     }
 
-    return NextResponse.json({
+    const result = {
       followerCount: followerCount || 0,
       followingCount: followingCount || 0
-    })
+    }
+
+    console.log('フォロー統計API: レスポンス', result)
+
+    return NextResponse.json(result)
 
   } catch (error) {
     console.error('フォロー統計取得エラー:', error)

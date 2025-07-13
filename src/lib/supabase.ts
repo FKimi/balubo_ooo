@@ -1,19 +1,13 @@
-import { supabaseManager } from './supabase-client'
+import { supabase as supabaseClient } from './supabase-client'
 
 // 後方互換性のためのサポート
-export const supabase = supabaseManager.getStandardClient()
+export const supabase = supabaseClient
 
 const isSupabaseConfigured = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL && 
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && 
   process.env.NEXT_PUBLIC_SUPABASE_URL !== 'your-project-url-here'
 )
-
-console.log('Supabase設定状況:', {
-  url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  keyConfigured: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-  isConfigured: isSupabaseConfigured
-})
 
 // 認証関連のヘルパー関数
 export const auth = {
@@ -66,16 +60,6 @@ export const auth = {
 
     const redirectURL = `${siteUrl}/auth/callback`
 
-    // ★★★ デバッグログ ★★★
-    console.log('[Supabase Auth] Googleサインイン試行開始:', {
-      siteUrl,
-      redirectURL,
-      windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'サーバーサイド',
-      envSiteUrl: process.env.NEXT_PUBLIC_SITE_URL,
-      vercelUrl: process.env.VERCEL_URL,
-      currentPath: typeof window !== 'undefined' ? window.location.pathname : 'サーバーサイド'
-    })
-
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -89,21 +73,11 @@ export const auth = {
     })
     
     if (error) {
-      console.error('[Supabase Auth] Googleサインインエラー:', {
-        error,
-        code: error.code,
-        message: error.message,
-        details: error
-      })
-    } else {
-      console.log('[Supabase Auth] Googleサインイン成功:', { 
-        hasData: !!data,
-        dataUrl: data?.url,
-        dataProvider: data?.provider
-      })
+      console.error('[Supabase Auth] Googleサインインエラー:', error)
+      throw error
     }
-    
-    return { data, error }
+
+    return data
   },
 
   // ログアウト
@@ -125,7 +99,7 @@ export const auth = {
   },
 
   // 認証状態の変更を監視
-  onAuthStateChange: (callback: (event: string, session: any) => void) => {
+  onAuthStateChange: (callback: (_event: string, _session: any) => void) => {
     if (!isSupabaseConfigured) {
       return { data: { subscription: { unsubscribe: () => {} } } }
     }
@@ -135,5 +109,5 @@ export const auth = {
 
 // ブラウザから利用する際に共通インスタンスを返すヘルパー
 export function getSupabaseBrowserClient() {
-  return supabaseManager.getStandardClient()
+  return supabaseClient
 } 

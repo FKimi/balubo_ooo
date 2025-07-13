@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 記事統計を取得
-    const { data: articleStats, error: statsError } = await supabase
+    const { data: _articleStats, error: statsError } = await supabase
       .from('user_article_stats')
       .select('*')
       .eq('user_id', user.id)

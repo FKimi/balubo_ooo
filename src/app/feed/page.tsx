@@ -16,6 +16,19 @@ import { EmptyState } from '@/components/common'
 import { TabNavigation } from '@/components/ui/TabNavigation'
 import { Skeleton } from '@/components/ui'
 
+// Supabaseクライアントをコンポーネント外で初期化
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase環境変数が設定されていません')
+}
+
+const supabase = createClient(
+  supabaseUrl || '',
+  supabaseAnonKey || ''
+)
+
 interface User {
   id: string
   display_name: string
@@ -56,115 +69,88 @@ export default function FeedPage() {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [comments, setComments] = useState<any[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
+  const [_stats, setStats] = useState({ total: 0, works: 0, inputs: 0, unique_users: 0 })
+  const [_total, setTotal] = useState(0)
 
   const router = useRouter()
   
-  // Supabase環境変数の確認
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase環境変数が設定されていません')
-    // フォールバック処理または早期リターン
-  }
-  
-  const supabase = createClient(
-    supabaseUrl || '',
-    supabaseAnonKey || ''
-  )
-
   useEffect(() => {
-    async function checkAuthAndFetchFeed() {
+    const checkAuthAndFetchFeed = async () => {
       const startTime = Date.now()
+      console.log('フィード画面: データ取得開始')
       
       try {
-        setLoading(true)
-        setError(null)
-        console.log('=== フィード画面: データ取得開始 ===')
-
-        // 認証状態を確認（タイムアウト付き）
-        let authToken = null
-        try {
-          const authPromise = supabase.auth.getSession()
-          const authTimeout = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('認証確認タイムアウト')), 5000)
-          })
-          
-          const { data: { session }, error: sessionError } = await Promise.race([
-            authPromise, 
-            authTimeout
-          ]) as any
-          
-          if (session && session.access_token && !sessionError) {
-            setIsAuthenticated(true)
-            setCurrentUser(session.user)
-            authToken = session.access_token
-            console.log('フィード画面: 認証ユーザー確認済み')
-          }
-        } catch (authError) {
-          console.log('フィード画面: 認証確認エラー（続行）:', authError)
-        }
-
-        // フィードデータを取得（タイムアウト付き）
-        const headers: HeadersInit = {
-          'Content-Type': 'application/json'
-        }
+        // 認証状態を確認
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
         
-        if (authToken) {
-          headers['Authorization'] = `Bearer ${authToken}`
+        if (authError) {
+          console.error('フィード画面: 認証エラー:', authError)
+          setError('認証エラーが発生しました')
+          return
         }
 
-        const fetchPromise = fetch('/api/feed', {
+        // 認証状態を設定
+        setIsAuthenticated(!!user)
+        setCurrentUser(user)
+
+        console.log('フィード画面: 認証確認完了、フィードデータ取得開始', { isAuthenticated: !!user })
+
+        // フィードデータを取得（タイムアウトを20秒に延長）
+        const feedTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('フィード取得タイムアウト')), 20000) // 20秒に延長
+        })
+
+        const feedPromise = fetch('/api/feed', {
           method: 'GET',
-          headers
-        })
-        
-        const fetchTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('フィード取得タイムアウト')), 15000)
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
         })
 
-        const response = await Promise.race([fetchPromise, fetchTimeout]) as Response
+        const response = await Promise.race([feedPromise, feedTimeout]) as Response
 
         if (!response.ok) {
-          throw new Error(`フィードの取得に失敗しました: ${response.status} ${response.statusText}`)
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        const data = await response.json()
+        const feedData = await response.json()
         
-        if (data.error) {
-          throw new Error(data.error)
-        }
-
         const processingTime = Date.now() - startTime
-        console.log('=== フィード画面: データ取得成功 ===', {
-          items: data.items?.length || 0,
-          debug: data.debug,
+        console.log('フィード画面: データ取得成功', {
+          items: feedData.items?.length || 0,
           processingTime: `${processingTime}ms`
         })
 
-        // データが空でも正常として扱う（エラーではない）
-        setFeedItems(data.items || [])
-        
-        if (!data.items || data.items.length === 0) {
-          console.log('フィード画面: データが空です - 新しい作品・インプットを追加してください')
+        if (feedData.items && Array.isArray(feedData.items)) {
+          setFeedItems(feedData.items)
+          setStats(feedData.stats || { total: 0, works: 0, inputs: 0, unique_users: 0 })
+          setTotal(feedData.total || 0)
+          setError(null)
+        } else {
+          console.warn('フィード画面: 無効なデータ形式:', feedData)
+          setFeedItems([])
+          setStats({ total: 0, works: 0, inputs: 0, unique_users: 0 })
+          setTotal(0)
+          setError('データ形式エラー')
         }
-        
+
       } catch (error) {
         const processingTime = Date.now() - startTime
         console.error('フィード画面: データ取得エラー:', error)
-        console.error('処理時間:', `${processingTime}ms`)
+        console.log('処理時間:', processingTime)
         
-        setError(error instanceof Error ? error.message : 'フィードの取得中にエラーが発生しました')
-        
-        // エラー時は空の配列を設定（フォールバックデータは削除）
+        setError(error instanceof Error ? error.message : 'データ取得エラー')
         setFeedItems([])
+        setStats({ total: 0, works: 0, inputs: 0, unique_users: 0 })
+        setTotal(0)
       } finally {
         setLoading(false)
       }
     }
 
     checkAuthAndFetchFeed()
-  }, [supabase.auth])
+  }, [])
 
   const filteredItems = feedItems.filter(item => {
     if (activeTab === 'works') return item.type === 'work'
@@ -190,79 +176,90 @@ export default function FeedPage() {
     return date.toLocaleDateString('ja-JP')
   }
 
-  // 特定アイテムの最新データ（いいね数・コメント数・いいね状態）を取得
-  const fetchItemStats = async (itemId: string) => {
+  // いいね処理
+  const handleLike = async (itemId: string, itemType: 'work' | 'input') => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const authToken = session?.access_token
 
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json'
-      }
-      
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`
+      if (!authToken) {
+        router.push('/login')
+        return
       }
 
-      // いいね数・状態を取得
-      const likesResponse = await fetch(`/api/likes?workId=${itemId}`, {
-        headers
-      })
+      // 対象アイテムの現在の状態を確認
+      const targetItem = feedItems.find(item => item.id === itemId)
+      if (!targetItem) {
+        console.error('対象アイテムが見つかりません:', itemId)
+        return
+      }
 
-      if (likesResponse.ok) {
-        const likesData = await likesResponse.json()
-        
-        // フィードアイテムの状態を更新
-        setFeedItems(prev => prev.map(item => 
-          item.id === itemId 
-            ? { 
-                ...item, 
-                likes_count: likesData.count || 0,
-                user_has_liked: likesData.isLiked || false
-              }
-            : item
-        ))
+      const isCurrentlyLiked = targetItem.user_has_liked
 
-        // 選択中のアイテムも更新
-        if (selectedItem && selectedItem.id === itemId) {
-          setSelectedItem(prev => prev ? {
-            ...prev,
-            likes_count: likesData.count || 0,
-            user_has_liked: likesData.isLiked || false
-          } : null)
+      if (isCurrentlyLiked) {
+        // いいね削除
+        const response = await fetch(`/api/likes?workId=${itemId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        })
+
+        if (response.ok) {
+          // 楽観的更新
+          setFeedItems(prev => prev.map(item => 
+            item.id === itemId 
+              ? { 
+                  ...item, 
+                  likes_count: Math.max(0, (item.likes_count || 0) - 1),
+                  user_has_liked: false
+                }
+              : item
+          ))
+        } else {
+          console.error('いいね削除エラー:', response.status)
         }
-      }
+      } else {
+        // いいね追加
+        const response = await fetch('/api/likes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({
+            workId: itemId,
+            targetType: itemType
+          })
+        })
 
-      // コメント数を取得
-      const commentsResponse = await fetch(`/api/comments?workId=${itemId}`, {
-        headers
-      })
-
-      if (commentsResponse.ok) {
-        const commentsData = await commentsResponse.json()
-        
-        // フィードアイテムのコメント数を更新
-        setFeedItems(prev => prev.map(item => 
-          item.id === itemId 
-            ? { 
-                ...item, 
-                comments_count: commentsData.count || 0
-              }
-            : item
-        ))
-
-        // 選択中のアイテムも更新
-        if (selectedItem && selectedItem.id === itemId) {
-          setSelectedItem(prev => prev ? {
-            ...prev,
-            comments_count: commentsData.count || 0
-          } : null)
+        if (response.ok) {
+          // 楽観的更新
+          setFeedItems(prev => prev.map(item => 
+            item.id === itemId 
+              ? { 
+                  ...item, 
+                  likes_count: (item.likes_count || 0) + 1,
+                  user_has_liked: true
+                }
+              : item
+          ))
+        } else {
+          const errorData = await response.json()
+          console.error('いいね追加エラー:', response.status, errorData)
         }
       }
     } catch (error) {
-      console.error('アイテム統計取得エラー:', error)
+      console.error('いいね処理ネットワークエラー:', error)
     }
   }
+
+  
 
   // コメント一覧を取得
   const fetchComments = async (itemId: string) => {
@@ -295,88 +292,6 @@ export default function FeedPage() {
       setComments([])
     } finally {
       setLoadingComments(false)
-    }
-  }
-
-  // いいね機能（修正版）
-  const handleLike = async (itemId: string, isCurrentlyLiked: boolean) => {
-    if (!isAuthenticated) {
-      router.push('/auth')
-      return
-    }
-
-    // 対象アイテムの情報を取得
-    const targetItem = feedItems.find(item => item.id === itemId)
-    if (!targetItem) {
-      alert('対象のアイテムが見つかりません')
-      return
-    }
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token
-
-      if (!authToken) {
-        router.push('/auth')
-        return
-      }
-
-      const url = isCurrentlyLiked ? `/api/likes?workId=${itemId}` : '/api/likes'
-      const method = isCurrentlyLiked ? 'DELETE' : 'POST'
-      
-      const fetchOptions: RequestInit = {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
-      }
-
-      if (!isCurrentlyLiked) {
-        fetchOptions.body = JSON.stringify({ 
-          workId: itemId,
-          targetType: targetItem.type // 'work' または 'input'
-        })
-      }
-
-      const response = await fetch(url, fetchOptions)
-
-      if (response.ok) {
-        // 楽観的更新
-        setFeedItems(prev => prev.map(item => 
-          item.id === itemId 
-            ? { 
-                ...item, 
-                user_has_liked: !isCurrentlyLiked,
-                likes_count: (item.likes_count || 0) + (isCurrentlyLiked ? -1 : 1)
-              }
-            : item
-        ))
-
-        // 選択中のアイテムも更新
-        if (selectedItem && selectedItem.id === itemId) {
-          setSelectedItem(prev => prev ? {
-            ...prev,
-            user_has_liked: !isCurrentlyLiked,
-            likes_count: (prev.likes_count || 0) + (isCurrentlyLiked ? -1 : 1)
-          } : null)
-        }
-
-        // 最新データを取得して正確な数値に更新
-        setTimeout(() => fetchItemStats(itemId), 500)
-      } else {
-        const errorData = await response.json()
-        console.error('いいねAPIエラー:', {
-          status: response.status,
-          errorData,
-          itemId,
-          isCurrentlyLiked
-        })
-        alert(`いいね操作に失敗しました: ${errorData.details || errorData.error || 'Unknown error'}`)
-      }
-    } catch (error) {
-      console.error('いいねネットワークエラー:', error)
-      alert('ネットワークエラーが発生しました')
     }
   }
 
@@ -441,7 +356,7 @@ export default function FeedPage() {
         await fetchComments(itemId)
         
         // 最新のコメント数を取得
-        setTimeout(() => fetchItemStats(itemId), 500)
+        // setTimeout(() => fetchItemStats(itemId), 500) // この行は削除
       } else {
         const errorData = await response.json()
         console.error('コメントAPIエラー:', {
@@ -782,7 +697,7 @@ export default function FeedPage() {
                       }`}
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleLike(item.id, item.user_has_liked || false)
+                        handleLike(item.id, item.type)
                       }}
                     >
                       <svg className={`h-5 w-5 transition-transform group-hover:scale-110 ${
@@ -955,7 +870,7 @@ export default function FeedPage() {
                         ? 'text-red-500' 
                         : 'text-gray-500 hover:text-red-500'
                     }`}
-                    onClick={() => handleLike(selectedItem.id, selectedItem.user_has_liked || false)}
+                    onClick={() => handleLike(selectedItem.id, selectedItem.type)}
                   >
                     <svg className={`h-5 w-5 ${
                       selectedItem.user_has_liked ? 'fill-current' : ''

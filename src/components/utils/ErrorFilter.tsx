@@ -21,7 +21,9 @@ export function ErrorFilter() {
       'Could not establish connection. Receiving end does not exist',
       'chrome-extension://',
       'moz-extension://',
-      'Non-Error promise rejection captured'
+      'Non-Error promise rejection captured',
+      'Too many channels',
+      'ERR_INSUFFICIENT_RESOURCES'
     ]
 
     // エラーをフィルタリングする関数
@@ -81,8 +83,6 @@ export function ErrorFilter() {
     }
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection)
-
-    console.log('🔧 エラーフィルター初期化完了 - Chrome拡張機能エラーを抑制中')
 
     // クリーンアップ関数
     return () => {

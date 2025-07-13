@@ -77,7 +77,7 @@ const contentTypes: ContentType[] = [
 
 export function ContentTypeSelector({ isOpen, onClose }: ContentTypeSelectorProps) {
   const router = useRouter()
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [_selectedType, setSelectedType] = useState<string | null>(null)
 
   const handleSelect = (contentType: string) => {
     setSelectedType(contentType)

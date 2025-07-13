@@ -4,18 +4,18 @@ import { Button } from '@/components/ui/button'
 interface ContentTypeFormProps {
   contentType: string
   formData: any
-  handleInputChange: (field: string, value: string) => void
+  handleInputChange: (_field: string, _value: string) => void
   newTag: string
-  setNewTag: (value: string) => void
+  setNewTag: (_value: string) => void
   addTag: () => void
   removeTag: (tag: string) => void
   newRole: string
-  setNewRole: (value: string) => void
-  addRole: (role: string) => void
+  setNewRole: (_value: string) => void
+  addRole: (_role: string) => void
   addCustomRole: () => void
   removeRole: (role: string) => void
   newCategory: string
-  setNewCategory: (value: string) => void
+  setNewCategory: (_value: string) => void
   addCategory: () => void
   removeCategory: (category: string) => void
 }
@@ -23,7 +23,7 @@ interface ContentTypeFormProps {
 // 記事・ライティング用フォーム
 export function ArticleForm({ 
   formData, 
-  handleInputChange, 
+  handleInputChange: _handleInputChange, 
   newTag, 
   setNewTag, 
   addTag, 
@@ -177,7 +177,7 @@ export function ArticleForm({
 // デザイン用フォーム
 export function DesignForm({ 
   formData, 
-  handleInputChange, 
+  handleInputChange: _handleInputChange, 
   newTag, 
   setNewTag, 
   addTag, 
@@ -331,7 +331,7 @@ export function DesignForm({
 // 他のコンテンツタイプの基本フォーム（共通フォーム）
 export function DefaultContentForm({ 
   formData, 
-  handleInputChange, 
+  handleInputChange: _handleInputChange, 
   newTag, 
   setNewTag, 
   addTag, 
@@ -341,7 +341,7 @@ export function DefaultContentForm({
   addRole,
   removeRole
 }: ContentTypeFormProps) {
-  const predefinedRoles = ['企画', '制作', '編集', 'ディレクション', 'プロデュース', 'マネジメント']
+  const _predefinedRoles = ['企画', '制作', '編集', 'ディレクション', 'プロデュース', 'マネジメント']
 
   return (
     <div className="space-y-6">

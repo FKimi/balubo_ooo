@@ -5,7 +5,7 @@ import { WorkData } from '@/types/work'
 
 interface SortableWorkCardProps {
   work: WorkData
-  onDelete: (workId: string) => void
+  onDelete: (_workId: string) => void
   isDraggable: boolean
 }
 

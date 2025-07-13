@@ -43,10 +43,12 @@ export function WordCloud({
         maxSize={maxSize}
         tags={tagCloudData}
         className="word-cloud"
-        onClick={(tag: any) => console.log('clicking on tag:', tag)}
-        renderer={(tag: any, size: number, color: string) => (
+        onClick={(_tag: any) => {
+          // タグクリック時の処理（必要に応じて実装）
+        }}
+        renderer={(_tag: any, size: number, color: string) => (
           <span
-            key={tag.value}
+            key={_tag.value}
             style={{
               animation: `blinker 3s linear infinite, float 4s ease-in-out infinite`,
               animationDelay: `${Math.random() * 2}s, ${Math.random() * 2}s`,
@@ -72,7 +74,7 @@ export function WordCloud({
               e.currentTarget.style.zIndex = 'auto'
             }}
           >
-            {tag.value}
+            {_tag.value}
           </span>
         )}
       />

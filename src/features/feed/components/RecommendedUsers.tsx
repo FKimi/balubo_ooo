@@ -32,14 +32,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
     router.push(`/share/profile/${userId}`)
   }, [router])
 
-  const handleFollowClick = useCallback((userId: string, displayName: string) => {
-    if (!isAuthenticated) {
-      router.push('/auth')
-      return
-    }
-    // フォロー機能は実際のプロフィールページで実装されているため、プロフィールページへ遷移
-    router.push(`/share/profile/${userId}`)
-  }, [isAuthenticated, router])
+  
 
   // メモ化された検索パラメータ
   const searchParams = useMemo(() => ({

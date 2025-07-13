@@ -8,7 +8,6 @@ import type { InputData } from '@/types/input'
 interface InputCardProps {
   input: InputData
   linkPath?: string
-  isPublic?: boolean
 }
 
 export function InputCard({ input, linkPath, isPublic = false }: InputCardProps) {

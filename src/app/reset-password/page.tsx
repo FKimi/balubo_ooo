@@ -17,7 +17,7 @@ function ResetPasswordForm() {
   const [error, setError] = useState('')
   
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const _searchParams = useSearchParams()
 
   useEffect(() => {
     // URLからアクセストークンを確認

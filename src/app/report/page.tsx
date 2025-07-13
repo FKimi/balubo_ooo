@@ -248,15 +248,15 @@ function ReportContent() {
   ]
   
   // デバッグ用：統計を確認
-  console.log('レポートページ統計:', {
-    works: works.length,
-    inputs: inputs.length,
-    workStats: {
-      totalWorks: workStats.totalWorks,
-      totalWordCount: workStats.totalWordCount,
-      roleDistribution: workStats.roleDistribution.length
-    }
-  })
+  // console.log('レポートページ統計:', {
+  //   works: works.length,
+  //   inputs: inputs.length,
+  //   workStats: {
+  //     totalWorks: workStats.totalWorks,
+  //     totalWordCount: workStats.totalWordCount,
+  //     roleDistribution: workStats.roleDistribution.length
+  //   }
+  // })
 
   // 認証ヘッダーを取得するヘルパー関数
   const getAuthHeaders = async (): Promise<Record<string, string>> => {
@@ -348,19 +348,15 @@ function ReportContent() {
         }
 
         const worksData = await worksResponse.json()
-        console.log('取得した作品データ:', worksData)
         // APIレスポンスの構造に応じて配列を抽出
         const worksArray = Array.isArray(worksData) ? worksData : (worksData?.works || [])
         setWorks(worksArray)
-        console.log('設定した作品配列:', worksArray.length, '件')
 
         if (inputsResponse.ok) {
           const inputsData = await inputsResponse.json()
-          console.log('取得したインプットデータ:', inputsData)
           // APIレスポンスの構造に応じて配列を抽出
           const inputsArray = Array.isArray(inputsData) ? inputsData : (inputsData?.inputs || [])
           setInputs(inputsArray)
-          console.log('設定したインプット配列:', inputsArray.length, '件')
         }
 
       } catch (error) {

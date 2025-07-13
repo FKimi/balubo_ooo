@@ -9,8 +9,8 @@ import { SortableWorkCard } from './SortableWorkCard'
 
 interface FeaturedWorksSectionProps {
   savedWorks: WorkData[]
-  setSavedWorks: (works: WorkData[]) => void
-  deleteWork: (workId: string) => void
+  setSavedWorks: (_works: WorkData[]) => void
+  deleteWork: (_workId: string) => void
 }
 
 export function FeaturedWorksSection({ 
@@ -43,7 +43,7 @@ export function FeaturedWorksSection({
       // featured_orderを更新
       const updatedFeatured = reorderedFeatured.map((work, index) => ({
         ...work,
-        featured_order: index + 1
+        _featured_order: index + 1
       }))
 
       // 全作品リストを更新

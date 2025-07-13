@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
 import { createNotification } from '@/lib/notificationUtils'
 
@@ -14,9 +13,7 @@ if (!supabaseServiceKey) {
   throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required')
 }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { persistSession: false }
-})
+
 
 // テスト用通知を作成
 export async function POST(request: NextRequest) {
