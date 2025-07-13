@@ -303,13 +303,22 @@ export function FeaturedWorksSection({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div 
+          className={`grid gap-6 ${
+            featuredWorks.length === 1
+              ? 'grid-cols-1 max-w-2xl mx-auto'
+              : featuredWorks.length === 2
+              ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          }`}
+        >
           {featuredWorks.map((work) => (
             <div key={work.id} className="relative">
               <WorkCard
                 work={work}
                 onDelete={deleteWork}
                 isDraggable={false}
+                isFeatured={true} // isFeaturedプロップを追加
               />
             </div>
           ))}
