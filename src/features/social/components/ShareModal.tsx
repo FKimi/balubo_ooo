@@ -115,7 +115,7 @@ export function ShareModal({ isOpen, onClose, type, data, userDisplayName }: Sha
 interface ShareSuccessToastProps {
   isOpen: boolean
   onClose: () => void
-  type: 'work' | 'input'
+  type: 'work' | 'input' | 'profile'
   onShare: () => void
 }
 
