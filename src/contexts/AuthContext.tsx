@@ -203,11 +203,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       const result = await auth.signInWithGoogle()
-      console.log('[AuthContext] Googleサインイン結果:', { hasData: !!result.data, hasError: !!result.error })
       
       // OAuthの場合は通常リダイレクトが発生するため、userは即座には取得できない
-      // 成功の場合はdataにはOAuth情報が含まれるが、userは含まれない
-      if (result.error) {
+      // 成功の場合は{ provider, url }が返される
+      if ('error' in result && result.error) {
         console.error('[AuthContext] Googleサインインエラー:', getErrorMessage(result.error))
         return { 
           data: null, 
