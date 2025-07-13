@@ -282,7 +282,7 @@ export function InsightsSection({ works, inputs, workStats }: InsightsSectionPro
           </CardHeader>
           <CardContent className="pt-0">
             <div className="space-y-3">
-              {suggestions.map((suggestion, _index) => (
+              {suggestions.map((suggestion, index) => (
                 <div 
                   key={index} 
                   className={`rounded-lg p-4 border-l-4 ${
