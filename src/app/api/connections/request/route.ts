@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
-import { 
-  createConnectionRequestNotification,
-  createConnectionApprovedNotification,
-  createConnectionDeclinedNotification
-} from '@/lib/notificationUtils'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -101,12 +96,25 @@ export async function POST(request: NextRequest) {
     // 通知を作成
     try {
       console.log('つながり申請通知作成直前', { requesterId, requesteeId, requesterName })
-      const notificationResult = await createConnectionRequestNotification(
-        requesterId,
-        requesteeId,
-        requesterName
-      )
-      console.log('つながり申請通知作成直後', notificationResult)
+      
+      // Service Roleを使用して通知を作成
+      const { data: notificationData, error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: requesteeId,
+          type: 'connection_request',
+          message: `${requesterName}さんからつながり申請が届きました`,
+          related_entity_id: requesterId,
+          related_entity_type: 'user'
+        })
+        .select('id')
+        .single()
+
+      if (notificationError) {
+        console.error('つながり申請通知作成エラー:', notificationError)
+      } else {
+        console.log('つながり申請通知作成成功:', notificationData.id)
+      }
     } catch (notifyError) {
       console.error('つながり申請通知作成エラー:', notifyError)
     }
@@ -196,20 +204,46 @@ export async function PATCH(request: NextRequest) {
     try {
       if (action === 'approve') {
         console.log('つながり承認通知作成直前', { requesteeId, requesterId: connection.requester_id, requesteeName })
-        const notificationResult = await createConnectionApprovedNotification(
-          requesteeId,
-          connection.requester_id,
-          requesteeName
-        )
-        console.log('つながり承認通知作成直後', notificationResult)
+        
+        // Service Roleを使用して通知を作成
+        const { data: notificationData, error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: connection.requester_id,
+            type: 'connection_approved',
+            message: `${requesteeName}さんがあなたのつながり申請を承認しました`,
+            related_entity_id: requesteeId,
+            related_entity_type: 'user'
+          })
+          .select('id')
+          .single()
+
+        if (notificationError) {
+          console.error('つながり承認通知作成エラー:', notificationError)
+        } else {
+          console.log('つながり承認通知作成成功:', notificationData.id)
+        }
       } else {
         console.log('つながり拒否通知作成直前', { requesteeId, requesterId: connection.requester_id, requesteeName })
-        const notificationResult = await createConnectionDeclinedNotification(
-          requesteeId,
-          connection.requester_id,
-          requesteeName
-        )
-        console.log('つながり拒否通知作成直後', notificationResult)
+        
+        // Service Roleを使用して通知を作成
+        const { data: notificationData, error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: connection.requester_id,
+            type: 'connection_declined',
+            message: `${requesteeName}さんがあなたのつながり申請を拒否しました`,
+            related_entity_id: requesteeId,
+            related_entity_type: 'user'
+          })
+          .select('id')
+          .single()
+
+        if (notificationError) {
+          console.error('つながり拒否通知作成エラー:', notificationError)
+        } else {
+          console.log('つながり拒否通知作成成功:', notificationData.id)
+        }
       }
     } catch (notifyError) {
       console.error('つながり承認/拒否通知作成エラー:', notifyError)

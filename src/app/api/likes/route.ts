@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
-import { createLikeNotification } from '@/lib/notificationUtils'
 
 // 動的レンダリングを強制
 export const runtime = 'nodejs'
@@ -52,17 +51,21 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = decoded.sub
+    console.log('いいねAPI POST: ユーザーID:', userId)
     const { workId, targetType } = await request.json()
+    console.log('いいねAPI POST: 受信データ:', { workId, targetType })
 
     if (!workId) {
+      console.log('いいねAPI POST: workIdが不足しています')
       return NextResponse.json({ error: 'workIdが必要です' }, { status: 400 })
     }
 
     // target_typeを決定（デフォルトは'work'）
     const finalTargetType = targetType || 'work'
+    console.log('いいねAPI POST: 最終的なtargetType:', finalTargetType)
 
     // 既にいいねしているかチェック
-    const { data: existingLike } = await supabase
+    const { data: existingLike, error: existingLikeError } = await supabase
       .from('likes')
       .select('id')
       .eq('user_id', userId)
@@ -70,29 +73,45 @@ export async function POST(request: NextRequest) {
       .eq('target_id', workId)
       .single()
 
+    if (existingLikeError && existingLikeError.code !== 'PGRST116') { // PGRST116はデータが見つからないエラー
+      console.error('いいねAPI POST: 既存いいねチェックエラー:', existingLikeError)
+      return NextResponse.json({ error: '既存のいいねチェックに失敗しました' }, { status: 500 })
+    }
+
     if (existingLike) {
+      console.log('いいねAPI POST: 既にいいね済みです')
       return NextResponse.json({ error: '既にいいねしています' }, { status: 409 })
     }
 
-    console.log('いいね追加処理:', { userId, workId, targetType: finalTargetType })
+    console.log('いいね追加処理を開始:', { userId, workId, targetType: finalTargetType })
 
     // 作品/インプット情報を取得（通知用）
     let item = null;
+    let itemError = null;
     if (finalTargetType === 'work') {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('works')
         .select('title, user_id')
         .eq('id', workId)
         .single();
       item = data;
+      itemError = error;
     } else if (finalTargetType === 'input') {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('inputs')
         .select('title, user_id')
         .eq('id', workId)
         .single();
       item = data;
+      itemError = error;
     }
+
+    if (itemError) {
+      console.error('いいねAPI POST: 作品/インプット情報取得エラー:', itemError)
+      // エラーを返すが、いいね自体は続行可能かもしれないので、ここでは致命的としない
+    }
+    console.log('いいねAPI POST: 取得した作品/インプット情報:', item)
+
 
     // いいね追加
     const { data: newLike, error } = await supabase
@@ -132,17 +151,24 @@ export async function POST(request: NextRequest) {
           .single();
 
         const likerName = likerProfile?.display_name || 'ユーザー';
-        const notificationResult = await createLikeNotification(
-          userId,
-          item.user_id,
-          workId,
-          likerName,
-          item.title
-        );
-        if (notificationResult) {
-          console.log('✅ いいね通知が正常に作成されました');
+        
+        // Service Roleを使用して通知を作成
+        const { data: notificationData, error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: item.user_id,
+            type: 'new_like',
+            message: `${likerName}さんが「${item.title}」にいいねしました`,
+            related_entity_id: workId,
+            related_entity_type: 'work'
+          })
+          .select('id')
+          .single();
+
+        if (notificationError) {
+          console.error('❌ 通知作成エラー:', notificationError);
         } else {
-          console.log('❌ いいね通知の作成に失敗しました');
+          console.log('✅ いいね通知が正常に作成されました:', notificationData.id);
         }
       } catch (notifyError) {
         console.error('❌ 通知作成エラー:', notifyError);

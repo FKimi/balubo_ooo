@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import jwt from 'jsonwebtoken'
-import { createCommentNotification } from '@/lib/notificationUtils'
 
 // 動的レンダリングを強制
 export const runtime = 'nodejs'
@@ -92,19 +91,24 @@ export async function POST(request: NextRequest) {
 
         const commenterName = commenterProfile?.display_name || 'ユーザー'
         console.log('コメント通知作成直前', { userId, workOwnerId: work.user_id, workId, commenterName, workTitle: work.title })
-        const notificationResult = await createCommentNotification(
-          userId,
-          work.user_id,
-          workId,
-          commenterName,
-          work.title
-        )
-        console.log('コメント通知作成直後', notificationResult)
         
-        if (notificationResult) {
-          console.log('✅ コメント通知が正常に作成されました')
+        // Service Roleを使用して通知を作成
+        const { data: notificationData, error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: work.user_id,
+            type: 'new_comment',
+            message: `${commenterName}さんが「${work.title}」にコメントしました`,
+            related_entity_id: workId,
+            related_entity_type: 'work'
+          })
+          .select('id')
+          .single()
+
+        if (notificationError) {
+          console.error('❌ コメント通知作成エラー:', notificationError)
         } else {
-          console.log('❌ コメント通知の作成に失敗しました')
+          console.log('✅ コメント通知が正常に作成されました:', notificationData.id)
         }
       } catch (notifyError) {
         console.error('❌ コメント通知作成エラー:', notifyError)
