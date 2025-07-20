@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 import type { InputData } from '@/types/input'
 
 interface ProfileData {

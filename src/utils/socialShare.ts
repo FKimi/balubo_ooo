@@ -1,4 +1,4 @@
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 import type { InputData } from '@/types/input'
 
 // X（Twitter）共有用のデータ型
@@ -47,7 +47,7 @@ export function generateWorkShareMessage(work: WorkData, _userDisplayName: strin
   message += '\n\n#ポートフォリオ #クリエイター'
 
   // ハッシュタグ生成
-  const hashtags = ['ポートフォリオ', 'クリエイター']
+  const hashtags = ['balubo', 'AI分析', 'ポートフォリオ', 'クリエイター']
   
   // コンテンツタイプ別ハッシュタグ
   switch (work.content_type) {
@@ -135,7 +135,7 @@ export function generateInputShareMessage(input: InputData, _userDisplayName: st
   message += '\n\n#balubo #コンテンツ'
 
   // ハッシュタグ生成
-  const hashtags = ['インプット', '学習記録']
+  const hashtags = ['balubo', '学習記録', 'インプット']
   
   // タイプ別ハッシュタグ
   switch (input.type) {

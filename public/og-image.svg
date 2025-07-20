@@ -1,0 +1,78 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景グラデーション -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0e7ff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- 装飾的な円形要素 -->
+  <circle cx="100" cy="150" r="80" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="1100" cy="480" r="120" fill="rgba(255,255,255,0.05)"/>
+  <circle cx="950" cy="100" r="60" fill="rgba(255,255,255,0.08)"/>
+  
+  <!-- メインコンテンツエリア -->
+  <rect x="100" y="100" width="1000" height="430" rx="20" fill="rgba(255,255,255,0.95)" filter="url(#shadow)"/>
+  
+  <!-- ロゴエリア -->
+  <g transform="translate(150, 180)">
+    <!-- baluboロゴ -->
+    <text x="0" y="0" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="72" font-weight="bold" fill="url(#textGradient)" filter="url(#shadow)">
+      balubo
+    </text>
+    
+    <!-- BETAバッジ -->
+    <rect x="320" y="-15" width="80" height="32" rx="16" fill="#f97316"/>
+    <text x="360" y="5" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">
+      BETA
+    </text>
+  </g>
+  
+  <!-- サブタイトル -->
+  <text x="150" y="280" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="32" font-weight="600" fill="#374151" filter="url(#shadow)">
+    クリエイターのためのポートフォリオプラットフォーム
+  </text>
+  
+  <!-- 説明文 -->
+  <text x="150" y="330" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="400" fill="#6b7280" max-width="900">
+    <tspan x="150" dy="0">作品を共有し、つながりを深め、新しい機会を見つけよう</tspan>
+    <tspan x="150" dy="35">AIがあなたの実績を言語化し、クリエイターとしての価値を最大化します</tspan>
+  </text>
+  
+  <!-- 特徴アイコン -->
+  <g transform="translate(150, 420)">
+    <!-- アイコン1: ポートフォリオ -->
+    <circle cx="25" cy="25" r="25" fill="#3b82f6"/>
+    <text x="25" y="32" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" fill="white" text-anchor="middle">📝</text>
+    <text x="25" y="70" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#374151" text-anchor="middle">ポートフォリオ</text>
+    
+    <!-- アイコン2: AI分析 -->
+    <circle cx="125" cy="25" r="25" fill="#8b5cf6"/>
+    <text x="125" y="32" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" fill="white" text-anchor="middle">🤖</text>
+    <text x="125" y="70" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#374151" text-anchor="middle">AI分析</text>
+    
+    <!-- アイコン3: ネットワーク -->
+    <circle cx="225" cy="25" r="25" fill="#10b981"/>
+    <text x="225" y="32" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" fill="white" text-anchor="middle">🌐</text>
+    <text x="225" y="70" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#374151" text-anchor="middle">ネットワーク</text>
+  </g>
+  
+  <!-- 右下の装飾要素 -->
+  <g transform="translate(1000, 500)">
+    <circle cx="0" cy="0" r="40" fill="rgba(59, 130, 246, 0.2)"/>
+    <circle cx="0" cy="0" r="25" fill="rgba(139, 92, 246, 0.3)"/>
+    <circle cx="0" cy="0" r="10" fill="#3b82f6"/>
+  </g>
+</svg> 

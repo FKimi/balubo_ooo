@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from './public-profile-content'
-import { calculateInputTopTags, calculateGenreDistribution } from '@/utils/profileUtils'
+import { calculateInputTopTags, calculateGenreDistribution } from '@/features/profile/lib/profileUtils'
 import { InputData } from '@/types/input'
 
 async function getPublicProfile(userId: string) {

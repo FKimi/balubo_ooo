@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { WorkCard } from './WorkCard'
-import { WorkData } from '@/types/work'
+import { WorkData } from '@/features/work/types'
 
 interface SortableWorkCardProps {
   work: WorkData

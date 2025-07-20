@@ -1,15 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { 
+  callGeminiAPI, 
+  parseAnalysisResult, 
+  handleAnalysisError, 
+  AnalysisRequest, 
+  AnalysisResult 
+} from '../utils/ai-analyzer'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-
-if (!GEMINI_API_KEY) {
-  throw new Error('GEMINI_API_KEY is not set in environment variables')
-}
-
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
-
-// スコアリング用の関数
-async function getEvaluationScores(analysisResult: any) {
+// 文章特化のスコアリング関数
+async function getArticleEvaluationScores(analysisResult: AnalysisResult) {
   const scoringPrompt = `
 あなたは、与えられた記事分析レポートを評価し、スコアを算出するチーフアナリストです。
 以下のJSON形式の分析レポートを読み解き、5つの評価項目について、それぞれ100点満点で採点してください。
@@ -84,29 +83,7 @@ JSON以外のテキストは絶対に含めないでください。
 `
 
   try {
-    // Gemini APIを再度呼び出し（スコアリング用）
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: scoringPrompt }] }],
-        generationConfig: {
-          temperature: 0.3, // スコアリングなので安定性を重視
-          maxOutputTokens: 1024,
-        },
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error('スコアリングAPIの呼び出しに失敗しました')
-    }
-
-    const data = await response.json()
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!generatedText) {
-      throw new Error('スコアリング結果が取得できませんでした')
-    }
-
+    const generatedText = await callGeminiAPI(scoringPrompt, 0.3, 1024)
     const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
     return JSON.parse(cleanedText)
   } catch (error) {
@@ -124,9 +101,15 @@ JSON以外のテキストは絶対に含めないでください。
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(body: any) {
   try {
-    const { description, title, url, fullContent } = await request.json()
+    const { 
+      description, 
+      title, 
+      url, 
+      fullContent,
+      productionNotes
+    }: AnalysisRequest = body
 
     if (!description && !title && !url && !fullContent) {
       return NextResponse.json(
@@ -142,6 +125,7 @@ export async function POST(request: NextRequest) {
 記事タイトル: ${title || '未設定'}
 記事URL: ${url || '未設定'}
 記事説明・概要: ${description || '未設定'}
+${productionNotes ? `制作メモ・目的・背景: ${productionNotes}` : ''}
 ${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.length > 3000 ? '...(本文が長いため一部省略)' : ''}` : ''}
 
 ## 詳細分析観点
@@ -172,67 +156,86 @@ ${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.le
 
 ## タグ生成指針
 
-以下の2つのカテゴリから合計5-8個の具体的タグを生成してください：
+以下の6つのカテゴリから合計10-15個の具体的タグを生成してください：
 
-### A. 専門分野・ジャンル系（3-5個）
-記事の具体的な専門分野とコンテンツ形式を特定
-例：「ビジネス記事」「技術解説」「インタビュー」「マーケティング」「デザイン」「データ分析」
+### A. ジャンル・専門分野系（3-4個）
+記事の具体的なジャンルと専門分野
 
-### B. スキル・特徴系（2-3個）
-ライターの技術的特徴や強みを表現
-例：「取材力」「専門性」「構成力」「データ活用」「親しみやすい文体」
+### B. 技術・手法系（2-3個）
+ライティング技術、構成手法、表現技法
+
+### C. スタイル・表現系（2-3個）
+文体、トーン、表現スタイル
+
+### D. 対象・用途系（2-3個）
+ターゲット読者、利用シーン、目的
+
+### E. 品質・レベル系（1-2個）
+技術レベル、完成度、専門性
+
+### F. 個別特徴系（1-2個）
+この記事にしかない独自の特徴
 
 以下の形式でJSONレスポンスを返してください：
 
 {
-     "tags": [
-     "専門分野1", "専門分野2", "コンテンツ形式1", "ジャンル1",
-     "スキル特徴1", "スキル特徴2"
-   ],
+  "tags": [
+    "具体的ジャンル1", "具体的ジャンル2", "具体的ジャンル3", "具体的ジャンル4",
+    "技術手法1", "技術手法2", "技術手法3",
+    "スタイル特徴1", "スタイル特徴2",
+    "対象用途1", "対象用途2",
+    "品質レベル1", "個別特徴1"
+  ],
   "keywords": ["専門用語1", "技術要素1", "業界用語1", "手法名1", "ツール名1"],
-  "category": "記事・ライティング",
+  "category": "推奨カテゴリ",
   "summary": "記事の核心と特徴を端的に表現（50文字以内）",
   "detailedAnalysis": {
-    "genreClassification": "記事の具体的ジャンルと業界分野",
-    "writingStyleAnalysis": "文体・トーンの詳細な特徴分析",
-    "targetReaderProfile": "想定読者の詳細プロフィール",
-    "contentStructure": "記事構成と情報提示の手法",
+    "genreClassification": "記事の具体的ジャンルと専門分野",
+    "technicalAnalysis": "ライティング技術と構成手法の分析",
+    "styleCharacteristics": "文体と表現の特徴分析",
+    "targetAndPurpose": "対象読者と目的・用途の分析",
     "uniqueValueProposition": "この記事独自の価値と差別化要素",
     "professionalAssessment": "編集者視点での品質評価"
   },
-     "tagClassification": {
-     "domain": ["専門分野系タグ1", "専門分野系タグ2", "ジャンル系タグ1"],
-     "skill": ["スキル系タグ1", "スキル系タグ2"]
-   },
+  "tagClassification": {
+    "genre": ["ジャンル系タグ1", "ジャンル系タグ2", "ジャンル系タグ3"],
+    "technique": ["技術系タグ1", "技術系タグ2"],
+    "style": ["スタイル系タグ1", "スタイル系タグ2"],
+    "purpose": ["用途系タグ1", "用途系タグ2"],
+    "quality": ["品質系タグ1"],
+    "unique": ["個別特徴タグ1"]
+  },
+  "contentTypeAnalysis": "記事・ライティング作品としての特徴的な要素や評価ポイントの詳細分析",
   "strengths": {
-    "technology": [
-      "構成の巧みさ、情報の提示方法など、文章の技術的な長所の具体例",
-      "編集・校正レベルの高さが伺える箇所の指摘"
+    "creativity": [
+      "独創的な視点、魅力的な文章表現、読者を引きつける構成など",
+      "革新的なアプローチの詳細",
+      "芸術的・創造的価値の分析"
     ],
     "expertise": [
-      "深い取材力や正確な情報収集能力を示す具体例",
-      "専門知識が効果的に活かされている箇所の指摘"
-    ],
-    "creativity": [
-      "独創的な視点やユニークな切り口の具体例",
-      "読者を引きつける構成や表現の工夫"
+      "深い取材力、専門知識の活用、正確な情報提供、SEO対策など",
+      "業界知識・スキルの活用状況",
+      "制作プロセスの高度さ",
+      "品質管理・完成度の高さ"
     ],
     "impact": [
-      "読者の課題解決や感情に訴えかける説得力の具体例",
-      "新たな気づきや行動変容を促すメッセージの効果"
+      "読者への価値提供、社会的影響、エンゲージメント創出など",
+      "業界・市場への貢献度",
+      "社会的価値・意義",
+      "ビジネス・ブランド価値向上"
     ]
   },
   "improvementSuggestions": [
     "より具体的で実践的な改善提案1",
-    "読者エンゲージメント向上のための提案2",
-    "専門性と読みやすさのバランス改善案3"
+    "技術的・表現的向上のための提案2",
+    "市場価値・競争力強化のための提案3"
   ],
   "professionalInsights": {
-    "editorialQuality": "編集品質の評価と特徴",
-    "marketValue": "この記事の市場価値と競合優位性",
-    "scalabilityPotential": "このスタイルの展開可能性"
+    "marketPositioning": "市場でのポジショニングと競合優位性",
+    "scalabilityPotential": "このスタイル・手法の展開可能性",
+    "industryTrends": "業界トレンドとの関連性"
   },
-  "oneLinerSummary": "クリエイターの魅力を1〜2文で表現するキャッチコピー",
+  "oneLinerSummary": "ライターの魅力を1〜2文で表現するキャッチコピー",
   "tagCloud": ["#深い洞察力", "#ストーリーテリング", "#専門家インタビュー", "#論理的構成力", "#読者への共感", "#課題解決思考"],
   "detailedMetrics": {
     "technology": {
@@ -270,121 +273,53 @@ ${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.le
 
 ## 重要な注意事項：
 
-1. **具体性の重視**: 「テクノロジー」ではなく「AI・機械学習解説」、「インタビュー記事」ではなく「CTO対談記事」など、より具体的なタグを生成
-2. **個別性の確保**: その記事にしかない特徴的な要素を反映したタグを含める
-3. **分析の深度**: 表面的な分析ではなく、編集者の視点での深い洞察を提供
-4. **実用性**: クリエイターが自身の強みや方向性を理解できる具体的な分析
- 5. **タグ数**: 必ず5個以上、最大8個程度のタグを生成（シンプル化重視）
- 6. **バランス**: 専門分野系3-5個、スキル系2-3個の配分を保つ
+1. **具体性の重視**: 抽象的ではなく、具体的で詳細なタグを生成
+2. **個別性の確保**: その記事にしかない特徴的な要素を反映
+3. **専門性の発揮**: 記事・ライティング分野の専門知識を活用した深い分析
+4. **実用性の提供**: ライターが成長できる具体的な洞察
+5. **タグ数の確保**: 必ず10個以上、最大15個程度のタグを生成
+6. **バランスの維持**: 各カテゴリから適切にタグを配分
 7. **汎用性の確保**: タグ全体の60〜70%は「ビジネス」「テクノロジー」「IoT」「ビジネスモデル解説」など発注者が直感的に理解できる短く汎用的なキーワードとし、残り30〜40%を記事固有の詳細タグとしてください
 8. **ポジティブ・コーチング表現**: 欠点や悪い点という語を避け、「GOOD」「NEXT」の2段構成で伸びしろを提案するポジティブな言語を用いる。
+9. **ライティング専門分析**: 記事の場合は、構成力、取材力、表現力、読者理解、SEO対策などの専門知識を活用した分析を行ってください。
+10. **技術的詳細**: 使用しているライティング技法や構成手法について、具体的な技術名や手法名を特定し、その習熟度や活用方法を評価してください。
+11. **市場適合性**: 記事のターゲット読者や市場を明確に特定し、その市場での価値や競合優位性を分析してください。
 
-日本語で回答し、JSONフォーマット以外の文字は含めないでください。
+注意事項：
+- タグは記事ジャンル、ライティングスタイル、対象読者層などのタグを基に、より具体的で細分化されたものを10-15個生成
+- キーワードは記事・ライティング分野の技術的な要素や業界専門用語を含める
+- カテゴリは「ウェブデザイン」「モバイルアプリ」「グラフィックデザイン」「記事・ライティング」「写真・映像」「その他」から選んでください
+- 強みは以下の3つの観点から記事・ライティング作品として分析してください：
+  * creativity: 独創的な視点、魅力的な文章表現、読者を引きつける構成など
+  * expertise: 深い取材力、専門知識の活用、正確な情報提供、SEO対策など
+  * impact: 読者への価値提供、社会的影響、エンゲージメント創出など
+- 各観点で2-4個の強みを挙げ、具体的で実証的な内容にしてください
+- 日本語で回答してください
+- JSONフォーマット以外の文字は含めないでください
 `
 
-    // Gemini APIを呼び出し
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: articleAnalysisPrompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048, // 記事分析は詳細なので上限を増加
-        }
-      }),
-    })
+    // AI分析を実行
+    const generatedText = await callGeminiAPI(articleAnalysisPrompt, 0.3, 4096)
+    const analysisResult = parseAnalysisResult(generatedText)
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.error('Gemini API Error (Article Analysis):', response.status, errorData)
-      
-      return NextResponse.json(
-        { 
-          error: '記事AI分析に失敗しました',
-          details: errorData.error || response.status
-        },
-        { status: response.status }
-      )
-    }
-
-    const data = await response.json()
-
-    // Geminiのレスポンスからテキストを抽出
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text
-
-    if (!generatedText) {
-      throw new Error('記事AI分析結果が取得できませんでした')
-    }
-
-    // JSONパースを試行
-    let analysisResult
-    try {
-      // JSONの前後の不要な文字を除去
-      const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
-      analysisResult = JSON.parse(cleanedText)
-    } catch (parseError) {
-      console.error('JSON Parse Error (Article Analysis):', parseError)
-      console.error('Generated Text:', generatedText)
-      
-      // パースに失敗した場合のフォールバック
-      analysisResult = {
-        tags: ['記事・ライティング', '編集', '文章作成'],
-        keywords: ['ライティング技術', '編集技術', '文章構成'],
-        category: '記事・ライティング',
-        summary: '記事分析の解析に失敗しました',
-        articleSpecificAnalysis: {
-          writingStyle: '文章スタイルの分析に失敗しました',
-          structureQuality: '構成分析に失敗しました',
-          researchDepth: '取材深度の分析に失敗しました',
-          readerValue: '読者価値の分析に失敗しました',
-          editorialQuality: '編集品質の分析に失敗しました'
-        },
-        strengths: {
-          technology: ['基本的な文章技術'],
-          expertise: ['専門的な編集技術'],
-          creativity: ['独創的な記事作成'],
-          impact: ['読者への価値提供']
-        },
-        improvementSuggestions: ['分析結果の取得に失敗したため、再度お試しください'],
-        targetAudience: '分析失敗',
-        uniqueValue: '分析失敗'
-      }
-    }
-
-    // 取得した分析結果を基に、評価スコアを取得
+    // 評価スコアを取得
     let evaluationScores = null
     try {
-      if (analysisResult) { // 分析が成功した場合のみスコアリング
-        evaluationScores = await getEvaluationScores(analysisResult)
-      }
+      evaluationScores = await getArticleEvaluationScores(analysisResult)
     } catch(scoringError) {
       console.error('Scoring Error:', scoringError)
-      // スコアリングに失敗しても、分析結果は返す
     }
 
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      evaluation: evaluationScores, // 評価スコアをレスポンスに追加
-      contentType: 'article',
-      analysisType: 'specialized_article_analysis_with_score',
-      rawResponse: generatedText // デバッグ用
+      evaluation: evaluationScores,
+      contentType: '記事・ライティング',
+      analysisType: 'article_specialized_analysis',
+      rawResponse: generatedText
     })
 
   } catch (error) {
-    console.error('Article AI Analysis Error:', error)
-    return NextResponse.json(
-      { error: '記事AI分析中にエラーが発生しました' },
-      { status: 500 }
-    )
+    return handleAnalysisError(error)
   }
 } 

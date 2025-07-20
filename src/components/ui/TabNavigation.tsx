@@ -11,27 +11,27 @@ export interface TabConfig {
 interface TabNavigationProps {
   tabs: TabConfig[]
   activeTab: string
-  onTabChange: (tab: string) => void
+  onTabChange: (_tab: string) => void
   className?: string
 }
 
 export function TabNavigation({ tabs, activeTab, onTabChange, className = '' }: TabNavigationProps) {
   return (
     <div className={`flex space-x-2 bg-gray-100 p-2 rounded-xl ${className}`}>
-      {tabs.map((_tab) => (
+      {tabs.map((tab) => (
         <button
-          key={_tab.key}
-          onClick={() => onTabChange(_tab.key)}
+          key={tab.key}
+          onClick={() => onTabChange(tab.key)}
           className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
-            activeTab === _tab.key
+            activeTab === tab.key
               ? 'bg-white text-gray-900 shadow-md border border-gray-200'
               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
           }`}
         >
-          {_tab.label}
-          {_tab.count !== undefined && (
+          {tab.label}
+          {tab.count !== undefined && (
             <span className="ml-1 text-sm opacity-75">
-              ({_tab.count})
+              ({tab.count})
             </span>
           )}
         </button>

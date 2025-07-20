@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 
 interface MonthlyActivity {
   year: number

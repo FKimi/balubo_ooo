@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
-import { ProfileData } from '@/types/profile'
+import { ProfileData } from '@/features/profile/types'
 import { apiEndpoints, safeApiCall } from '@/utils/fetcher'
 
 export default function ProfileEditPage() {

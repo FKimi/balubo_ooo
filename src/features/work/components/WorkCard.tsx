@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface WorkCardProps {
@@ -58,6 +58,47 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
                   }`}>
                   {work.title}
                 </h3>
+                
+                {/* デザイン用の追加情報 */}
+                {work.content_type === 'design' && (
+                  <div className="mt-2 space-y-1">
+                    {/* デザインツール */}
+                    {work.design_tools && work.design_tools.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {work.design_tools.slice(0, 2).map((tool) => (
+                          <span key={tool} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">
+                            {tool}
+                          </span>
+                        ))}
+                        {work.design_tools.length > 2 && (
+                          <span className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs">
+                            +{work.design_tools.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* カラーパレット */}
+                    {work.color_palette && work.color_palette.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-500">カラー:</span>
+                        <div className="flex gap-1">
+                          {work.color_palette.slice(0, 3).map((color, index) => (
+                            <div
+                              key={index}
+                              className="w-3 h-3 rounded-full border border-gray-200"
+                              style={{ backgroundColor: color.startsWith('#') ? color : undefined }}
+                              title={color}
+                            />
+                          ))}
+                          {work.color_palette.length > 3 && (
+                            <span className="text-xs text-gray-500">+{work.color_palette.length - 3}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

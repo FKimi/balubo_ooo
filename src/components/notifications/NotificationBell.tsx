@@ -28,16 +28,23 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const channelRef = useRef<any>(null)
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const channelNameRef = useRef<string>('')
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const lastFetchTimeRef = useRef<number>(0)
   const isSubscribedRef = useRef<boolean>(false)
 
   // 通知データを取得（リトライ機能付き）
   const fetchNotifications = useCallback(async (retryCount = 0) => {
     if (!user) return
 
+    // 前回の取得から30秒経過していない場合はスキップ
+    const now = Date.now()
+    if (now - lastFetchTimeRef.current < 30000) {
+      return
+    }
+
     try {
       setIsLoading(true)
+      lastFetchTimeRef.current = now
       
       // 認証トークンを取得
       const supabase = getSupabaseBrowserClient()
@@ -67,9 +74,9 @@ export function NotificationBell() {
       
       // 3回まで再試行
       if (retryCount < 3) {
-        retryTimeoutRef.current = setTimeout(() => {
+        setTimeout(() => {
           fetchNotifications(retryCount + 1)
-        }, 1000 * (retryCount + 1)) // 1秒、2秒、3秒後に再試行
+        }, 5000 * (retryCount + 1)) // 5秒、10秒、15秒後に再試行
       }
     } finally {
       setIsLoading(false)
@@ -150,7 +157,6 @@ export function NotificationBell() {
   const cleanupChannel = useCallback(() => {
     if (channelRef.current) {
       try {
-        // チャンネルオブジェクトを直接削除
         const supabase = getSupabaseBrowserClient()
         supabase.removeChannel(channelRef.current)
         console.log('✅ チャンネルを削除しました')
@@ -160,8 +166,6 @@ export function NotificationBell() {
       channelRef.current = null
     }
     
-    // チャンネル名をクリア
-    channelNameRef.current = ''
     isSubscribedRef.current = false
   }, [])
 
@@ -170,18 +174,17 @@ export function NotificationBell() {
     console.log('🔄 ポーリングモードに切り替えます')
     
     // 既存のインターバルがあればクリア
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current)
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current)
     }
     
-    // 60秒ごとにポーリング（頻度を下げる）
+    // 5分ごとにポーリング（頻度を大幅に下げる）
     const interval = setInterval(() => {
       console.log('📡 ポーリングで通知を取得中...')
       fetchNotifications()
-    }, 60 * 1000)
+    }, 5 * 60 * 1000) // 5分間隔
     
-    // インターバルIDを保存してクリーンアップできるようにする
-    retryTimeoutRef.current = interval as any
+    pollingIntervalRef.current = interval
     
     return () => clearInterval(interval)
   }, [fetchNotifications])
@@ -198,7 +201,6 @@ export function NotificationBell() {
       
       // チャンネル名をユニークにする（タイムスタンプ付き）
       const channelName = `notifications_${user.id}_${Date.now()}`
-      channelNameRef.current = channelName
       
       const channel = supabase
         .channel(channelName, {
@@ -256,11 +258,11 @@ export function NotificationBell() {
         } else if (status === 'TIMED_OUT') {
           console.warn('⚠️ リアルタイム接続がタイムアウトしました')
           isSubscribedRef.current = false
-          // 再接続を試行
+          // 再接続を試行（30秒後に再試行）
           setTimeout(() => {
             cleanupChannel()
             subscribeToNotifications()
-          }, 10000) // 10秒後に再試行
+          }, 30000)
         } else if (status === 'CLOSED') {
           console.warn('⚠️ リアルタイム接続が閉じられました')
           isSubscribedRef.current = false
@@ -305,9 +307,8 @@ export function NotificationBell() {
       cleanupChannel()
       
       // タイマーやインターバルのクリア
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current)
-        clearInterval(retryTimeoutRef.current)
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
         console.log('✅ ポーリングインターバルをクリアしました')
       }
     }

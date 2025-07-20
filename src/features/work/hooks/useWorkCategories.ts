@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetcher } from '@/utils/fetcher'
-import type { WorkData, WorkCategory } from '@/types/work'
+import type { WorkData, WorkCategory } from '@/features/work/types'
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 export function useWorkCategories(savedWorks: WorkData[], setSavedWorks: (works: WorkData[]) => void) {

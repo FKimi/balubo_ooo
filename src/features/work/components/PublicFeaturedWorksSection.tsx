@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { WorkData } from '@/types/work'
+import { WorkData } from '@/features/work/types'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface PublicFeaturedWorksSectionProps {

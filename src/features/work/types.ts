@@ -16,6 +16,10 @@ export interface WorkData {
   content_type?: string
   article_word_count?: number
   article_has_content?: boolean
+  // デザイン用フィールド
+  design_tools?: string[]
+  color_palette?: string[]
+  target_platform?: string[]
   preview_data?: {
     title: string
     description: string

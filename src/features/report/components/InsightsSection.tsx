@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 import type { InputData } from '@/types/input'
 
 interface InsightsSectionProps {

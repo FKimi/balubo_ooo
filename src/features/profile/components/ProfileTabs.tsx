@@ -8,15 +8,16 @@ import { Badge } from '@/components/ui/badge'
 import { TabNavigation } from '@/components/ui/TabNavigation'
 import { WordCloud } from '@/components/ui/WordCloud'
 import type { InputData, InputAnalysis } from '@/types/input'
-import type { WorkData } from '@/types/work'
-import type { ProfileData, CareerItem } from '@/types/profile'
-import { useWorkStatistics } from '@/hooks/useWorkStatistics'
-import { useWorkCategories } from '@/hooks/useWorkCategories'
+import type { WorkData } from '@/features/work/types'
+import type { ProfileData, CareerItem } from '@/features/profile/types'
+import { useWorkStatistics } from '@/features/work/hooks/useWorkStatistics'
+import { useLayout } from '@/contexts/LayoutContext'
+import { useWorkCategories } from '@/features/work/hooks/useWorkCategories'
 import { WorksCategoryManager } from '@/features/work/components/WorksCategoryManager'
 import { ContentTypeSelector } from '@/features/work/components/ContentTypeSelector'
 import { FeaturedWorksSection } from '@/features/work/components/FeaturedWorksSection'
 import { InputCard } from '@/features/inputs/components/InputCard'
-import { calculateTopTags } from '@/utils/profileUtils'
+import { calculateTopTags } from '@/features/profile/lib/profileUtils'
 import { generateInsightSummary, analyzeInterestTendencies } from '@/utils/insightGenerator'
 import { useState, useEffect } from 'react'
 import { RolePieChart } from './RolePieChart'
@@ -70,6 +71,7 @@ export function ProfileTabs({
   setIsIntroductionModalOpen
 }: ProfileTabsProps) {
   const [isClient, setIsClient] = useState(false)
+  const { openContentTypeSelector } = useLayout()
 
   useEffect(() => {
     setIsClient(true)
@@ -347,22 +349,15 @@ export function ProfileTabs({
         {/* 作品タブ */}
         {activeTab === 'works' && (
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-              <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">作品一覧</h3>
-                <p className="text-gray-600 text-sm sm:text-base">カテゴリ別に整理された作品をご覧ください</p>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => setIsContentTypeSelectorOpen(true)}
-                  className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-400/30 text-sm sm:text-base w-full sm:w-auto rounded-2xl transition-all duration-300"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  新しい作品を追加
-                </Button>
-              </div>
+            {/* 作品追加ボタン */}
+            <div className="mb-4 flex justify-end">
+              <Button
+                onClick={openContentTypeSelector}
+                className="bg-blue-600 text-white hover:bg-blue-700 rounded-2xl shadow-sm"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/></svg>
+                作品を追加
+              </Button>
             </div>
 
             {savedWorks.length > 0 ? (

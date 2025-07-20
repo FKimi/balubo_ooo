@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { WorkCard } from './WorkCard'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import type { WorkCategory, WorkData } from '@/types/work'
+import type { WorkCategory, WorkData } from '@/features/work/types'
 
 interface CategoryDropZoneProps {
   category: WorkCategory

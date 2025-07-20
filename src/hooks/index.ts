@@ -1,7 +1,7 @@
 // 既存のフック
-export { useProfile } from './useProfile'
-export { useWorkCategories } from './useWorkCategories'
-export { useWorkStatistics } from './useWorkStatistics'
+
+export { useWorkCategories } from '../features/work/hooks/useWorkCategories'
+export { useWorkStatistics } from '../features/work/hooks/useWorkStatistics'
 export { useTagStatistics } from './useTagStatistics'
 
 // スクロールアニメーション用フック

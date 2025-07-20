@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { getMediaTypeIcon } from '@/utils/profileUtils'
+import { getMediaTypeIcon } from '@/features/profile/lib/profileUtils'
 import type { InputData } from '@/types/input'
 
 interface InputCardProps {
@@ -11,7 +11,7 @@ interface InputCardProps {
   isPublic?: boolean
 }
 
-export function InputCard({ input, linkPath, isPublic = false }: InputCardProps) {
+export function InputCard({ input, linkPath, isPublic: _isPublic = false }: InputCardProps) {
   const CardContent = () => (
     <div className="group bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden cursor-pointer">
       {/* インプット画像またはプレースホルダー */}

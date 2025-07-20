@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { ProfileData, CareerItem } from '@/types/profile'
+import { ProfileData, CareerItem } from '@/features/profile/types'
 import type { InputData, InputAnalysis } from '@/types/input'
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
@@ -48,7 +48,7 @@ function ProfileContent() {
   const _router = useRouter()
   const searchParams = useSearchParams()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
-  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('works')
   
   // スキル管理用のstate
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
@@ -136,7 +136,8 @@ function ProfileContent() {
       const worksResponse = await fetch(`/api/works`, { headers })
       if (worksResponse.ok) {
         const worksData = await worksResponse.json()
-        setSavedWorks(worksData.works || [])
+        const sortedWorks = (worksData.works || []).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        setSavedWorks(sortedWorks)
       }
     } catch (error) {
       console.error('作品削除エラー:', error)
@@ -229,7 +230,12 @@ function ProfileContent() {
         if (worksResponse.ok) {
           const worksData = await worksResponse.json()
           console.log('[Profile] 作品データ取得成功:', worksData)
-          setSavedWorks(worksData.works || [])
+          const sortedWorks = (worksData.works || []).sort((a: any, b: any) => {
+            const dateA = new Date(a.created_at).getTime()
+            const dateB = new Date(b.created_at).getTime()
+            return dateB - dateA
+          })
+          setSavedWorks(sortedWorks)
         } else {
           const errorText = await worksResponse.text()
           console.error('[Profile] 作品データ取得失敗:', worksResponse.status, errorText)

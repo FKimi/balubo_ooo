@@ -8,22 +8,21 @@ interface ContentTypeFormProps {
   newTag: string
   setNewTag: (_value: string) => void
   addTag: () => void
-  removeTag: (tag: string) => void
+  removeTag: (_tag: string) => void
   newRole: string
   setNewRole: (_value: string) => void
   addRole: (_role: string) => void
   addCustomRole: () => void
-  removeRole: (role: string) => void
+  removeRole: (_role: string) => void
   newCategory: string
   setNewCategory: (_value: string) => void
   addCategory: () => void
-  removeCategory: (category: string) => void
+  removeCategory: (_category: string) => void
 }
 
 // 記事・ライティング用フォーム
 export function ArticleForm({ 
   formData, 
-  handleInputChange: _handleInputChange, 
   newTag, 
   setNewTag, 
   addTag, 
@@ -31,8 +30,9 @@ export function ArticleForm({
   newRole,
   setNewRole,
   addRole,
-  removeRole
-}: ContentTypeFormProps) {
+  removeRole,
+  ..._rest
+}: Omit<ContentTypeFormProps, 'handleInputChange' | 'addCustomRole' | 'newCategory' | 'setNewCategory' | 'addCategory' | 'removeCategory' | 'contentType'>) {
   const articleRoles = ['執筆', '取材', '編集', '校正', '企画', 'SEO対策']
 
   return (
@@ -177,7 +177,6 @@ export function ArticleForm({
 // デザイン用フォーム
 export function DesignForm({ 
   formData, 
-  handleInputChange: _handleInputChange, 
   newTag, 
   setNewTag, 
   addTag, 
@@ -185,8 +184,9 @@ export function DesignForm({
   newRole,
   setNewRole,
   addRole,
-  removeRole
-}: ContentTypeFormProps) {
+  removeRole,
+  ..._rest
+}: Omit<ContentTypeFormProps, 'handleInputChange' | 'addCustomRole' | 'newCategory' | 'setNewCategory' | 'addCategory' | 'removeCategory' | 'contentType'>) {
   const designRoles = ['UI設計', 'UXデザイン', 'グラフィックデザイン', 'ブランディング', 'アートディレクション', 'プロトタイピング']
 
   return (
@@ -331,7 +331,6 @@ export function DesignForm({
 // 他のコンテンツタイプの基本フォーム（共通フォーム）
 export function DefaultContentForm({ 
   formData, 
-  handleInputChange: _handleInputChange, 
   newTag, 
   setNewTag, 
   addTag, 
@@ -340,7 +339,8 @@ export function DefaultContentForm({
   setNewRole,
   addRole,
   removeRole
-}: ContentTypeFormProps) {
+}: Omit<ContentTypeFormProps, 'handleInputChange' | 'addCustomRole' | 'newCategory' | 'setNewCategory' | 'addCategory' | 'removeCategory' | 'contentType'>) {
+  // 将来的に使用する可能性のある事前定義ロール
   const _predefinedRoles = ['企画', '制作', '編集', 'ディレクション', 'プロデュース', 'マネジメント']
 
   return (

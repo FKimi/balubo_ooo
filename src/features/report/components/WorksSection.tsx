@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { WorkData } from '@/types/work'
-import { calculateTopTags } from '@/utils/profileUtils'
+import type { WorkData } from '@/features/work/types'
+import { calculateTopTags } from '@/features/profile/lib/profileUtils'
 
 interface AIFieldSummary {
   averageScore: number

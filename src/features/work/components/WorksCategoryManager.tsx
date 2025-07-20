@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core'
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { WorkCard } from '@/features/work/components/WorkCard'
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 import { EmptyState } from '@/components/common'
 import { Button } from '@/components/ui/button'
 
@@ -95,10 +95,10 @@ function DroppableCategoryTab({
       ref={setNodeRef}
       onClick={() => onSelect(category.id)}
       className={`
-        relative px-6 py-4 rounded-xl border-3 transition-all duration-300 cursor-pointer min-w-[120px] text-center
+        inline-flex items-center justify-center px-4 py-1 rounded-full transition-colors cursor-pointer text-sm
         ${isSelected 
-          ? 'bg-blue-600 text-white border-blue-600 shadow-lg' 
-          : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+          ? 'bg-blue-600 text-white shadow' 
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }
         ${isOver 
           ? 'border-blue-500 bg-blue-100 shadow-2xl scale-110 ring-4 ring-blue-300 ring-opacity-50 transform' 
@@ -389,24 +389,10 @@ export function WorksCategoryManager({
 
 
         {/* カテゴリタブ */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">カテゴリ</h3>
-            <span className="text-sm text-gray-500">作品をカテゴリにドラッグ＆ドロップして整理</span>
-          </div>
-          
-          {/* カテゴリ管理のヒント */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 text-blue-800">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-sm font-medium">
-                カテゴリの管理：<strong className="px-1">＋追加</strong>で新規作成、<strong className="px-1">編集・削除</strong>ボタンでカテゴリ名の変更・削除ができます
-              </span>
-            </div>
-          </div>
-          
+        <div className="mb-1">
+          {/* タイトルを削除し、よりコンパクトに */}
+          {/* 余白を削減するためヒントバナーを削除 */}
+
           {/* カテゴリボックス（横一列） */}
           <div className="flex flex-wrap gap-3 mb-6">
             {allCategoriesWithAll.map((category) => (
@@ -503,19 +489,19 @@ export function WorksCategoryManager({
 
           {/* 月別フィルタ */}
           {availableMonths.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-700">掲載月で絞り込み</span>
+            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-sm">
+                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    <span className="font-medium text-gray-700">掲載月で絞り込み</span>
                   </div>
                   <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                   >
                     <option value="all">すべての月</option>
                     {availableMonths.map((month) => (

@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { AIAnalysisDetailModal } from '@/features/work/components/AIAnalysisDetailModal'
 import { ShareModal } from '@/features/social/components/ShareModal'
 import { ArrowLeft, Sparkles, X } from 'lucide-react'
-import { AIAnalysisResult } from '@/types/work'
+import { AIAnalysisResult } from '@/features/work/types'
 import { supabase } from '@/lib/supabase'
 
 interface LinkPreviewData {
@@ -472,7 +472,10 @@ interface WorkFormProps {
     productionNotes?: string
     tags?: string[]
     roles?: string[]
-    // 必要に応じて他の項目も
+    // デザイン用フィールド
+    designTools?: string[]
+    colorPalette?: string[]
+    targetPlatform?: string[]
   },
   mode?: 'create' | 'edit',
   // eslint-disable-next-line unused-imports/no-unused-vars
@@ -493,7 +496,9 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
     productionDate: initialData?.productionDate ?? '',
     productionNotes: initialData?.productionNotes ?? '',
     tags: initialData?.tags ?? ([] as string[]),
-    roles: initialData?.roles ?? ([] as string[])
+    roles: initialData?.roles ?? ([] as string[]),
+    // デザイン用フィールド
+    designTools: initialData?.designTools ?? ([] as string[])
   })
   
   const [previewData, setPreviewData] = useState<LinkPreviewData | null>(null)
@@ -501,10 +506,16 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   const [previewError, setPreviewError] = useState('')
   const [newTag, setNewTag] = useState('')
   const [newRole, setNewRole] = useState('')
+  // デザイン用の状態変数
+  const [newDesignTool, setNewDesignTool] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
-  const [uploadedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [isDragging, setIsDragging] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({})
+  const [uploadedFileUrls, setUploadedFileUrls] = useState<string[]>([])
+  const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(null)
   const [articleContent, setArticleContent] = useState('')
   const [useFullContent, setUseFullContent] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -512,8 +523,38 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   const [activeTab, setActiveTab] = useState('description')
   const [userDisplayName, setUserDisplayName] = useState<string>('')
 
-  // 定義済みの役割
-  const predefinedRoles = ['編集', '撮影', '企画', '取材', '執筆', 'デザイン']
+  // 定義済みの役割（コンテンツタイプ別）
+  const getPredefinedRoles = (type: string) => {
+    switch (type) {
+      case 'design':
+        return ['UI/UXデザイン', 'グラフィックデザイン', 'ロゴデザイン', 'Webデザイン', 'アプリデザイン', 'ブランディング', 'イラスト', 'アニメーション']
+      case 'photo':
+        return ['撮影', '編集', 'レタッチ', 'カラーグレーディング', '構図設計', 'ライティング', 'スタイリング']
+      case 'video':
+        return ['撮影', '編集', 'カラーグレーディング', 'モーショングラフィックス', '音響', 'ライティング', '演出']
+      case 'podcast':
+        return ['企画', '構成', '収録', '編集', '音響', 'ナレーション', 'インタビュー']
+      case 'event':
+        return ['企画', '運営', '司会', '演出', '音響', '照明', '会場設営']
+      case 'article':
+      default:
+        return ['編集', '撮影', '企画', '取材', '執筆', 'デザイン']
+    }
+  }
+
+  const predefinedRoles = getPredefinedRoles(contentType)
+  
+  // デザイン用の選択肢
+  const designToolOptions = [
+    'Figma', 'Adobe Photoshop', 'Adobe Illustrator', 'Adobe XD', 'Sketch', 
+    'InVision', 'Principle', 'Framer', 'Canva', 'Procreate', 'Affinity Designer',
+    'Blender', 'Cinema 4D', 'After Effects', 'Premiere Pro'
+  ]
+  
+  const platformOptions = [
+    'Web', 'iOS', 'Android', 'Desktop', 'Tablet', 'Print', 'Social Media',
+    'Email', 'Presentation', 'Branding'
+  ]
   
   // URLプレビューを取得する関数
   const fetchLinkPreview = async (url: string) => {
@@ -577,8 +618,66 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   }
 
   // ファイルアップロード処理
+  const handleFileUpload = (files: FileList | File[]) => {
+    const fileArray = Array.from(files)
+    const validFiles = fileArray.filter(file => {
+      // ファイルサイズチェック（10MB制限）
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name}のサイズが10MBを超えています`)
+        return false
+      }
+      
+      // AI分析用のサイズ制限（5MB）を警告
+      if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
+        const confirmed = confirm(`${file.name}のサイズが5MBを超えています。AI分析では画像の内容が含まれませんが、アップロードを続行しますか？`)
+        if (!confirmed) {
+          return false
+        }
+      }
+      
+      // ファイル形式チェック
+      const allowedTypes = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'application/pdf', 'application/psd', 'application/ai',
+        'image/tiff', 'image/bmp', 'image/svg+xml'
+      ]
+      
+      if (!allowedTypes.includes(file.type)) {
+        alert(`${file.name}のファイル形式がサポートされていません`)
+        return false
+      }
+      
+      return true
+    })
+    
+    setUploadedFiles(prev => [...prev, ...validFiles])
+  }
 
   // ファイル削除
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
+    setUploadedFileUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  // ドラッグ&ドロップ処理
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      handleFileUpload(files)
+    }
+  }
 
   // フォームデータの更新
   const handleInputChange = (field: string, value: string) => {
@@ -648,38 +747,294 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
     }))
   }
 
+  // デザインツール管理
+  const addDesignTool = (tool: string) => {
+    if (tool && !formData.designTools.includes(tool)) {
+      setFormData(prev => ({
+        ...prev,
+        designTools: [...prev.designTools, tool]
+      }))
+    }
+  }
+
+  const addCustomDesignTool = () => {
+    if (newDesignTool.trim() && !formData.designTools.includes(newDesignTool.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        designTools: [...prev.designTools, newDesignTool.trim()]
+      }))
+      setNewDesignTool('')
+    }
+  }
+
+  const removeDesignTool = (toolToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      designTools: prev.designTools.filter(tool => tool !== toolToRemove)
+    }))
+  }
+
   // AI分析
   const analyzeWithAI = async () => {
-    if (!formData.description && !previewData?.description && !articleContent) {
-      alert('分析するための説明文または記事本文を入力してください')
+    // デザイン作品の場合は、ファイルがアップロードされていれば分析可能
+    const hasContent = formData.description || previewData?.description || articleContent || uploadedFiles.length > 0
+    
+    if (!hasContent) {
+      alert('分析するための説明文、記事本文、またはファイルを入力してください')
       return
     }
 
     setIsAnalyzing(true)
     try {
-      const apiUrl = contentType === 'article' ? '/api/ai-analyze/article' : '/api/ai-analyze'
+      // コンテンツタイプに応じて適切なAPIを呼び出し
+      const apiUrl = '/api/ai-analyze'
       
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // デザイン作品の場合、アップロードされたファイルの情報も含める
+      const requestBody: any = {
           title: formData.title || previewData?.title || '',
           description: formData.description || previewData?.description || '',
           url: formData.externalUrl || '',
           contentType: contentType,
           fullContent: articleContent || undefined,
-          productionNotes: formData.productionNotes
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP ${response.status}`)
+        productionNotes: formData.productionNotes,
+        // デザイン用フィールド
+        designTools: formData.designTools
       }
 
-      const result = await response.json()
+      // デザイン作品でファイルがアップロードされている場合、ファイル情報と内容を追加
+      if (contentType === 'design' && uploadedFiles.length > 0) {
+        // ファイルのメタデータ
+        requestBody.uploadedFiles = uploadedFiles.map(file => ({
+          name: file.name,
+          type: file.type,
+          size: file.size
+        }))
+        requestBody.fileCount = uploadedFiles.length
+
+        // 画像ファイルの内容をBase64エンコードして追加（厳格なサイズ制限付き）
+        const imageFiles = uploadedFiles.filter(file => file.type.startsWith('image/'))
+        if (imageFiles.length > 0) {
+          const imageDataPromises = imageFiles.map(async (file) => {
+            return new Promise<{name: string, data: string, size: number}>((resolve) => {
+              // ファイルサイズを1MBに制限（トークン数削減のため）
+              const maxSize = 1 * 1024 * 1024 // 1MB
+              
+              if (file.size > maxSize) {
+                console.warn(`画像ファイル ${file.name} が大きすぎます (${(file.size / 1024 / 1024).toFixed(1)}MB)。メタデータのみ送信します。`)
+                resolve({
+                  name: file.name,
+                  data: `[ファイルサイズが大きすぎるため、内容は送信されませんでした。サイズ: ${(file.size / 1024 / 1024).toFixed(1)}MB、形式: ${file.type}]`,
+                  size: file.size
+                })
+                return
+              }
+
+              const reader = new FileReader()
+              reader.onload = () => {
+                const base64Data = reader.result as string
+                // Base64データのサイズをチェック（約100KBに制限）
+                const estimatedTokens = Math.ceil(base64Data.length / 4) // 概算トークン数
+                const maxTokens = 100000 // 約100KB相当
+                
+                if (estimatedTokens > maxTokens) {
+                  console.warn(`画像ファイル ${file.name} のトークン数が多すぎます (推定: ${estimatedTokens})。メタデータのみ送信します。`)
+                  resolve({
+                    name: file.name,
+                    data: `[トークン数が多すぎるため、内容は送信されませんでした。推定トークン数: ${estimatedTokens}]`,
+                    size: file.size
+                  })
+                  return
+                }
+                
+                resolve({
+                  name: file.name,
+                  data: base64Data,
+                  size: file.size
+                })
+              }
+              reader.onerror = () => {
+                console.error(`画像ファイル ${file.name} の読み込みに失敗しました`)
+                resolve({
+                  name: file.name,
+                  data: `[ファイル読み込みエラー]`,
+                  size: file.size
+                })
+              }
+              reader.readAsDataURL(file)
+            })
+          })
+
+          const imageData = await Promise.all(imageDataPromises)
+          requestBody.imageFiles = imageData
+        }
+      }
+      
+      console.log('AI分析リクエスト送信:', {
+        url: apiUrl,
+        contentType: contentType,
+        hasDescription: !!requestBody.description,
+        hasTitle: !!requestBody.title,
+        hasUrl: !!requestBody.url,
+        hasFullContent: !!requestBody.fullContent,
+        hasUploadedFiles: !!requestBody.uploadedFiles,
+        fileCount: requestBody.fileCount,
+        hasImageFiles: !!requestBody.imageFiles,
+        imageFileCount: requestBody.imageFiles ? requestBody.imageFiles.length : 0,
+        requestBody: {
+          ...requestBody,
+          // 大きなデータは省略
+          imageFiles: requestBody.imageFiles ? `${requestBody.imageFiles.length}個の画像ファイル` : undefined
+        }
+      })
+
+      // テスト用: まずテストエンドポイントでAPIの動作を確認
+      try {
+        console.log('=== テストAPI呼び出し開始 ===')
+        console.log('リクエストボディ:', requestBody)
+        console.log('リクエストボディ型:', typeof requestBody)
+        console.log('リクエストボディキー:', Object.keys(requestBody))
+        
+        const testResponse = await fetch('/api/ai-analyze/test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
+        
+        console.log('=== テストAPIレスポンス ===')
+        console.log('ステータス:', testResponse.status)
+        console.log('ステータステキスト:', testResponse.statusText)
+        console.log('OK:', testResponse.ok)
+        console.log('ヘッダー:', Object.fromEntries(testResponse.headers.entries()))
+        console.log('==========================')
+        
+        if (testResponse.ok) {
+          const testResult = await testResponse.json()
+          console.log('=== テストAPI結果 ===')
+          console.log('結果:', testResult)
+          console.log('結果型:', typeof testResult)
+          console.log('結果キー:', testResult ? Object.keys(testResult) : 'null/undefined')
+          console.log('====================')
+        } else {
+          const testErrorText = await testResponse.text()
+          console.warn('=== テストAPIエラー ===')
+          console.warn('ステータス:', testResponse.status)
+          console.warn('ステータステキスト:', testResponse.statusText)
+          console.warn('エラーテキスト:', testErrorText)
+          console.warn('====================')
+        }
+      } catch (testError) {
+        console.warn('=== テストAPI呼び出し失敗 ===')
+        console.warn('エラー:', testError)
+        console.warn('エラー型:', typeof testError)
+        console.warn('=======================')
+      }
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      // レスポンスボディを一度だけ読み取る
+      let result
+      let responseText = ''
+      try {
+        responseText = await response.text()
+        console.log('=== APIレスポンス生データ ===')
+        console.log('レスポンステキスト:', responseText)
+        console.log('レスポンステキスト長:', responseText.length)
+        console.log('レスポンステキスト型:', typeof responseText)
+        console.log('============================')
+        
+        if (!responseText.trim()) {
+          throw new Error('APIから空のレスポンスが返されました')
+        }
+        
+        result = JSON.parse(responseText)
+        console.log('=== JSONパース成功 ===')
+        console.log('パース結果:', result)
+        console.log('パース結果型:', typeof result)
+        console.log('パース結果キー:', result ? Object.keys(result) : 'null/undefined')
+        console.log('=====================')
+      } catch (parseError) {
+        console.error('=== JSONパースエラー ===')
+        console.error('パースエラー:', parseError)
+        console.error('パースエラー型:', typeof parseError)
+        console.error('レスポンスステータス:', response.status, response.statusText)
+        console.error('レスポンステキスト:', responseText)
+        console.error('======================')
+        throw new Error(`AI分析結果の解析に失敗しました: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`)
+      }
+
+      if (!response.ok) {
+        console.error('=== AI分析APIエラー詳細 ===')
+        console.error('ステータス:', response.status)
+        console.error('ステータステキスト:', response.statusText)
+        console.error('URL:', apiUrl)
+        console.error('コンテンツタイプ:', contentType)
+        console.error('レスポンスヘッダー:', Object.fromEntries(response.headers.entries()))
+        console.error('エラーデータ:', result)
+        console.error('エラーデータ型:', typeof result)
+        console.error('エラーデータキー:', result ? Object.keys(result) : 'null/undefined')
+        if (result && typeof result === 'object') {
+          Object.keys(result).forEach(key => {
+            console.error(`エラーデータ.${key}:`, result[key])
+            console.error(`エラーデータ.${key}型:`, typeof result[key])
+          })
+        }
+        console.error('リクエストデータ:', {
+          hasDescription: !!requestBody.description,
+          hasTitle: !!requestBody.title,
+          hasUrl: !!requestBody.url,
+          hasFullContent: !!requestBody.fullContent,
+          hasUploadedFiles: !!requestBody.uploadedFiles,
+          fileCount: requestBody.fileCount,
+          hasImageFiles: !!requestBody.imageFiles,
+          imageFileCount: requestBody.imageFiles ? requestBody.imageFiles.length : 0
+        })
+        console.error('========================')
+        // エラーメッセージの適切な処理
+        console.log('=== エラー処理詳細 ===')
+        console.log('result:', result)
+        console.log('result型:', typeof result)
+        console.log('resultキー:', result ? Object.keys(result) : 'null/undefined')
+        console.log('hasError:', !!result?.error)
+        console.log('error:', result?.error)
+        console.log('error型:', typeof result?.error)
+        console.log('errorキー:', result?.error ? Object.keys(result.error) : 'null/undefined')
+        console.log('hasMessage:', !!result?.message)
+        console.log('message:', result?.message)
+        console.log('message型:', typeof result?.message)
+        console.log('========================')
+        
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        
+        if (result && typeof result === 'object') {
+          if (typeof result.error === 'string') {
+            errorMessage = result.error
+          } else if (result.error && typeof result.error === 'object') {
+            // オブジェクトの場合は、messageプロパティを探すか、安全にJSON化
+            if (result.error.message && typeof result.error.message === 'string') {
+              errorMessage = result.error.message
+            } else {
+              try {
+                errorMessage = JSON.stringify(result.error, null, 2)
+              } catch (stringifyError) {
+                errorMessage = 'エラーオブジェクトの解析に失敗しました'
+              }
+            }
+          } else if (result.message && typeof result.message === 'string') {
+            errorMessage = result.message
+          }
+        }
+        
+        console.log('最終エラーメッセージ:', errorMessage)
+        throw new Error(errorMessage)
+      }
       
       if (result.success && result.analysis) {
         // AI分析結果と評価スコアの両方を設定
@@ -689,6 +1044,72 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         }
         
         setAnalysisResult(completeAnalysisResult)
+        
+        // 作品名と概要の自動生成（デザイン作品でファイルがアップロードされている場合）
+        if (contentType === 'design' && uploadedFiles.length > 0 && result.analysis) {
+          let titleGenerated = false
+          let descriptionGenerated = false
+          
+          // 作品名の自動生成
+          if (!formData.title || formData.title.trim() === '') {
+            const suggestedTitle = result.analysis.summary || result.analysis.oneLinerSummary || 'デザイン作品'
+            setFormData(prev => ({
+              ...prev,
+              title: suggestedTitle
+            }))
+            titleGenerated = true
+          }
+          
+          // 作品概要の自動生成
+          if (!formData.description || formData.description.trim() === '') {
+            let suggestedDescription = ''
+            
+            // 詳細分析から概要を生成
+            if (result.analysis.detailedAnalysis) {
+              const analysis = result.analysis.detailedAnalysis
+              const parts = []
+              
+              if (analysis.genreClassification) {
+                parts.push(analysis.genreClassification)
+              }
+              if (analysis.styleCharacteristics) {
+                parts.push(analysis.styleCharacteristics)
+              }
+              if (analysis.uniqueValueProposition) {
+                parts.push(analysis.uniqueValueProposition)
+              }
+              
+              if (parts.length > 0) {
+                suggestedDescription = parts.join('。') + '。'
+              }
+            }
+            
+            // 詳細分析がない場合は、summaryやcontentTypeAnalysisを使用
+            if (!suggestedDescription) {
+              suggestedDescription = result.analysis.contentTypeAnalysis || result.analysis.summary || 'デザイン作品です。'
+            }
+            
+            // 概要が長すぎる場合は短縮
+            if (suggestedDescription.length > 200) {
+              suggestedDescription = suggestedDescription.substring(0, 200) + '...'
+            }
+            
+            setFormData(prev => ({
+              ...prev,
+              description: suggestedDescription
+            }))
+            descriptionGenerated = true
+          }
+          
+          // 自動生成された項目を通知
+          const generatedItems = []
+          if (titleGenerated) generatedItems.push('作品名')
+          if (descriptionGenerated) generatedItems.push('作品概要')
+          
+          if (generatedItems.length > 0) {
+            console.log(`AI分析により自動生成されました: ${generatedItems.join('、')}`)
+          }
+        }
         
         // 推奨タグを自動追加（重複は除外）
         if (result.analysis.tags && result.analysis.tags.length > 0) {
@@ -706,8 +1127,38 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         throw new Error('分析結果の取得に失敗しました')
       }
     } catch (error) {
-      console.error('AI分析エラー:', error)
-      alert(error instanceof Error ? error.message : 'AI分析に失敗しました')
+      console.error('=== AI分析エラー ===')
+      console.error('エラー:', error)
+      console.error('エラー型:', typeof error)
+      console.error('Errorインスタンス:', error instanceof Error)
+      console.error('エラーキー:', error && typeof error === 'object' ? Object.keys(error) : 'not an object')
+      console.error('hasMessage:', !!(error as any)?.message)
+      console.error('message:', (error as any)?.message)
+      console.error('message型:', typeof (error as any)?.message)
+      console.error('====================')
+      
+      // エラーメッセージの適切な処理
+      let errorMessage = 'AI分析に失敗しました'
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      } else if (error && typeof error === 'object') {
+        const errorObj = error as any
+        if (errorObj.message && typeof errorObj.message === 'string') {
+          errorMessage = errorObj.message
+        } else {
+          try {
+            errorMessage = JSON.stringify(errorObj, null, 2)
+          } catch (stringifyError) {
+            errorMessage = 'エラーオブジェクトの解析に失敗しました'
+          }
+        }
+      }
+      
+      console.log('表示するエラーメッセージ:', errorMessage)
+      alert(errorMessage)
     } finally {
       setIsAnalyzing(false)
     }
@@ -731,25 +1182,63 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
       // ファイルアップロード処理
       const fileUrls: string[] = []
       
-      for (const file of uploadedFiles) {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}.${fileExt}`
+      // Supabaseクライアントの確認
+      console.log('=== Supabaseクライアント確認 ===')
+      console.log('supabase object:', typeof supabase)
+      console.log('supabase.storage:', typeof supabase.storage)
+      console.log('supabase.storage.from:', typeof supabase.storage.from)
+      console.log('===============================')
+      
+      if (uploadedFiles.length > 0) {
+        for (const file of uploadedFiles) {
+          const fileExt = file.name.split('.').pop()
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`
         
-        // eslint-disable-next-line unused-imports/no-unused-vars
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('work-files')
-          .upload(fileName, file)
+          console.log('=== ファイルアップロード開始 ===')
+          console.log('ファイル名:', fileName)
+          console.log('ファイルサイズ:', file.size)
+          console.log('ファイルタイプ:', file.type)
+          console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '設定済み' : '未設定')
+          console.log('Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '設定済み' : '未設定')
         
-        if (uploadError) {
-          console.error('File upload error:', uploadError)
-          continue
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('work-files')
+            .upload(fileName, file)
+        
+          console.log('アップロード結果:', uploadData)
+          console.log('アップロードエラー:', uploadError)
+          console.log('=======================')
+        
+          if (uploadError) {
+            console.error('=== File upload error ===')
+            console.error('ファイル名:', file.name)
+            console.error('ファイルサイズ:', file.size)
+            console.error('ファイルタイプ:', file.type)
+            console.error('エラー:', uploadError)
+            console.error('エラー型:', typeof uploadError)
+            console.error('エラーメッセージ:', uploadError.message)
+            console.error('エラー詳細:', uploadError)
+            console.error('=======================')
+          
+            let errorMessage = `ファイル ${file.name} のアップロードに失敗しました`
+            if (uploadError.message) {
+              errorMessage += `: ${uploadError.message}`
+            }
+            alert(errorMessage)
+            continue
+          }
+        
+          const { data: { publicUrl } } = supabase.storage
+            .from('work-files')
+            .getPublicUrl(fileName)
+        
+          fileUrls.push(publicUrl)
+        
+          // 最初の画像ファイルをバナー画像として設定
+          if (file.type.startsWith('image/') && !bannerImageUrl) {
+            setBannerImageUrl(publicUrl)
+          }
         }
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('work-files')
-          .getPublicUrl(fileName)
-        
-        fileUrls.push(publicUrl)
       }
 
       // カテゴリはユーザーが後で整理するため初期値は空にする
@@ -781,7 +1270,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         roles: formData.roles.length > 0 ? formData.roles : [],
         categories: getContentTypeCategory(contentType),
         content_type: contentType,
-        banner_image_url: previewData?.image || null,
+        banner_image_url: bannerImageUrl || previewData?.image || null,
         preview_data: previewData ? {
           title: previewData.title,
           description: previewData.description,
@@ -800,6 +1289,10 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
             total_keywords: analysisResult.keywords?.length || 0
           }
         } : null,
+        // デザイン用フィールド
+        design_tools: formData.designTools,
+        // アップロードされたファイルのURL
+        file_urls: fileUrls.length > 0 ? fileUrls : null,
         // 文字数統計を追加
         ...articleStats
       }
@@ -841,11 +1334,9 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
       // 保存されたデータを設定
       setSavedWorkData(data)
       
-      // シェアモーダルを表示（一時的に無効化）
-      // setShowShareModal(true)
-      
-      // 保存成功後、プロフィールページに遷移
-      router.push('/profile')
+      // シェアモーダルを表示
+      setShowShareModal(true)
+      // プロフィールへの遷移はモーダルを閉じた後に行う
 
     } catch (error) {
       console.error('Work save error:', error)
@@ -896,11 +1387,31 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
           <div className="mt-6 mb-4 max-w-2xl mx-auto text-center">
             <div className="bg-blue-50 border border-blue-200 rounded-lg px-6 py-4 text-blue-900 text-base leading-relaxed">
               <p className="mb-2">
-                <span className="font-bold">URLを入力するだけで、作品概要などの情報は自動で取得されます。</span><br />
-                そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。
+                <span className="font-bold">
+                  {contentType === 'article' ? 'URLを入力するだけで、作品概要などの情報は自動で取得されます。' :
+                   contentType === 'design' ? 'URLを入力するだけで、デザイン作品の情報は自動で取得されます。' :
+                   contentType === 'photo' ? 'URLを入力するだけで、写真作品の情報は自動で取得されます。' :
+                   contentType === 'video' ? 'URLを入力するだけで、動画作品の情報は自動で取得されます。' :
+                   contentType === 'podcast' ? 'URLを入力するだけで、ポッドキャスト作品の情報は自動で取得されます。' :
+                   contentType === 'event' ? 'URLを入力するだけで、イベント作品の情報は自動で取得されます。' :
+                   'URLを入力するだけで、作品概要などの情報は自動で取得されます。'}
+                </span><br />
+                {contentType === 'article' ? 'そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。' :
+                 contentType === 'design' ? 'そのまま保存してもOKですし、AI分析でデザインの魅力を可視化するのもおすすめです。' :
+                 contentType === 'photo' ? 'そのまま保存してもOKですし、AI分析で写真の魅力を可視化するのもおすすめです。' :
+                 contentType === 'video' ? 'そのまま保存してもOKですし、AI分析で動画の魅力を可視化するのもおすすめです。' :
+                 contentType === 'podcast' ? 'そのまま保存してもOKですし、AI分析でポッドキャストの魅力を可視化するのもおすすめです。' :
+                 contentType === 'event' ? 'そのまま保存してもOKですし、AI分析でイベントの魅力を可視化するのもおすすめです。' :
+                 'そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。'}
               </p>
               <p className="mb-0 text-blue-700 text-sm">
-                制作メモや記事本文の入力は<strong>完全に任意</strong>です。<br />
+                {contentType === 'article' ? '制作メモや記事本文の入力は' :
+                 contentType === 'design' ? '制作メモやデザイン詳細の入力は' :
+                 contentType === 'photo' ? '制作メモや写真詳細の入力は' :
+                 contentType === 'video' ? '制作メモや動画詳細の入力は' :
+                 contentType === 'podcast' ? '制作メモやポッドキャスト詳細の入力は' :
+                 contentType === 'event' ? '制作メモやイベント詳細の入力は' :
+                 '制作メモや作品詳細の入力は'}<strong>完全に任意</strong>です。<br />
                 「もっと詳しく残したい」「AI分析を深めたい」ときだけ、気軽にご活用ください。
               </p>
             </div>
@@ -1007,6 +1518,112 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                 className="h-12"
               />
             </div>
+
+            {/* ファイルアップロード - 記事以外の作品タイプのみ */}
+            {contentType !== 'article' && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">ファイル・画像アップロード</h2>
+              <p className="text-gray-600 text-sm mb-4">
+                デザインファイルや画像をアップロードできます。JPEG、PNG、GIFの他に PSD、AI、PDF、TIFF、WEBPもサポートしています。
+              </p>
+              
+              {/* ドラッグ&ドロップエリア */}
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </div>
+                  <p className="text-lg font-medium text-gray-900 mb-2">アップロード</p>
+                  <p className="text-sm text-gray-500 mb-4">
+                    ファイルをドラッグ&ドロップするか、クリックして選択してください
+                  </p>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf,.psd,.ai,.tiff,.bmp,.svg"
+                    onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
+                  >
+                    ファイルを選択
+                  </label>
+                </div>
+              </div>
+
+              {/* アップロードされたファイル一覧 */}
+              {uploadedFiles.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">アップロードされたファイル</h3>
+                  <div className="space-y-3">
+                    {uploadedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                            {file.type.startsWith('image/') ? (
+                              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeFile(index)}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* バナー画像プレビュー */}
+              {bannerImageUrl && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">バナー画像（作品一覧に表示）</h3>
+                  <div className="relative">
+                    <img
+                      src={bannerImageUrl}
+                      alt="バナー画像"
+                      className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                    />
+                    <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                      バナー画像
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    この画像が作品一覧のバナーとして表示されます
+                  </p>
+                </div>
+              )}
+            </div>
+            )}
           </div>
 
           {/* 右カラム: 入力項目 */}
@@ -1219,6 +1836,67 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                 </div>
               )}
             </div>
+
+            {/* デザイン詳細（デザインタイプの場合のみ表示） */}
+            {contentType === 'design' && (
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">デザイン詳細</h2>
+                
+                {/* デザインツール */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    使用ツール
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {designToolOptions.map((tool) => (
+                        <button
+                          key={tool}
+                          onClick={() => addDesignTool(tool)}
+                          disabled={formData.designTools.includes(tool)}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                            formData.designTools.includes(tool)
+                              ? 'bg-blue-100 text-blue-700 cursor-not-allowed'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {tool}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newDesignTool}
+                        onChange={(e) => setNewDesignTool(e.target.value)}
+                        placeholder="その他のツール"
+                        className="flex-1"
+                      />
+                      <Button onClick={addCustomDesignTool} variant="outline">
+                        追加
+                      </Button>
+                    </div>
+                    {formData.designTools.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.designTools.map((tool) => (
+                          <span
+                            key={tool}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                          >
+                            {tool}
+                            <button
+                              onClick={() => removeDesignTool(tool)}
+                              className="hover:text-blue-900"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1244,7 +1922,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                   </h3>
                   <p className="text-blue-100 text-sm mt-1 leading-relaxed">
                     {contentType === 'article' ? '記事の専門性・文章力・読者への価値提供を多角的に分析' :
-                     contentType === 'design' ? 'デザインの美的センス・技術力・ブランド価値向上を多角的に分析' :
+                     contentType === 'design' ? 'デザインの美的センス・技術力・ブランド価値向上を多角的に分析（画像ファイルの視覚的内容も詳細分析・作品名・概要も自動生成）' :
                      contentType === 'photo' ? '写真の技術力・表現力・視覚的インパクトを多角的に分析' :
                      contentType === 'video' ? '動画の演出力・技術力・視聴者エンゲージメントを多角的に分析' :
                      contentType === 'podcast' ? 'ポッドキャストの企画力・音響技術・リスナー価値提供を多角的に分析' :
@@ -1307,8 +1985,21 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                           </svg>
                           <div className="font-semibold text-blue-800">詳細レポート</div>
                         </div>
-                        <div className="text-blue-700 text-sm">作品の概要・強み・ターゲット層を詳細分析</div>
+                        <div className="text-blue-700 text-sm">
+                          {contentType === 'design' ? '作品の概要・強み・ターゲット層を詳細分析（画像ファイルの視覚的内容も含む・作品名・概要も自動生成）' : '作品の概要・強み・ターゲット層を詳細分析'}
                       </div>
+                    </div>
+                      {contentType === 'design' && (
+                        <div className="bg-white/80 rounded-xl p-4 border border-blue-100 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                            </svg>
+                            <div className="font-semibold text-blue-800">自動生成機能</div>
+                  </div>
+                          <div className="text-blue-700 text-sm">作品名・概要・タグを画像内容から自動生成</div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1321,7 +2012,9 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                   <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                   <div>
                     <p className="text-blue-900 font-bold text-lg">高度AI分析を実行中...</p>
-                    <p className="text-blue-700">技術力・専門性・創造性・影響力の観点から詳細分析しています</p>
+                    <p className="text-blue-700">
+                      {contentType === 'design' ? '技術力・専門性・創造性・影響力の観点から詳細分析しています（画像ファイルの視覚的内容も含む・作品名・概要も自動生成中）' : '技術力・専門性・創造性・影響力の観点から詳細分析しています'}
+                    </p>
                   </div>
                 </div>
               </div>

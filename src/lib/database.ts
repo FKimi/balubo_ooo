@@ -133,14 +133,31 @@ export class DatabaseClient {
         }
       )
 
+      // フロントエンドのProfileData型をデータベースの形式に変換
       const profileToSave = {
         user_id: userId,
-        ...profileData,
+        display_name: profileData.displayName,
+        title: profileData.title,
+        bio: profileData.bio,
+        introduction: profileData.introduction,
+        professions: profileData.professions || [],
+        skills: profileData.skills || [],
+        location: profileData.location,
+        website_url: profileData.websiteUrl,
+        portfolio_visibility: profileData.portfolioVisibility,
+        background_image_url: profileData.backgroundImageUrl,
+        avatar_image_url: profileData.avatarImageUrl,
+        desired_rate: profileData.desiredRate,
+        job_change_intention: profileData.jobChangeIntention,
+        side_job_intention: profileData.sideJobIntention,
+        project_recruitment_status: profileData.projectRecruitmentStatus,
+        experience_years: profileData.experienceYears,
+        working_hours: profileData.workingHours,
+        career: profileData.career || [],
         updated_at: new Date().toISOString(),
       }
 
-      // `id`フィールドは`upsert`で自動的に処理されるため、削除
-      delete profileToSave.id
+      console.log('DatabaseClient: 保存用プロフィールデータ:', profileToSave)
 
       const { data: result, error } = await dbClient
         .from('profiles')

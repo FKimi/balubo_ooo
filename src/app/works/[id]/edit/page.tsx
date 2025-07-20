@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/header'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { AIAnalysisResult } from '@/types/work'
+import { AIAnalysisResult } from '@/features/work/types'
 import NewWorkForm from '@/app/works/new/NewWorkForm'
 
 interface LinkPreviewData {

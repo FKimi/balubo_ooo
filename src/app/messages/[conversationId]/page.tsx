@@ -59,6 +59,7 @@ export default function ChatPage() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const channelRef = useRef<any>(null)
   const router = useRouter()
   const params = useParams()
   const conversationId = params.conversationId as string
@@ -119,8 +120,20 @@ export default function ChatPage() {
   }, [conversationId, router]);
 
   const setupRealtimeSubscription = useCallback(() => {
+    if (!conversationId) return () => {}
+    
+    // 既存のチャンネルをクリーンアップ
+    if (channelRef.current) {
+      try {
+        supabase.removeChannel(channelRef.current)
+      } catch (error) {
+        console.warn('既存のチャンネルクリーンアップエラー:', error)
+      }
+    }
+    
+    // 新しいチャンネルを作成
     const channel = supabase
-      .channel(`messages:${conversationId}`)
+      .channel('messages')
       .on(
         'postgres_changes',
         {
@@ -133,16 +146,35 @@ export default function ChatPage() {
           const newMessage = payload.new as any
           // 新しいメッセージを追加（自分が送信したメッセージでない場合のみ）
           if (newMessage.sender_id !== supabase.auth.getUser().then(u => u.data.user?.id)) {
-            fetchMessages() // 簡単のため再取得（本来はリアルタイムで追加）
+            // fetchMessagesを直接呼び出すのではなく、メッセージを直接追加
+            setMessages(prev => [...prev, newMessage])
           }
         }
       )
-      .subscribe()
+      .subscribe((status, err) => {
+        console.log('メッセージリアルタイム購読ステータス:', status, err)
+        
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.warn('メッセージリアルタイム接続でエラーが発生しました:', err)
+          // エラー時はチャンネルをクリーンアップ（再帰呼び出しを避ける）
+          channelRef.current = null
+        }
+      })
 
+    channelRef.current = channel
+
+    // クリーンアップ関数を返す
     return () => {
-      supabase.removeChannel(channel)
+      if (channelRef.current) {
+        try {
+          supabase.removeChannel(channelRef.current)
+        } catch (error) {
+          console.warn('チャンネルクリーンアップエラー:', error)
+        }
+        channelRef.current = null
+      }
     }
-  }, [conversationId, fetchMessages]);
+  }, [conversationId]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -152,7 +184,11 @@ export default function ChatPage() {
   useEffect(() => {
     if (conversationId) {
       fetchMessages()
-      setupRealtimeSubscription()
+      const cleanup = setupRealtimeSubscription()
+      
+      return () => {
+        cleanup()
+      }
     }
   }, [conversationId, fetchMessages, setupRealtimeSubscription])
 

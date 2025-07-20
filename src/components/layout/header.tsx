@@ -2,25 +2,27 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { useProfile } from '@/hooks/useProfile'
+import { useProfile } from '@/features/profile/hooks/useProfile'
+import { Button } from '@/components/ui/button'
 import { ProfileAvatar } from '@/components/common/ProfileAvatar'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { useLayout } from '@/contexts/LayoutContext'
 import { Home, User, BarChart2, Plus, MessageSquare } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export function Header() {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showReportPreview, setShowReportPreview] = useState(false)
+  const { openContentTypeSelector } = useLayout()
+  const router = useRouter()
   const { user, signOut } = useAuth()
   const { profile } = useProfile()
-  const router = useRouter()
   const pathname = usePathname()
 
   const handleSignOut = async () => {
     await signOut()
-    router.push('/')
   }
 
   const navLinks = [
@@ -84,12 +86,19 @@ export function Header() {
                 {/* 通知ベル */}
                 <NotificationBell />
 
-                {/* 作品追加ボタン */}
-                <Button asChild className="shadow-sm hover:shadow-md transition-shadow">
-                  <Link href="/works/new">
-                    <Plus className="w-4 h-4 mr-2" />
-                    作品追加
-                  </Link>
+                {/* 作品追加ボタン：モーダルでタイプ選択 */}
+                <Button
+                  onClick={() => {
+                    if (!pathname.startsWith('/profile')) {
+                      router.push('/profile?tab=works')
+                    }
+                    // 少し遅延させてモーダルが確実にレイアウト内でレンダリングされるように
+                    setTimeout(() => openContentTypeSelector(), 50)
+                  }}
+                  className="shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  作品追加
                 </Button>
 
                 {/* プロフィールメニュー */}

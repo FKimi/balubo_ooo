@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { WorkCard } from './WorkCard'
-import { WorkData } from '@/types/work'
+import { WorkData } from '@/features/work/types'
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 // @ts-ignore
@@ -91,13 +91,14 @@ export function FeaturedWorksSection({
     try {
       const updatedWorks = savedWorks.map(work => {
         if (work.id === workId) {
-          const { featured_order, ...workWithoutOrder } = work
+          // featured_order プロパティを削除し、is_featured を false に設定
+          const { featured_order: _, ...workWithoutOrder } = work;
           return { 
             ...workWithoutOrder, 
             is_featured: false
-          }
+          };
         }
-        return work
+        return work;
       })
       
       setSavedWorks(updatedWorks)

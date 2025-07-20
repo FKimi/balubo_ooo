@@ -209,14 +209,14 @@ async function processFeedRequest(request: NextRequest) {
     // プロフィール情報を一括取得（軽量化）
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('user_id, display_name')
+      .select('user_id, display_name, avatar_image_url')
       .in('user_id', userIds)
 
     const profileMap = new Map<string, FeedUser>(
       (profiles || []).map((p: any) => [p.user_id, {
         id: p.user_id,
         display_name: p.display_name || 'ユーザー',
-        avatar_image_url: '' // 空文字で初期化
+        avatar_image_url: p.avatar_image_url || undefined
       }])
     )
 

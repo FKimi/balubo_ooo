@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
-import type { WorkData } from '@/types/work'
+import type { WorkData } from '@/features/work/types'
 import { EmptyState } from '@/components/common'
 
 interface Category {
