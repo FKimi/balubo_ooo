@@ -6,6 +6,7 @@ import type { WorkData } from '@/features/work/types'
 import type { InputData } from '@/types/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import Image from 'next/image'
 
 interface ShareModalProps {
   isOpen: boolean
@@ -64,7 +65,7 @@ export function ShareModal({ isOpen, onClose, type, data, userDisplayName }: Sha
           <div className="space-y-2">
             <p className="text-sm text-gray-700">以下の内容でX（Twitter）に共有します。</p>
             {ogImageUrl && (
-              <img src={ogImageUrl} alt="シェア画像" className="w-full rounded-lg border border-gray-200" />
+              <Image src={ogImageUrl} alt="シェア画像" width={600} height={315} className="w-full rounded-lg border border-gray-200" />
             )}
             <Textarea value={modalData.text} readOnly className="text-sm bg-gray-50" />
           </div>

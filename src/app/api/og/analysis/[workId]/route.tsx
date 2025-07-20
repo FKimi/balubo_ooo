@@ -3,8 +3,11 @@ import type { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
 
-export async function GET(req: NextRequest, context: { params: { workId: string } }) {
-  const { workId } = context.params
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ workId: string }> }
+) {
+  const { workId: _workId } = await params
 
   const { searchParams } = new URL(req.url)
   const title = searchParams.get('title') ?? 'AI Analysis'
@@ -36,7 +39,7 @@ export async function GET(req: NextRequest, context: { params: { workId: string 
           {tags.map((tag) => `#${tag} `)}
         </div>
         <div style={{ position: 'absolute', bottom: 40, right: 60, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="https://balubo-ooo.vercel.app/og-image.svg" width="40" height="40" />
+          <img src="https://balubo-ooo.vercel.app/og-image.svg" width="40" height="40" alt="balubo.app logo" />
           <span style={{ fontSize: 24, color: '#1e40af' }}>balubo.app</span>
         </div>
       </div>

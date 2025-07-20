@@ -346,7 +346,7 @@ export function InsightsSection({ works, inputs, workStats }: InsightsSectionPro
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex flex-wrap gap-2">
-              {interestAnalysis.slice(0, 3).map((item, index) => (
+              {interestAnalysis.slice(0, 3).map((item, _index) => (
                 <span 
                   key={item.interest}
                   className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"

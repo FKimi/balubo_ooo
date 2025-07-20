@@ -190,6 +190,7 @@ export default function ChatPage() {
         cleanup()
       }
     }
+    return undefined
   }, [conversationId, fetchMessages, setupRealtimeSubscription])
 
   // メッセージ更新時に自動スクロール

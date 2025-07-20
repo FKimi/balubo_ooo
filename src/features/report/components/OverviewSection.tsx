@@ -231,7 +231,7 @@ export function OverviewSection({ works, inputs, workStats, profile, comprehensi
             <div>
               <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">主な役割（トップ3）</h4>
               <div className="flex flex-wrap gap-2">
-                {workStats.roleDistribution.slice(0, 3).map((role: any, index: number) => (
+                {workStats.roleDistribution.slice(0, 3).map((role: any, _index: number) => (
                   <span 
                     key={role.role}
                     className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"

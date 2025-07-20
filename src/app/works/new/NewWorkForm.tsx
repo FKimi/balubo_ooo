@@ -513,8 +513,8 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [isDragging, setIsDragging] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({})
-  const [uploadedFileUrls, setUploadedFileUrls] = useState<string[]>([])
+  const [_uploadProgress, _setUploadProgress] = useState<{ [key: string]: number }>({})
+  const [_uploadedFileUrls, _setUploadedFileUrls] = useState<string[]>([])
   const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(null)
   const [articleContent, setArticleContent] = useState('')
   const [useFullContent, setUseFullContent] = useState(false)
@@ -551,7 +551,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
     'Blender', 'Cinema 4D', 'After Effects', 'Premiere Pro'
   ]
   
-  const platformOptions = [
+  const _platformOptions = [
     'Web', 'iOS', 'Android', 'Desktop', 'Tablet', 'Print', 'Social Media',
     'Email', 'Presentation', 'Branding'
   ]
@@ -656,7 +656,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   // ファイル削除
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index))
-    setUploadedFileUrls(prev => prev.filter((_, i) => i !== index))
+    _setUploadedFileUrls(prev => prev.filter((_, i) => i !== index))
   }
 
   // ドラッグ&ドロップ処理
@@ -1608,9 +1608,11 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                 <div className="mt-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-3">バナー画像（作品一覧に表示）</h3>
                   <div className="relative">
-                    <img
+                    <Image
                       src={bannerImageUrl}
                       alt="バナー画像"
+                      width={800}
+                      height={192}
                       className="w-full h-48 object-cover rounded-lg border border-gray-200"
                     />
                     <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
