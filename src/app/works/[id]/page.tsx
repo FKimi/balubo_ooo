@@ -118,33 +118,18 @@ export async function generateMetadata(
   })
 }
 
-export default async function WorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  try {
-    const { id } = await params
-    
-    if (!id || typeof id !== 'string') {
-      console.log('無効なパラメータ:', { id })
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">作品が見つかりません</h1>
-            <p className="text-gray-600">指定された作品は存在しないか、削除された可能性があります。</p>
-          </div>
-        </div>
-      )
-    }
-    
-    return <WorkDetailClient workId={id} />
-  } catch (error) {
-    console.error('作品詳細ページエラー:', error)
-    
+export default function WorkDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
+  if (!id || typeof id !== 'string') {
+    console.log('無効なパラメータ:', { id })
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">エラーが発生しました</h1>
-          <p className="text-gray-600">ページの読み込み中にエラーが発生しました。</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">作品が見つかりません</h1>
+          <p className="text-gray-600">指定された作品は存在しないか、削除された可能性があります。</p>
         </div>
       </div>
     )
   }
+  return <WorkDetailClient workId={id} />
 } 
