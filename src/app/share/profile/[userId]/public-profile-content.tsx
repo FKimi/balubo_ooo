@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { PublicProfileHeader } from '@/features/profile/components/PublicProfileHeader'
 import { PublicProfileTabs } from '@/features/profile/components/PublicProfileTabs'
 import { Button } from '@/components/ui/button'
+import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
+import { useMemo } from 'react'
 
 interface PublicProfileData {
   profile: any
@@ -30,6 +32,49 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   
   const { profile, works, inputs, inputAnalysis } = data
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
+
+  // 強みカード生成 (タグ頻度ベース)
+  const strengths = useMemo(() => {
+    const list: { title: string; description: string }[] = []
+    if (!works || works.length === 0) return list
+
+    const tagCounts = new Map<string, number>()
+    works.forEach((w: any) => {
+      w.ai_analysis_result?.tags?.forEach((t: string) => {
+        tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
+      })
+    })
+
+    if (tagCounts.size === 0) return list
+
+    const categoryRules: { title: string; regex: RegExp }[] = [
+      { title: '文章構成力', regex: /ライティング|文章|構成|執筆/i },
+      { title: 'SEO・検索最適化', regex: /SEO|検索/i },
+      { title: 'UI/UX・デザイン', regex: /UI|UX|Figma|デザイン/i },
+      { title: 'マーケティング', regex: /マーケ|広告|SNS/i },
+      { title: '読者目線', regex: /読者|ユーザー|ペルソナ/i },
+    ]
+
+    const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
+
+    tagCounts.forEach((count, tag) => {
+      const rule = categoryRules.find(r => r.regex.test(tag))
+      const key = rule ? rule.title : 'その他'
+      const entry = categoryMap.get(key) || { title: key, tags: [], count: 0 }
+      entry.tags.push(tag)
+      entry.count += count
+      categoryMap.set(key, entry)
+    })
+
+    let top = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
+    let filtered = top.filter(c=>c.title!=='その他')
+    if(filtered.length===0) filtered = top
+    filtered.slice(0,3).forEach(cat=>{
+      list.push({ title: cat.title, description: cat.tags.slice(0,3).join(' / ') })
+    })
+
+    return list
+  }, [works])
 
   console.log('PublicProfileContent: プロフィール情報', {
     displayName: profile?.display_name,
@@ -121,6 +166,9 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
           hasCustomAvatar={hasCustomAvatar}
           professions={professions}
         />
+
+        {/* AI分析による強み (共有ビュー) */}
+        {strengths.length>0 && <AIAnalysisStrengths strengths={strengths} />}
         
         {/* 公開プロフィールタブ */}
         <PublicProfileTabs

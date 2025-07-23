@@ -511,10 +511,10 @@ export default function ChatPage() {
                               {!message.isFromMe && (
                                 <div className="flex-shrink-0">
                                   {!isConsecutive ? (
-                                    message.sender.avatar_image_url ? (
+                                    message.sender?.avatar_image_url ? (
                                       <Image
-                                         src={message.sender.avatar_image_url}
-                                         alt={message.sender.display_name}
+                                         src={message.sender!.avatar_image_url}
+                                         alt={message.sender?.display_name || 'ユーザー'}
                                          width={32}
                                          height={32}
                                          className="w-8 h-8 rounded-full object-cover shadow-sm"

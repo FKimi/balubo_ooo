@@ -45,7 +45,7 @@ const contentTypes: ContentType[] = [
     description: '写真撮影、フォトレタッチなど',
     color: 'bg-blue-500',
     icon: 'camera',
-    enabled: false
+    enabled: true
   },
   { 
     id: 'video', 

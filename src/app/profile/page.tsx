@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
@@ -8,6 +8,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { ProfileData, CareerItem } from '@/features/profile/types'
 import type { InputData, InputAnalysis } from '@/types/input'
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
+import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
 import { ProfileModals } from '@/features/profile/components/ProfileModals'
 
@@ -180,9 +181,9 @@ function ProfileContent() {
         console.log('[Profile] データ取得開始', { userId: user.id, hasToken: !!session?.access_token })
         const [profileResponse, worksResponse, inputsResponse, analysisResponse] = await Promise.all([
           fetch(`/api/profile`, { headers }),
-          fetch(`/api/works`, { headers }),
-          fetch(`/api/inputs`, { headers }),
-          fetch(`/api/inputs/analysis`, { headers })
+          fetch(`/api/works?userId=${user.id}`, { headers }),
+          fetch(`/api/inputs?userId=${user.id}`, { headers }),
+          fetch(`/api/inputs/analysis?userId=${user.id}`, { headers })
         ])
         
         console.log('[Profile] API レスポンス状況:', {
@@ -551,10 +552,6 @@ function ProfileContent() {
     }
   }
 
-  if (!profileData) {
-    return <ProfileLoadingFallback />
-  }
-
   // プロフィール情報から表示用データを取得
   const displayName = profileData?.displayName || 'ユーザー'
   const title = profileData?.title || ''
@@ -569,6 +566,64 @@ function ProfileContent() {
   const avatarImageUrl = profileData?.avatarImageUrl || ''
   const slug = profileData?.slug || ''
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
+
+  // --- AI分析 強み集計 (タグ頻度ベース) ---
+  const strengths = useMemo(() => {
+    const list: { title: string; description: string }[] = []
+    if (!savedWorks || savedWorks.length === 0) return list
+
+    // タグ出現回数集計
+    const tagCounts = new Map<string, number>()
+    savedWorks.forEach((w: any) => {
+      w.ai_analysis_result?.tags?.forEach((t: string) => {
+        tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
+      })
+    })
+
+    if (tagCounts.size === 0) return list
+
+    // カテゴリ判定
+    const categoryRules: { title: string; regex: RegExp }[] = [
+      { title: '文章構成力', regex: /ライティング|文章|構成|執筆/i },
+      { title: 'SEO・検索最適化', regex: /SEO|検索/i },
+      { title: 'UI/UX・デザイン', regex: /UI|UX|Figma|デザイン/i },
+      { title: 'マーケティング', regex: /マーケ|広告|SNS/i },
+      { title: '読者目線', regex: /読者|ユーザー|ペルソナ/i },
+    ]
+
+    const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
+
+    tagCounts.forEach((count, tag) => {
+      const rule = categoryRules.find(r => r.regex.test(tag))
+      const key = rule ? rule.title : 'その他'
+      const entry = categoryMap.get(key) || { title: key, tags: [], count: 0 }
+      entry.tags.push(tag)
+      entry.count += count
+      categoryMap.set(key, entry)
+    })
+
+    // 上位3カテゴリ
+    let topCategories = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
+    // 'その他' を除外して上位3件取得。ただし他カテゴリが無い場合は含める
+    let filtered = topCategories.filter(c=>c.title!=='その他')
+    if(filtered.length===0){
+      filtered = topCategories
+    }
+    topCategories = filtered.slice(0,3)
+
+    topCategories.forEach(cat=>{
+      list.push({
+        title: cat.title,
+        description: cat.tags.slice(0,3).join(' / ')
+      })
+    })
+
+    return list
+  }, [savedWorks])
+
+  if (!profileData) {
+    return <ProfileLoadingFallback />
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -590,7 +645,10 @@ function ProfileContent() {
             slug={slug}
             portfolioVisibility={profileData?.portfolioVisibility}
           />
-          
+
+          {/* AI分析による強み */}
+          <AIAnalysisStrengths strengths={strengths} />
+
           {/* タブコンテンツ */}
           <ProfileTabs
             activeTab={activeTab}

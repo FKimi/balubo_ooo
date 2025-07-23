@@ -9,7 +9,14 @@ import path from 'path'
 
 // GET: 作品一覧を取得
 export async function GET(request: NextRequest) {
-  return withAuth(request, async (userId, token) => {
+  return withAuth(request, async (_userId, token) => {
+    const searchParams = request.nextUrl.searchParams
+    const userId = searchParams.get('userId')
+
+    if (!userId) {
+      throw new Error('ユーザーIDが指定されていません')
+    }
+    
     console.log('作品一覧取得APIが呼び出されました、ユーザーID:', userId)
 
     // DatabaseClientを使用して作品一覧を取得（認証トークン付き）

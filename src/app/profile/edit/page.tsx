@@ -63,7 +63,7 @@ export default function ProfileEditPage() {
 
         } else {
           // データベースにデータがない場合はローカルストレージから読み込み
-          const savedProfile = localStorage.getItem('profileData')
+          const savedProfile = localStorage.getItem(`profileData_${user?.id || 'anon'}`)
           if (savedProfile) {
             const parsedProfile = JSON.parse(savedProfile)
             setFormData({
@@ -76,7 +76,7 @@ export default function ProfileEditPage() {
         console.error('プロフィールデータの読み込みエラー:', error)
         // エラー時はローカルストレージから読み込み
         try {
-          const savedProfile = localStorage.getItem('profileData')
+          const savedProfile = localStorage.getItem(`profileData_${user?.id || 'anon'}`)
           if (savedProfile) {
             const parsedProfile = JSON.parse(savedProfile)
             setFormData({
@@ -227,7 +227,8 @@ export default function ProfileEditPage() {
 
       if (data) {
         // ローカルストレージにも保存（バックアップ用）
-        localStorage.setItem('profileData', JSON.stringify(formData))
+        const userId = user?.id || 'anon'
+        localStorage.setItem(`profileData_${userId}`, JSON.stringify(formData))
 
         // Supabase Auth 側の user_metadata も更新して表示名を同期
         try {

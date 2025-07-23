@@ -273,14 +273,10 @@ export default function NewInputPage() {
 
       console.log('インプット保存成功:', data)
       
-      // ユーザー名を取得
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('display_name, full_name')
-        .eq('id', user?.id)
-        .single()
-      
-      const displayName = profileData?.display_name || profileData?.full_name || user?.email?.split('@')[0] || 'ユーザー'
+      // ユーザー名を取得（プロフィールテーブル経由は 400 エラーとなるケースがあるため、
+      // 認証ユーザーのメタデータを利用）
+      const metaDisplayName = (user?.user_metadata as any)?.display_name || (user?.user_metadata as any)?.full_name
+      const displayName = metaDisplayName || user?.email?.split('@')[0] || 'ユーザー'
       setUserDisplayName(displayName)
       
       // 共有モーダルを表示（一時的に無効化）
@@ -738,6 +734,7 @@ export default function NewInputPage() {
           type="input"
           data={savedInputData || {}}
           userDisplayName={userDisplayName}
+          variant="toast"
         />
       </div>
     </ProtectedRoute>

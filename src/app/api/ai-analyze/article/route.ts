@@ -7,95 +7,47 @@ import {
   AnalysisResult 
 } from '../utils/ai-analyzer'
 
-// 文章特化のスコアリング関数
-async function getArticleEvaluationScores(analysisResult: AnalysisResult) {
-  const scoringPrompt = `
-あなたは、与えられた記事分析レポートを評価し、スコアを算出するチーフアナリストです。
-以下のJSON形式の分析レポートを読み解き、5つの評価項目について、それぞれ100点満点で採点してください。
+// 文章特化のサマリー生成関数（5軸を1~2行で言語化）
+async function getArticleEvaluationSummaries(analysisResult: AnalysisResult) {
+  const summaryPrompt = `
+あなたは、与えられた記事分析レポートをもとに作品の魅力を簡潔にまとめるシニアエディターです。
+次のJSON形式の分析レポートを読み、以下の5つの軸について、読者の自己肯定感を高めるようなポジティブでモチベーションを上げる表現で、各1〜2行の日本語テキストで魅力や強みを称賛・可視化してください。ネガティブ表現や課題指摘は避け、褒め言葉中心で書いてください。
+
+1. 総合評価 (overall)
+2. 技術力 (technology)
+3. 専門性 (expertise)
+4. 創造性 (creativity)
+5. 影響力 (impact)
 
 ## 分析レポート
 ${JSON.stringify(analysisResult)}
 
-## 評価基準（100点満点の定義）
-
-### 100点の基準例：NewsPicksの「【リクルート出木場】100倍の結果を出す、成長戦略3つのポイント」レベル
-- 企業トップへの独占インタビュー
-- 読者視点のコンテンツ
-- 社会的意義のあるコンテンツ
-- 他では得られない一次情報と具体的事例
-- 読者の記憶に残るユニークなフレーズ（「データ分析3原則」「n=3マーケティング」など） 
-- 明日から使える実践的な示唆
-- 完璧な編集・構成品質
-
-## 評価項目と詳細基準
-
-### 1. **技術力 (Technology)** (100点満点)
-- **90-100点**: プロフェッショナルレベルの編集品質、完璧な構成、誤字脱字なし、非常に読みやすい
-- **80-89点**: 高い編集品質、良い構成、ほぼ完璧な校正
-- **70-79点**: 標準的な品質、構成に工夫あり
-- **60-69点**: 基本的な品質は満たしている
-- **50-59点**: 改善の余地がある
-
-### 2. **専門性 (Expertise)** (100点満点)
-- **90-100点**: 極めて希少な一次情報、深い取材力、具体的事例豊富、業界トップレベルの情報源
-- **80-89点**: 価値ある情報、しっかりした取材、専門知識活用
-- **70-79点**: 専門的内容、適切な情報収集
-- **60-69点**: 基本的な専門性
-- **50-59点**: 改善が必要
-
-### 3. **創造性 (Creativity)** (100点満点)
-- **90-100点**: 極めてユニークな切り口、記憶に残るフレーズ、革新的な構成
-- **80-89点**: 独自の視点、工夫された構成
-- **70-79点**: 面白い切り口、読者を引きつける要素
-- **60-69点**: 基本的な工夫
-- **50-59点**: 改善が必要
-
-### 4. **影響力 (Impact)** (100点満点)
-- **90-100点**: 読者の思考・行動を大きく変える力、強い感情的インパクト、明確な課題解決
-- **80-89点**: 読者に良い影響、具体的示唆
-- **70-79点**: 参考になる内容、一定の影響
-- **60-69点**: 基本的な価値提供
-- **50-59点**: 改善が必要
-
-### 5. **総合評価 (Overall)** (100点満点)
-上記4項目を総合し、記事全体の完成度と市場価値を評価
-
-## 重要な出力指針
-- 評価理由では、特定のメディアやブランド名との比較表現は使用しない
-- 「○○レベルの〜がないため」のような表現は避ける
-- 「独占的な情報」「記憶に残るフレーズ」「実践的な示唆」など、一般的な品質要素で評価する
-- 各記事の特性を活かした建設的で適切な評価理由を提供する
-- できるだけ肯定的な評価をしてください。
-
-## 出力形式
-以下のJSON形式で、スコアと評価の根拠を明確に示してください。
-JSON以外のテキストは絶対に含めないでください。
-
+## 出力フォーマット（必ずJSONのみ。その他の文字は出力しないこと）
 {
-  "scores": {
-    "technology": { "score": 95, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。構成、編集品質、読みやすさなどの技術的側面を評価。" },
-    "expertise": { "score": 90, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。情報の希少性、取材の深さ、専門知識の活用を評価。" },
-    "creativity": { "score": 88, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。独自の視点、革新的な表現、工夫された構成を評価。" },
-    "impact": { "score": 85, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。読者への影響力、実践的価値、課題解決力を評価。" },
-    "overall": { "score": 90, "reason": "4項目を総合した評価理由。記事全体の完成度と市場価値を建設的に評価。" }
+  "summaries": {
+    "overall": "作品全体の魅力を1〜2行でまとめたテキスト",
+    "technology": "技術力の強みを1〜2行でまとめたテキスト",
+    "expertise": "専門性の強みを1〜2行でまとめたテキスト",
+    "creativity": "創造性の強みを1〜2行でまとめたテキスト",
+    "impact": "影響力の強みを1〜2行でまとめたテキスト"
   }
 }
 `
 
   try {
-    const generatedText = await callGeminiAPI(scoringPrompt, 0.3, 1024)
+    const generatedText = await callGeminiAPI(summaryPrompt, 0.3, 1024)
     const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
     return JSON.parse(cleanedText)
   } catch (error) {
-    console.error('スコアリングエラー:', error)
-    // フォールバック: デフォルトスコア
+    console.error('サマリー生成エラー:', error)
+    // フォールバック: デフォルトサマリー
     return {
-      scores: {
-        technology: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        expertise: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        creativity: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        impact: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        overall: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' }
+      summaries: {
+        overall: '記事全体の魅力を簡潔に伝えるサマリー (生成失敗時のデフォルト)',
+        technology: '技術力の強みを示すサマリー (生成失敗時のデフォルト)',
+        expertise: '専門性の強みを示すサマリー (生成失敗時のデフォルト)',
+        creativity: '創造性の強みを示すサマリー (生成失敗時のデフォルト)',
+        impact: '影響力の強みを示すサマリー (生成失敗時のデフォルト)'
       }
     }
   }
@@ -302,10 +254,10 @@ ${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.le
     const generatedText = await callGeminiAPI(articleAnalysisPrompt, 0.3, 4096)
     const analysisResult = parseAnalysisResult(generatedText)
 
-    // 評価スコアを取得
-    let evaluationScores = null
+    // 評価サマリーを取得
+    let evaluationSummaries = null
     try {
-      evaluationScores = await getArticleEvaluationScores(analysisResult)
+      evaluationSummaries = await getArticleEvaluationSummaries(analysisResult)
     } catch(scoringError) {
       console.error('Scoring Error:', scoringError)
     }
@@ -313,7 +265,7 @@ ${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.le
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      evaluation: evaluationScores,
+      evaluation: evaluationSummaries,
       contentType: '記事・ライティング',
       analysisType: 'article_specialized_analysis',
       rawResponse: generatedText

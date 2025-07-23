@@ -37,6 +37,59 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
   }
 
   // 新しい形式のスコアがあるかチェック
+  const summariesObj = aiAnalysis.evaluation?.summaries
+  if (summariesObj) {
+    type SummaryKey = 'overall' | 'technology' | 'expertise' | 'creativity' | 'impact'
+    const axisLabels: Record<SummaryKey, string> = {
+      overall: '総合評価',
+      technology: '技術力',
+      expertise: '専門性',
+      creativity: '創造性',
+      impact: '影響力',
+    }
+    const axisOrder: SummaryKey[] = ['technology', 'expertise', 'creativity', 'impact']
+    const colorMap: Record<SummaryKey, string> = {
+      overall: 'border-green-300 bg-green-100',
+      technology: 'border-sky-300 bg-sky-100',
+      expertise: 'border-teal-300 bg-teal-100',
+      creativity: 'border-violet-300 bg-violet-100',
+      impact: 'border-amber-300 bg-amber-100',
+    }
+
+    return (
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h4 className="text-lg font-bold text-green-900">AI評価サマリー</h4>
+        </div>
+
+        {/* 総合評価 */}
+        {summariesObj.overall && (
+          <div className={`mb-4 p-4 rounded-lg shadow-sm ${colorMap.overall}`}>
+            <span className="block font-semibold text-gray-800 mb-1">{axisLabels.overall}</span>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{summariesObj.overall}</p>
+          </div>
+        )}
+
+        {/* その他の4軸 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+          {axisOrder.map((key) => {
+            const text = summariesObj[key]
+            if (!text) return null
+            return (
+              <div key={key} className={`p-4 rounded-lg shadow-sm ${colorMap[key]}`}>
+                <span className="block font-bold mb-1 text-gray-800">{axisLabels[key]}</span>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">{text}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   const hasNewFormat = aiAnalysis.evaluation?.scores
   // 古い形式のスコアがあるかチェック  
   const hasLegacyFormat = aiAnalysis.legacyEvaluation?.scores
@@ -54,7 +107,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
         </div>
         
         {/* 総合評価 */}
-        {scores.overall && (
+        {scores?.overall && (
           <div className="mb-4 p-3 bg-white rounded-lg border border-green-100">
             <div 
               className="flex items-center justify-between cursor-pointer"
@@ -99,7 +152,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
 
         {/* 個別評価項目 */}
         <div className="grid grid-cols-2 gap-3">
-          {scores.technology && (
+          {scores?.technology && (
             <div className="p-3 bg-white rounded-lg border border-green-100">
               <div 
                 className="flex items-center justify-between cursor-pointer"
@@ -130,7 +183,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
             </div>
           )}
 
-          {scores.expertise && (
+          {scores?.expertise && (
             <div className="p-3 bg-white rounded-lg border border-green-100">
               <div 
                 className="flex items-center justify-between cursor-pointer"
@@ -161,7 +214,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
             </div>
           )}
 
-          {scores.creativity && (
+          {scores?.creativity && (
             <div className="p-3 bg-white rounded-lg border border-green-100">
               <div 
                 className="flex items-center justify-between cursor-pointer"
@@ -192,7 +245,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
             </div>
           )}
 
-          {scores.impact && (
+          {scores?.impact && (
             <div className="p-3 bg-white rounded-lg border border-green-100">
               <div 
                 className="flex items-center justify-between cursor-pointer"
@@ -290,6 +343,28 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [showShareModal, setShowShareModal] = useState(false)
+
+  useEffect(() => {
+    // 閲覧数をインクリメントする非同期関数
+    const incrementViewCount = async () => {
+      // 開発環境ではカウントアップしない（ホットリロードによる意図しないカウントを防ぐ）
+      if (process.env.NODE_ENV === 'development') {
+        console.log('開発環境のため、閲覧数のカウントアップをスキップしました。');
+        return;
+      }
+      try {
+        await fetch(`/api/works/${workId}/view`, {
+          method: 'POST',
+        });
+      } catch (error) {
+        console.error('閲覧数の更新リクエストに失敗:', error);
+      }
+    };
+
+    if (workId) {
+      incrementViewCount();
+    }
+  }, [workId]);
 
   useEffect(() => {
     const fetchWork = async () => {
@@ -597,7 +672,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                     )}
 
                     {/* AI評価スコア */}
-                    {(aiAnalysis.evaluation?.scores || aiAnalysis.legacyEvaluation?.scores) && (
+                    {!!(aiAnalysis.evaluation?.scores || aiAnalysis.evaluation?.summaries || aiAnalysis.legacyEvaluation?.scores) && (
                       <AIEvaluationSection aiAnalysis={aiAnalysis} />
                     )}
 
@@ -716,8 +791,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                 </div>
               )}
 
-              {/* タグ */}
-              {work.tags && work.tags.length > 0 && (
+              {/* タグ（AI分析タグがない場合のみ表示） */}
+              {(!aiAnalysis?.tags || aiAnalysis.tags.length === 0) && work.tags && work.tags.length > 0 && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
                     <span className="text-3xl">🏷️</span>

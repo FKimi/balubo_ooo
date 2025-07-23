@@ -2,15 +2,31 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { WorkData } from '@/features/work/types'
 import { Card, CardContent } from '@/components/ui/card'
+import { Eye, Heart, MessageCircle, Calendar } from 'lucide-react'
 
 interface WorkCardProps {
   work: WorkData
   onDelete: (_workId: string) => void
   isDraggable?: boolean
-  isFeatured?: boolean // isFeaturedプロップを追加
+  isFeatured?: boolean
 }
 
 export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
+  // production_date をフォーマット (例: 2024年3月)
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return ''
+    try {
+      const date = new Date(dateString)
+      // Invalid Dateの場合を考慮
+      if (isNaN(date.getTime())) return ''
+      return `${date.getFullYear()}年${date.getMonth() + 1}月`
+    } catch (e) {
+      return ''
+    }
+  }
+
+  const formattedDate = formatDate(work.production_date)
+
   return (
     <div 
       className={`group relative h-full ${
@@ -18,86 +34,56 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
       }`}>
       <Link href={`/works/${work.id}`} className="block h-full">
         <Card 
-          className={`h-full overflow-hidden transition-all duration-300 ease-in-out group-hover:shadow-xl cursor-pointer ${
-            isFeatured ? 'shadow-lg group-hover:shadow-2xl' : ''
-          }`}>
+          className={`h-full overflow-hidden transition-all duration-300 ease-in-out rounded-lg shadow-md hover:shadow-xl cursor-pointer bg-white`}>
           <CardContent className="p-0 flex flex-col h-full">
-            <div className="relative w-full">
-              {/* 作品画像またはプレースホルダー */}
-              <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
-                {work.preview_data?.image ? (
-                  <Image
-                    src={work.preview_data.image}
-                    alt={work.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = 'none'
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
-                    <div className="text-center">
-                      <div className="w-8 h-8 mx-auto mb-2 bg-blue-600 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <p className="text-blue-600 text-sm">画像なし</p>
-                    </div>
+            {/* 画像セクション */}
+            <div className="relative w-full aspect-video overflow-hidden">
+              {work.banner_image_url || work.preview_data?.image ? (
+                <Image
+                  src={work.banner_image_url || work.preview_data!.image}
+                  alt={work.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <div className="text-gray-400">
+                    <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
-              {/* タイトル */}
-              <div className="p-4 flex-grow">
-                <h3 
-                  className={`font-semibold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors ${
-                    isFeatured ? 'text-base' : 'text-sm'
-                  }`}>
-                  {work.title}
-                </h3>
-                
-                {/* デザイン用の追加情報 */}
-                {work.content_type === 'design' && (
-                  <div className="mt-2 space-y-1">
-                    {/* デザインツール */}
-                    {work.design_tools && work.design_tools.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {work.design_tools.slice(0, 2).map((tool) => (
-                          <span key={tool} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">
-                            {tool}
-                          </span>
-                        ))}
-                        {work.design_tools.length > 2 && (
-                          <span className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs">
-                            +{work.design_tools.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* カラーパレット */}
-                    {work.color_palette && work.color_palette.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-500">カラー:</span>
-                        <div className="flex gap-1">
-                          {work.color_palette.slice(0, 3).map((color, index) => (
-                            <div
-                              key={index}
-                              className="w-3 h-3 rounded-full border border-gray-200"
-                              style={{ backgroundColor: color.startsWith('#') ? color : undefined }}
-                              title={color}
-                            />
-                          ))}
-                          {work.color_palette.length > 3 && (
-                            <span className="text-xs text-gray-500">+{work.color_palette.length - 3}</span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+            {/* コンテンツセクション */}
+            <div className="p-4 flex flex-col flex-grow">
+              <h3 className="font-semibold text-gray-800 text-base leading-snug mb-2 line-clamp-2">
+                {work.title}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2 flex-grow">
+                {work.description}
+              </p>
+
+              {/* タグ */}
+              {work.tags && work.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {work.tags.slice(0, 3).map((tag, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* 統計と日付 */}
+              <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1"><Eye size={12} />{work.view_count || 0}</span>
+                  <span className="flex items-center gap-1"><Heart size={12} />{work.likes?.[0]?.count || 0}</span>
+                  <span className="flex items-center gap-1"><MessageCircle size={12} />{work.comments?.[0]?.count || 0}</span>
+                </div>
+                {formattedDate && (
+                  <span className="flex items-center gap-1"><Calendar size={12} />{formattedDate}</span>
                 )}
               </div>
             </div>

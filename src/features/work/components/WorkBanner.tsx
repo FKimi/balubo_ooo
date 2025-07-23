@@ -46,73 +46,28 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
   })
 
   useEffect(() => {
-    // 重複実行防止のための参照保持
     let isMounted = true
-    
-    // 既にプレビューデータがある場合は何もしない
-    if (initialPreviewData?.image && isMounted) {
-      console.log('Using existing preview data with image:', initialPreviewData.image)
-      setPreviewData(initialPreviewData)
-      setIsLoading(false)
-      return
-    }
-
-    // bannerImageUrlがある場合は、それを使用してプレビューデータを作成
-    if (bannerImageUrl && !initialPreviewData && isMounted) {
-      console.log('Using banner image URL:', bannerImageUrl)
-      const syntheticPreviewData: LinkPreviewData = {
-        title: title,
-        description: '',
-        image: bannerImageUrl,
-        url: url,
-        imageWidth: 0,
-        imageHeight: 0,
-        imageSize: 0,
-        imageType: '',
-        icon: '',
-        iconWidth: 0,
-        iconHeight: 0,
-        iconSize: 0,
-        iconType: '',
-        siteName: '',
-        locale: ''
-      }
-      setPreviewData(syntheticPreviewData)
-      setIsLoading(false)
-      return
-    }
 
     const fetchPreview = async () => {
       if (!url || !isMounted) {
-        console.log('No URL provided for preview or component unmounted')
-        if (isMounted) setIsLoading(false)
+        setIsLoading(false)
         return
       }
 
+      setIsLoading(true)
       try {
-        console.log('Fetching preview for URL:', url)
         const response = await fetch('/api/link-preview', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url }),
         })
 
         if (!isMounted) return
-
         const data = await response.json()
-        console.log('Preview API response:', { 
-          ok: response.ok, 
-          hasImage: !!data.image,
-          imageUrl: data.image 
-        })
 
-        if (response.ok && data.image && isMounted) {
-          console.log('Preview data received with image:', data.image)
+        if (response.ok && data.image) {
           setPreviewData(data)
-        } else if (isMounted) {
-          console.log('No preview image available from API')
+        } else {
           setHasError(true)
         }
       } catch (error) {
@@ -127,16 +82,31 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
       }
     }
 
-    // URLが変更され、既存のデータがない場合のみfetchを実行
-    if (!previewData && !bannerImageUrl && url && isMounted) {
+    if (bannerImageUrl) {
+      setPreviewData({
+        image: bannerImageUrl,
+        title: title,
+        description: '',
+        url: url,
+        imageWidth: 0, imageHeight: 0, imageSize: 0, imageType: '',
+        icon: '', iconWidth: 0, iconHeight: 0, iconSize: 0, iconType: '',
+        siteName: '', locale: ''
+      })
+      setIsLoading(false)
+    } else if (initialPreviewData) {
+      setPreviewData(initialPreviewData)
+      setIsLoading(false)
+    } else if (url) {
       fetchPreview()
+    } else {
+      setIsLoading(false)
+      setHasError(true)
     }
 
-    // クリーンアップ関数
     return () => {
       isMounted = false
     }
-  }, [url, bannerImageUrl, initialPreviewData, title, previewData]) // 依存配列を追加
+  }, [url, bannerImageUrl, initialPreviewData?.image, title])
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.currentTarget

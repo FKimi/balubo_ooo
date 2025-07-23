@@ -10,92 +10,47 @@ import {
   AnalysisResult 
 } from '../utils/ai-analyzer'
 
-// デザイン特化のスコアリング関数
-async function getDesignEvaluationScores(analysisResult: AnalysisResult) {
-  const scoringPrompt = `
-あなたは、与えられたデザイン作品の分析レポートを評価し、スコアを算出するデザイン専門アナリストです。
-以下のJSON形式の分析レポートを読み解き、5つの評価項目について、それぞれ100点満点で採点してください。
+// デザイン特化のサマリー生成関数（5軸を1~2行で言語化）
+async function getDesignEvaluationSummaries(analysisResult: AnalysisResult) {
+  const summaryPrompt = `
+あなたは、与えられたデザイン作品の分析レポートをもとに作品の魅力を簡潔にまとめるデザイン専門アナリストです。
+次のJSON形式の分析レポートを読み、以下の5つの軸について、読者やクリエイターの自己肯定感を高めるような前向きでエンパワーメントを促す表現で、各1〜2行の日本語テキストで魅力や強みをわかりやすく称賛・可視化してください。課題指摘は含めず、ポジティブな言葉でまとめてください。
+
+1. 総合評価 (overall)
+2. 技術力 (technology)
+3. 専門性 (expertise)
+4. 創造性 (creativity)
+5. 影響力 (impact)
 
 ## 分析レポート
 ${JSON.stringify(analysisResult)}
 
-## 評価基準（100点満点の定義）
-
-### 100点の基準例：Apple、Google、Airbnbレベルのデザイン
-- 革新的なビジュアルデザイン
-- 完璧なユーザーエクスペリエンス
-- 強力なブランドアイデンティティ
-- 技術的完成度の高さ
-- 市場での高い評価と影響力
-
-## 評価項目と詳細基準
-
-### 1. **技術力 (Technology)** (100点満点)
-- **90-100点**: プロフェッショナルレベルのデザインツール習熟度、完璧な技術的完成度
-- **80-89点**: 高い技術レベル、優れた制作スキル
-- **70-79点**: 標準的な技術力、適切なツール活用
-- **60-69点**: 基本的な技術力は満たしている
-- **50-59点**: 改善の余地がある
-
-### 2. **専門性 (Expertise)** (100点満点)
-- **90-100点**: 極めて高いデザイン理論の理解、業界トップレベルの専門知識
-- **80-89点**: 高い専門性、適切なデザイン原則の適用
-- **70-79点**: 専門的な知識、デザイン理論の理解
-- **60-69点**: 基本的な専門性
-- **50-59点**: 改善が必要
-
-### 3. **創造性 (Creativity)** (100点満点)
-- **90-100点**: 極めて独創的なデザイン、革新的なアプローチ
-- **80-89点**: 高い創造性、独自の視点
-- **70-79点**: 創造的な要素、工夫されたデザイン
-- **60-69点**: 基本的な創造性
-- **50-59点**: 改善が必要
-
-### 4. **影響力 (Impact)** (100点満点)
-- **90-100点**: 強いブランド価値向上、高い市場インパクト
-- **80-89点**: 良いブランド効果、明確な価値提供
-- **70-79点**: 一定の影響力、適切な価値創造
-- **60-69点**: 基本的な影響力
-- **50-59点**: 改善が必要
-
-### 5. **総合評価 (Overall)** (100点満点)
-上記4項目を総合し、デザイン全体の完成度と市場価値を評価
-
-## 重要な出力指針
-- 評価理由では、特定のブランドや企業名との比較表現は使用しない
-- デザインの技術的側面、創造性、市場価値を客観的に評価する
-- 各デザインの特性を活かした建設的で適切な評価理由を提供する
-- できるだけ肯定的な評価をしてください。
-
-## 出力形式
-以下のJSON形式で、スコアと評価の根拠を明確に示してください。
-JSON以外のテキストは絶対に含めないでください。
-
+## 出力フォーマット（必ずJSONのみ。その他の文字は出力しないこと）
 {
-  "scores": {
-    "technology": { "score": 95, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。デザインツールの習熟度、技術的完成度などの技術的側面を評価。" },
-    "expertise": { "score": 90, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。デザイン理論の理解、専門知識の活用を評価。" },
-    "creativity": { "score": 88, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。独創性、革新的なアプローチ、美的センスを評価。" },
-    "impact": { "score": 85, "reason": "分析レポート内の具体的な記述を根拠とした評価理由。ブランド価値、市場インパクト、ユーザー体験への影響を評価。" },
-    "overall": { "score": 90, "reason": "4項目を総合した評価理由。デザイン全体の完成度と市場価値を建設的に評価。" }
+  "summaries": {
+    "overall": "作品全体の魅力を1〜2行でまとめたテキスト",
+    "technology": "技術力の強みを1〜2行でまとめたテキスト",
+    "expertise": "専門性の強みを1〜2行でまとめたテキスト",
+    "creativity": "創造性の強みを1〜2行でまとめたテキスト",
+    "impact": "影響力の強みを1〜2行でまとめたテキスト"
   }
 }
 `
 
   try {
-    const generatedText = await callGeminiAPI(scoringPrompt, 0.3, 1024)
+    const generatedText = await callGeminiAPI(summaryPrompt, 0.3, 1024)
     const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
     return JSON.parse(cleanedText)
   } catch (error) {
-    console.error('スコアリングエラー:', error)
-    // フォールバック: デフォルトスコア
+    console.error('サマリー生成エラー:', error)
+    // フォールバック: デフォルトサマリー
     return {
-      scores: {
-        technology: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        expertise: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        creativity: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        impact: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' },
-        overall: { score: 70, reason: 'スコアリング処理でエラーが発生したため、デフォルト値を使用' }
+      summaries: {
+        overall: '作品全体の魅力を簡潔に伝えるサマリー (生成失敗時のデフォルト)',
+        technology: '技術力の強みを示すサマリー (生成失敗時のデフォルト)',
+        expertise: '専門性の強みを示すサマリー (生成失敗時のデフォルト)',
+        creativity: '創造性の強みを示すサマリー (生成失敗時のデフォルト)',
+        impact: '影響力の強みを示すサマリー (生成失敗時のデフォルト)'
       }
     }
   }
@@ -295,10 +250,10 @@ ${imageContentText}
     
     const analysisResult = parseAnalysisResult(generatedText)
 
-    // 評価スコアを取得
-    let evaluationScores = null
+    // 評価サマリーを取得
+    let evaluationSummaries = null
     try {
-      evaluationScores = await getDesignEvaluationScores(analysisResult)
+      evaluationSummaries = await getDesignEvaluationSummaries(analysisResult)
     } catch(scoringError) {
       console.error('Scoring Error:', scoringError)
     }
@@ -306,7 +261,7 @@ ${imageContentText}
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      evaluation: evaluationScores,
+      evaluation: evaluationSummaries,
       contentType: 'デザイン',
       analysisType: 'design_specialized_analysis',
       rawResponse: generatedText

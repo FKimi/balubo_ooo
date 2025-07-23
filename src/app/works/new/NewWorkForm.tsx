@@ -44,6 +44,60 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
     setExpandedItems(newExpanded)
   }
 
+  // 新しいサマリー形式（テキスト）を優先表示
+  const summariesObj = aiAnalysis.evaluation?.summaries
+  if (summariesObj) {
+    type SummaryKey = 'overall' | 'technology' | 'expertise' | 'creativity' | 'impact'
+    const axisLabels: Record<SummaryKey, string> = {
+      overall: '総合評価',
+      technology: '技術力',
+      expertise: '専門性',
+      creativity: '創造性',
+      impact: '影響力',
+    }
+    const axisOrder: SummaryKey[] = ['technology', 'expertise', 'creativity', 'impact']
+    const colorMap: Record<SummaryKey, string> = {
+      overall: 'border-green-300 bg-green-100',       // 総合: グリーン
+      technology: 'border-sky-300 bg-sky-100',        // 技術力: スカイブルー
+      expertise: 'border-teal-300 bg-teal-100',       // 専門性: ティール
+      creativity: 'border-violet-300 bg-violet-100',  // 創造性: バイオレット
+      impact: 'border-amber-300 bg-amber-100',        // 影響力: アンバー
+    }
+
+    return (
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h4 className="text-lg font-bold text-blue-900">AI評価サマリー</h4>
+        </div>
+
+        {/* 総合評価 */}
+        {summariesObj.overall && (
+          <div className={`mb-4 p-4 rounded-lg shadow-sm ${colorMap.overall}`}>
+            <span className="block font-semibold text-gray-800 mb-1">{axisLabels.overall}</span>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{summariesObj.overall}</p>
+          </div>
+        )}
+
+        {/* その他の4軸 */}
+        <div className="space-y-4">
+          {axisOrder.map((key) => {
+            const text = summariesObj[key]
+            if (!text) return null
+            return (
+              <div key={key} className={`p-4 rounded-lg shadow-sm ${colorMap[key]}`}>
+                <span className="block font-bold mb-1 text-gray-800">{axisLabels[key]}</span>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">{text}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   // 新しい形式のスコアがあるかチェック
   const hasNewFormat = aiAnalysis.evaluation?.scores
   // 古い形式のスコアがあるかチェック  
@@ -51,7 +105,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
 
   // 新しい形式を優先的に表示
   if (hasNewFormat) {
-    const scores = aiAnalysis.evaluation!.scores
+    const scores = hasNewFormat!
     return (
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
@@ -619,38 +673,40 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
 
   // ファイルアップロード処理
   const handleFileUpload = (files: FileList | File[]) => {
-    const fileArray = Array.from(files)
-    const validFiles = fileArray.filter(file => {
-      // ファイルサイズチェック（10MB制限）
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`${file.name}のサイズが10MBを超えています`)
-        return false
+    if (uploadedFiles.length >= 1) {
+      alert('すでにファイルがアップロードされています。削除してから再度アップロードしてください。')
+      return
+    }
+
+    const file = files[0]
+    if (!file) return
+
+    // ファイルサイズチェック（10MB制限）
+    if (file.size > 10 * 1024 * 1024) {
+      alert(`${file.name}のサイズが10MBを超えています`)
+      return
+    }
+
+    // AI分析用のサイズ制限（5MB）を警告
+    if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
+      const confirmed = confirm(`${file.name}のサイズが5MBを超えています。AI分析では画像の内容が含まれませんが、アップロードを続行しますか？`)
+      if (!confirmed) {
+        return
       }
-      
-      // AI分析用のサイズ制限（5MB）を警告
-      if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
-        const confirmed = confirm(`${file.name}のサイズが5MBを超えています。AI分析では画像の内容が含まれませんが、アップロードを続行しますか？`)
-        if (!confirmed) {
-          return false
-        }
-      }
-      
-      // ファイル形式チェック
-      const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf', 'application/psd', 'application/ai',
-        'image/tiff', 'image/bmp', 'image/svg+xml'
-      ]
-      
-      if (!allowedTypes.includes(file.type)) {
-        alert(`${file.name}のファイル形式がサポートされていません`)
-        return false
-      }
-      
-      return true
-    })
-    
-    setUploadedFiles(prev => [...prev, ...validFiles])
+    }
+
+    // ファイル形式チェック
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'application/pdf', 'application/psd', 'application/ai',
+      'image/tiff', 'image/bmp', 'image/svg+xml'
+    ]
+    if (!allowedTypes.includes(file.type)) {
+      alert(`${file.name}のファイル形式がサポートされていません`)
+      return
+    }
+
+    setUploadedFiles([file])
   }
 
   // ファイル削除
@@ -673,6 +729,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
+    if (uploadedFiles.length >= 1) return
     const files = e.dataTransfer.files
     if (files.length > 0) {
       handleFileUpload(files)
@@ -802,7 +859,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
       }
 
       // デザイン作品でファイルがアップロードされている場合、ファイル情報と内容を追加
-      if (contentType === 'design' && uploadedFiles.length > 0) {
+      if ((contentType === 'design' || contentType === 'photo') && uploadedFiles.length > 0) {
         // ファイルのメタデータ
         requestBody.uploadedFiles = uploadedFiles.map(file => ({
           name: file.name,
@@ -815,7 +872,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         const imageFiles = uploadedFiles.filter(file => file.type.startsWith('image/'))
         if (imageFiles.length > 0) {
           const imageDataPromises = imageFiles.map(async (file) => {
-            return new Promise<{name: string, data: string, size: number}>((resolve) => {
+            return new Promise<{name: string, data: string, size: number, type: string}>((resolve) => {
               // ファイルサイズを1MBに制限（トークン数削減のため）
               const maxSize = 1 * 1024 * 1024 // 1MB
               
@@ -824,7 +881,8 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                 resolve({
                   name: file.name,
                   data: `[ファイルサイズが大きすぎるため、内容は送信されませんでした。サイズ: ${(file.size / 1024 / 1024).toFixed(1)}MB、形式: ${file.type}]`,
-                  size: file.size
+                  size: file.size,
+                  type: file.type
                 })
                 return
               }
@@ -841,7 +899,8 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                   resolve({
                     name: file.name,
                     data: `[トークン数が多すぎるため、内容は送信されませんでした。推定トークン数: ${estimatedTokens}]`,
-                    size: file.size
+                    size: file.size,
+                    type: file.type
                   })
                   return
                 }
@@ -849,7 +908,8 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                 resolve({
                   name: file.name,
                   data: base64Data,
-                  size: file.size
+                  size: file.size,
+                  type: file.type
                 })
               }
               reader.onerror = () => {
@@ -857,7 +917,8 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                 resolve({
                   name: file.name,
                   data: `[ファイル読み込みエラー]`,
-                  size: file.size
+                  size: file.size,
+                  type: file.type
                 })
               }
               reader.readAsDataURL(file)
@@ -1046,7 +1107,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         setAnalysisResult(completeAnalysisResult)
         
         // 作品名と概要の自動生成（デザイン作品でファイルがアップロードされている場合）
-        if (contentType === 'design' && uploadedFiles.length > 0 && result.analysis) {
+        if ((contentType === 'design' || contentType === 'photo') && uploadedFiles.length > 0 && result.analysis) {
           let titleGenerated = false
           let descriptionGenerated = false
           
@@ -1181,6 +1242,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
     try {
       // ファイルアップロード処理
       const fileUrls: string[] = []
+      let newBannerImageUrl = bannerImageUrl; // UI表示用のstateで初期化
       
       // Supabaseクライアントの確認
       console.log('=== Supabaseクライアント確認 ===')
@@ -1201,9 +1263,23 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
           console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '設定済み' : '未設定')
           console.log('Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '設定済み' : '未設定')
         
-          const { data: uploadData, error: uploadError } = await supabase.storage
+          let { data: uploadData, error: uploadError } = await supabase.storage
             .from('work-files')
             .upload(fileName, file)
+        
+          // バケットが無い場合は自動作成して1度だけリトライ
+          if (uploadError && uploadError.message?.includes('Bucket not found')) {
+            console.warn('work-files バケットが存在しないため作成を試みます')
+            const { error: bucketErr } = await supabase.storage.createBucket('work-files', { public: true })
+            if (bucketErr) {
+              console.error('バケット作成に失敗', bucketErr)
+            } else {
+              // リトライ
+              ;({ data: uploadData, error: uploadError } = await supabase.storage
+                .from('work-files')
+                .upload(fileName, file))
+            }
+          }
         
           console.log('アップロード結果:', uploadData)
           console.log('アップロードエラー:', uploadError)
@@ -1235,8 +1311,9 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
           fileUrls.push(publicUrl)
         
           // 最初の画像ファイルをバナー画像として設定
-          if (file.type.startsWith('image/') && !bannerImageUrl) {
-            setBannerImageUrl(publicUrl)
+          if (file.type.startsWith('image/') && !newBannerImageUrl) {
+            newBannerImageUrl = publicUrl; // ローカル変数を更新
+            setBannerImageUrl(publicUrl) // UIプレビュー用にStateも更新
           }
         }
       }
@@ -1270,7 +1347,7 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         roles: formData.roles.length > 0 ? formData.roles : [],
         categories: getContentTypeCategory(contentType),
         content_type: contentType,
-        banner_image_url: bannerImageUrl || previewData?.image || null,
+        banner_image_url: newBannerImageUrl || previewData?.image || null,
         preview_data: previewData ? {
           title: previewData.title,
           description: previewData.description,
@@ -1334,9 +1411,8 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
       // 保存されたデータを設定
       setSavedWorkData(data)
       
-      // シェアモーダルを表示
-      setShowShareModal(true)
-      // プロフィールへの遷移はモーダルを閉じた後に行う
+      // マイページ（プロフィール）へ即座にリダイレクト
+      router.push('/profile')
 
     } catch (error) {
       console.error('Work save error:', error)
@@ -1550,18 +1626,32 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                   </p>
                   <input
                     type="file"
-                    multiple
                     accept="image/*,.pdf,.psd,.ai,.tiff,.bmp,.svg"
                     onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
                     className="hidden"
                     id="file-upload"
+                    disabled={uploadedFiles.length >= 1}
                   />
                   <label
                     htmlFor="file-upload"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
+                    className={`px-4 py-2 rounded-lg transition-colors text-white ${uploadedFiles.length>=1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'}`}
                   >
-                    ファイルを選択
+                    {uploadedFiles.length>=1 ? 'アップロード済み' : 'ファイルを選択'}
                   </label>
+
+                  {/* 画像プレビュー */}
+                  {uploadedFiles.filter(f => f.type.startsWith('image/')).length > 0 && (
+                    <div className="mt-6 flex flex-wrap justify-center gap-4">
+                      {uploadedFiles.filter(f => f.type.startsWith('image/')).map((file, idx) => (
+                        <img
+                          key={idx}
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-48 h-48 object-cover rounded-lg shadow"
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2037,11 +2127,13 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
                       </div>
                       <h4 className="text-xl font-bold text-blue-900">コンテンツ概要</h4>
                     </div>
-                    <p className="text-blue-800 leading-relaxed">{analysisResult.summary}</p>
+                    <p className="text-blue-800 leading-relaxed">
+                      {analysisResult.contentTypeAnalysis || analysisResult.summary}
+                    </p>
                   </div>
 
                   {/* AI評価スコア */}
-                  {(analysisResult.evaluation?.scores || analysisResult.legacyEvaluation?.scores) && (
+                  {(analysisResult.evaluation?.summaries || analysisResult.evaluation?.scores || analysisResult.legacyEvaluation?.scores) && (
                     <AIEvaluationSection aiAnalysis={analysisResult} />
                   )}
 

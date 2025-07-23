@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TabNavigation } from '@/components/ui/TabNavigation'
@@ -273,15 +272,13 @@ export function PublicProfileTabs({
                   <div key={input.id} className="group bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden cursor-pointer">
                     {/* インプット画像またはプレースホルダー */}
                     <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
-                      {input.cover_image_url ? (
-                        <Image
-                          src={input.cover_image_url}
+                      {input.cover_image_url || (input as any).coverImageUrl ? (
+                        <img
+                          src={(input.cover_image_url || (input as any).coverImageUrl) as string}
                           alt={input.title}
-                          fill
-                          sizes="100vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            e.currentTarget.style.display = 'none'
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = 'none'
                           }}
                         />
                       ) : (

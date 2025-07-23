@@ -9,6 +9,9 @@ export interface WorkData {
   categories: string[]
   production_date?: string
   banner_image_url?: string
+  view_count?: number
+  likes_count?: number
+  comments_count?: number
   production_notes?: string  // 制作メモ: 制作過程、作品の背景、狙い、こだわりなど
   is_featured?: boolean      // 代表作フラグ
   featured_order?: number    // 代表作の表示順序
@@ -29,6 +32,8 @@ export interface WorkData {
   ai_analysis_result?: AIAnalysisResult
   created_at: string
   updated_at: string
+  likes?: { count: number }[]
+  comments?: { count: number }[]
 }
 
 // 古い形式のAI評価スコア（後方互換性のため）
@@ -84,7 +89,15 @@ export interface AIAnalysisResult {
   }
   // AI評価スコア（新形式）
   evaluation?: {
-    scores: {
+    /** 評価サマリー（各軸を1~2行で言語化したテキスト） */
+    summaries?: {
+      overall: string
+      technology: string
+      expertise: string
+      creativity: string
+      impact: string
+    }
+    scores?: {
       overall: {
         score: number
         reason: string

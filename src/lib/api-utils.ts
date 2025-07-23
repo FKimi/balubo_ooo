@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { supabase } from './supabase-client'
 
 // Server-side用のSupabaseクライアント（認証専用）
 const supabaseAuth = createClient(
@@ -178,9 +179,13 @@ export function processDbResult<T>(data: T | null, error: any): T {
 /**
  * 配列データの結果を処理
  */
-export function processDbArrayResult<T>(data: T[] | null, error: any): T[] {
+export function processDbArrayResult(data: any[] | null, error: any) {
   if (error) {
-    throw new Error(formatSupabaseError(error))
+    if (error.code === 'PGRST116') {
+      return [] // 結果がない場合は空配列を返す
+    }
+    console.error('Database Error:', error)
+    throw new Error(`データベースエラー: ${error.message}`)
   }
   return data || []
 } 

@@ -203,14 +203,21 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: 作品一覧取得開始', { userId, hasToken: !!_token })
       
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (!supabaseUrl || !serviceKey) {
+        throw new Error('Supabaseの環境変数が設定されていません。')
+      }
+
       // 認証されたクライアントを作成
       const { createClient } = await import('@supabase/supabase-js')
       const dbClient = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        serviceKey,
         {
-          global: {
-            headers: _token ? { Authorization: `Bearer ${_token}` } : {}
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
           }
         }
       )
@@ -227,7 +234,7 @@ export class DatabaseClient {
       
       const { data, error } = await dbClient
         .from('works')
-        .select('*, is_featured, featured_order')
+        .select('*, likes(count), comments(count)')
         .eq('user_id', userId)
         .order('is_featured', { ascending: false })
         .order('featured_order', { ascending: true })
@@ -414,14 +421,21 @@ export class DatabaseClient {
     try {
       console.log('DatabaseClient: インプット一覧取得開始', { userId, hasToken: !!_token })
       
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (!supabaseUrl || !serviceKey) {
+        throw new Error('Supabaseの環境変数が設定されていません。')
+      }
+      
       // 認証されたクライアントを作成
       const { createClient } = await import('@supabase/supabase-js')
       const dbClient = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        serviceKey,
         {
-          global: {
-            headers: _token ? { Authorization: `Bearer ${_token}` } : {}
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
           }
         }
       )

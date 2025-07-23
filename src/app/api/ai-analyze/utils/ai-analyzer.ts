@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
 if (!GEMINI_API_KEY) {
   console.error('GEMINI_API_KEY is not set in environment variables')
@@ -85,25 +84,50 @@ export interface AnalysisResult {
     overall: {
       score: number
       headline: string
+      goodHighlight: string
+      nextTip: string
     }
   }
   learningPoints: string[]
   clientAppeal: string[]
 }
 
-// 共通のGemini API呼び出し関数
-export async function callGeminiAPI(prompt: string, temperature: number = 0.3, maxTokens: number = 4096) {
-  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+interface GeminiImage {
+  mimeType: string
+  data: string
+}
+
+export async function callGeminiAPI(prompt: string, temperature: number = 0.3, maxTokens: number = 4096, images: GeminiImage[] = []) {
+  // v1beta では gemini-pro が利用できなくなったため、
+  // 画像付き → gemini-1.5-flash、テキストのみ → gemini-1.5-pro を使用
+  // 将来的に v1 (GA) へ移行する際はエンドポイントを変更すること
+
+  // 画像がある場合は Vision 対応モデル、それ以外は 1.5 Pro を使用
+  const model = images.length > 0 ? 'gemini-1.5-flash' : 'gemini-1.5-pro'
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+  const urlWithKey = `${endpoint}?key=${GEMINI_API_KEY}`
+
+  // parts 配列を構築
+  const parts: any[] = []
+  // 画像パート（inline_data）
+  images.forEach(img => {
+    parts.push({
+      inline_data: {
+        mime_type: img.mimeType,
+        data: img.data
+      }
+    })
+  })
+  // テキストパートは最後にまとめて追加
+  parts.push({ text: prompt })
+
+  const response = await fetch(urlWithKey, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
+      contents: [{ parts }],
       generationConfig: {
         temperature,
         topK: 40,
@@ -172,7 +196,7 @@ export async function callGeminiAPI(prompt: string, temperature: number = 0.3, m
 // JSONパース用の共通関数
 export function parseAnalysisResult(generatedText: string): AnalysisResult {
   try {
-    const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
+    const cleanedText = cleanJsonString(generatedText)
     return JSON.parse(cleanedText)
   } catch (parseError) {
     console.error('JSON Parse Error:', parseError)
@@ -241,13 +265,34 @@ export function parseAnalysisResult(generatedText: string): AnalysisResult {
         },
         overall: {
           score: 70,
-          headline: '分析に失敗しました'
+          headline: '分析に失敗しました',
+          goodHighlight: '分析に失敗しました',
+          nextTip: '分析を再実行してください'
         }
       },
       learningPoints: ['分析を再実行してください'],
       clientAppeal: ['分析を再実行してください']
     }
   }
+}
+
+// -----------------------------
+// JSON 文字列のクリーンアップ & 簡易リペア
+// -----------------------------
+function cleanJsonString(str: string): string {
+  let txt = str
+    .replace(/```[a-zA-Z]*\n?/g, '') // コードフェンス除去
+    .replace(/^[^\{]*\{/, '{')      // 先頭の { より前を削除
+    .replace(/\}[^\}]*$/, '}')      // 末尾の } 以降を削除
+    .replace(/[“”]/g, '"')           // 全角ダブルクォート
+    .replace(/[‘’]/g, "'")           // 全角シングルクォート
+    .trim()
+
+  // 末尾カンマ → 削除  ,}\n など
+  txt = txt.replace(/,\s*}/g, '}')
+  txt = txt.replace(/,\s*]/g, ']')
+
+  return txt
 }
 
 // 共通のエラーハンドリング
