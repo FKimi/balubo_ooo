@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
 
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest) {
   try {
-    const workId = params.id
+    // URLからidを抽出
+    const url = new URL(req.url)
+    const match = url.pathname.match(/\/api\/works\/(.+)\/view/)
+    const workId = match ? match[1] : null
     if (!workId) {
       return NextResponse.json({ error: '作品IDが必要です' }, { status: 400 })
     }
