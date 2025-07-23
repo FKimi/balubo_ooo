@@ -91,9 +91,10 @@ async function getWork(id: string): Promise<{ work: any | null; error: WorkError
 
 // メタデータ生成関数
 export async function generateMetadata(
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
-  const { work } = await getWork(params.id)
+  const { id } = await params
+  const { work } = await getWork(id)
   
   if (!work) {
     return {
@@ -118,8 +119,8 @@ export async function generateMetadata(
   })
 }
 
-export default function WorkDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function WorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   if (!id || typeof id !== 'string') {
     console.log('無効なパラメータ:', { id })
     return (
