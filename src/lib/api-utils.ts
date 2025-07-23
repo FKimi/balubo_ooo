@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { supabase } from './supabase-client'
 
 // Server-side用のSupabaseクライアント（認証専用）
 const supabaseAuth = createClient(

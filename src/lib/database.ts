@@ -247,7 +247,7 @@ export class DatabaseClient {
 
       // 2. 作品IDリストでlikesを集計
       const workIds = works.map((w: any) => w.id)
-      let likesCountMap = new Map<string, number>()
+      const likesCountMap = new Map<string, number>()
       if (workIds.length > 0) {
         const { data: likesRaw, error: likesError } = await dbClient
           .from('likes')
