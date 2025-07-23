@@ -231,21 +231,41 @@ export class DatabaseClient {
         }
         console.log('認証されたユーザー:', user?.id)
       }
-      
-      const { data, error } = await dbClient
+      // 1. 作品一覧を取得
+      const { data: works, error } = await dbClient
         .from('works')
-        .select('*, likes(count), comments(count)')
+        .select('*')
         .eq('user_id', userId)
         .order('is_featured', { ascending: false })
         .order('featured_order', { ascending: true })
         .order('created_at', { ascending: false })
 
-      console.log('作品取得結果:', { count: data?.length || 0, hasError: !!error })
       if (error) {
         console.error('作品取得エラー詳細:', error)
       }
+      if (!works) return []
 
-      const result = processDbArrayResult(data, error)
+      // 2. 作品IDリストでlikesを集計
+      const workIds = works.map((w: any) => w.id)
+      let likesCountMap = new Map<string, number>()
+      if (workIds.length > 0) {
+        const { data: likesRaw, error: likesError } = await dbClient
+          .from('likes')
+          .select('target_id')
+          .eq('target_type', 'work')
+          .in('target_id', workIds)
+        if (!likesError && likesRaw) {
+          likesRaw.forEach((like: any) => {
+            likesCountMap.set(like.target_id, (likesCountMap.get(like.target_id) || 0) + 1)
+          })
+        }
+      }
+      // 3. 作品データにlikes_countを付与
+      const worksWithLikes = works.map((w: any) => ({
+        ...w,
+        likes_count: likesCountMap.get(w.id) || 0
+      }))
+      const result = processDbArrayResult(worksWithLikes, error)
       return result
     } catch (error) {
       console.error('DatabaseClient: 作品一覧取得エラー:', error)

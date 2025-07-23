@@ -66,7 +66,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
       categoryMap.set(key, entry)
     })
 
-    let top = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
+    const top = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
     let filtered = top.filter(c=>c.title!=='その他')
     if(filtered.length===0) filtered = top
     filtered.slice(0,3).forEach(cat=>{
