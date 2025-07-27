@@ -200,3 +200,56 @@ export function groupWorksByCategory(works: WorkData[]): WorkCategory[] {
   })
   return categorizedWorks
 } 
+
+export const AI_STRENGTH_CATEGORY_RULES: { title: string; regex: RegExp }[] = [
+  // --- デジタル・先端領域 ---
+  { title: 'AI・機械学習活用', regex: /AI|機械学習|人工知能|深層学習|ChatGPT|GPT|プロンプト/i },
+  { title: 'DX・デジタル変革', regex: /DX|デジタル変革|IT導入|デジタル化|クラウド/i },
+  { title: 'サステナビリティ・ESG', regex: /サステナビリティ|ESG|SDGs|環境|カーボンニュートラル|脱炭素/i },
+  { title: 'スタートアップ・起業', regex: /スタートアップ|起業|資金調達|ピッチ|MVP/i },
+
+  // --- 業界特化 ---
+  { title: '金融・フィンテック', regex: /金融|フィンテック|投資|ブロックチェーン|暗号資産|仮想通貨/i },
+  { title: 'HR・人事', regex: /HR|人事|採用|組織開発|タレントマネジメント|働き方/i },
+  { title: '医療・ヘルスケア', regex: /医療|ヘルスケア|メディカル|健康|ウェルネス|バイオ/i },
+  { title: '教育・EdTech', regex: /教育|EdTech|e-?learning|学習|スキルアップ/i },
+
+  // --- ビジネス戦略領域 ---
+  { title: '企画・アイデア創出', regex: /企画|アイデア|ブレインストーミング|0→1|0-1/i },
+  { title: 'ビジネス戦略', regex: /ビジネス戦略|事業戦略|市場分析|競合分析|SWOT|ポジショニング/i },
+  { title: 'コンサルティング', regex: /コンサル|コンサルティング|アドバイザリー|改善提案|課題解決/i },
+  { title: 'プロジェクト管理', regex: /プロジェクト管理|PM|プロジェクトマネジメント|アジャイル|スクラム|カンバン/i },
+  { title: '事業開発', regex: /事業開発|BizDev|アライアンス|パートナーシップ|新規事業/i },
+
+  // --- マーケティング・PR ---
+  { title: 'マーケティング', regex: /マーケティング|マーケ|広告|プロモーション|キャンペーン/i },
+  { title: 'PR・広報', regex: /PR|広報|メディアリレーション|プレスリリース|パブリシティ/i },
+  { title: 'SNS運用', regex: /SNS|ソーシャルメディア|Twitter|Facebook|Instagram|TikTok/i },
+
+  // --- 専門領域 ---
+  { title: 'BtoBコンテンツ', regex: /B2B|BtoB|法人|企業向け|エンタープライズ/i },
+  { title: 'テクニカルライティング', regex: /テクニカルライティング|技術文書|開発ドキュメント|APIドキュメント|SDK/i },
+  { title: '編集・校正', regex: /編集|校正|レビュー|校閲|チェック/i },
+  { title: '翻訳・ローカライズ', regex: /翻訳|ローカライズ|多言語|英訳|和訳|国際化/i },
+
+  // --- クリエイティブ表現 ---
+  { title: 'UI/UX・デザイン', regex: /UI|UX|Figma|デザイン|ユーザー体験/i },
+  { title: 'ストーリーテリング', regex: /ストーリーテリング|物語|ナラティブ|シナリオライティング/i },
+  { title: 'コピーライティング', regex: /コピーライティング|コピー制作|キャッチコピー|セールスコピー/i },
+  { title: '動画制作', regex: /動画制作|映像制作|ビデオ編集|モーショングラフィックス|AfterEffects|Premiere/i },
+  { title: 'イラスト・グラフィック', regex: /イラスト|グラフィック|ドローイング|キャラクターデザイン/i },
+  { title: 'クリエイティブディレクション', regex: /クリエイティブディレクション|アートディレクション|Creative ?Direction|CD/i },
+
+  // --- データ・リサーチ ---
+  { title: 'データ分析・リサーチ', regex: /データ分析|データサイエンス|統計|BI|リサーチ|調査/i },
+
+  // --- コミュニケーション ---
+  { title: 'ファシリテーション', regex: /ファシリテーション|会議進行|ワークショップ|合意形成/i },
+  { title: '交渉・調整力', regex: /交渉|ネゴシエーション|調整|ステークホルダー調整|折衝/i },
+  { title: 'グローバル・多様性', regex: /グローバル|多様性|ダイバーシティ|国際|異文化|英語/i },
+
+  // --- 基本・汎用 ---
+  { title: '文章構成力', regex: /ライティング|文章|構成|執筆/i },
+  { title: 'SEO・検索最適化', regex: /SEO|検索/i },
+  { title: '読者目線', regex: /読者|ユーザー|ペルソナ/i }
+] 

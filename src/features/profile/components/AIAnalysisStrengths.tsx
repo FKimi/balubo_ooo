@@ -16,13 +16,6 @@ interface AIAnalysisStrengthsProps {
 export function AIAnalysisStrengths({ strengths }: AIAnalysisStrengthsProps) {
   if (!strengths || strengths.length === 0) return null
 
-  // 背景色をローテーション（柔らかい色）
-  const bgClasses = [
-    'bg-blue-50',
-    'bg-green-50',
-    'bg-purple-50',
-  ]
-
   return (
     <section className="mt-8 mb-8">
       <div className="border border-gray-200 rounded-2xl p-6">
@@ -34,10 +27,10 @@ export function AIAnalysisStrengths({ strengths }: AIAnalysisStrengthsProps) {
           {strengths.slice(0, 3).map((s, idx) => (
             <div
               key={idx}
-              className={`rounded-xl ${bgClasses[idx % bgClasses.length]} p-6`}
+              className="rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 p-6 hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 hover:scale-[1.02] hover:border-blue-300"
             >
-              <h3 className="text-lg font-bold mb-2">{s.title}</h3>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+              <h3 className="text-lg font-bold mb-2 text-blue-900">{s.title}</h3>
+              <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap">
                 {s.description}
               </p>
             </div>

@@ -1,4 +1,4 @@
-import { supabase } from './supabase-client'
+import { supabase } from './supabase'
 import { processDbArrayResult } from './api-utils'
 
 // データベース操作のヘルパー関数（認証対応版）

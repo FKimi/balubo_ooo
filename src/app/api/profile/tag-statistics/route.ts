@@ -1,11 +1,15 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
-export async function GET() {
+export async function GET(request: Request) {
+  const supabase = createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-
     // 全ユーザーの作品からタグ統計を取得
     const { data: works, error: worksError } = await supabase
       .from('works')

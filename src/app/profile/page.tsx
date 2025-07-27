@@ -11,6 +11,7 @@ import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
 import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
 import { ProfileModals } from '@/features/profile/components/ProfileModals'
+import { AI_STRENGTH_CATEGORY_RULES } from '@/features/profile/lib/profileUtils'
 
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
@@ -564,6 +565,7 @@ function ProfileContent() {
   const backgroundImageUrl = profileData?.backgroundImageUrl || ''
   const hasCustomAvatar = !!(profileData?.avatarImageUrl)
   const avatarImageUrl = profileData?.avatarImageUrl || ''
+  
   const slug = profileData?.slug || ''
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
 
@@ -583,13 +585,7 @@ function ProfileContent() {
     if (tagCounts.size === 0) return list
 
     // カテゴリ判定
-    const categoryRules: { title: string; regex: RegExp }[] = [
-      { title: '文章構成力', regex: /ライティング|文章|構成|執筆/i },
-      { title: 'SEO・検索最適化', regex: /SEO|検索/i },
-      { title: 'UI/UX・デザイン', regex: /UI|UX|Figma|デザイン/i },
-      { title: 'マーケティング', regex: /マーケ|広告|SNS/i },
-      { title: '読者目線', regex: /読者|ユーザー|ペルソナ/i },
-    ]
+    const categoryRules = AI_STRENGTH_CATEGORY_RULES
 
     const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
 

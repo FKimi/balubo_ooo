@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/contexts/AuthContext'
 import { fetcher } from '@/utils/fetcher'
 import { NotificationDropdown } from './NotificationDropdown'
-import { getSupabaseBrowserClient } from '@/lib/supabase'
+import { createSupabaseBrowserClient } from '@/lib/supabase-client'
 
 interface NotificationData {
   notifications: Array<{
@@ -47,7 +47,7 @@ export function NotificationBell() {
       lastFetchTimeRef.current = now
       
       // 認証トークンを取得
-      const supabase = getSupabaseBrowserClient()
+      const supabase = createSupabaseBrowserClient()
       const { data: { session } } = await supabase.auth.getSession()
       const authToken = session?.access_token
       
@@ -89,7 +89,7 @@ export function NotificationBell() {
 
     try {
       // 認証トークンを取得
-      const supabase = getSupabaseBrowserClient()
+      const supabase = createSupabaseBrowserClient()
       const { data: { session } } = await supabase.auth.getSession()
       const authToken = session?.access_token
       
@@ -126,7 +126,7 @@ export function NotificationBell() {
 
     try {
       // 認証トークンを取得
-      const supabase = getSupabaseBrowserClient()
+      const supabase = createSupabaseBrowserClient()
       const { data: { session } } = await supabase.auth.getSession()
       const authToken = session?.access_token
       
@@ -157,7 +157,7 @@ export function NotificationBell() {
   const cleanupChannel = useCallback(() => {
     if (channelRef.current) {
       try {
-        const supabase = getSupabaseBrowserClient()
+        const supabase = createSupabaseBrowserClient()
         supabase.removeChannel(channelRef.current)
         console.log('✅ チャンネルを削除しました')
       } catch (error) {
@@ -190,11 +190,11 @@ export function NotificationBell() {
   }, [fetchNotifications])
 
   // リアルタイム通知の購読
-  const subscribeToNotifications = useCallback(() => {
+  const subscribeToNotifications = useCallback(async () => {
     if (!user || isSubscribedRef.current) return
 
     try {
-      const supabase = getSupabaseBrowserClient()
+      const supabase = createSupabaseBrowserClient()
       
       // 既存のチャンネルをクリーンアップ
       cleanupChannel()

@@ -27,7 +27,9 @@ export default function ProfileEditPage() {
       console.error('プロフィール取得エラー:', error)
       return null
     }
-    return data?.profile
+    // API は { data: profile, error: null } 形式
+    // 古い実装との互換のため profile もフォールバックで確認
+    return (data as any)?.data || (data as any)?.profile || null
   }
 
   // useEffectでデータベースからプロフィールデータを読み込み
@@ -134,7 +136,7 @@ export default function ProfileEditPage() {
   }
 
   // ファイル処理の共通関数
-  const processFile = (file: File, type: 'background' | 'avatar') => {
+  const processFile = async (file: File, type: 'background' | 'avatar') => {
     // ファイル形式の検証
     if (!file.type.startsWith('image/')) {
       alert('画像ファイルを選択してください。')
@@ -149,18 +151,42 @@ export default function ProfileEditPage() {
       return
     }
 
-    // TODO: 実際のファイルアップロード処理（Supabase Storage）
-    // 現在はプレビュー用にFileReaderを使用
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const result = event.target?.result as string
-      if (type === 'background') {
-        setFormData(prev => ({ ...prev, backgroundImageUrl: result }))
-      } else if (type === 'avatar') {
-        setFormData(prev => ({ ...prev, avatarImageUrl: result }))
+    try {
+      // Supabase Storage にアップロード
+      const { supabase } = await import('@/lib/supabase')
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = type === 'background' ? `backgrounds/${fileName}` : `avatars/${fileName}`
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('work-files')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        console.error('アップロードエラー:', uploadError)
+        alert('ファイルのアップロードに失敗しました。')
+        return
       }
+
+      // 公開URLを取得
+      const { data: urlData } = supabase.storage
+        .from('work-files')
+        .getPublicUrl(uploadData.path)
+
+      const publicUrl = urlData.publicUrl
+
+      // フォームデータを更新
+      if (type === 'background') {
+        setFormData(prev => ({ ...prev, backgroundImageUrl: publicUrl }))
+      } else if (type === 'avatar') {
+        setFormData(prev => ({ ...prev, avatarImageUrl: publicUrl }))
+      }
+
+      console.log(`${type} image uploaded:`, publicUrl)
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('ファイルのアップロードに失敗しました。')
     }
-    reader.readAsDataURL(file)
   }
 
   // ドラッグ&ドロップイベントハンドラー

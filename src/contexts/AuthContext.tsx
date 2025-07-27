@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { auth, supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 // 型定義の改善
 interface AuthError {
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('[AuthContext] 初期ユーザー取得開始')
       
       try {
-        const { user } = await auth.getCurrentUser()
+        const { data: { user } } = await supabase.auth.getUser()
         console.log('[AuthContext] 初期ユーザー取得結果:', { 
           hasUser: !!user, 
           userEmail: user?.email,
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 認証状態の変更を監視
     try {
-      const { data: { subscription } } = auth.onAuthStateChange((event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         console.log('[AuthContext] 認証状態変更:', { 
           event, 
           hasSession: !!session,
@@ -142,9 +142,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     
     try {
-      const result = await auth.signUp(email, password, displayName)
+      const result = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName,
+          },
+        },
+      })
       console.log('[AuthContext] サインアップ結果:', { hasData: !!result.data, hasError: !!result.error })
-      return result
+      return { data: result.data, error: result.error ? { message: getErrorMessage(result.error) } : null }
     } catch (error) {
       console.error('[AuthContext] サインアップエラー:', getErrorMessage(error))
       return { 
@@ -168,9 +176,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     
     try {
-      const result = await auth.signIn(email, password)
+      const result = await supabase.auth.signInWithPassword({ email, password })
       console.log('[AuthContext] サインイン結果:', { hasData: !!result.data, hasError: !!result.error })
-      return result
+      return { data: result.data, error: result.error ? { message: getErrorMessage(result.error) } : null }
     } catch (error) {
       console.error('[AuthContext] サインインエラー:', getErrorMessage(error))
       return { 
@@ -186,9 +194,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     
     try {
-      const result = await auth.signOut()
-      console.log('[AuthContext] サインアウト結果:', { hasError: !!result.error })
-      return { error: result.error ? { message: getErrorMessage(result.error) } : null }
+      const { error } = await supabase.auth.signOut()
+      console.log('[AuthContext] サインアウト結果:', { hasError: !!error })
+      return { error: error ? { message: getErrorMessage(error) } : null }
     } catch (error) {
       console.error('[AuthContext] サインアウトエラー:', getErrorMessage(error))
       return { error: { message: getErrorMessage(error) } }
@@ -202,24 +210,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('[AuthContext] Googleサインイン開始')
     
     try {
-      const result = await auth.signInWithGoogle()
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      })
       
-      // OAuthの場合は通常リダイレクトが発生するため、userは即座には取得できない
-      // 成功の場合は{ provider, url }が返される
-      if ('error' in result && result.error) {
-        console.error('[AuthContext] Googleサインインエラー:', getErrorMessage(result.error))
-        return { 
-          data: null, 
-          error: { message: getErrorMessage(result.error) } 
-        }
+      if (error) {
+        console.error('[AuthContext] Googleサインインエラー:', getErrorMessage(error))
+        return { data: null, error: { message: getErrorMessage(error) } }
       }
       
       // OAuth成功の場合（リダイレクトが発生するため、実際のユーザー情報は後で取得される）
       console.log('[AuthContext] Googleサインイン成功 - リダイレクト処理開始')
-      return { 
-        data: { user: null }, 
-        error: null 
-      }
+      return { data: { user: null }, error: null }
     } catch (error) {
       console.error('[AuthContext] Googleサインイン例外:', getErrorMessage(error))
       return { 

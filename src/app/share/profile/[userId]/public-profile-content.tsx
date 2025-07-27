@@ -7,6 +7,7 @@ import { PublicProfileTabs } from '@/features/profile/components/PublicProfileTa
 import { Button } from '@/components/ui/button'
 import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
 import { useMemo } from 'react'
+import { AI_STRENGTH_CATEGORY_RULES } from '@/features/profile/lib/profileUtils'
 
 interface PublicProfileData {
   profile: any
@@ -47,13 +48,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
 
     if (tagCounts.size === 0) return list
 
-    const categoryRules: { title: string; regex: RegExp }[] = [
-      { title: '文章構成力', regex: /ライティング|文章|構成|執筆/i },
-      { title: 'SEO・検索最適化', regex: /SEO|検索/i },
-      { title: 'UI/UX・デザイン', regex: /UI|UX|Figma|デザイン/i },
-      { title: 'マーケティング', regex: /マーケ|広告|SNS/i },
-      { title: '読者目線', regex: /読者|ユーザー|ペルソナ/i },
-    ]
+    const categoryRules = AI_STRENGTH_CATEGORY_RULES
 
     const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
 
