@@ -19,13 +19,6 @@ const BACKGROUND_COLORS = {
   default: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)',
 } as const
 
-// 入力値の検証とサニタイズ
-function sanitizeInput(input: string | null, maxLength: number, defaultValue: string): string {
-  if (!input) return defaultValue
-  const sanitized = input.trim().slice(0, maxLength)
-  return sanitized || defaultValue
-}
-
 // 背景色を取得
 function getBackgroundColor(type: string): string {
   return BACKGROUND_COLORS[type as keyof typeof BACKGROUND_COLORS] || BACKGROUND_COLORS.default
@@ -33,10 +26,10 @@ function getBackgroundColor(type: string): string {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { workId: string } }
+  { params }: { params: Promise<{ workId: string }> }
 ) {
   try {
-    const workId = params.workId
+    const { workId } = await params
     
     // Supabaseクライアントを作成
     const supabase = createClient(

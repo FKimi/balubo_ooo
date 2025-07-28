@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'OGP画像プレビュー | balubo',
@@ -17,9 +18,11 @@ export default function OGPreviewPage() {
             <h2 className="text-xl font-semibold mb-4">静的OGP画像</h2>
             <div className="space-y-4">
               <div className="border rounded-lg overflow-hidden">
-                <img 
+                <Image 
                   src="/og-image.svg" 
                   alt="静的OGP画像" 
+                  width={1200}
+                  height={630}
                   className="w-full h-auto"
                 />
               </div>
@@ -36,9 +39,11 @@ export default function OGPreviewPage() {
             <h2 className="text-xl font-semibold mb-4">動的OGP画像</h2>
             <div className="space-y-4">
               <div className="border rounded-lg overflow-hidden">
-                <img 
+                <Image 
                   src="/api/og?title=サンプル作品&description=これは動的OGP画像のサンプルです&type=work&author=クリエイター" 
                   alt="動的OGP画像" 
+                  width={1200}
+                  height={630}
                   className="w-full h-auto"
                 />
               </div>
@@ -55,9 +60,11 @@ export default function OGPreviewPage() {
             <h2 className="text-xl font-semibold mb-4">作品詳細OGP画像</h2>
             <div className="space-y-4">
               <div className="border rounded-lg overflow-hidden">
-                <img 
+                <Image 
                   src="/api/og/analysis/sample-work-id" 
                   alt="作品詳細OGP画像" 
+                  width={1200}
+                  height={630}
                   className="w-full h-auto"
                 />
               </div>
@@ -91,9 +98,11 @@ export default function OGPreviewPage() {
                     作品を共有し、つながりを深め、新しい機会を見つけよう。AIがあなたの実績を言語化し、クリエイターとしての価値を最大化します。
                   </div>
                   <div className="border rounded-lg overflow-hidden">
-                    <img 
+                    <Image 
                       src="/og-image.svg" 
                       alt="OGP画像" 
+                      width={1200}
+                      height={630}
                       className="w-full h-32 object-cover"
                     />
                   </div>
