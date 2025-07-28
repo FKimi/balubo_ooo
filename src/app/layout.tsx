@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'balubo - クリエイターのためのポートフォリオプラットフォーム',
   description: '作品を共有し、つながりを深め、新しい機会を見つけよう。AIがあなたの実績を言語化し、クリエイターとしての価値を最大化します。',
-  keywords: ['ポートフォリオ', 'クリエイター', 'ライター', '編集者', 'AI分析', 'キャリア支援'],
+  keywords: ['ポートフォリオ', 'クリエイター', 'ライター', '編集者', 'AI分析', 'キャリア支援', 'フリーランス', 'クリエイティブ'],
   authors: [{ name: 'balubo' }],
   creator: 'balubo',
   publisher: 'balubo',
@@ -37,6 +37,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'balubo - クリエイターのためのポートフォリオプラットフォーム',
+        type: 'image/svg+xml',
       },
     ],
     locale: 'ja_JP',
@@ -48,6 +49,7 @@ export const metadata: Metadata = {
     description: '作品を共有し、つながりを深め、新しい機会を見つけよう。AIがあなたの実績を言語化し、クリエイターとしての価値を最大化します。',
     images: ['/og-image.svg'],
     creator: '@AiBalubo56518',
+    site: '@AiBalubo56518',
   },
   robots: {
     index: true,
@@ -62,6 +64,15 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'your-google-verification-code', // Google Search Consoleの検証コード
+  },
+  category: 'technology',
+  classification: 'portfolio platform',
+  other: {
+    'theme-color': '#3b82f6',
+    'msapplication-TileColor': '#3b82f6',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': 'balubo',
   },
 }
 

@@ -11,19 +11,21 @@ const OGP_CONFIG = {
   defaultDescription: 'クリエイターのためのポートフォリオプラットフォーム',
 } as const
 
-// 背景色の設定
+// 背景色の設定（より魅力的なグラデーション）
 const BACKGROUND_COLORS = {
-  work: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  profile: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  article: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  default: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #6366f1 100%)',
+  work: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+  profile: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
+  article: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%)',
+  input: 'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #ff9a9e 100%)',
+  default: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)',
 } as const
 
 // 特徴アイコンの設定
 const FEATURE_ICONS = [
   { emoji: '📝', label: 'ポートフォリオ', color: '#3b82f6' },
   { emoji: '🤖', label: 'AI分析', color: '#8b5cf6' },
-  { emoji: '🌐', label: 'ネットワーク', color: '#10b981' },
+  { emoji: '🌐', label: 'ネットワーク', color: '#06b6d4' },
+  { emoji: '🚀', label: '成長支援', color: '#10b981' },
 ] as const
 
 // 入力値の検証とサニタイズ
@@ -46,6 +48,7 @@ export async function GET(request: NextRequest) {
     const title = sanitizeInput(searchParams.get('title'), 100, OGP_CONFIG.defaultTitle)
     const description = sanitizeInput(searchParams.get('description'), 200, OGP_CONFIG.defaultDescription)
     const type = sanitizeInput(searchParams.get('type'), 20, 'default')
+    const author = sanitizeInput(searchParams.get('author'), 50, '')
 
     return new ImageResponse(
       (
@@ -60,9 +63,10 @@ export async function GET(request: NextRequest) {
             background: getBackgroundColor(type),
             position: 'relative',
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+            overflow: 'hidden',
           }}
         >
-          {/* 背景装飾 */}
+          {/* 背景装飾 - より魅力的なパターン */}
           <div
             style={{
               position: 'absolute',
@@ -70,7 +74,7 @@ export async function GET(request: NextRequest) {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+              background: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0%, transparent 50%)',
             }}
           />
           <div
@@ -80,7 +84,23 @@ export async function GET(request: NextRequest) {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%)',
+              background: 'radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+            }}
+          />
+          
+          {/* グリッドパターン */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `
+                linear-gradient(rgba(59,130,246,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px',
             }}
           />
 
@@ -92,55 +112,63 @@ export async function GET(request: NextRequest) {
               alignItems: 'center',
               justifyContent: 'center',
               padding: '60px',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              borderRadius: '20px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+              backgroundColor: 'rgba(255, 255, 255, 0.98)',
+              borderRadius: '24px',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
               maxWidth: '900px',
               textAlign: 'center',
+              position: 'relative',
+              border: '4px solid transparent',
+              backgroundClip: 'padding-box',
             }}
           >
-            {/* ロゴ */}
+            {/* アクセントライン */}
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '20px',
-                marginBottom: '30px',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4)',
+                borderRadius: '24px 24px 0 0',
               }}
-            >
+            />
+
+            {/* ロゴエリア */}
+            <div style={{ marginBottom: '20px' }}>
               <div
                 style={{
-                  fontSize: '72px',
-                  fontWeight: 'bold',
-                  background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+                  fontSize: '64px',
+                  fontWeight: '900',
+                  background: 'linear-gradient(135deg, #1e293b, #475569)',
                   backgroundClip: 'text',
                   color: 'transparent',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '8px',
                 }}
               >
                 balubo
               </div>
-              <div
-                style={{
-                  backgroundColor: '#f97316',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '16px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                }}
-              >
-                BETA
-              </div>
+              {author && (
+                <div
+                  style={{
+                    fontSize: '18px',
+                    color: '#64748b',
+                    fontWeight: '500',
+                    marginTop: '8px',
+                  }}
+                >
+                  by {author}
+                </div>
+              )}
             </div>
 
             {/* タイトル */}
             <div
               style={{
                 fontSize: '48px',
-                fontWeight: 'bold',
-                color: '#1f2937',
+                fontWeight: '800',
+                color: '#1e293b',
                 marginBottom: '20px',
                 lineHeight: '1.2',
                 maxWidth: '800px',
@@ -149,13 +177,15 @@ export async function GET(request: NextRequest) {
               {title}
             </div>
 
-            {/* 説明 */}
+            {/* 説明文 */}
             <div
               style={{
                 fontSize: '24px',
-                color: '#6b7280',
-                lineHeight: '1.5',
-                maxWidth: '700px',
+                color: '#475569',
+                fontWeight: '500',
+                marginBottom: '40px',
+                lineHeight: '1.4',
+                maxWidth: '800px',
               }}
             >
               {description}
@@ -165,23 +195,32 @@ export async function GET(request: NextRequest) {
             <div
               style={{
                 display: 'flex',
-                gap: '40px',
-                marginTop: '40px',
+                gap: '30px',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
               }}
             >
               {FEATURE_ICONS.map((icon, index) => (
-                <div key={index} style={{ textAlign: 'center' }}>
+                <div
+                  key={index}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
                   <div
                     style={{
-                      width: '50px',
-                      height: '50px',
+                      width: '60px',
+                      height: '60px',
                       borderRadius: '50%',
-                      backgroundColor: icon.color,
+                      background: `linear-gradient(135deg, ${icon.color}, ${icon.color}dd)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '24px',
-                      margin: '0 auto 10px',
+                      fontSize: '28px',
+                      boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
                     }}
                   >
                     {icon.emoji}
@@ -190,7 +229,7 @@ export async function GET(request: NextRequest) {
                     style={{
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: '#374151',
+                      color: '#1e293b',
                     }}
                   >
                     {icon.label}
@@ -199,18 +238,54 @@ export async function GET(request: NextRequest) {
               ))}
             </div>
           </div>
+
+          {/* 装飾要素 */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '50px',
+              right: '50px',
+              width: '100px',
+              height: '100px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '40px',
+            }}
+          >
+            🚀
+          </div>
+
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '50px',
+              left: '50px',
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '32px',
+            }}
+          >
+            ✨
+          </div>
         </div>
       ),
       {
         width: OGP_CONFIG.width,
         height: OGP_CONFIG.height,
-        fonts: [],
       }
     )
   } catch (error) {
     console.error('OGP画像生成エラー:', error)
     
-    // エラー時はシンプルなフォールバック画像を返す
+    // エラー時のフォールバック画像
     return new ImageResponse(
       (
         <div
@@ -220,14 +295,13 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
             color: 'white',
             fontSize: '32px',
-            fontWeight: 'bold',
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
           }}
         >
-          balubo
+          balubo - クリエイターのためのポートフォリオプラットフォーム
         </div>
       ),
       {

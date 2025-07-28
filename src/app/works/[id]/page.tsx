@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import WorkDetailClient from './WorkDetailClient'
-import { generateWorkOGPMetadata, getImageUrlWithPriority, sanitizeOGPInput } from '@/lib/ogp-utils'
+import { sanitizeOGPInput } from '@/lib/ogp-utils'
 import { supabase } from '@/lib/supabase'
 
 type WorkError = {
@@ -98,25 +98,65 @@ export async function generateMetadata(
   
   if (!work) {
     return {
-      title: '作品が見つかりません',
-      description: '指定された作品は存在しないか、削除された可能性があります。',
+      title: '作品が見つかりません | balubo',
+      description: '指定された作品が見つかりませんでした。',
+      openGraph: {
+        title: '作品が見つかりません | balubo',
+        description: '指定された作品が見つかりませんでした。',
+        images: ['/og-image.svg'],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: '作品が見つかりません | balubo',
+        description: '指定された作品が見つかりませんでした。',
+        images: ['/og-image.svg'],
+      },
     }
   }
 
-  // OGPメタデータに必要な情報をサニタイズ
-  const sanitizedTitle = sanitizeOGPInput(work.title, 60, '無題の作品')
-  const sanitizedDescription = sanitizeOGPInput(work.description, 160, '作品の詳細説明')
-  
-  // バナー画像、プレビュー画像、フォールバック画像の優先順位で画像URLを決定
-  const imageUrl = getImageUrlWithPriority(work) || '/og-image.svg'
+  const title = sanitizeOGPInput(work.title, 100, '作品詳細')
+  const description = sanitizeOGPInput(work.description, 200, 'クリエイターの作品をチェックしよう')
+  const tags = work.tags?.slice(0, 3) || []
+  const roles = work.roles?.slice(0, 2) || []
 
-  // OGPメタデータを生成
-  return generateWorkOGPMetadata({
-    title: sanitizedTitle,
-    description: sanitizedDescription,
-    imageUrl: imageUrl,
-    workId: work.id
-  })
+  // 動的OGP画像のURL
+  const ogImageUrl = `/api/og/analysis/${id}`
+
+  return {
+    title: `${title} | balubo`,
+    description: description,
+    keywords: [...tags, ...roles, 'ポートフォリオ', 'クリエイター', '作品'],
+    openGraph: {
+      title: `${title} | balubo`,
+      description: description,
+      url: `https://www.balubo.jp/works/${id}`,
+      siteName: 'balubo',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${title} - ${description}`,
+        },
+      ],
+      locale: 'ja_JP',
+      type: 'article',
+      authors: [work.user_id],
+      publishedTime: work.created_at,
+      modifiedTime: work.updated_at || work.created_at,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | balubo`,
+      description: description,
+      images: [ogImageUrl],
+      creator: '@AiBalubo56518',
+      site: '@AiBalubo56518',
+    },
+    alternates: {
+      canonical: `/works/${id}`,
+    },
+  }
 }
 
 export default async function WorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
