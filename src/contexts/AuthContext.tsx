@@ -245,34 +245,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!signedInUser) return
 
-      // 既にプロフィールが存在するか確認
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, display_name')
-        .eq('user_id', signedInUser.id)
-        .single() as { data: any; error: any }
+      // --- GoogleなどOAuthプロバイダのメタデータから名前・画像を抽出 ---
+      const meta = (signedInUser.user_metadata ?? {}) as Record<string, any>
+      const displayNameFromMeta =
+        meta.full_name ||
+        meta.display_name ||
+        meta.name ||
+        (signedInUser.email ? signedInUser.email.split('@')[0] : '') ||
+        'ユーザー'
+      const avatarUrlFromMeta = meta.avatar_url || meta.picture || ''
 
-      if (error && error.code !== 'PGRST116') {
+      // 既にプロフィールが存在するか確認（名前とアバターも取得）
+      const { data: existingProfile, error: selectError } = (await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_image_url')
+        .eq('user_id', signedInUser.id)
+        .single()) as { data: any; error: any }
+
+      if (selectError && selectError.code !== 'PGRST116') {
         // その他のエラーはログに出すだけ
-        console.warn('[AuthContext] ensureProfile: プロフィール確認エラー:', error)
+        console.warn('[AuthContext] ensureProfile: プロフィール確認エラー:', selectError)
         return
       }
 
-      // PGRST116: Row not found → 新規作成
-      if (!data) {
-        const displayName = (signedInUser.user_metadata?.display_name as string | undefined) || 'ユーザー'
-
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .upsert({
+      if (!existingProfile) {
+        // プロフィールが無い場合は新規作成
+        const { error: insertError } = await supabase.from('profiles').upsert(
+          {
             user_id: signedInUser.id,
-            display_name: displayName,
-          }, { onConflict: 'user_id', ignoreDuplicates: true })
+            display_name: displayNameFromMeta,
+            avatar_image_url: avatarUrlFromMeta,
+          },
+          { onConflict: 'user_id' }
+        )
 
-        if (insertError && insertError.code !== '23505') { // 23505 = unique_violation
+        if (insertError && insertError.code !== '23505') {
           console.error('[AuthContext] ensureProfile: プロフィール作成エラー:', insertError)
         } else {
           console.log('[AuthContext] ensureProfile: プロフィールを自動作成しました')
+        }
+      } else {
+        // 既存プロフィールがあり、欠けている情報があれば補完
+        const updates: Record<string, any> = {}
+        if (!existingProfile.display_name && displayNameFromMeta) {
+          updates.display_name = displayNameFromMeta
+        }
+        if (!existingProfile.avatar_image_url && avatarUrlFromMeta) {
+          updates.avatar_image_url = avatarUrlFromMeta
+        }
+
+        if (Object.keys(updates).length > 0) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(updates)
+            .eq('user_id', signedInUser.id)
+
+          if (updateError) {
+            console.error('[AuthContext] ensureProfile: プロフィール更新エラー:', updateError)
+          } else {
+            console.log('[AuthContext] ensureProfile: プロフィールを自動更新しました', updates)
+          }
         }
       }
     } catch (err) {
