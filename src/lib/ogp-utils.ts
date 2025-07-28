@@ -1,173 +1,173 @@
-// OGP関連の共通設定とユーティリティ
+import { Metadata } from 'next'
 
+// OGP画像の設定
 export const OGP_CONFIG = {
-  baseUrl: 'https://www.balubo.jp',
-  defaultImageUrl: '/og-image.svg',
-  defaultWidth: 1200,
-  defaultHeight: 630,
-  defaultTitle: 'balubo - クリエイターのためのポートフォリオプラットフォーム',
-  defaultDescription: '作品を共有し、つながりを深め、新しい機会を見つけよう。AIがあなたの実績を言語化し、クリエイターとしての価値を最大化します。',
+  width: 1200,
+  height: 630,
+  defaultTitle: 'balubo',
+  defaultDescription: 'クリエイターのためのポートフォリオプラットフォーム',
 } as const
 
-// 動的OGP画像URLを生成
-export function generateDynamicOGPUrl(params: {
+// 背景色の設定
+export const BACKGROUND_COLORS = {
+  work: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+  profile: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
+  article: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%)',
+  input: 'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #ff9a9e 100%)',
+  default: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)',
+} as const
+
+// 特徴アイコンの設定
+export const FEATURE_ICONS = [
+  { emoji: '📝', label: 'ポートフォリオ', color: '#3b82f6' },
+  { emoji: '🤖', label: 'AI分析', color: '#8b5cf6' },
+  { emoji: '🌐', label: 'ネットワーク', color: '#06b6d4' },
+  { emoji: '🚀', label: '成長支援', color: '#10b981' },
+] as const
+
+// 型定義
+export type OGImageType = keyof typeof BACKGROUND_COLORS
+export type FeatureIcon = typeof FEATURE_ICONS[number]
+
+export interface OGImageParams {
   title?: string
   description?: string
-  type?: string
-}): string {
-  const searchParams = new URLSearchParams()
-  
-  if (params.title) {
-    searchParams.set('title', params.title)
-  }
-  if (params.description) {
-    searchParams.set('description', params.description)
-  }
-  if (params.type) {
-    searchParams.set('type', params.type)
-  }
-  
-  return `${OGP_CONFIG.baseUrl}/api/og?${searchParams.toString()}`
+  type?: OGImageType
+  author?: string
+  tags?: string[]
+  roles?: string[]
 }
 
-// 基本的なOGPメタデータを生成
-export function generateBasicOGPMetadata(params: {
-  title?: string
-  description?: string
-  url?: string
-  imageUrl?: string
-  type?: 'website' | 'article' | 'profile'
-}) {
-  const title = params.title || OGP_CONFIG.defaultTitle
-  const description = params.description || OGP_CONFIG.defaultDescription
-  const url = params.url || OGP_CONFIG.baseUrl
-  const imageUrl = params.imageUrl || OGP_CONFIG.defaultImageUrl
-  const type = params.type || 'website'
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type,
-      url,
-      images: [
-        {
-          url: imageUrl,
-          width: OGP_CONFIG.defaultWidth,
-          height: OGP_CONFIG.defaultHeight,
-          alt: title,
-        }
-      ],
-      siteName: 'balubo',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [imageUrl],
-    },
-  }
-}
-
-// 作品用のOGPメタデータを生成
-export function generateWorkOGPMetadata(params: {
+export interface WorkData {
+  id: string
   title: string
   description?: string
-  workId: string
-  imageUrl?: string
-}) {
-  const title = params.title || '無題の作品'
-  const description = params.description || `${title}の作品詳細ページです。`
-  const url = `${OGP_CONFIG.baseUrl}/works/${params.workId}`
-  const imageUrl = params.imageUrl || generateDynamicOGPUrl({
-    title,
-    description,
-    type: 'work'
-  })
-
-  return {
-    title: `${title} - 作品詳細 | balubo`,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article' as const,
-      url,
-      images: [
-        {
-          url: imageUrl,
-          width: OGP_CONFIG.defaultWidth,
-          height: OGP_CONFIG.defaultHeight,
-          alt: title,
-        }
-      ],
-      siteName: 'balubo',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [imageUrl],
-    },
-  }
+  tags?: string[]
+  roles?: string[]
+  banner_image_url?: string
+  created_at: string
+  updated_at?: string
+  user_id: string
 }
 
-// プロフィール用のOGPメタデータを生成
-export function generateProfileOGPMetadata(params: {
-  displayName: string
-  bio?: string
-  userId: string
-  avatarUrl?: string
-}) {
-  const title = `${params.displayName}のポートフォリオ`
-  const description = params.bio || `${params.displayName}のクリエイターポートフォリオをご覧ください。`
-  const url = `${OGP_CONFIG.baseUrl}/share/profile/${params.userId}`
-  const imageUrl = params.avatarUrl || generateDynamicOGPUrl({
-    title,
-    description,
-    type: 'profile'
-  })
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'profile' as const,
-      url,
-      images: [
-        {
-          url: imageUrl,
-          width: OGP_CONFIG.defaultWidth,
-          height: OGP_CONFIG.defaultHeight,
-          alt: title,
-        }
-      ],
-      siteName: 'balubo',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [imageUrl],
-    },
-  }
+export interface AuthorData {
+  display_name: string
+  avatar_image_url?: string
 }
 
 // 入力値の検証とサニタイズ
-export function sanitizeOGPInput(input: string | null, maxLength: number, defaultValue: string): string {
+export function sanitizeOGPInput(input: string | null | undefined, maxLength: number, defaultValue: string): string {
   if (!input) return defaultValue
   const sanitized = input.trim().slice(0, maxLength)
   return sanitized || defaultValue
 }
 
-// 画像URLの優先順位付き取得
-export function getImageUrlWithPriority(work: any): string | null {
-  return work.banner_image_url || 
-         work.preview_data?.image || 
-         work.previewData?.image || 
-         null
+// 背景色を取得
+export function getBackgroundColor(type: OGImageType): string {
+  return BACKGROUND_COLORS[type] || BACKGROUND_COLORS.default
+}
+
+// 作品用のOGPメタデータを生成
+export function generateWorkOGPMetadata(params: {
+  title: string
+  description: string
+  workId: string
+  author?: string
+  tags?: string[]
+  roles?: string[]
+  publishedTime?: string
+  modifiedTime?: string
+}): Metadata {
+  const { title, description, workId, author, tags = [], roles = [], publishedTime, modifiedTime } = params
+  
+  const ogImageUrl = `/api/og/analysis/${workId}`
+  const keywords = [...tags, ...roles, 'ポートフォリオ', 'クリエイター', '作品']
+
+  return {
+    title: `${title} | balubo`,
+    description,
+    keywords,
+    openGraph: {
+      title: `${title} | balubo`,
+      description,
+      url: `https://www.balubo.jp/works/${workId}`,
+      siteName: 'balubo',
+      images: [
+        {
+          url: ogImageUrl,
+          width: OGP_CONFIG.width,
+          height: OGP_CONFIG.height,
+          alt: `${title} - ${description}`,
+        },
+      ],
+      locale: 'ja_JP',
+      type: 'article',
+      authors: author ? [author] : undefined,
+      publishedTime,
+      modifiedTime,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | balubo`,
+      description,
+      images: [ogImageUrl],
+      creator: '@AiBalubo56518',
+      site: '@AiBalubo56518',
+    },
+    alternates: {
+      canonical: `/works/${workId}`,
+    },
+  }
+}
+
+// デフォルトのOGPメタデータを生成
+export function generateDefaultOGPMetadata(params: {
+  title?: string
+  description?: string
+  url?: string
+  imageUrl?: string
+}): Metadata {
+  const { title, description, url, imageUrl } = params
+  
+  return {
+    title: title || OGP_CONFIG.defaultTitle,
+    description: description || OGP_CONFIG.defaultDescription,
+    openGraph: {
+      title: title || OGP_CONFIG.defaultTitle,
+      description: description || OGP_CONFIG.defaultDescription,
+      url: url || 'https://www.balubo.jp',
+      siteName: 'balubo',
+      images: [
+        {
+          url: imageUrl || '/og-image.svg',
+          width: OGP_CONFIG.width,
+          height: OGP_CONFIG.height,
+          alt: title || OGP_CONFIG.defaultTitle,
+        },
+      ],
+      locale: 'ja_JP',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: title || OGP_CONFIG.defaultTitle,
+      description: description || OGP_CONFIG.defaultDescription,
+      images: [imageUrl || '/og-image.svg'],
+      creator: '@AiBalubo56518',
+      site: '@AiBalubo56518',
+    },
+  }
+}
+
+// エラー用のOGPメタデータを生成
+export function generateErrorOGPMetadata(params: {
+  title?: string
+  description?: string
+}): Metadata {
+  const { title = 'エラー', description = 'ページが見つかりませんでした' } = params
+  
+  return generateDefaultOGPMetadata({
+    title: `${title} | balubo`,
+    description,
+  })
 } 

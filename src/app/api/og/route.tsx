@@ -1,54 +1,25 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
+import { 
+  OGP_CONFIG, 
+  BACKGROUND_COLORS, 
+  FEATURE_ICONS, 
+  sanitizeOGPInput, 
+  getBackgroundColor,
+  type OGImageType 
+} from '@/lib/ogp-utils'
 
 export const runtime = 'edge'
-
-// OGP画像の設定
-const OGP_CONFIG = {
-  width: 1200,
-  height: 630,
-  defaultTitle: 'balubo',
-  defaultDescription: 'クリエイターのためのポートフォリオプラットフォーム',
-} as const
-
-// 背景色の設定（より魅力的なグラデーション）
-const BACKGROUND_COLORS = {
-  work: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-  profile: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
-  article: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%)',
-  input: 'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #ff9a9e 100%)',
-  default: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)',
-} as const
-
-// 特徴アイコンの設定
-const FEATURE_ICONS = [
-  { emoji: '📝', label: 'ポートフォリオ', color: '#3b82f6' },
-  { emoji: '🤖', label: 'AI分析', color: '#8b5cf6' },
-  { emoji: '🌐', label: 'ネットワーク', color: '#06b6d4' },
-  { emoji: '🚀', label: '成長支援', color: '#10b981' },
-] as const
-
-// 入力値の検証とサニタイズ
-function sanitizeInput(input: string | null, maxLength: number, defaultValue: string): string {
-  if (!input) return defaultValue
-  const sanitized = input.trim().slice(0, maxLength)
-  return sanitized || defaultValue
-}
-
-// 背景色を取得
-function getBackgroundColor(type: string): string {
-  return BACKGROUND_COLORS[type as keyof typeof BACKGROUND_COLORS] || BACKGROUND_COLORS.default
-}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     
     // パラメータの取得とサニタイズ
-    const title = sanitizeInput(searchParams.get('title'), 100, OGP_CONFIG.defaultTitle)
-    const description = sanitizeInput(searchParams.get('description'), 200, OGP_CONFIG.defaultDescription)
-    const type = sanitizeInput(searchParams.get('type'), 20, 'default')
-    const author = sanitizeInput(searchParams.get('author'), 50, '')
+    const title = sanitizeOGPInput(searchParams.get('title'), 100, OGP_CONFIG.defaultTitle)
+    const description = sanitizeOGPInput(searchParams.get('description'), 200, OGP_CONFIG.defaultDescription)
+    const type = sanitizeOGPInput(searchParams.get('type'), 20, 'default') as OGImageType
+    const author = sanitizeOGPInput(searchParams.get('author'), 50, '')
 
     return new ImageResponse(
       (
@@ -97,8 +68,8 @@ export async function GET(request: NextRequest) {
               right: 0,
               bottom: 0,
               background: `
-                linear-gradient(rgba(59,130,246,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59,130,246,0.1) 1px, transparent 1px)
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
               `,
               backgroundSize: '40px 40px',
             }}
@@ -295,7 +266,7 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+            background: BACKGROUND_COLORS.default,
             color: 'white',
             fontSize: '32px',
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',

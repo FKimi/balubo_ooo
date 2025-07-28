@@ -1,7 +1,11 @@
 import { Metadata } from 'next'
 import WorkDetailClient from './WorkDetailClient'
-import { sanitizeOGPInput } from '@/lib/ogp-utils'
 import { supabase } from '@/lib/supabase'
+import { 
+  generateWorkOGPMetadata, 
+  generateErrorOGPMetadata,
+  type WorkData 
+} from '@/lib/ogp-utils'
 
 type WorkError = {
   type: 'not_found' | 'invalid_id' | 'database_error' | 'unknown'
@@ -10,7 +14,7 @@ type WorkError = {
 }
 
 // 作品データを取得する関数
-async function getWork(id: string): Promise<{ work: any | null; error: WorkError | null }> {
+async function getWork(id: string): Promise<{ work: WorkData | null; error: WorkError | null }> {
   try {
     // IDの形式を検証
     if (!id || typeof id !== 'string' || id.length === 0) {
@@ -97,80 +101,49 @@ export async function generateMetadata(
   const { work } = await getWork(id)
   
   if (!work) {
-    return {
-      title: '作品が見つかりません | balubo',
-      description: '指定された作品が見つかりませんでした。',
-      openGraph: {
-        title: '作品が見つかりません | balubo',
-        description: '指定された作品が見つかりませんでした。',
-        images: ['/og-image.svg'],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: '作品が見つかりません | balubo',
-        description: '指定された作品が見つかりませんでした。',
-        images: ['/og-image.svg'],
-      },
-    }
+    return generateErrorOGPMetadata({
+      title: '作品が見つかりません',
+      description: '指定された作品が見つかりませんでした。'
+    })
   }
 
-  const title = sanitizeOGPInput(work.title, 100, '作品詳細')
-  const description = sanitizeOGPInput(work.description, 200, 'クリエイターの作品をチェックしよう')
-  const tags = work.tags?.slice(0, 3) || []
-  const roles = work.roles?.slice(0, 2) || []
-
-  // 動的OGP画像のURL
-  const ogImageUrl = `/api/og/analysis/${id}`
-
-  return {
-    title: `${title} | balubo`,
-    description: description,
-    keywords: [...tags, ...roles, 'ポートフォリオ', 'クリエイター', '作品'],
-    openGraph: {
-      title: `${title} | balubo`,
-      description: description,
-      url: `https://www.balubo.jp/works/${id}`,
-      siteName: 'balubo',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${title} - ${description}`,
-        },
-      ],
-      locale: 'ja_JP',
-      type: 'article',
-      authors: [work.user_id],
-      publishedTime: work.created_at,
-      modifiedTime: work.updated_at || work.created_at,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${title} | balubo`,
-      description: description,
-      images: [ogImageUrl],
-      creator: '@AiBalubo56518',
-      site: '@AiBalubo56518',
-    },
-    alternates: {
-      canonical: `/works/${id}`,
-    },
-  }
+  return generateWorkOGPMetadata({
+    title: work.title,
+    description: work.description || 'クリエイターの作品をチェックしよう',
+    workId: work.id,
+    tags: work.tags || [],
+    roles: work.roles || [],
+    publishedTime: work.created_at,
+    modifiedTime: work.updated_at || work.created_at,
+  })
 }
 
 export default async function WorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  if (!id || typeof id !== 'string') {
-    console.log('無効なパラメータ:', { id })
+  const { error } = await getWork(id)
+
+  if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">作品が見つかりません</h1>
-          <p className="text-gray-600">指定された作品は存在しないか、削除された可能性があります。</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              エラーが発生しました
+            </h1>
+            <p className="text-gray-600 mb-8">
+              {error.message}
+            </p>
+            <a
+              href="/works"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              作品一覧に戻る
+            </a>
+          </div>
         </div>
       </div>
     )
   }
+
   return <WorkDetailClient workId={id} />
 } 

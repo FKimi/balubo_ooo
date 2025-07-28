@@ -1,37 +1,25 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { 
+  OGP_CONFIG, 
+  BACKGROUND_COLORS, 
+  FEATURE_ICONS, 
+  sanitizeOGPInput,
+  type WorkData,
+  type AuthorData 
+} from '@/lib/ogp-utils'
 
 export const runtime = 'edge'
-
-// OGP画像の設定
-const OGP_CONFIG = {
-  width: 1200,
-  height: 630,
-  defaultTitle: 'balubo - 作品詳細',
-  defaultDescription: 'クリエイターの作品をチェックしよう',
-} as const
-
-// 背景色の設定
-const BACKGROUND_COLORS = {
-  work: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-  input: 'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #ff9a9e 100%)',
-  default: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)',
-} as const
 
 // 背景色を取得
 function getBackgroundColor(type: string): string {
   return BACKGROUND_COLORS[type as keyof typeof BACKGROUND_COLORS] || BACKGROUND_COLORS.default
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ workId: string }> }
-) {
+// 作品データを取得
+async function getWorkData(workId: string): Promise<{ work: WorkData | null; author: AuthorData | null }> {
   try {
-    const { workId } = await params
-    
-    // Supabaseクライアントを作成
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -43,48 +31,64 @@ export async function GET(
       }
     )
 
-    // 作品情報を取得
-    let workData = null
-    let authorData = null
-    
-    try {
-      const { data: work, error: workError } = await supabase
-        .from('works')
-        .select(`
-          id,
-          title,
-          description,
-          tags,
-          roles,
-          banner_image_url,
-          created_at,
-          user_id
-        `)
-        .eq('id', workId)
-        .single()
+    const { data: work, error: workError } = await supabase
+      .from('works')
+      .select(`
+        id,
+        title,
+        description,
+        tags,
+        roles,
+        banner_image_url,
+        created_at,
+        updated_at,
+        user_id
+      `)
+      .eq('id', workId)
+      .single()
 
-      if (work && !workError) {
-        workData = work
-        
-        // 作者情報を取得
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('display_name, avatar_image_url')
-          .eq('user_id', work.user_id)
-          .single()
-        
-        authorData = profile
-      }
-    } catch (error) {
-      console.error('作品データ取得エラー:', error)
+    if (workError || !work) {
+      console.error('作品データ取得エラー:', workError)
+      return { work: null, author: null }
     }
 
-    // デフォルト値の設定
-    const title = workData?.title || OGP_CONFIG.defaultTitle
-    const description = workData?.description || OGP_CONFIG.defaultDescription
-    const author = authorData?.display_name || 'クリエイター'
-    const tags = workData?.tags?.slice(0, 3) || []
-    const roles = workData?.roles?.slice(0, 2) || []
+    // 作者情報を取得
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name, avatar_image_url')
+      .eq('user_id', work.user_id)
+      .single()
+
+    return { 
+      work, 
+      author: profile || { display_name: 'クリエイター' }
+    }
+  } catch (error) {
+    console.error('データ取得エラー:', error)
+    return { work: null, author: null }
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ workId: string }> }
+) {
+  try {
+    const { workId } = await params
+    
+    // 作品データを取得
+    const { work, author } = await getWorkData(workId)
+
+    if (!work) {
+      return generateErrorImage('作品が見つかりません')
+    }
+
+    // データのサニタイズ
+    const title = sanitizeOGPInput(work.title, 100, OGP_CONFIG.defaultTitle)
+    const description = sanitizeOGPInput(work.description, 200, OGP_CONFIG.defaultDescription)
+    const authorName = sanitizeOGPInput(author?.display_name, 50, 'クリエイター')
+    const tags = work.tags?.slice(0, 3) || []
+    const roles = work.roles?.slice(0, 2) || []
 
     return new ImageResponse(
       (
@@ -219,7 +223,7 @@ export async function GET(
                 marginBottom: '20px',
               }}
             >
-              by {author}
+              by {authorName}
             </div>
 
             {/* 説明文 */}
@@ -286,107 +290,42 @@ export async function GET(
                 justifyContent: 'center',
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
+              {FEATURE_ICONS.slice(0, 3).map((icon, index) => (
                 <div
+                  key={index}
                   style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #3b82f6, #3b82f6dd)',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                    gap: '8px',
                   }}
                 >
-                  📝
+                  <div
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${icon.color}, ${icon.color}dd)`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '24px',
+                      boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    {icon.emoji}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: '#1e293b',
+                    }}
+                  >
+                    {icon.label}
+                  </div>
                 </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: '#1e293b',
-                  }}
-                >
-                  ポートフォリオ
-                </div>
-              </div>
-              
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #8b5cf6, #8b5cf6dd)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                  }}
-                >
-                  🤖
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: '#1e293b',
-                  }}
-                >
-                  AI分析
-                </div>
-              </div>
-              
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #06b6d4, #06b6d4dd)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                  }}
-                >
-                  🌐
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: '#1e293b',
-                  }}
-                >
-                  ネットワーク
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -435,30 +374,33 @@ export async function GET(
     )
   } catch (error) {
     console.error('作品OGP画像生成エラー:', error)
-    
-    // エラー時のフォールバック画像
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-            color: 'white',
-            fontSize: '32px',
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
-          }}
-        >
-          balubo - 作品詳細
-        </div>
-      ),
-      {
-        width: OGP_CONFIG.width,
-        height: OGP_CONFIG.height,
-      }
-    )
+    return generateErrorImage('エラーが発生しました')
   }
+}
+
+// エラー画像を生成
+function generateErrorImage(message: string) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: BACKGROUND_COLORS.default,
+          color: 'white',
+          fontSize: '32px',
+          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+        }}
+      >
+        balubo - {message}
+      </div>
+    ),
+    {
+      width: OGP_CONFIG.width,
+      height: OGP_CONFIG.height,
+    }
+  )
 } 
