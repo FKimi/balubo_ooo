@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { createClient } from '@supabase/supabase-js'
+// ブラウザでクッキー保存された Supabase セッションを取得するため `@supabase/ssr` のヘルパーを利用
+import { getSupabaseBrowserClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
@@ -17,17 +18,8 @@ import { TabNavigation } from '@/components/ui/TabNavigation'
 import { Skeleton } from '@/components/ui'
 
 // Supabaseクライアントをコンポーネント外で初期化
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase環境変数が設定されていません')
-}
-
-const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
-)
+// `getSupabaseBrowserClient` はクッキーに保存されたセッションを自動で参照します
+const supabase = getSupabaseBrowserClient()
 
 interface User {
   id: string
@@ -83,10 +75,11 @@ export default function FeedPage() {
         // 認証状態を確認
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         
-        if (authError) {
+        // 認証エラーがあってもセッションがないだけのケースが多いため、
+        // エラー表示は行わず未認証として続行する
+        if (authError && authError.message !== 'Auth session missing!') {
           console.error('フィード画面: 認証エラー:', authError)
           setError('認証エラーが発生しました')
-          return
         }
 
         // 認証状態を設定
@@ -100,12 +93,17 @@ export default function FeedPage() {
           setTimeout(() => reject(new Error('フィード取得タイムアウト')), 20000) // 20秒に延長
         })
 
+        const { data: { session: currentSession } } = await supabase.auth.getSession()
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        }
+        if (currentSession?.access_token) {
+          headers['Authorization'] = `Bearer ${currentSession.access_token}`
+        }
+
         const feedPromise = fetch('/api/feed', {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-            'Content-Type': 'application/json',
-          },
+          headers,
         })
 
         const response = await Promise.race([feedPromise, feedTimeout]) as Response
