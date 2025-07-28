@@ -19,7 +19,7 @@ export default function OGPreviewPage() {
             <div className="space-y-4">
               <div className="border rounded-lg overflow-hidden">
                 <Image 
-                  src="/og-image.svg" 
+                  src="/api/og" 
                   alt="静的OGP画像" 
                   width={1200}
                   height={630}
@@ -27,9 +27,9 @@ export default function OGPreviewPage() {
                 />
               </div>
               <div className="text-sm text-gray-600">
-                <p><strong>URL:</strong> /og-image.svg</p>
+                <p><strong>URL:</strong> /api/og</p>
                 <p><strong>サイズ:</strong> 1200x630px</p>
-                <p><strong>形式:</strong> SVG</p>
+                <p><strong>形式:</strong> PNG</p>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function OGPreviewPage() {
                   </div>
                   <div className="border rounded-lg overflow-hidden">
                     <Image 
-                      src="/og-image.svg" 
+                      src="/api/og" 
                       alt="OGP画像" 
                       width={1200}
                       height={630}
@@ -133,6 +133,20 @@ export default function OGPreviewPage() {
               <code className="block bg-gray-100 p-2 rounded mt-2">
                 /api/og/analysis/[workId]
               </code>
+            </div>
+          </div>
+        </div>
+
+        {/* テスト用リンク */}
+        <div className="mt-8 bg-blue-50 rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4 text-blue-900">テスト用リンク</h2>
+          <div className="space-y-2 text-sm">
+            <p className="text-blue-800">以下のリンクをSNSで投稿してOGP画像の表示をテストしてください：</p>
+            <div className="bg-white p-3 rounded border">
+              <code className="text-blue-600">https://www.balubo.jp</code>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <code className="text-blue-600">https://www.balubo.jp/og-preview</code>
             </div>
           </div>
         </div>

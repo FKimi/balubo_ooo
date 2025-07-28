@@ -251,6 +251,10 @@ export async function GET(request: NextRequest) {
       {
         width: OGP_CONFIG.width,
         height: OGP_CONFIG.height,
+        headers: {
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+          'Content-Type': 'image/png',
+        },
       }
     )
   } catch (error) {
@@ -278,6 +282,10 @@ export async function GET(request: NextRequest) {
       {
         width: OGP_CONFIG.width,
         height: OGP_CONFIG.height,
+        headers: {
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+          'Content-Type': 'image/png',
+        },
       }
     )
   }
