@@ -27,6 +27,10 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
 
   const formattedDate = formatDate(work.production_date)
 
+  // いいね・コメント数を安全に取得
+  const likesCount = work.likes_count ?? work.likes?.[0]?.count ?? 0
+  const commentsCount = work.comments_count ?? work.comments?.[0]?.count ?? 0
+
   return (
     <div 
       className={`group relative h-full ${
@@ -79,8 +83,8 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
               <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1"><Eye size={12} />{work.view_count || 0}</span>
-                  <span className="flex items-center gap-1"><Heart size={12} />{work.likes?.[0]?.count || 0}</span>
-                  <span className="flex items-center gap-1"><MessageCircle size={12} />{work.comments?.[0]?.count || 0}</span>
+                  <span className="flex items-center gap-1"><Heart size={12} />{likesCount}</span>
+                  <span className="flex items-center gap-1"><MessageCircle size={12} />{commentsCount}</span>
                 </div>
                 {formattedDate && (
                   <span className="flex items-center gap-1"><Calendar size={12} />{formattedDate}</span>

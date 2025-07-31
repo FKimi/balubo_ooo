@@ -108,9 +108,6 @@ export default function HomePage() {
           <Link href="/" className="flex items-center space-x-2" aria-label="balubo トップページ">
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">balubo</span>
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
-                BETA
-              </span>
             </div>
           </Link>
           <nav className="flex items-center space-x-2 sm:space-x-4" aria-label="グローバルナビゲーション">

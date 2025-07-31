@@ -51,17 +51,6 @@ export default function HeroSection() {
             
             {/* Left Content */}
             <div className="space-y-8 text-center lg:text-left">
-              {/* ベータ版バッジ */}
-              <div className="flex justify-center lg:justify-start">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-50 border border-orange-200 rounded-full transform transition-all duration-300 hover:scale-105 hover:shadow-md">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-orange-500 text-white animate-pulse">
-                    BETA
-                  </span>
-                  <span className="text-sm font-medium text-orange-800">
-                    現在ベータ版として無料でご利用いただけます
-                  </span>
-                </div>
-              </div>
 
               <h1 className="text-4xl font-extrabold tracking-tight text-slate-800 sm:text-5xl md:text-6xl lg:text-7xl">
                 <span className="block leading-tight">

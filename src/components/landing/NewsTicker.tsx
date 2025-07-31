@@ -15,6 +15,9 @@ const newsItems: NewsItem[] = [
 ]
 
 export function NewsTicker() {
+  // 一時的にニュースセクションを非表示にする
+  const isNewsSectionHidden = true // この値をfalseに変更すると表示されます
+  
   const [isPaused] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -38,6 +41,11 @@ export function NewsTicker() {
   }, [isPaused])
 
   const currentNews = newsItems[currentIndex] || newsItems[0]
+
+  // ニュースセクションが非表示設定の場合は何も表示しない
+  if (isNewsSectionHidden) {
+    return null
+  }
 
   // ニュース項目がない場合は何も表示しない
   if (!currentNews) {

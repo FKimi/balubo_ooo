@@ -1,7 +1,6 @@
 'use client'
 
 
-import Image from 'next/image'
 import FollowButton from '@/features/follow/components/FollowButton'
 import MessageButton from './MessageButton'
 import { FollowStats } from '@/features/follow/components/FollowStats'
@@ -21,7 +20,6 @@ interface PublicProfileHeaderProps {
 }
 
 export function PublicProfileHeader(props: PublicProfileHeaderProps) {
-  // reuse ProfileHeader by importing? to avoid duplication but quick copy from latest ProfileHeader modifications.
   const {
     userId,
     displayName,
@@ -30,67 +28,71 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
     websiteUrl,
     backgroundImageUrl,
     avatarImageUrl,
-    hasCustomBackground,
-    hasCustomAvatar,
     professions,
   } = props
 
-  const resolvedBgUrl = backgroundImageUrl && backgroundImageUrl.startsWith('/storage')
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}${backgroundImageUrl}`
-    : backgroundImageUrl
+  // Resolve storage paths to full URLs (same logic as ProfileHeader)
+  const resolvedBgUrl = backgroundImageUrl && backgroundImageUrl.trim()
+    ? (backgroundImageUrl.startsWith('/storage')
+        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}${backgroundImageUrl}`
+        : backgroundImageUrl)
+    : ''
 
-  const resolvedAvatarUrl = avatarImageUrl && avatarImageUrl.startsWith('/storage')
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}${avatarImageUrl}`
-    : avatarImageUrl
-
-  // 背景画像の要素を決定
-  let backgroundElement = <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />;
-  if (backgroundImageUrl && backgroundImageUrl.trim() !== '') {
-    backgroundElement = <Image src={resolvedBgUrl || ''} alt="プロフィール背景" fill sizes="100vw" unoptimized className="object-cover" />;
-  }
-
-  // アバター画像の要素を決定
-  let avatarElement;
-  if (hasCustomAvatar && avatarImageUrl) {
-    avatarElement = <Image src={resolvedAvatarUrl || ''} alt="プロフィール画像" fill sizes="96px" className="object-cover object-top" />;
-  } else {
-    avatarElement = (
-      <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-gray-400">
-        {displayName ? displayName.charAt(0) : 'N'}
-      </span>
-    );
-  }
+  const resolvedAvatarUrl = avatarImageUrl && avatarImageUrl.trim()
+    ? (avatarImageUrl.startsWith('/storage')
+        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}${avatarImageUrl}`
+        : avatarImageUrl)
+    : ''
 
   return (
     <div className="mb-8">
-      {/* 背景バナー */}
-      <div className="relative h-40 sm:h-48 md:h-56 rounded-2xl overflow-hidden">
-        {backgroundImageUrl && backgroundImageUrl.trim() !== '' ? (
-          resolvedBgUrl && resolvedBgUrl.startsWith('data:') ? (
-            <img src={resolvedBgUrl} alt="プロフィール背景" className="absolute inset-0 w-full h-full object-cover" />
-          ) : (
-            <Image src={resolvedBgUrl || ''} alt="プロフィール背景" fill sizes="100vw" unoptimized className="object-cover" />
-          )
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />
-        )}
-        <div className="absolute inset-0 bg-black/20" />
-      </div>
-
       {/* メインカード */}
-      <div className="relative -mt-20 sm:-mt-24 md:-mt-24 z-10">
-        <div className="bg-white/95 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-lg overflow-hidden w-full">
+      <div className="relative">
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-lg overflow-hidden w-full relative">
+          {/* 背景画像 - カード内 */}
+          <div 
+            className="relative h-40 sm:h-48 md:h-56 rounded-t-2xl overflow-hidden"
+            style={{ minHeight: '200px' }}
+          >
+            {resolvedBgUrl ? (
+              <img 
+                src={resolvedBgUrl} 
+                alt="プロフィール背景" 
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ 
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />
+            )}
+            {/* 薄いオーバーレイで文字可読性確保 */}
+            <div className="absolute inset-0 bg-black/20" />
+          </div>
+          
           {/* 上部: アバターとボタン */}
           <div className="relative px-6 pt-6 flex justify-between items-start">
             {/* アバター */}
             <div className="flex-shrink-0">
-              <div className="relative w-28 h-28 sm:w-32 sm:h-32 -mt-14 sm:-mt-16 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-xl">
-                {hasCustomAvatar && avatarImageUrl ? (
-                  resolvedAvatarUrl && resolvedAvatarUrl.startsWith('data:') ? (
-                    <img src={resolvedAvatarUrl} alt="プロフィール画像" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <Image src={resolvedAvatarUrl || ''} alt="プロフィール画像" fill sizes="(max-width: 640px) 112px, 128px" className="object-cover" />
-                  )
+              <div 
+                className="relative w-28 h-28 sm:w-32 sm:h-32 -mt-14 sm:-mt-16 rounded-full overflow-hidden border-4 border-white shadow-xl"
+                style={{ minWidth: '112px', minHeight: '112px' }}
+              >
+                {resolvedAvatarUrl ? (
+                  <img 
+                    src={resolvedAvatarUrl} 
+                    alt="プロフィール画像" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ 
+                      display: 'block',
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
                 ) : (
                   <span className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-gray-400">
                     {displayName ? displayName.charAt(0) : 'N'}
@@ -98,7 +100,7 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
                 )}
               </div>
             </div>
-
+            
             {/* 右側ボタン群 */}
             <div className="flex items-center gap-3 pt-4">
               <MessageButton targetUserId={userId} />

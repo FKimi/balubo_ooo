@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Card, CardContent } from '@/components/ui/card'
 import type { WorkData } from '@/features/work/types'
 import { EmptyState } from '@/components/common'
+import { WorkCard } from '@/features/work/components/WorkCard'
 
 interface Category {
   id: string
@@ -64,28 +62,7 @@ export function PublicWorksCategoryManager({ works, categories }: PublicWorksCat
       {filteredWorks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredWorks.map((work) => (
-            <Link href={`/works/${work.id}`} key={work.id}>
-              <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col">
-                <CardContent className="p-0 flex-grow flex flex-col">
-                  <div className="relative w-full aspect-video">
-                    <Image
-                      src={work.preview_data?.image || '/images/placeholder.png'}
-                      alt={work.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4 flex-grow flex flex-col">
-                    <h3 className="font-bold text-md mb-2 flex-grow">{work.title}</h3>
-                    <p className="text-xs text-gray-500 mb-2 line-clamp-2">{work.description}</p>
-                    <div className="text-right text-xs text-gray-400">
-                      {new Date(work.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <WorkCard key={work.id} work={work as WorkData} onDelete={() => {}} />
           ))}
         </div>
       ) : (

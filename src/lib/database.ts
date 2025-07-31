@@ -260,12 +260,28 @@ export class DatabaseClient {
           })
         }
       }
-      // 3. 作品データにlikes_countを付与
-      const worksWithLikes = works.map((w: any) => ({
+      
+      // 3. 作品IDリストでコメントを集計
+      const commentsCountMap = new Map<string, number>()
+      if (workIds.length > 0) {
+        const { data: commentsRaw, error: commentsError } = await dbClient
+          .from('comments')
+          .select('target_id')
+          .eq('target_type', 'work')
+          .in('target_id', workIds)
+        if (!commentsError && commentsRaw) {
+          commentsRaw.forEach((c: any) => {
+            commentsCountMap.set(c.target_id, (commentsCountMap.get(c.target_id) || 0) + 1)
+          })
+        }
+      }
+      // 4. 作品データにlikes_countとcomments_countを付与
+      const worksWithCounts = works.map((w: any) => ({
         ...w,
-        likes_count: likesCountMap.get(w.id) || 0
+        likes_count: likesCountMap.get(w.id) || 0,
+        comments_count: commentsCountMap.get(w.id) || 0,
       }))
-      const result = processDbArrayResult(worksWithLikes, error)
+      const result = processDbArrayResult(worksWithCounts, error)
       return result
     } catch (error) {
       console.error('DatabaseClient: 作品一覧取得エラー:', error)
