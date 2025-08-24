@@ -278,7 +278,7 @@ export function FeaturedWorksSection({
                   (クリックして追加)
                 </span>
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {nonFeaturedWorks.slice(0, 6).map((work) => (
                   <div 
                     key={work.id} 
@@ -310,7 +310,7 @@ export function FeaturedWorksSection({
               ? 'grid-cols-1 max-w-2xl mx-auto'
               : featuredWorks.length === 2
               ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
-              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
           }`}
         >
           {featuredWorks.map((work) => (

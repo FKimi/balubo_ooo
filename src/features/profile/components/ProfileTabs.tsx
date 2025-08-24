@@ -49,6 +49,7 @@ interface ProfileTabsProps {
   // 自己紹介管理
   onUpdateIntroduction?: (introduction: string) => void
   setIsIntroductionModalOpen: (open: boolean) => void
+  showTabHeader?: boolean
 }
 
 export function ProfileTabs({ 
@@ -68,7 +69,8 @@ export function ProfileTabs({
   onDeleteCareerConfirm,
   setIsCareerModalOpen,
   onUpdateIntroduction,
-  setIsIntroductionModalOpen
+  setIsIntroductionModalOpen,
+  showTabHeader = true
 }: ProfileTabsProps) {
   const [isClient, setIsClient] = useState(false)
   const { openContentTypeSelector } = useLayout()
@@ -109,11 +111,15 @@ export function ProfileTabs({
   return (
     <div className="space-y-6">
       {/* タブナビゲーション */}
-      <TabNavigation
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as 'profile' | 'works' | 'inputs' | 'details')}
-      />
+      {showTabHeader && (
+        <div className="sticky top-16 z-10 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-gray-100">
+          <TabNavigation
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as 'profile' | 'works' | 'inputs' | 'details')}
+          />
+        </div>
+      )}
 
       {/* タブコンテンツ */}
       <div className="mt-6">
@@ -416,7 +422,7 @@ export function ProfileTabs({
                 <p className="text-gray-600 mt-2">インプットを読み込み中...</p>
               </div>
             ) : inputs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto justify-items-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto justify-items-center">
                 {inputs.map((input, _index) => (
                   <InputCard
                     key={input.id}

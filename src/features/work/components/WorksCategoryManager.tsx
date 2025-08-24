@@ -524,7 +524,7 @@ export function WorksCategoryManager({
 
         {/* 作品グリッド */}
         <div className="mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredWorks.length > 0 ? (
               filteredWorks.map((work: WorkData) => (
                 <DraggableWorkCard key={work.id} work={work} onDelete={deleteWork} />

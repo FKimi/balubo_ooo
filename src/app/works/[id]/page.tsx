@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import WorkDetailClient from './WorkDetailClient'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { 
   generateWorkOGPMetadata, 
   generateErrorOGPMetadata,
@@ -27,6 +27,29 @@ async function getWork(id: string): Promise<{ work: WorkData | null; error: Work
         }
       }
     }
+
+    // Service Role Keyを使用してRLSをバイパス
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Supabase環境変数が設定されていません')
+      return {
+        work: null,
+        error: {
+          type: 'database_error',
+          message: 'データベース設定エラーが発生しました',
+          details: { id }
+        }
+      }
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
     // Supabaseからデータを取得
     const { data: work, error } = await supabase

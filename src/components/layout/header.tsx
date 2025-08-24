@@ -26,7 +26,7 @@ export function Header() {
   }
 
   const navLinks = [
-    { href: '/feed', label: 'フィード', icon: Home },
+    { href: '/feed', label: 'フィード', icon: Home, comingSoon: true },
     { href: '/profile', label: 'ポートフォリオ', icon: User },
     { href: '/report', label: '詳細レポート', icon: BarChart2, comingSoon: true },
   ]
@@ -36,7 +36,7 @@ export function Header() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* ロゴ */}
-          <Link href={user ? "/feed" : "/"} className="group">
+          <Link href={user ? "/profile" : "/"} className="group">
             <h1 className="text-2xl font-bold text-blue-600 transition-colors">
               balubo
             </h1>
@@ -179,7 +179,7 @@ export function Header() {
         <div className="fixed inset-0 z-50 flex items-start justify-center mt-24 px-4" onClick={() => setShowReportPreview(false)}>
           <div className="bg-white shadow-2xl rounded-xl border border-slate-200 max-w-md w-full" onClick={e => e.stopPropagation()}>
             <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-700">詳細レポート (準備中)</h3>
+              <h3 className="text-sm font-semibold text-slate-700">フィード機能 (準備中)</h3>
               <button className="text-slate-500 hover:text-slate-700" onClick={() => setShowReportPreview(false)}>
                 ×
               </button>
@@ -189,7 +189,7 @@ export function Header() {
                 Coming Soon Preview
               </div>
               <p className="text-xs text-slate-600 mt-3 leading-relaxed">
-                AIが自動生成する&quot;納得感・学び・自己肯定感&quot;レポートをお届けします。まもなく公開！
+                クリエイターの作品やインプットを発見できるフィード機能をお届けします。まもなく公開！
               </p>
             </div>
           </div>
@@ -204,12 +204,13 @@ export function MobileBottomNavigation() {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-base-white/95 backdrop-blur-md border-t border-border-color/50 z-50 shadow-lg">
       <div className="flex justify-around py-2">
-        <Link href="/feed" className="flex flex-col items-center py-2 px-3 text-text-secondary hover:text-accent-dark-blue transition-all duration-200 group">
-          <svg className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button className="flex flex-col items-center py-2 px-3 text-text-secondary opacity-70 cursor-not-allowed group">
+          <svg className="w-5 h-5 mb-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0" />
           </svg>
           <span className="text-xs font-medium">フィード</span>
-        </Link>
+          <span className="text-[8px] uppercase tracking-wide bg-yellow-200 text-yellow-800 rounded px-1 mt-1">Soon</span>
+        </button>
         <Link href="/profile" className="flex flex-col items-center py-2 px-3 text-text-secondary hover:text-accent-dark-blue transition-all duration-200 group">
           <svg className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

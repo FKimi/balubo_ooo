@@ -623,8 +623,8 @@ function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-        <div className="max-w-4xl mx-auto">
+      <main className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div className="max-w-6xl mx-auto">
           {/* プロフィールヘッダー */}
           <ProfileHeader
             displayName={displayName}
@@ -640,10 +640,55 @@ function ProfileContent() {
             userId={user?.id}
             slug={slug}
             portfolioVisibility={profileData?.portfolioVisibility}
+            rightSlot={
+              <div className="w-full">
+                <AIAnalysisStrengths strengths={strengths} compact variant="horizontal" className="mt-0" />
+                {savedWorks && savedWorks.filter(w=>w.is_featured).length > 0 && (
+                  <section className="mt-3 sm:mt-4">
+                    <div className="px-1">
+                      <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">代表作</h3>
+                      </div>
+                      <div className="relative">
+                        <div className="overflow-x-auto hide-scrollbar">
+                          <div className="flex gap-3 sm:gap-4 snap-x snap-mandatory px-1 scroll-px-4">
+                            {savedWorks.filter(w=>w.is_featured).slice(0,10).map(work=> (
+                              <div key={work.id} className="snap-center shrink-0 w-[260px] sm:w-[300px]">
+                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-sm transition-shadow">
+                                  <a href={`/works/${work.id}`}>
+                                    {work.banner_image_url ? (
+                                      <img src={work.banner_image_url} alt={work.title} className="w-full h-44 object-cover" />
+                                    ) : work.thumbnail_url ? (
+                                      <img src={work.thumbnail_url} alt={work.title} className="w-full h-44 object-cover" />
+                                    ) : (
+                                      <div className="w-full h-44 bg-gray-100" />
+                                    )}
+                                    <div className="p-3">
+                                      <div className="text-sm font-semibold text-slate-900 line-clamp-2">{work.title}</div>
+                                      {work.tags && (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                          {work.tags.slice(0,3).map((t:string, idx:number)=> (
+                                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-gray-100 text-slate-600 rounded-full border border-gray-200">{t}</span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {/* フェードインジケーター */}
+                          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent hidden sm:block" />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent hidden sm:block" />
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </div>
+            }
           />
-
-          {/* AI分析による強み */}
-          <AIAnalysisStrengths strengths={strengths} />
 
           {/* タブコンテンツ */}
           <ProfileTabs
@@ -665,7 +710,7 @@ function ProfileContent() {
             onUpdateIntroduction={handleUpdateIntroduction}
             setIsIntroductionModalOpen={setIsIntroductionModalOpen}
           />
-          
+           
           {/* モーダル群 */}
           <ProfileModals
             isSkillModalOpen={isSkillModalOpen}
