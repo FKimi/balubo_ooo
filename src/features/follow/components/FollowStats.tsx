@@ -27,7 +27,7 @@ export function FollowStats({ userId }: FollowStatsProps) {
       setLoading(true)
       console.log('フォロー統計取得開始:', userId)
       
-      const data = await fetcher<FollowStatsData>(`/api/connections/stats?userId=${userId}`)
+      const data = await fetcher<FollowStatsData>(`/api/connections/stats?userId=${userId}`, {}, { requireAuth: false })
       console.log('フォロー統計取得成功:', data)
       setStats(data)
     } catch (error) {
