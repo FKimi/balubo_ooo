@@ -133,52 +133,139 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
 
   return (
     <div className="min-h-screen bg-white">
-    <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-      <div className="max-w-4xl mx-auto">
-        {/* 戻るリンク */}
-        <div className="mb-4">
-          <Link href="/">
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              ホームに戻る
-            </Button>
-          </Link>
+      <main className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div className="max-w-6xl mx-auto">
+          {/* 戻るリンク */}
+          <div className="mb-4">
+            <Link href="/">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                ホームに戻る
+              </Button>
+            </Link>
+          </div>
+
+          {/* 公開プロフィールヘッダー */}
+          <PublicProfileHeader
+            userId={userId}
+            displayName={displayName}
+            bio={bio}
+            location={location}
+            websiteUrl={websiteUrl}
+            backgroundImageUrl={backgroundImageUrl}
+            avatarImageUrl={avatarImageUrl}
+            isProfileEmpty={isProfileEmpty}
+            hasCustomBackground={hasCustomBackground}
+            hasCustomAvatar={hasCustomAvatar}
+            professions={professions}
+            rightSlot={
+              <div className="w-full">
+                <AIAnalysisStrengths strengths={strengths} compact variant="horizontal" className="mt-0" />
+                {works && works.filter((w: any) => w.is_featured).length > 0 ? (
+                  <section className="mt-3 sm:mt-4">
+                    <div className="px-1">
+                      <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">代表作</h3>
+                      </div>
+                      <div className="relative">
+                        <div className="overflow-x-auto hide-scrollbar">
+                          <div className="flex gap-3 sm:gap-4 snap-x snap-mandatory px-1 scroll-px-4">
+                            {works.filter((w: any) => w.is_featured).slice(0, 10).map((work: any) => (
+                              <div key={work.id} className="snap-center shrink-0 w-[260px] sm:w-[300px]">
+                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-sm transition-shadow">
+                                  <a href={`/works/${work.id}`}>
+                                    {work.banner_image_url ? (
+                                      <img src={work.banner_image_url} alt={work.title} className="w-full h-44 object-cover" />
+                                    ) : work.thumbnail_url ? (
+                                      <img src={work.thumbnail_url} alt={work.title} className="w-full h-44 object-cover" />
+                                    ) : (
+                                      <div className="w-full h-44 bg-gray-100" />
+                                    )}
+                                    <div className="p-3">
+                                      <div className="text-sm font-semibold text-slate-900 line-clamp-2">{work.title}</div>
+                                      {work.tags && (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                          {work.tags.slice(0, 3).map((t: string, idx: number) => (
+                                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-gray-100 text-slate-600 rounded-full border border-gray-200">{t}</span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {/* フェードインジケーター */}
+                          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent hidden sm:block" />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent hidden sm:block" />
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                ) : (
+                  <section className="mt-3 sm:mt-4">
+                    <div className="px-1">
+                      <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">作品</h3>
+                      </div>
+                      <div className="relative">
+                        <div className="overflow-x-auto hide-scrollbar">
+                          <div className="flex gap-3 sm:gap-4 snap-x snap-mandatory px-1 scroll-px-4">
+                            {works && works.slice(0, 5).map((work: any) => (
+                              <div key={work.id} className="snap-center shrink-0 w-[260px] sm:w-[300px]">
+                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-sm transition-shadow">
+                                  <a href={`/works/${work.id}`}>
+                                    {work.banner_image_url ? (
+                                      <img src={work.banner_image_url} alt={work.title} className="w-full h-44 object-cover" />
+                                    ) : work.thumbnail_url ? (
+                                      <img src={work.thumbnail_url} alt={work.title} className="w-full h-44 object-cover" />
+                                    ) : (
+                                      <div className="w-full h-44 bg-gray-100" />
+                                    )}
+                                    <div className="p-3">
+                                      <div className="text-sm font-semibold text-slate-900 line-clamp-2">{work.title}</div>
+                                      {work.tags && (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                          {work.tags.slice(0, 3).map((t: string, idx: number) => (
+                                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-gray-100 text-slate-600 rounded-full border border-gray-200">{t}</span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {/* フェードインジケーター */}
+                          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent hidden sm:block" />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent hidden sm:block" />
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </div>
+            }
+          />
+          
+          {/* 公開プロフィールタブ */}
+          <PublicProfileTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            profile={profile}
+            works={works || []}
+            inputs={inputs || []}
+            skills={skills}
+            career={career}
+            isProfileEmpty={isProfileEmpty}
+            inputAnalysis={inputAnalysis}
+          />
         </div>
-
-        {/* 公開プロフィールヘッダー */}
-        <PublicProfileHeader
-          userId={userId}
-          displayName={displayName}
-          bio={bio}
-          location={location}
-          websiteUrl={websiteUrl}
-          backgroundImageUrl={backgroundImageUrl}
-          avatarImageUrl={avatarImageUrl}
-          isProfileEmpty={isProfileEmpty}
-          hasCustomBackground={hasCustomBackground}
-          hasCustomAvatar={hasCustomAvatar}
-          professions={professions}
-        />
-
-        {/* AI分析による強み (共有ビュー) */}
-        {strengths.length>0 && <AIAnalysisStrengths strengths={strengths} />}
-        
-        {/* 公開プロフィールタブ */}
-        <PublicProfileTabs
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          profile={profile}
-          works={works || []}
-          inputs={inputs || []}
-          skills={skills}
-          career={career}
-          isProfileEmpty={isProfileEmpty}
-          inputAnalysis={inputAnalysis}
-        />
-      </div>
-    </main>
+      </main>
     </div>
   )
 } 

@@ -79,14 +79,18 @@ async function getPublicProfile(userId: string) {
         categories,
         production_date,
         banner_image_url,
+        thumbnail_url,
         preview_data,
         ai_analysis_result,
         content_type,
         article_word_count,
+        is_featured,
+        featured_order,
         created_at,
         updated_at
       `)
       .eq('user_id', userId)
+      .order('featured_order', { ascending: true, nullsLast: true })
       .order('created_at', { ascending: false })
 
     if (worksError) {

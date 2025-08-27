@@ -23,9 +23,21 @@ function Footer() {
     <footer className="bg-white">
       <div className="container mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
         <div className="flex justify-center space-x-6 md:order-2">
-          <a 
-            href="https://x.com/AiBalubo56518" 
-            target="_blank" 
+          <a
+            href="https://corp.balubo.jp/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="運営会社：株式会社balubo（新しいタブで開く）"
+            className="text-sm leading-6 text-slate-600 hover:text-slate-900 flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            運営会社
+          </a>
+          <a
+            href="https://x.com/AiBalubo56518"
+            target="_blank"
             rel="noopener noreferrer"
             aria-label="balubo公式X（旧Twitter）アカウント（新しいタブで開く）"
             className="text-sm leading-6 text-slate-600 hover:text-slate-900 flex items-center gap-1"
@@ -69,10 +81,10 @@ export default function HomePage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  // ログイン済みユーザーはフィードページにリダイレクト
+  // ログイン済みユーザーはプロフィールページにリダイレクト
   useEffect(() => {
     if (!loading && user) {
-      router.push('/feed')
+      router.push('/profile')
     }
   }, [user, loading, router])
 
