@@ -90,7 +90,7 @@ async function getPublicProfile(userId: string) {
         updated_at
       `)
       .eq('user_id', userId)
-      .order('featured_order', { ascending: true, nullsLast: true })
+      .order('featured_order', { ascending: true })
       .order('created_at', { ascending: false })
 
     if (worksError) {
