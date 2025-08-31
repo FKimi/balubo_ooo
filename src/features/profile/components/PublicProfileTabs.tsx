@@ -15,7 +15,7 @@ import { useTagStatistics } from '@/hooks/useTagStatistics'
 
 interface PublicProfileTabsProps {
   activeTab: 'profile' | 'works' | 'details'
-  setActiveTab: (tab: 'profile' | 'works' | 'details') => void
+  setActiveTab: (_tab: 'profile' | 'works' | 'details') => void
   profile: any
   works: any[]
   inputs: any[]
@@ -37,49 +37,6 @@ export function PublicProfileTabs({
 }: PublicProfileTabsProps) {
   const workStats = useWorkStatistics(works)
   const { data: tagStatistics, getTagStatistic: _getTagStatistic, getTagRanking: _getTagRanking } = useTagStatistics()
-
-  const inputAnalysis = useMemo(() => {
-    if (propInputAnalysis) {
-      return propInputAnalysis
-    }
-
-    const totalInputs = inputs.length
-    const favoriteCount = inputs.filter((input) => input.favorite).length
-    const averageRating =
-      totalInputs > 0
-        ? inputs.reduce((sum, input) => sum + (input.rating || 0), 0) /
-          totalInputs
-        : 0
-
-    const typeDistribution = inputs.reduce((acc, input) => {
-      const type = input.type || '未分類'
-      acc[type] = (acc[type] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
-    const genresDistribution = inputs.reduce((acc, input) => {
-      if (input.genres && Array.isArray(input.genres)) {
-        input.genres.forEach((genre: string) => {
-          acc[genre] = (acc[genre] || 0) + 1
-        })
-      }
-      return acc
-    }, {} as Record<string, number>)
-
-    const topGenres = Object.entries(genresDistribution)
-      .sort(([, a], [, b]) => (b as number) - (a as number))
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count: count as number }))
-
-    return {
-      totalInputs,
-      favoriteCount,
-      averageRating,
-      typeDistribution,
-      genresDistribution,
-      topGenres,
-    }
-  }, [propInputAnalysis, inputs])
 
   const workCategories = useMemo(() => {
     const categories: { [key: string]: any } = {}

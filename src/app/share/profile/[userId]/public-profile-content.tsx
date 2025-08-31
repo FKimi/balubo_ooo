@@ -32,7 +32,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   })
   
   const { profile, works, inputs, inputAnalysis } = data
-  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'details'>('profile')
 
   // 強みカード生成 (詳細分析)
   const strengthsAnalysis = useMemo(() => {
