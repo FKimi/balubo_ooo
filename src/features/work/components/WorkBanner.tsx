@@ -150,7 +150,7 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
 
   if (isLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-gray-100">
         <div className="text-center">
           <svg className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -164,7 +164,7 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
   if (hasError || !previewData?.image || imageError) {
     console.log('Showing fallback due to:', { hasError, hasImage: !!previewData?.image, imageError })
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-gray-100">
         <div className="text-center p-4">
           <div className="w-16 h-16 bg-white rounded-lg shadow-lg mx-auto mb-2 flex items-center justify-center">
             <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@ export function WorkBanner({ url, title, previewData: initialPreviewData, banner
         alt={title || previewData.title || 'バナー画像'}
         fill
         sizes="100vw"
-        className="object-cover"
+        className="object-contain"
         onError={handleImageError}
         onLoad={handleImageLoad}
       />

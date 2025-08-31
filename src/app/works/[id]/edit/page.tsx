@@ -251,6 +251,7 @@ export default function EditWorkPage() {
           <NewWorkForm
             initialData={initialData}
             mode="edit"
+            workId={workId}
             onSubmit={handleUpdate}
           />
         </div>

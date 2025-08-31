@@ -532,16 +532,21 @@ interface WorkFormProps {
     targetPlatform?: string[]
   },
   mode?: 'create' | 'edit',
+  workId?: string, // 編集モード時の作品ID
   // eslint-disable-next-line unused-imports/no-unused-vars
   onSubmit?: (formData: any, analysisResult: any, previewData: any) => Promise<void>
 }
 
-function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
+function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
   // URLパラメータからコンテンツタイプを取得
   const contentType = searchParams.get('type') || 'article' // デフォルトは記事
+  
+  // 削除機能の状態管理
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   
   const [formData, setFormData] = useState({
     title: initialData?.title ?? '',
@@ -793,6 +798,45 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
     if (e.key === 'Enter') {
       e.preventDefault()
       addCustomRole()
+    }
+  }
+
+  // 削除処理
+  const handleDelete = async () => {
+    if (!workId) return
+
+    try {
+      setIsDeleting(true)
+      
+      // 認証トークンを取得
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch(`/api/works/${workId}`, {
+        method: 'DELETE',
+        headers,
+      })
+
+      if (!response.ok) {
+        throw new Error('作品の削除に失敗しました')
+      }
+
+      // 削除成功後、プロフィールページにリダイレクト
+      window.location.href = '/profile'
+    } catch (error) {
+      console.error('作品削除エラー:', error)
+      alert('作品の削除に失敗しました')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteModal(false)
     }
   }
 
@@ -2278,6 +2322,15 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
             >
               キャンセル
             </Button>
+            {mode === 'edit' && workId && (
+              <Button 
+                variant="outline"
+                onClick={() => setShowDeleteModal(true)}
+                className="px-8 py-3 text-lg border-red-300 text-red-600 hover:bg-red-50"
+              >
+                削除
+              </Button>
+            )}
             <Button 
               onClick={handleSubmit}
               className="px-12 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
@@ -2307,6 +2360,43 @@ function NewWorkForm({ initialData, onSubmit }: WorkFormProps = {}) {
         data={savedWorkData || {}}
         userDisplayName={userDisplayName}
       />
+
+      {/* 削除確認モーダル */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">作品を削除</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              「{formData.title}」を削除しますか？この操作は取り消すことができません。
+            </p>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? '削除中...' : '削除'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

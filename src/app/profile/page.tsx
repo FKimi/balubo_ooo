@@ -11,7 +11,7 @@ import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
 import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
 import { ProfileModals } from '@/features/profile/components/ProfileModals'
-import { AI_STRENGTH_CATEGORY_RULES } from '@/features/profile/lib/profileUtils'
+import { analyzeStrengthsFromWorks } from '@/features/profile/lib/profileUtils'
 
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
@@ -94,16 +94,16 @@ function ProfileContent() {
   const [savedWorks, setSavedWorks] = useState<any[]>([])
   const [_isLoadingWorks, setIsLoadingWorks] = useState(false)
   
-  // インプット関連のstate
-  const [inputs, setInputs] = useState<InputData[]>([])
-  const [inputAnalysis, setInputAnalysis] = useState<InputAnalysis | null>(null)
-  const [isLoadingInputs, setIsLoadingInputs] = useState(false)
+  // インプット関連のstate（一時的に未使用）
+  const [_inputs, _setInputs] = useState<InputData[]>([])
+  const [_inputAnalysis, _setInputAnalysis] = useState<InputAnalysis | null>(null)
+  const [_isLoadingInputs, _setIsLoadingInputs] = useState(false)
 
   // クエリパラメータからタブを設定
   useEffect(() => {
     const tabParam = searchParams.get('tab')
-    if (tabParam && ['profile', 'works', 'inputs', 'details'].includes(tabParam)) {
-      setActiveTab(tabParam as 'profile' | 'works' | 'inputs' | 'details')
+    if (tabParam && ['profile', 'works', 'details'].includes(tabParam)) {
+      setActiveTab(tabParam as 'profile' | 'works' | 'details')
     }
   }, [searchParams])
 
@@ -153,7 +153,6 @@ function ProfileContent() {
     const loadAllData = async () => {
       // ローディング状態を設定
       setIsLoadingWorks(true)
-      setIsLoadingInputs(true)
       
       try {
         // プロフィールデータの取得
@@ -166,10 +165,7 @@ function ProfileContent() {
           console.error('[Profile] セッションまたはアクセストークンがありません。APIリクエストをスキップします。', sessionError?.message || '不明なエラー')
           setProfileData(completeDefaultProfileData)
           setSavedWorks([])
-          setInputs([])
-          setInputAnalysis(null)
           setIsLoadingWorks(false)
-          setIsLoadingInputs(false)
           return
         }
 
@@ -180,18 +176,14 @@ function ProfileContent() {
 
         // 並列でデータを取得
         console.log('[Profile] データ取得開始', { userId: user.id, hasToken: !!session?.access_token })
-        const [profileResponse, worksResponse, inputsResponse, analysisResponse] = await Promise.all([
+        const [profileResponse, worksResponse] = await Promise.all([
           fetch(`/api/profile`, { headers }),
-          fetch(`/api/works?userId=${user.id}`, { headers }),
-          fetch(`/api/inputs?userId=${user.id}`, { headers }),
-          fetch(`/api/inputs/analysis?userId=${user.id}`, { headers })
+          fetch(`/api/works?userId=${user.id}`, { headers })
         ])
-        
+
         console.log('[Profile] API レスポンス状況:', {
           profile: profileResponse.status,
-          works: worksResponse.status,
-          inputs: inputsResponse.status,
-          analysis: analysisResponse.status
+          works: worksResponse.status
         })
 
         // プロフィールデータの処理
@@ -244,34 +236,14 @@ function ProfileContent() {
           setSavedWorks([])
         }
 
-        // インプットデータの処理
-        if (inputsResponse.ok) {
-          const inputsData = await inputsResponse.json()
-          console.log('[Profile] インプットデータ取得成功:', inputsData)
-          setInputs(inputsData.inputs || [])
-        } else {
-          const errorText = await inputsResponse.text()
-          console.error('[Profile] インプットデータ取得失敗:', inputsResponse.status, errorText)
-          setInputs([])
-        }
 
-        // 分析データの処理
-        if (analysisResponse.ok) {
-          const analysisData = await analysisResponse.json()
-          setInputAnalysis(analysisData.analysis || null)
-        } else {
-          setInputAnalysis(null)
-        }
 
       } catch (error) {
         console.error('データ読み込みエラー:', error)
         setProfileData(completeDefaultProfileData)
         setSavedWorks([])
-        setInputs([])
-        setInputAnalysis(null)
       } finally {
         setIsLoadingWorks(false)
-        setIsLoadingInputs(false)
       }
     }
 
@@ -569,52 +541,9 @@ function ProfileContent() {
   const slug = profileData?.slug || ''
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
 
-  // --- AI分析 強み集計 (タグ頻度ベース) ---
-  const strengths = useMemo(() => {
-    const list: { title: string; description: string }[] = []
-    if (!savedWorks || savedWorks.length === 0) return list
-
-    // タグ出現回数集計
-    const tagCounts = new Map<string, number>()
-    savedWorks.forEach((w: any) => {
-      w.ai_analysis_result?.tags?.forEach((t: string) => {
-        tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
-      })
-    })
-
-    if (tagCounts.size === 0) return list
-
-    // カテゴリ判定
-    const categoryRules = AI_STRENGTH_CATEGORY_RULES
-
-    const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
-
-    tagCounts.forEach((count, tag) => {
-      const rule = categoryRules.find(r => r.regex.test(tag))
-      const key = rule ? rule.title : 'その他'
-      const entry = categoryMap.get(key) || { title: key, tags: [], count: 0 }
-      entry.tags.push(tag)
-      entry.count += count
-      categoryMap.set(key, entry)
-    })
-
-    // 上位3カテゴリ
-    let topCategories = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
-    // 'その他' を除外して上位3件取得。ただし他カテゴリが無い場合は含める
-    let filtered = topCategories.filter(c=>c.title!=='その他')
-    if(filtered.length===0){
-      filtered = topCategories
-    }
-    topCategories = filtered.slice(0,3)
-
-    topCategories.forEach(cat=>{
-      list.push({
-        title: cat.title,
-        description: cat.tags.slice(0,3).join(' / ')
-      })
-    })
-
-    return list
+  // --- AI分析 強み集計 (詳細分析) ---
+  const strengthsAnalysis = useMemo(() => {
+    return analyzeStrengthsFromWorks(savedWorks)
   }, [savedWorks])
 
   if (!profileData) {
@@ -642,50 +571,15 @@ function ProfileContent() {
             portfolioVisibility={profileData?.portfolioVisibility}
             rightSlot={
               <div className="w-full">
-                <AIAnalysisStrengths strengths={strengths} compact variant="horizontal" className="mt-0" />
-                {savedWorks && savedWorks.filter(w=>w.is_featured).length > 0 && (
-                  <section className="mt-3 sm:mt-4">
-                    <div className="px-1">
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">代表作</h3>
-                      </div>
-                      <div className="relative">
-                        <div className="overflow-x-auto hide-scrollbar">
-                          <div className="flex gap-3 sm:gap-4 snap-x snap-mandatory px-1 scroll-px-4">
-                            {savedWorks.filter(w=>w.is_featured).slice(0,10).map(work=> (
-                              <div key={work.id} className="snap-center shrink-0 w-[260px] sm:w-[300px]">
-                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-sm transition-shadow">
-                                  <a href={`/works/${work.id}`}>
-                                    {work.banner_image_url ? (
-                                      <img src={work.banner_image_url} alt={work.title} className="w-full h-44 object-cover" />
-                                    ) : work.thumbnail_url ? (
-                                      <img src={work.thumbnail_url} alt={work.title} className="w-full h-44 object-cover" />
-                                    ) : (
-                                      <div className="w-full h-44 bg-gray-100" />
-                                    )}
-                                    <div className="p-3">
-                                      <div className="text-sm font-semibold text-slate-900 line-clamp-2">{work.title}</div>
-                                      {work.tags && (
-                                        <div className="mt-2 flex flex-wrap gap-1">
-                                          {work.tags.slice(0,3).map((t:string, idx:number)=> (
-                                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-gray-100 text-slate-600 rounded-full border border-gray-200">{t}</span>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </a>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          {/* フェードインジケーター */}
-                          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent hidden sm:block" />
-                          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent hidden sm:block" />
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                )}
+                <AIAnalysisStrengths
+                  strengths={strengthsAnalysis.strengths}
+                  compact
+                  variant="horizontal"
+                  className="mt-0"
+                  showDetails={true}
+                  jobMatchingHints={strengthsAnalysis.jobMatchingHints}
+                  works={savedWorks}
+                />
               </div>
             }
           />
@@ -697,9 +591,7 @@ function ProfileContent() {
             profileData={profileData}
             savedWorks={savedWorks}
             setSavedWorks={setSavedWorks}
-            inputs={inputs}
-            inputAnalysis={inputAnalysis}
-            isLoadingInputs={isLoadingInputs}
+
             deleteWork={deleteWork}
             onAddSkill={() => setIsSkillModalOpen(true)}
             onRemoveSkill={handleRemoveSkill}

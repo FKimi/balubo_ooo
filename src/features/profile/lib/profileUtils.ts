@@ -159,6 +159,214 @@ export function summarizeTopTags(topTags: [string, number][]): string {
     return `${tagNames[0]}や${tagNames[1]}などの分野で多くの作品を制作しています。`
   }
   return `${tagNames[0]}、${tagNames[1]}、${tagNames[2]}などの分野で多くの作品を制作しています。`
+}
+
+/**
+ * 作品データから詳細な強み分析を行う
+ */
+export function analyzeStrengthsFromWorks(works: WorkData[]) {
+  if (!works || works.length === 0) {
+    return {
+      strengths: [],
+      expertiseScore: 0,
+      consistencyScore: 0,
+      uniquenessScore: 0,
+      trendAnalysis: null,
+      jobMatchingHints: []
+    }
+  }
+
+  // タグ出現回数集計
+  const tagCounts = new Map<string, number>()
+  const workTimestamps: number[] = []
+
+  works.forEach((work: any) => {
+    const tags = work.ai_analysis_result?.tags || work.tags || []
+    tags.forEach((tag: string) => {
+      tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)
+    })
+
+    // 作品のタイムスタンプ収集（トレンド分析用）
+    if (work.created_at) {
+      workTimestamps.push(new Date(work.created_at).getTime())
+    }
+  })
+
+  if (tagCounts.size === 0) {
+    return {
+      strengths: [],
+      expertiseScore: 0,
+      consistencyScore: 0,
+      uniquenessScore: 0,
+      trendAnalysis: null,
+      jobMatchingHints: []
+    }
+  }
+
+  // カテゴリ分析
+  const categoryRules = AI_STRENGTH_CATEGORY_RULES
+  const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
+
+  tagCounts.forEach((count, tag) => {
+    const rule = categoryRules.find(r => r.regex.test(tag))
+    const key = rule ? rule.title : 'その他'
+    const entry = categoryMap.get(key) || { title: key, tags: [], count: 0 }
+    entry.tags.push(tag)
+    entry.count += count
+    categoryMap.set(key, entry)
+  })
+
+  // 上位カテゴリ取得
+  let topCategories = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
+  let filtered = topCategories.filter(c=>c.title!=='その他')
+  if(filtered.length===0){
+    filtered = topCategories
+  }
+  topCategories = filtered.slice(0,3)
+
+  // 専門度スコア計算（作品数、タグ多様性、一貫性）
+  const totalWorks = works.length
+  const totalTags = Array.from(tagCounts.values()).reduce((sum, count) => sum + count, 0)
+  const uniqueTags = tagCounts.size
+  const expertiseScore = Math.min(100, Math.round((totalWorks * 10) + (uniqueTags * 5) + (totalTags / works.length * 2)))
+
+  // 一貫性スコア（上位タグの集中度）
+  const topTagCount = Array.from(tagCounts.values()).sort((a,b)=>b-a)[0] || 0
+  const consistencyScore = Math.round((topTagCount / totalTags) * 100)
+
+  // 独自性スコア（レアタグの割合）
+  const rareTags = Array.from(tagCounts.values()).filter(count => count === 1).length
+  const uniquenessScore = Math.round((rareTags / uniqueTags) * 100)
+
+  // トレンド分析
+  let trendAnalysis = null
+  if (workTimestamps.length > 1) {
+    workTimestamps.sort((a,b)=>a-b)
+    const recentWorks = workTimestamps.filter(timestamp =>
+      timestamp > Date.now() - (30 * 24 * 60 * 60 * 1000) // 過去30日
+    )
+    const trendScore = recentWorks.length > 0 ? Math.round((recentWorks.length / workTimestamps.length) * 100) : 0
+    trendAnalysis = {
+      recentActivity: recentWorks.length,
+      trendScore,
+      isActive: trendScore > 30
+    }
+  }
+
+  // 仕事マッチングのヒント生成
+  const jobMatchingHints: string[] = []
+  topCategories.forEach(category => {
+    const hints = getJobMatchingHints(category.title)
+    jobMatchingHints.push(...hints)
+  })
+
+  return {
+    strengths: topCategories.map(cat => ({
+      title: cat.title,
+      description: cat.tags.slice(0,3).join(' / ')
+    })),
+    expertiseScore,
+    consistencyScore,
+    uniquenessScore,
+    trendAnalysis,
+    jobMatchingHints: [...new Set(jobMatchingHints)].slice(0, 3) // 重複除去して3つまで
+  }
+}
+
+/**
+ * カテゴリに基づく仕事マッチングのヒントを生成
+ */
+function getJobMatchingHints(category: string): string[] {
+  const hintsMap: Record<string, string[]> = {
+    'AI・機械学習活用': [
+      'AI関連企業のコンテンツ制作',
+      '技術ブログ・ホワイトペーパー執筆',
+      'AI導入支援企業のマーケティング支援'
+    ],
+    'DX・デジタル変革': [
+      'デジタルトランスフォーメーション関連の記事制作',
+      'IT企業向けのサービス紹介コンテンツ',
+      '業務効率化ソリューションの説明資料作成'
+    ],
+    'マーケティング': [
+      'マーケティング代理店でのコンテンツ制作',
+      'ブランド戦略立案支援',
+      'キャンペーン企画・実行支援'
+    ],
+    'UI/UX・デザイン': [
+      'デザイン会社でのドキュメント作成',
+      'プロダクトマネージャー支援',
+      'ユーザー調査・分析レポート作成'
+    ],
+    'ビジネス戦略': [
+      'コンサルティングファームでの資料作成',
+      '事業企画・戦略立案支援',
+      '市場分析レポート作成'
+    ],
+    'スタートアップ・起業': [
+      'スタートアップ企業のPR支援',
+      'ピッチ資料・事業計画書作成',
+      '起業支援サービスのコンテンツ制作'
+    ],
+    'BtoBコンテンツ': [
+      'BtoB企業のコンテンツマーケティング',
+      '法人向けサービス紹介資料作成',
+      '業界分析レポート作成'
+    ],
+    'コピーライティング': [
+      '広告代理店でのコピー制作',
+      'ブランドメッセージ開発',
+      'キャンペーン用コンテンツ作成'
+    ]
+  }
+
+  return hintsMap[category] || [
+    `${category}関連の専門的なコンテンツ制作`,
+    '業界レポート・分析資料の作成',
+    '専門領域でのコンサルティング支援'
+  ]
+}
+
+/**
+ * 作品データから生のタグデータを取得・集計
+ */
+export function getYourTagsFromWorks(works: WorkData[], limit: number = 20): Array<{tag: string, count: number, category?: string | undefined}> {
+  if (!works || works.length === 0) {
+    return []
+  }
+
+  // タグ出現回数集計
+  const tagCounts = new Map<string, number>()
+  works.forEach((work: any) => {
+    const tags = work.ai_analysis_result?.tags || work.tags || []
+    tags.forEach((tag: string) => {
+      if (tag && tag.trim()) {
+        tagCounts.set(tag.trim(), (tagCounts.get(tag.trim()) ?? 0) + 1)
+      }
+    })
+  })
+
+  if (tagCounts.size === 0) {
+    return []
+  }
+
+  // カテゴリ判定用のルール
+  const categoryRules = AI_STRENGTH_CATEGORY_RULES
+
+  // タグデータをカテゴリ付きで整理
+  const tagsWithCategory = Array.from(tagCounts.entries())
+    .map(([tag, count]) => {
+      const rule = categoryRules.find(r => r.regex.test(tag))
+      return {
+        tag,
+        count,
+        category: rule?.title
+      }
+    })
+    .sort((a, b) => b.count - a.count) // 出現回数で降順ソート
+    .slice(0, limit) // 指定数に制限
+
+  return tagsWithCategory
 } 
 
 /**

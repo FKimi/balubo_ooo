@@ -14,16 +14,15 @@ import { CreatorIntroCard } from './CreatorIntroCard'
 import { useTagStatistics } from '@/hooks/useTagStatistics'
 
 interface PublicProfileTabsProps {
-  activeTab: 'profile' | 'works' | 'inputs' | 'details'
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  setActiveTab: (tab: 'profile' | 'works' | 'inputs' | 'details') => void
+  activeTab: 'profile' | 'works' | 'details'
+  setActiveTab: (tab: 'profile' | 'works' | 'details') => void
   profile: any
   works: any[]
   inputs: any[]
   skills: string[]
   career: any[]
   isProfileEmpty: boolean
-  inputAnalysis?: any // オプショナルとして追加
+  inputAnalysis?: any
 }
 
 export function PublicProfileTabs({
@@ -36,11 +35,9 @@ export function PublicProfileTabs({
   career,
   inputAnalysis: propInputAnalysis
 }: PublicProfileTabsProps) {
-  // 作品統計の計算（プライベートプロフィールと同じフックを使用）
   const workStats = useWorkStatistics(works)
   const { data: tagStatistics, getTagStatistic: _getTagStatistic, getTagRanking: _getTagRanking } = useTagStatistics()
 
-  // インプット分析の計算（propsで渡された場合はそれを優先、なければ自分で計算）
   const inputAnalysis = useMemo(() => {
     if (propInputAnalysis) {
       return propInputAnalysis
@@ -102,35 +99,26 @@ export function PublicProfileTabs({
     return Object.values(categories)
   }, [works])
 
-  // 作品タグの分析
   const topTags = useMemo(() => calculateTopTags(works), [works])
-
-  // 自己紹介テキスト（introduction が優先、なければ bio）
   const introductionText = profile?.introduction || profile?.bio || ''
 
-  // タブ設定
   const tabs = [
     { key: 'profile', label: 'プロフィール' },
     { key: 'works', label: '作品', count: works.length },
-    { key: 'inputs', label: 'インプット', count: inputs.length },
     { key: 'details', label: 'クリエイター詳細' }
   ]
 
   return (
     <div className="space-y-6">
-      {/* タブナビゲーション */}
       <TabNavigation
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={(tab) => setActiveTab(tab as 'profile' | 'works' | 'inputs' | 'details')}
+        onTabChange={(tab) => setActiveTab(tab as 'profile' | 'works' | 'details')}
       />
 
-      {/* タブコンテンツ */}
       <div className="mt-6">
-        {/* プロフィールタブ */}
         {activeTab === 'profile' && (
           <div className="space-y-8">
-            {/* プロフィール充実度メッセージ */}
             {(!profile?.bio && (!skills || skills.length === 0) && (!career || career.length === 0)) && (
               <Card className="border-dashed border-2 border-blue-200 bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
                 <CardContent className="p-8 text-center">
@@ -143,7 +131,6 @@ export function PublicProfileTabs({
               </Card>
             )}
 
-            {/* 自己紹介セクション */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -164,7 +151,6 @@ export function PublicProfileTabs({
               </CardContent>
             </Card>
 
-            {/* できること（スキル）セクション */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -192,7 +178,6 @@ export function PublicProfileTabs({
               </CardContent>
             </Card>
 
-            {/* キャリアセクション */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -228,19 +213,15 @@ export function PublicProfileTabs({
                   </div>
                 ) : (
                   <div className="text-center py-8">
-
                     <h4 className="text-lg font-semibold text-gray-600 mb-2">キャリア情報なし</h4>
                     <p className="text-gray-500">まだキャリア情報が登録されていません</p>
                   </div>
                 )}
               </CardContent>
             </Card>
-
-
           </div>
         )}
 
-        {/* 作品タブ */}
         {activeTab === 'works' && (
           <div>
             {works.length > 0 ? (
@@ -262,63 +243,12 @@ export function PublicProfileTabs({
           </div>
         )}
 
-        {/* インプットタブ */}
-        {activeTab === 'inputs' && (
-          <div>
-            {/* インプット一覧 */}
-            {inputs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto justify-items-center">
-                {inputs.map((input) => (
-                  <div key={input.id} className="group bg-white rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden cursor-pointer">
-                    {/* インプット画像またはプレースホルダー */}
-                    <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
-                      {input.cover_image_url || (input as any).coverImageUrl ? (
-                        <img
-                          src={(input.cover_image_url || (input as any).coverImageUrl) as string}
-                          alt={input.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).style.display = 'none'
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">
-                              📄
-                            </div>
-                            <p className="text-gray-500 text-sm">{input.type}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* タイトルのみ */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors text-sm">
-                        {input.title}
-                      </h3>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="まだインプットがありません"
-                message="インプットが登録されると表示されます"
-              />
-            )}
-          </div>
-        )}
-
-        {/* クリエイター詳細タブ */}
         {activeTab === 'details' && (
           <div className="space-y-8">
-            {/* クリエイター紹介 */}
             {profile && (
               <CreatorIntroCard tags={topTags} />
             )}
-            {/* 作品統計・役割分布 */}
+
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -327,14 +257,12 @@ export function PublicProfileTabs({
 
                 {workStats.totalWorks > 0 ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    {/* 総作品数表示 */}
                     <div className="text-center lg:text-left">
                       <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-6 border border-blue-200 h-full">
                         <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
                         <div className="text-4xl font-bold text-blue-600">{workStats.totalWorks}</div>
                         <p className="text-gray-600 mt-2">これまでに制作した作品</p>
-                        
-                        {/* 総文字数（記事作品がある場合のみ表示） */}
+
                         {workStats.totalWordCount > 0 && (
                           <div className="mt-4 pt-4 border-t border-blue-200">
                             <h5 className="text-sm font-medium text-gray-600 mb-1">総文字数</h5>
@@ -347,7 +275,6 @@ export function PublicProfileTabs({
                       </div>
                     </div>
 
-                    {/* 役割分布 */}
                     <div>
                       <h4 className="text-lg font-semibold text-gray-700 mb-4">役割分布</h4>
                       {workStats.roleDistribution.length > 0 ? (
@@ -366,7 +293,6 @@ export function PublicProfileTabs({
               </CardContent>
             </Card>
 
-            {/* よく使用するタグ */}
             {topTags.length > 0 && (
               <Card>
                 <CardContent className="p-6">
@@ -379,19 +305,17 @@ export function PublicProfileTabs({
                       トップ7
                     </div>
                   </div>
-                  
-                  {/* トップ7タグ（コンパクト表示） */}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                     {topTags.slice(0, 7).map(([tag, count]: [string, number], index: number) => (
-                      <div 
-                        key={tag} 
+                      <div
+                        key={tag}
                         className="flex items-center justify-between p-2 rounded-md border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
                       >
                         <div className="flex items-center space-x-2">
-                          {/* ランキングバッジ */}
                           <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                            index === 0 
-                              ? 'bg-yellow-500 text-white' 
+                            index === 0
+                              ? 'bg-yellow-500 text-white'
                               : index === 1
                               ? 'bg-gray-400 text-white'
                               : index === 2
@@ -400,14 +324,12 @@ export function PublicProfileTabs({
                           }`}>
                             {index + 1}
                           </div>
-                          
-                          {/* タグ名 */}
+
                           <span className="text-sm font-medium text-gray-900 truncate">
                             {tag}
                           </span>
                         </div>
-                        
-                        {/* 使用回数 */}
+
                         <div className="text-right">
                           <div className={`text-sm font-bold ${
                             index < 3 ? 'text-blue-600' : 'text-gray-600'
@@ -418,14 +340,13 @@ export function PublicProfileTabs({
                       </div>
                     ))}
                   </div>
-                  
-                  {/* その他のタグ（パラパラ表示） */}
+
                   {topTags.length > 7 && (
                     <div className="mb-4">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">その他のタグ</h4>
                       <div className="flex flex-wrap gap-1">
                         {topTags.slice(7).map(([tag, count]: [string, number]) => (
-                          <span 
+                          <span
                             key={tag}
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200 transition-colors"
                           >
@@ -436,8 +357,7 @@ export function PublicProfileTabs({
                       </div>
                     </div>
                   )}
-                  
-                  {/* 専門性サマリー（コンパクト） */}
+
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -464,91 +384,9 @@ export function PublicProfileTabs({
                 </CardContent>
               </Card>
             )}
-
-            {/* インプット記録による興味・関心分析 */}
-            {inputs.length > 0 && inputAnalysis && (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900">興味・関心分析</h3>
-                    <div className="text-sm text-gray-500">
-                      {inputs.length}件のインプットから分析
-                    </div>
-                  </div>
-
-                  <div className="space-y-8">
-                    {/* 関心分野の可視化 */}
-                    {inputAnalysis.topGenres && inputAnalysis.topGenres.length > 0 && (
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                          <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                          </svg>
-                          関心分野とテーマ
-                        </h4>
-                        <div className="space-y-3">
-                          {inputAnalysis.topGenres.slice(0, 6).map((genreItem: any, index: number) => {
-                            const percentage = ((genreItem.count / inputs.length) * 100).toFixed(0)
-                            return (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                                    {index + 1}
-                                  </div>
-                                  <span className="font-medium text-gray-900">{genreItem.name}</span>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-lg font-bold text-blue-600">{genreItem.count}</div>
-                                  <div className="text-xs text-gray-500">{percentage}%</div>
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-
-                    {/* インプットの深度分析 */}
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
-                      <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        インプットの特徴
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
-                          <div className="text-2xl font-bold text-indigo-600">{inputs.length}</div>
-                          <div className="text-sm text-gray-600">総インプット数</div>
-                        </div>
-                        <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
-                          <div className="text-2xl font-bold text-purple-600">
-                            {inputAnalysis.favoriteCount || 0}
-                          </div>
-                          <div className="text-sm text-gray-600">お気に入り</div>
-                        </div>
-                        <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
-                          <div className="text-2xl font-bold text-pink-600">
-                            {inputAnalysis.averageRating ? inputAnalysis.averageRating.toFixed(1) : '0.0'}
-                          </div>
-                          <div className="text-sm text-gray-600">平均評価</div>
-                        </div>
-                      </div>
-                      <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                          この分析は、記録されたインプットデータを基に自動生成されています。
-                          より正確な分析のために、ジャンルやタグの設定を充実させることをお勧めします。
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         )}
       </div>
     </div>
   )
-} 
+}

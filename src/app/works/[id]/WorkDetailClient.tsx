@@ -49,20 +49,20 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
     }
     const axisOrder: SummaryKey[] = ['technology', 'expertise', 'creativity', 'impact']
     const colorMap: Record<SummaryKey, string> = {
-      overall: 'border-green-300 bg-green-100',
-      technology: 'border-sky-300 bg-sky-100',
-      expertise: 'border-teal-300 bg-teal-100',
-      creativity: 'border-violet-300 bg-violet-100',
-      impact: 'border-amber-300 bg-amber-100',
+      overall: 'border-blue-300 bg-blue-50',
+      technology: 'border-gray-300 bg-gray-50',
+      expertise: 'border-blue-300 bg-blue-50',
+      creativity: 'border-gray-300 bg-gray-50',
+      impact: 'border-blue-300 bg-blue-50',
     }
 
     return (
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h4 className="text-lg font-bold text-green-900">AI評価サマリー</h4>
+          <h4 className="text-lg font-bold text-gray-900">AI評価サマリー</h4>
         </div>
 
         {/* 総合評価 */}
@@ -108,7 +108,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
         
         {/* 総合評価 */}
         {scores?.overall && (
-          <div className="mb-4 p-3 bg-white rounded-lg border border-green-100">
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
             <div 
               className="flex items-center justify-between cursor-pointer"
               onClick={() => toggleExpanded('overall')}
@@ -119,10 +119,10 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
                   {scores.overall.score}
                 </span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  scores.overall.score >= 90 ? 'bg-purple-100 text-purple-700' :
+                  scores.overall.score >= 90 ? 'bg-blue-100 text-blue-700' :
                   scores.overall.score >= 80 ? 'bg-blue-100 text-blue-700' :
-                  scores.overall.score >= 70 ? 'bg-green-100 text-green-700' :
-                  scores.overall.score >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                  scores.overall.score >= 70 ? 'bg-gray-100 text-gray-700' :
+                  scores.overall.score >= 60 ? 'bg-gray-100 text-gray-700' :
                   'bg-gray-100 text-gray-700'
                 }`}>
                   {scores.overall.score >= 90 ? 'エキスパート' :
@@ -153,7 +153,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
         {/* 個別評価項目 */}
         <div className="grid grid-cols-2 gap-3">
           {scores?.technology && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div 
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleExpanded('technology')}
@@ -184,7 +184,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
           )}
 
           {scores?.expertise && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div 
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleExpanded('expertise')}
@@ -215,14 +215,14 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
           )}
 
           {scores?.creativity && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div 
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleExpanded('creativity')}
               >
                 <span className="text-sm font-medium text-gray-700">創造性</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-purple-600">
+                  <span className="text-lg font-bold text-blue-600">
                     {scores.creativity.score}
                   </span>
                   <svg 
@@ -246,14 +246,14 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
           )}
 
           {scores?.impact && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div 
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleExpanded('impact')}
               >
                 <span className="text-sm font-medium text-gray-700">影響力</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-red-600">
+                  <span className="text-lg font-bold text-blue-600">
                     {scores.impact.score}
                   </span>
                   <svg 
@@ -284,17 +284,17 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
   if (hasLegacyFormat) {
     const scores = aiAnalysis.legacyEvaluation!.scores
     return (
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h4 className="text-lg font-bold text-green-900">AI評価スコア</h4>
+          <h4 className="text-lg font-bold text-gray-900">AI評価スコア</h4>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           {Object.entries(scores).map(([key, score]) => (
-            <div key={key} className="p-3 bg-white rounded-lg border border-green-100">
+            <div key={key} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div 
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleExpanded(key)}
@@ -307,7 +307,7 @@ function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
                    key === 'impact' ? '影響力' : key}
                 </span>
                 <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-green-600">
+                  <span className="text-lg font-bold text-blue-600">
                     {score.score}
                   </span>
                   <svg 
@@ -343,6 +343,14 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isEditingProductionNotes, setIsEditingProductionNotes] = useState(false)
+  const [productionNotes, setProductionNotes] = useState('')
+  const [isSavingProductionNotes, setIsSavingProductionNotes] = useState(false)
+  const [isEditingDescription, setIsEditingDescription] = useState(false)
+  const [description, setDescription] = useState('')
+  const [isSavingDescription, setIsSavingDescription] = useState(false)
 
   useEffect(() => {
     // 閲覧数をインクリメントする非同期関数
@@ -448,6 +456,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
         }
 
         setWork(formattedWork)
+        setProductionNotes(formattedWork.production_notes || '')
+        setDescription(formattedWork.description || '')
 
         // 現在のユーザー情報を取得
         if (token) {
@@ -482,7 +492,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
@@ -500,7 +510,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
   if (error || !work) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center">
@@ -526,11 +536,188 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   // AI分析データの取得（previewDataまたはpreview_dataまたはai_analysis_resultから）
   const aiAnalysis = work.ai_analysis_result || work.previewData?.analysis || work.preview_data?.analysis
 
+  // 制作メモ保存処理
+  const handleSaveProductionNotes = async () => {
+    if (!work || !currentUser) return
+
+    try {
+      setIsSavingProductionNotes(true)
+      
+      // 認証トークンを取得
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch(`/api/works/${work.id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          title: work.title,
+          description: work.description || '',
+          externalUrl: work.external_url || '',
+          tags: work.tags || [],
+          roles: work.roles || [],
+          categories: work.categories || [],
+          productionDate: work.production_date || '',
+          productionNotes: productionNotes
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('制作メモ保存エラー詳細:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        })
+        throw new Error(`制作メモの保存に失敗しました: ${errorData.error || response.statusText}`)
+      }
+
+      // 保存成功後、編集モードを終了
+      setIsEditingProductionNotes(false)
+      
+      // 作品データを更新
+      if (work) {
+        setWork({
+          ...work,
+          production_notes: productionNotes
+        })
+      }
+    } catch (error) {
+      console.error('制作メモ保存エラー:', error)
+      alert('制作メモの保存に失敗しました')
+    } finally {
+      setIsSavingProductionNotes(false)
+    }
+  }
+
+  // 制作メモ編集キャンセル処理
+  const handleCancelProductionNotes = () => {
+    setProductionNotes(work?.production_notes || '')
+    setIsEditingProductionNotes(false)
+  }
+
+  // 作品説明の保存処理
+  const handleSaveDescription = async () => {
+    if (!work || !currentUser) return
+
+    try {
+      setIsSavingDescription(true)
+      
+      // 認証トークンを取得
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch(`/api/works/${work.id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          title: work.title,
+          description: description,
+          externalUrl: work.external_url || '',
+          tags: work.tags || [],
+          roles: work.roles || [],
+          categories: work.categories || [],
+          productionDate: work.production_date || '',
+          productionNotes: work.production_notes || ''
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('作品説明保存エラー詳細:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        })
+        throw new Error(`作品説明の保存に失敗しました: ${errorData.error || response.statusText}`)
+      }
+
+      // 保存成功後、編集モードを終了
+      setIsEditingDescription(false)
+      
+      // 作品データを更新
+      if (work) {
+        setWork({
+          ...work,
+          description: description
+        })
+      }
+    } catch (error) {
+      console.error('作品説明保存エラー:', error)
+      alert('作品説明の保存に失敗しました')
+    } finally {
+      setIsSavingDescription(false)
+    }
+  }
+
+  // 作品説明編集キャンセル処理
+  const handleCancelDescription = () => {
+    setDescription(work?.description || '')
+    setIsEditingDescription(false)
+  }
+
+
+
+  // 削除処理
+  const handleDelete = async () => {
+    if (!work || !currentUser) return
+
+    try {
+      setIsDeleting(true)
+      
+      // 認証トークンを取得
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch(`/api/works/${work.id}`, {
+        method: 'DELETE',
+        headers,
+      })
+
+      if (!response.ok) {
+        throw new Error('作品の削除に失敗しました')
+      }
+
+      // 削除成功後、プロフィールページにリダイレクト
+      window.location.href = '/profile'
+    } catch (error) {
+      console.error('作品削除エラー:', error)
+      alert('作品の削除に失敗しました')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteModal(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6">
         <div className="max-w-4xl mx-auto">
           {/* ヘッダー */}
           <div className="flex items-center justify-between mb-8">
@@ -543,9 +730,18 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               </Button>
             </Link>
             
-            {/* 編集ボタンは作品の所有者のみに表示 */}
+            {/* 編集・削除ボタンは作品の所有者のみに表示 */}
             {currentUser && work.user_id === currentUser.id && (
               <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-colors"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  削除
+                </button>
                 <Link href={`/works/${work.id}/edit`}>
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -559,9 +755,9 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           </div>
 
           {/* 作品詳細 */}
-          <Card className="overflow-hidden shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+          <Card className="overflow-hidden shadow-lg border border-gray-200 bg-white">
             {/* バナー画像 */}
-            <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+            <div className="h-80 bg-gray-100 relative overflow-hidden">
               {work.external_url || work.banner_image_url || work.previewData?.image || work.preview_data?.image ? (
                 <WorkBanner 
                   url={work.external_url || ''} 
@@ -584,11 +780,11 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               )}
             </div>
 
-            <CardContent className="p-8">
+            <CardContent className="p-6">
               {/* タイトルと基本情報 */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="flex items-start justify-between mb-6">
-                  <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+                  <h1 className="text-3xl font-bold text-gray-900 leading-tight">
                     {work.title}
                   </h1>
                   {work.productionDate && (
@@ -600,9 +796,9 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
                 {/* 役割 */}
                 {work.roles && work.roles.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {work.roles.map((role, index) => (
-                      <span key={index} className="px-4 py-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 text-sm rounded-full font-medium shadow-sm">
+                      <span key={index} className="px-4 py-2 bg-blue-50 text-blue-800 text-sm rounded-full font-medium border border-blue-200">
                         {role}
                       </span>
                     ))}
@@ -611,45 +807,155 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               </div>
 
               {/* 説明文 */}
-              {work.description && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-3xl">💬</span>
-                    作品について
-                  </h2>
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                    <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
-                      {work.description}
-                    </p>
+              {(work.description || (currentUser && work.user_id === currentUser.id)) && (
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold text-gray-900 flex items-center gap-3">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      作品について
+                    </h2>
+                    {currentUser && work.user_id === currentUser.id && !isEditingDescription && (
+                      <button
+                        onClick={() => setIsEditingDescription(true)}
+                        className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        編集
+                      </button>
+                    )}
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    {isEditingDescription && currentUser && work.user_id === currentUser.id ? (
+                      <div>
+                        <textarea
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          placeholder="作品について説明してください..."
+                          className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        />
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={handleSaveDescription}
+                            disabled={isSavingDescription}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {isSavingDescription ? '保存中...' : '保存'}
+                          </button>
+                          <button
+                            onClick={handleCancelDescription}
+                            disabled={isSavingDescription}
+                            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                      </div>
+                    ) : work.description ? (
+                      <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
+                        {work.description}
+                      </p>
+                    ) : currentUser && work.user_id === currentUser.id ? (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500 mb-4">作品の説明がまだ記入されていません</p>
+                        <button
+                          onClick={() => setIsEditingDescription(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          作品説明を追加
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}
 
               {/* 制作メモ */}
-              {work.production_notes && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-3xl">📝</span>
-                    制作メモ
-                  </h2>
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+              {(work.production_notes || (currentUser && work.user_id === currentUser.id)) && (
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold text-gray-900 flex items-center gap-3">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      制作メモ
+                    </h2>
+                    {currentUser && work.user_id === currentUser.id && !isEditingProductionNotes && (
+                      <button
+                        onClick={() => setIsEditingProductionNotes(true)}
+                        className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        編集
+                      </button>
+                    )}
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
                     <div className="mb-3">
-                      <span className="text-sm text-amber-700 font-medium bg-amber-100 px-3 py-1 rounded-full">
+                      <span className="text-sm text-gray-700 font-medium bg-gray-200 px-3 py-1 rounded-full">
                         制作過程・背景・こだわり
                       </span>
                     </div>
-                    <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
-                      {work.production_notes}
-                    </p>
+                    {isEditingProductionNotes && currentUser && work.user_id === currentUser.id ? (
+                      <div>
+                        <textarea
+                          value={productionNotes}
+                          onChange={(e) => setProductionNotes(e.target.value)}
+                          placeholder="制作背景、目的、こだわったポイントなどを入力..."
+                          className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        />
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={handleSaveProductionNotes}
+                            disabled={isSavingProductionNotes}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {isSavingProductionNotes ? '保存中...' : '保存'}
+                          </button>
+                          <button
+                            onClick={handleCancelProductionNotes}
+                            disabled={isSavingProductionNotes}
+                            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                      </div>
+                    ) : work.production_notes ? (
+                      <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
+                        {work.production_notes}
+                      </p>
+                    ) : currentUser && work.user_id === currentUser.id ? (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500 mb-4">制作メモがまだ記入されていません</p>
+                        <button
+                          onClick={() => setIsEditingProductionNotes(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          制作メモを追加
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}
 
               {/* AI分析結果 */}
               {aiAnalysis && (
-                <div className="mb-8">
+                <div className="mb-6">
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -660,14 +966,14 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                   <div className="space-y-6">
                     {/* 作品概要・要約 */}
                     {aiAnalysis.summary && (
-                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center gap-2 mb-3">
                           <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
-                          <h4 className="text-lg font-bold text-blue-900">コンテンツ概要</h4>
+                          <h4 className="text-lg font-bold text-gray-900">コンテンツ概要</h4>
                         </div>
-                        <p className="text-blue-800 leading-relaxed text-sm">{aiAnalysis.summary}</p>
+                        <p className="text-gray-700 leading-relaxed text-sm">{aiAnalysis.summary}</p>
                       </div>
                     )}
 
@@ -678,8 +984,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
                     {/* 強み分析 */}
                     {aiAnalysis.strengths && aiAnalysis.strengths.length > 0 && (
-                      <div className="bg-white border border-blue-200 rounded-xl p-4">
-                        <h5 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <h5 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                           <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
@@ -689,17 +995,17 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                           
                           {/* 創造性 */}
                           {aiAnalysis.strengths.creativity && aiAnalysis.strengths.creativity.length > 0 && (
-                            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-                              <h6 className="font-medium text-purple-700 mb-2 flex items-center gap-2">
-                                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <h6 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
                                 </svg>
                                 創造性
                               </h6>
                               <ul className="space-y-1">
                                 {aiAnalysis.strengths.creativity.map((strength: string, index: number) => (
-                                  <li key={index} className="flex items-start gap-2 text-purple-700 text-sm">
-                                    <span className="text-purple-500 mt-1 text-xs">●</span>
+                                  <li key={index} className="flex items-start gap-2 text-gray-700 text-sm">
+                                    <span className="text-blue-600 mt-1 text-xs">●</span>
                                     <span className="leading-relaxed">{strength}</span>
                                   </li>
                                 ))}
@@ -709,8 +1015,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
                           {/* 専門性 */}
                           {aiAnalysis.strengths.expertise && aiAnalysis.strengths.expertise.length > 0 && (
-                            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                              <h6 className="font-medium text-blue-700 mb-2 flex items-center gap-2">
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <h6 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
                                 <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -718,8 +1024,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                               </h6>
                               <ul className="space-y-1">
                                 {aiAnalysis.strengths.expertise.map((strength: string, index: number) => (
-                                  <li key={index} className="flex items-start gap-2 text-blue-700 text-sm">
-                                    <span className="text-blue-500 mt-1 text-xs">●</span>
+                                  <li key={index} className="flex items-start gap-2 text-gray-700 text-sm">
+                                    <span className="text-blue-600 mt-1 text-xs">●</span>
                                     <span className="leading-relaxed">{strength}</span>
                                   </li>
                                 ))}
@@ -729,17 +1035,17 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
                           {/* 影響力 */}
                           {aiAnalysis.strengths.impact && aiAnalysis.strengths.impact.length > 0 && (
-                            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                              <h6 className="font-medium text-green-700 mb-2 flex items-center gap-2">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <h6 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                                 影響力
                               </h6>
                               <ul className="space-y-1">
                                 {aiAnalysis.strengths.impact.map((strength: string, index: number) => (
-                                  <li key={index} className="flex items-start gap-2 text-green-700 text-sm">
-                                    <span className="text-green-500 mt-1 text-xs">●</span>
+                                  <li key={index} className="flex items-start gap-2 text-gray-700 text-sm">
+                                    <span className="text-blue-600 mt-1 text-xs">●</span>
                                     <span className="leading-relaxed">{strength}</span>
                                   </li>
                                 ))}
@@ -752,8 +1058,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
                     {/* キーワード */}
                     {aiAnalysis.keywords && aiAnalysis.keywords.length > 0 && (
-                      <div className="bg-white border border-blue-200 rounded-xl p-4">
-                        <h5 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <h5 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                           <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                           </svg>
@@ -761,7 +1067,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                         </h5>
                         <div className="flex flex-wrap gap-2">
                           {aiAnalysis.keywords.map((keyword: string, index: number) => (
-                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                            <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full border border-gray-200">
                               {keyword}
                             </span>
                           ))}
@@ -771,8 +1077,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
                     {/* タグ */}
                     {aiAnalysis.tags && aiAnalysis.tags.length > 0 && (
-                      <div className="bg-white border border-blue-200 rounded-xl p-4">
-                        <h5 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <h5 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                           <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                           </svg>
@@ -780,7 +1086,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                         </h5>
                         <div className="flex flex-wrap gap-2">
                           {aiAnalysis.tags.map((tag: string, index: number) => (
-                            <span key={index} className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+                            <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
                               {tag}
                             </span>
                           ))}
@@ -795,12 +1101,14 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               {(!aiAnalysis?.tags || aiAnalysis.tags.length === 0) && work.tags && work.tags.length > 0 && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-3xl">🏷️</span>
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
                     タグ
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {work.tags.map((tag, index) => (
-                      <span key={index} className="px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm rounded-full font-medium shadow-sm">
+                      <span key={index} className="px-4 py-2 bg-blue-50 text-blue-800 text-sm rounded-full font-medium border border-blue-200">
                         {tag}
                       </span>
                     ))}
@@ -812,15 +1120,17 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               {work.external_url && (
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <span className="text-3xl">🔗</span>
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
                     外部リンク
                   </h2>
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
                     <a 
                       href={work.external_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-green-700 hover:text-green-800 font-medium text-lg transition-colors"
+                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-lg transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -863,6 +1173,43 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
         type="work"
         data={work}
       />
+
+      {/* 削除確認モーダル */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">作品を削除</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              「{work?.title}」を削除しますか？この操作は取り消すことができません。
+            </p>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? '削除中...' : '削除'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

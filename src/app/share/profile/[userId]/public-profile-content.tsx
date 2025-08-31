@@ -7,7 +7,7 @@ import { PublicProfileTabs } from '@/features/profile/components/PublicProfileTa
 import { Button } from '@/components/ui/button'
 import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
 import { useMemo } from 'react'
-import { AI_STRENGTH_CATEGORY_RULES } from '@/features/profile/lib/profileUtils'
+import { analyzeStrengthsFromWorks } from '@/features/profile/lib/profileUtils'
 
 interface PublicProfileData {
   profile: any
@@ -34,41 +34,9 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   const { profile, works, inputs, inputAnalysis } = data
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('profile')
 
-  // 強みカード生成 (タグ頻度ベース)
-  const strengths = useMemo(() => {
-    const list: { title: string; description: string }[] = []
-    if (!works || works.length === 0) return list
-
-    const tagCounts = new Map<string, number>()
-    works.forEach((w: any) => {
-      w.ai_analysis_result?.tags?.forEach((t: string) => {
-        tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)
-      })
-    })
-
-    if (tagCounts.size === 0) return list
-
-    const categoryRules = AI_STRENGTH_CATEGORY_RULES
-
-    const categoryMap = new Map<string, { title: string; tags: string[]; count: number }>()
-
-    tagCounts.forEach((count, tag) => {
-      const rule = categoryRules.find(r => r.regex.test(tag))
-      const key = rule ? rule.title : 'その他'
-      const entry = categoryMap.get(key) || { title: key, tags: [], count: 0 }
-      entry.tags.push(tag)
-      entry.count += count
-      categoryMap.set(key, entry)
-    })
-
-    const top = [...categoryMap.values()].sort((a,b)=>b.count-a.count)
-    let filtered = top.filter(c=>c.title!=='その他')
-    if(filtered.length===0) filtered = top
-    filtered.slice(0,3).forEach(cat=>{
-      list.push({ title: cat.title, description: cat.tags.slice(0,3).join(' / ') })
-    })
-
-    return list
+  // 強みカード生成 (詳細分析)
+  const strengthsAnalysis = useMemo(() => {
+    return analyzeStrengthsFromWorks(works)
   }, [works])
 
   console.log('PublicProfileContent: プロフィール情報', {
@@ -133,139 +101,59 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
 
   return (
     <div className="min-h-screen bg-white">
-      <main className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-        <div className="max-w-6xl mx-auto">
-          {/* 戻るリンク */}
-          <div className="mb-4">
-            <Link href="/">
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                ホームに戻る
-              </Button>
-            </Link>
-          </div>
-
-          {/* 公開プロフィールヘッダー */}
-          <PublicProfileHeader
-            userId={userId}
-            displayName={displayName}
-            bio={bio}
-            location={location}
-            websiteUrl={websiteUrl}
-            backgroundImageUrl={backgroundImageUrl}
-            avatarImageUrl={avatarImageUrl}
-            isProfileEmpty={isProfileEmpty}
-            hasCustomBackground={hasCustomBackground}
-            hasCustomAvatar={hasCustomAvatar}
-            professions={professions}
-            rightSlot={
-              <div className="w-full">
-                <AIAnalysisStrengths strengths={strengths} compact variant="horizontal" className="mt-0" />
-                {works && works.filter((w: any) => w.is_featured).length > 0 ? (
-                  <section className="mt-3 sm:mt-4">
-                    <div className="px-1">
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">代表作</h3>
-                      </div>
-                      <div className="relative">
-                        <div className="overflow-x-auto hide-scrollbar">
-                          <div className="flex gap-3 sm:gap-4 snap-x snap-mandatory px-1 scroll-px-4">
-                            {works.filter((w: any) => w.is_featured).slice(0, 10).map((work: any) => (
-                              <div key={work.id} className="snap-center shrink-0 w-[260px] sm:w-[300px]">
-                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-sm transition-shadow">
-                                  <a href={`/works/${work.id}`}>
-                                    {work.banner_image_url ? (
-                                      <img src={work.banner_image_url} alt={work.title} className="w-full h-44 object-cover" />
-                                    ) : work.thumbnail_url ? (
-                                      <img src={work.thumbnail_url} alt={work.title} className="w-full h-44 object-cover" />
-                                    ) : (
-                                      <div className="w-full h-44 bg-gray-100" />
-                                    )}
-                                    <div className="p-3">
-                                      <div className="text-sm font-semibold text-slate-900 line-clamp-2">{work.title}</div>
-                                      {work.tags && (
-                                        <div className="mt-2 flex flex-wrap gap-1">
-                                          {work.tags.slice(0, 3).map((t: string, idx: number) => (
-                                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-gray-100 text-slate-600 rounded-full border border-gray-200">{t}</span>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </a>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          {/* フェードインジケーター */}
-                          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent hidden sm:block" />
-                          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent hidden sm:block" />
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                ) : (
-                  <section className="mt-3 sm:mt-4">
-                    <div className="px-1">
-                      <div className="flex items-center justify-between mb-2 sm:mb-3">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900">作品</h3>
-                      </div>
-                      <div className="relative">
-                        <div className="overflow-x-auto hide-scrollbar">
-                          <div className="flex gap-3 sm:gap-4 snap-x snap-mandatory px-1 scroll-px-4">
-                            {works && works.slice(0, 5).map((work: any) => (
-                              <div key={work.id} className="snap-center shrink-0 w-[260px] sm:w-[300px]">
-                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-sm transition-shadow">
-                                  <a href={`/works/${work.id}`}>
-                                    {work.banner_image_url ? (
-                                      <img src={work.banner_image_url} alt={work.title} className="w-full h-44 object-cover" />
-                                    ) : work.thumbnail_url ? (
-                                      <img src={work.thumbnail_url} alt={work.title} className="w-full h-44 object-cover" />
-                                    ) : (
-                                      <div className="w-full h-44 bg-gray-100" />
-                                    )}
-                                    <div className="p-3">
-                                      <div className="text-sm font-semibold text-slate-900 line-clamp-2">{work.title}</div>
-                                      {work.tags && (
-                                        <div className="mt-2 flex flex-wrap gap-1">
-                                          {work.tags.slice(0, 3).map((t: string, idx: number) => (
-                                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-gray-100 text-slate-600 rounded-full border border-gray-200">{t}</span>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </a>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          {/* フェードインジケーター */}
-                          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent hidden sm:block" />
-                          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent hidden sm:block" />
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                )}
-              </div>
-            }
-          />
-          
-          {/* 公開プロフィールタブ */}
-          <PublicProfileTabs
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            profile={profile}
-            works={works || []}
-            inputs={inputs || []}
-            skills={skills}
-            career={career}
-            isProfileEmpty={isProfileEmpty}
-            inputAnalysis={inputAnalysis}
-          />
+    <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+      <div className="max-w-4xl mx-auto">
+        {/* 戻るリンク */}
+        <div className="mb-4">
+          <Link href="/">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              ホームに戻る
+            </Button>
+          </Link>
         </div>
-      </main>
+
+        {/* 公開プロフィールヘッダー */}
+        <PublicProfileHeader
+          userId={userId}
+          displayName={displayName}
+          bio={bio}
+          location={location}
+          websiteUrl={websiteUrl}
+          backgroundImageUrl={backgroundImageUrl}
+          avatarImageUrl={avatarImageUrl}
+          isProfileEmpty={isProfileEmpty}
+          hasCustomBackground={hasCustomBackground}
+          hasCustomAvatar={hasCustomAvatar}
+          professions={professions}
+        />
+
+        {/* AI分析による強み (共有ビュー) */}
+        {strengthsAnalysis.strengths.length > 0 && (
+          <AIAnalysisStrengths
+            strengths={strengthsAnalysis.strengths}
+            showDetails={false}
+            jobMatchingHints={strengthsAnalysis.jobMatchingHints}
+            works={works}
+          />
+        )}
+        
+        {/* 公開プロフィールタブ */}
+        <PublicProfileTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          profile={profile}
+          works={works || []}
+          inputs={inputs || []}
+          skills={skills}
+          career={career}
+          isProfileEmpty={isProfileEmpty}
+          inputAnalysis={inputAnalysis}
+        />
+      </div>
+    </main>
     </div>
   )
 } 
