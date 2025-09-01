@@ -116,8 +116,8 @@ export function ProfileModals({
   /* Career delete */
   isDeleteConfirmOpen,
   setIsDeleteConfirmOpen,
-  deletingCareerId, // unused here but kept for completeness
-  setDeletingCareerId, // unused
+  deletingCareerId: _deletingCareerId, // unused here but kept for completeness
+  setDeletingCareerId: _setDeletingCareerId, // unused
   onDeleteCareer,
   isUpdatingCareer
 }: ProfileModalsProps) {

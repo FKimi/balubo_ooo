@@ -181,7 +181,9 @@ async function getPublicProfile(userId: string) {
       profileExists: true,
       worksCount: works?.length || 0,
       profile,
-      works: works || []
+      works: works || [],
+      inputs: _inputs,
+      inputAnalysis: _inputAnalysis
     }
 
     console.log('公開プロフィール取得完了:', result)
