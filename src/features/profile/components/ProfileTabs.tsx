@@ -383,9 +383,9 @@ export function ProfileTabs({
                             {/* ランキングバッジ */}
                             <div className="absolute top-3 left-3 z-10">
                               <div className={`px-2 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
-                                index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                                index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-500' :
-                                'bg-gradient-to-r from-amber-400 to-orange-600'
+                                index === 0 ? 'bg-blue-600' :
+                                index === 1 ? 'bg-gray-600' :
+                                'bg-gray-500'
                               }`}>
                                 #{index + 1}
                               </div>
@@ -416,7 +416,7 @@ export function ProfileTabs({
                                   )}
                                 </div>
                                 <div className="p-4">
-                                  <h4 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                                  <h4 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-2 group-hover:text-gray-700 transition-colors">
                                     {work.title}
                                   </h4>
                                   {work.tags && work.tags.length > 0 && (

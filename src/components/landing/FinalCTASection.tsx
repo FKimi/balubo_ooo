@@ -32,10 +32,7 @@ const features = [
 
 export default function FinalCTASection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-slate-50 to-white py-20 px-4 sm:py-24">
-      <div className="absolute top-0 left-0 h-full w-full bg-[radial-gradient(circle_at_15%_20%,_rgba(59,130,246,0.08)_0%,_transparent_40%)]"></div>
-      <div className="absolute bottom-0 right-0 h-full w-full bg-[radial-gradient(circle_at_85%_80%,_rgba(99,162,255,0.05)_0%,_transparent_40%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(59,130,246,0.1)_0%,_transparent_70%)]"></div>
+    <section className="relative overflow-hidden bg-gray-50 py-20 px-4 sm:py-24">
       
       <div className="container relative z-10 mx-auto max-w-4xl">
         {/* メッセージセクション削除済み */}
@@ -47,14 +44,14 @@ export default function FinalCTASection() {
 
         {/* CTA部分 */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-800 sm:text-5xl">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             あなたの才能は、まだ見ぬ
             <br />
-            <span className="bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
+            <span className="text-blue-600">
               可能性に満ちています
             </span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600">
             baluboで、その扉を開きませんか？
             <br className="hidden sm:block" />
             新しい自分、新しい仕事、新しい仲間が、あなたを待っています。
@@ -64,7 +61,7 @@ export default function FinalCTASection() {
             <Button
               asChild
               size="lg"
-              className="w-full max-w-xs transform-gpu rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:bg-blue-700 hover:shadow-2xl sm:w-auto"
+              className="w-full max-w-xs transform-gpu rounded-lg bg-gray-900 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:bg-gray-800 hover:shadow-xl sm:w-auto"
             >
               <Link href="/register">
                 今すぐbaluboを始める
@@ -76,20 +73,20 @@ export default function FinalCTASection() {
           <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-4">
             {features.map((feature) => (
               <div key={feature.text} className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100/80 shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-white shadow-sm">
                   {feature.icon}
                 </div>
-                <span className="text-sm font-medium text-slate-600">{feature.text}</span>
+                <span className="text-sm font-medium text-gray-600">{feature.text}</span>
               </div>
             ))}
           </div>
           
           <div className="mt-16">
-            <div className="rounded-3xl border border-blue-200/30 bg-white/90 p-8 backdrop-blur-sm shadow-lg">
-              <p className="text-lg italic text-slate-600">
+            <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-lg">
+              <p className="text-lg italic text-gray-600">
                 &ldquo;あなたのクリエイティビティを、世界はまだ知らない&rdquo;
               </p>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-gray-500">
                 — 今日から、それを変えてみませんか？
               </p>
             </div>

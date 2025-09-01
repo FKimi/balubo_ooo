@@ -26,7 +26,7 @@ export function PublicFeaturedWorksSection({ works }: PublicFeaturedWorksSection
         </h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {featuredWorks.map((work, index) => (
           <div key={work.id} className="relative">
             {/* ランキングバッジ */}

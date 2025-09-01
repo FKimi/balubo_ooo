@@ -80,7 +80,7 @@ function ResetPasswordForm() {
           <Link href="/">
             <h1 className="text-3xl font-bold text-accent-dark-blue">balubo</h1>
           </Link>
-          <p className="text-text-secondary mt-2">クリエイターのためのキャリアSNS</p>
+          <p className="text-text-secondary mt-2">クリエイターのためのAI分析型ポートフォリオ</p>
         </div>
 
         {/* パスワードリセットフォーム */}

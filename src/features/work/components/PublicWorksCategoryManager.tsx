@@ -60,7 +60,7 @@ export function PublicWorksCategoryManager({ works, categories }: PublicWorksCat
 
       {/* 作品一覧 */}
       {filteredWorks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredWorks.map((work) => (
             <WorkCard key={work.id} work={work as WorkData} onDelete={() => {}} />
           ))}

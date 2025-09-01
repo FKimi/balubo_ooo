@@ -67,8 +67,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
     skills,
     career,
     professions,
-    finalWorksCount: works?.length || 0,
-    finalInputsCount: inputs?.length || 0
+    finalWorksCount: works?.length || 0
   })
 
   // 画像の存在チェック
@@ -102,7 +101,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   return (
     <div className="min-h-screen bg-white">
     <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* 戻るリンク */}
         <div className="mb-4">
           <Link href="/">
@@ -146,11 +145,9 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
           setActiveTab={setActiveTab}
           profile={profile}
           works={works || []}
-          inputs={inputs || []}
           skills={skills}
           career={career}
           isProfileEmpty={isProfileEmpty}
-          inputAnalysis={inputAnalysis}
         />
       </div>
     </main>

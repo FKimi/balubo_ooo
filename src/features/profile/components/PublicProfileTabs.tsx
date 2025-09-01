@@ -18,11 +18,9 @@ interface PublicProfileTabsProps {
   setActiveTab: (_tab: 'profile' | 'works' | 'details') => void
   profile: any
   works: any[]
-  inputs: any[]
   skills: string[]
   career: any[]
   isProfileEmpty: boolean
-  inputAnalysis?: any
 }
 
 export function PublicProfileTabs({
@@ -30,10 +28,8 @@ export function PublicProfileTabs({
   setActiveTab,
   profile,
   works,
-  inputs,
   skills,
-  career,
-  inputAnalysis: propInputAnalysis
+  career
 }: PublicProfileTabsProps) {
   const workStats = useWorkStatistics(works)
   const { data: tagStatistics, getTagStatistic: _getTagStatistic, getTagRanking: _getTagRanking } = useTagStatistics()

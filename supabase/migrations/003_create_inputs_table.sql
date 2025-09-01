@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS public.inputs (
     notes TEXT DEFAULT '',
     favorite BOOLEAN DEFAULT FALSE,
     ai_analysis_result JSONB,
+    is_public BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
@@ -40,8 +41,13 @@ CREATE INDEX IF NOT EXISTS idx_inputs_genres ON public.inputs USING GIN(genres);
 ALTER TABLE public.inputs ENABLE ROW LEVEL SECURITY;
 
 -- RLSポリシーの作成
+-- 1. 認証済みユーザーは自分のインプットのみ閲覧可能
 CREATE POLICY "Users can view their own inputs" ON public.inputs
     FOR SELECT USING (auth.uid() = user_id);
+
+-- 2. 公開プロフィール用：公開設定されたインプットのみ閲覧可能（Service Role使用時）
+CREATE POLICY "Public can view public inputs" ON public.inputs
+    FOR SELECT USING (is_public = true);
 
 CREATE POLICY "Users can insert their own inputs" ON public.inputs
     FOR INSERT WITH CHECK (auth.uid() = user_id);

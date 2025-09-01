@@ -33,6 +33,22 @@ async function getPublicProfile(userId: string) {
       }
     }
   )
+
+  // Supabase接続テスト
+  try {
+    const { data: testData, error: testError } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1)
+
+    if (testError) {
+      console.error('Supabase接続テスト失敗:', testError)
+    } else {
+      console.log('Supabase接続テスト成功')
+    }
+  } catch (connectionError) {
+    console.error('Supabase接続エラー:', connectionError)
+  }
   
   console.log('Supabase設定状況:', {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -63,10 +79,22 @@ async function getPublicProfile(userId: string) {
       return null
     }
 
-    console.log('公開プロフィール確認OK、作品・インプットデータを取得中...')
+    console.log('公開プロフィール確認OK、作品データを取得中...')
+
+    // Service Role Keyの設定確認
+    console.log('Service Role Key設定状況:', {
+      hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      serviceRoleKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      userId: userId
+    })
 
     // Service Role Keyを使用して作品データを取得（RLSバイパス）
     // 注意：Service Role Keyは管理者権限を持ち、RLSを自動的にバイパスします
+    console.log('作品データ取得開始 - ユーザーID:', userId)
+
+    // 既存のテーブル構造に合わせて作品データを取得
+    // is_publicカラムは存在しないため、全ての作品を取得
     const { data: works, error: worksError } = await supabase
       .from('works')
       .select(`
@@ -79,7 +107,6 @@ async function getPublicProfile(userId: string) {
         categories,
         production_date,
         banner_image_url,
-        thumbnail_url,
         preview_data,
         ai_analysis_result,
         content_type,
@@ -87,139 +114,75 @@ async function getPublicProfile(userId: string) {
         is_featured,
         featured_order,
         created_at,
-        updated_at
+        updated_at,
+        design_tools,
+        color_palette,
+        target_platform,
+        file_urls,
+        view_count
       `)
       .eq('user_id', userId)
       .order('featured_order', { ascending: true })
       .order('created_at', { ascending: false })
 
+    // エラーハンドリングの改善
     if (worksError) {
       console.error('作品取得エラー詳細:', {
-        message: worksError.message,
-        details: worksError.details,
-        hint: worksError.hint,
-        code: worksError.code
-      })
-    }
-
-    console.log('作品取得結果:', { 
-      worksCount: works?.length || 0, 
-      error: worksError,
-      works: works,
-      errorMessage: worksError?.message,
-      errorDetails: worksError?.details 
-    })
-
-    // Service Role Keyを使用してインプットデータを取得（RLSバイパス）  
-    const { data: inputs, error: inputsError } = await supabase
-      .from('inputs')
-      .select(`
-        id,
-        user_id,
-        title,
-        author_creator,
-        type,
-        genres,
-        status,
-        rating,
-        favorite,
-        notes,
-        tags,
-        external_url,
-        cover_image_url,
-        created_at,
-        updated_at
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-
-    if (inputsError) {
-      console.error('インプット取得エラー詳細:', {
-        message: inputsError.message,
-        details: inputsError.details,
-        hint: inputsError.hint,
-        code: inputsError.code
-      })
-    }
-
-    console.log('インプット取得結果:', { 
-      inputsCount: inputs?.length || 0, 
-      error: inputsError,
-      inputs: inputs,
-      errorMessage: inputsError?.message,
-      errorDetails: inputsError?.details 
-    })
-
-
-
-    // インプット分析を計算
-    let inputAnalysis = null
-    if (inputs && inputs.length > 0) {
-      // データベースから取得したデータを InputData 型に変換
-      const mappedInputs: InputData[] = inputs.map(item => ({
-        id: item.id,
-        title: item.title,
-        authorCreator: item.author_creator,
-        type: item.type,
-        genres: item.genres,
-        status: item.status,
-        rating: item.rating,
-        favorite: item.favorite,
-        notes: item.notes,
-        tags: item.tags,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at,
+        message: worksError?.message || 'メッセージなし',
+        details: worksError?.details || '詳細なし',
+        hint: worksError?.hint || 'ヒントなし',
+        code: worksError?.code || 'コードなし',
+        fullError: worksError,
         userId: userId,
-        review: '',
-        externalUrl: item.external_url,
-        coverImageUrl: item.cover_image_url,
-      }))
-      
-      const totalInputs = mappedInputs.length
-      const favoriteCount = mappedInputs.filter((input: InputData) => input.favorite).length
-      const averageRating = totalInputs > 0
-        ? mappedInputs.reduce((sum: number, input: InputData) => sum + (input.rating || 0), 0) / totalInputs
-        : 0
+        hasError: !!worksError,
+        errorKeys: worksError ? Object.keys(worksError) : [],
+        errorType: worksError ? typeof worksError : 'unknown'
+      })
 
-      const typeDistribution = mappedInputs.reduce((acc: any, input: InputData) => {
-        const type = input.type || '未分類'
-        acc[type] = (acc[type] || 0) + 1
-        return acc
-      }, {})
-
-      // ジャンル分布を計算
-      const genresDistribution = mappedInputs.reduce((acc: any, input: InputData) => {
-        if (input.genres) {
-          input.genres.forEach(genre => {
-            acc[genre] = (acc[genre] || 0) + 1
-          })
-        }
-        return acc
-      }, {})
-
-      const topGenres = calculateGenreDistribution(mappedInputs).map(([name, count]) => ({ name, count }))
-      const topTags = calculateInputTopTags(mappedInputs).map(([tag, count]) => ({ tag, count }))
-
-      inputAnalysis = {
-        totalInputs,
-        favoriteCount,
-        averageRating,
-        typeDistribution,
-        genresDistribution,
-        topGenres,
-        topTags
+      // エラーの詳細をさらに確認
+      if (worksError && Object.keys(worksError).length === 0) {
+        console.error('空のエラーオブジェクトが返されました。RLSポリシーまたは接続の問題の可能性があります')
+        console.error('Service Role Keyの設定を確認してください:', {
+          hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          serviceRoleKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0
+        })
       }
-      
     }
+
+    console.log('作品取得結果:', {
+      worksCount: works?.length || 0,
+      works: works?.slice(0, 2), // 最初の2件のみログ出力
+      hasError: !!worksError,
+      errorType: worksError ? typeof worksError : 'なし',
+      worksType: works ? typeof works : 'null/undefined',
+      worksIsArray: Array.isArray(works)
+    })
+
+    // 作品データが取得できたか確認
+    if (works && Array.isArray(works) && works.length > 0) {
+      console.log('作品データ取得成功:', works.length + '件の作品が見つかりました')
+    } else if (works && Array.isArray(works) && works.length === 0) {
+      console.log('作品データは空ですが、エラーなし（作品が存在しない可能性）')
+    } else {
+      console.warn('作品データが正しく取得できていません:', {
+        works,
+        worksType: typeof works,
+        isArray: Array.isArray(works)
+      })
+    }
+
+    // インプット機能は削除されているので、inputsは空配列を使用
+    const inputs = []
+    const inputsError = null
+
+    // インプット機能が削除されているので、inputAnalysisもnull
+    const inputAnalysis = null
 
     const result = {
       profileExists: true,
       worksCount: works?.length || 0,
-      inputsCount: inputs?.length || 0,
       profile,
-      works: works || [],
-      inputs: inputs || [],
-      inputAnalysis
+      works: works || []
     }
 
     console.log('公開プロフィール取得完了:', result)
@@ -234,14 +197,46 @@ async function getPublicProfile(userId: string) {
 export default async function PublicProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params
   const data = await getPublicProfile(userId)
-  
+
   if (!data) {
+    console.log('公開プロフィールが見つからないため、404ページを表示します')
     notFound()
+  }
+
+  // プロフィールが存在してもデータ取得に失敗した場合
+  if (!data.profile) {
+    console.error('プロフィールデータが存在しません:', { userId, data })
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">プロフィールが見つかりません</h1>
+          <p className="text-gray-600 mb-6">指定されたユーザーのプロフィールが見つからないか、公開設定されていません。</p>
+          <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            ホームに戻る
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <Suspense fallback={<div>読み込み中...</div>}>
+      <Suspense fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">プロフィールを読み込み中...</p>
+          </div>
+        </div>
+      }>
         <PublicProfileContent data={data} userId={userId} />
       </Suspense>
     </div>

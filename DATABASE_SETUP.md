@@ -184,10 +184,89 @@ DELETE /api/works/[id]
 **エラー**: "Row Level Security policy violation"
 - **解決方法**: ユーザーが認証されているか、適切なuser_idが設定されているか確認
 
+**エラー**: "作品取得エラー詳細: {}" (空オブジェクト)
+- **原因**: is_publicカラムが存在しない、RLSポリシーの問題、またはService Role Keyの設定ミス
+- **解決方法**: 以下の手順で確認・修正
+
+#### ステップ1: カラム追加
+```sql
+-- worksテーブルにis_publicカラムを追加
+ALTER TABLE works ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;
+```
+
+#### ステップ2: RLSポリシー追加
+```sql
+-- 公開プロフィール用のRLSポリシーを追加
+DROP POLICY IF EXISTS "Public can view public works" ON works;
+CREATE POLICY "Public can view public works" ON works
+  FOR SELECT USING (is_public = true);
+```
+
+#### ステップ3: テストデータ作成
+```sql
+-- テストデータを作成（実際のユーザーIDに置き換えてください）
+INSERT INTO works (user_id, title, description, is_public, created_at)
+VALUES ('b73bfe31-5e34-4d66-bec7-7089d7cb3b4b', 'テスト作品', 'これはテスト用の作品です。', true, NOW());
+```
+
+#### ステップ4: 既存データの公開設定
+```sql
+-- 特定の作品を公開設定
+UPDATE works SET is_public = true WHERE id = '作品ID';
+```
+
 ### 7.2 デバッグ方法
 1. Supabase Dashboard → Authentication → Users でユーザー状況を確認
-2. Supabase Dashboard → Table Editor → works でデータ状況を確認
-3. ブラウザの開発者ツールでネットワークリクエストを確認
+2. Supabase Dashboard → Table Editor → works/inputs でデータ状況を確認
+3. Supabase Dashboard → SQL Editor でカラム存在確認:
+   ```sql
+   SELECT column_name FROM information_schema.columns
+   WHERE table_name = 'works' AND column_name = 'is_public';
+   ```
+4. ブラウザの開発者ツールでネットワークリクエストを確認
+
+### 7.3 公開設定の管理
+作品を公開プロフィールに表示するには、作品データの`is_public`カラムを`true`に設定してください：
+
+#### 1. カラム追加（初回のみ）
+```sql
+-- worksテーブルにis_publicカラムを追加
+ALTER TABLE works ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;
+
+-- inputsテーブルにis_publicカラムを追加
+ALTER TABLE inputs ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;
+```
+
+#### 2. RLSポリシーの追加
+```sql
+-- 公開プロフィール用のRLSポリシーを追加
+DROP POLICY IF EXISTS "Public can view public works" ON works;
+CREATE POLICY "Public can view public works" ON works
+  FOR SELECT USING (is_public = true);
+
+DROP POLICY IF EXISTS "Public can view public inputs" ON inputs;
+CREATE POLICY "Public can view public inputs" ON inputs
+  FOR SELECT USING (is_public = true);
+```
+
+#### 3. テストデータの作成
+```sql
+-- 開発テスト用：サンプルデータ作成
+INSERT INTO works (user_id, title, description, is_public, created_at)
+VALUES ('b73bfe31-5e34-4d66-bec7-7089d7cb3b4b', 'サンプル作品', 'これはテスト用のサンプル作品です。', true, NOW());
+```
+
+#### 4. 既存データの公開設定
+```sql
+-- 特定の作品を公開設定
+UPDATE works SET is_public = true WHERE id = '作品ID';
+
+-- 特定のインプットを公開設定
+UPDATE inputs SET is_public = true WHERE id = 'インプットID';
+
+-- 特定のユーザーの作品を公開設定
+UPDATE works SET is_public = true WHERE user_id = 'b73bfe31-5e34-4d66-bec7-7089d7cb3b4b';
+```
 
 ---
 

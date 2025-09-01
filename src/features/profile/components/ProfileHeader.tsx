@@ -55,13 +55,13 @@ export function ProfileHeader({
 
 
   return (
-    <div className="mb-8">
+    <div className="mb-12">
       {/* メインカード */}
       <div className="relative">
         <div className="w-full relative">
           {/* 背景画像 - フルブリード */}
-          <div 
-            className="relative h-40 sm:h-56 md:h-64 lg:h-72 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden"
+          <div
+            className="relative h-48 sm:h-64 md:h-72 lg:h-80 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden shadow-elegant"
             style={{ minHeight: '200px' }}
           >
             {resolvedBgUrl ? (
@@ -77,23 +77,23 @@ export function ProfileHeader({
                 }}
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600" />
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200" />
             )}
-            {/* 薄いオーバーレイで文字可読性確保 */}
-            <div className="absolute inset-0 bg-black/20" />
-            {/* 下端のセパレーター */}
-            <div className="absolute inset-x-0 bottom-0 h-px bg-gray-200/70" />
+            {/* 洗練されたオーバーレイ */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+            {/* 洗練されたセパレーター */}
+            <div className="absolute inset-x-0 bottom-0 h-px bg-white/20 backdrop-blur-sm" />
           </div>
           
           {/* レイアウト: 左情報 / 右スロット（背景と分離） */}
-          <div className="px-6 mt-6 sm:mt-8 md:mt-10">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="px-8 mt-8 sm:mt-10 md:mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
               {/* 左カラム：プロフィール情報 */}
-              <div className="w-full md:col-span-4">
-                <div className="flex items-end gap-4">
+              <div className="w-full md:col-span-5">
+                <div className="flex items-end gap-6">
                   <div
-                    className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-xl"
-                    style={{ minWidth: '112px', minHeight: '112px' }}
+                    className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-4 border-white shadow-elegant-xl"
+                    style={{ minWidth: '128px', minHeight: '128px' }}
                   >
                     {resolvedAvatarUrl ? (
                       <img
@@ -107,40 +107,40 @@ export function ProfileHeader({
                       </span>
                     )}
                   </div>
-                  <div className="pb-2">
-                    <h1 className="text-2xl font-bold text-slate-900">{displayName || 'ユーザー'}</h1>
-                    {title && <p className="text-md text-slate-500">{title}</p>}
+                  <div className="pb-3">
+                    <h1 className="text-3xl font-bold text-gray-900 leading-tight">{displayName || 'ユーザー'}</h1>
+                    {title && <p className="text-lg text-gray-600 mt-1 font-medium">{title}</p>}
                   </div>
                 </div>
 
                 {bio && (
-                  <p className="mt-4 text-sm text-slate-700 leading-relaxed">{bio}</p>
+                  <p className="mt-6 text-base text-gray-700 leading-relaxed">{bio}</p>
                 )}
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600">
+                <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600">
                   {userId && <FollowStats userId={userId} />}
                   {location && (
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                       <span>{location}</span>
                     </div>
                   )}
                   {websiteUrl && (
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                      <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-blue-600 hover:underline truncate max-w-[200px] sm:max-w-none">
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                      <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-blue-600 hover:underline truncate max-w-[200px] sm:max-w-none transition-colors duration-200">
                         {websiteUrl.replace(/^https?:\/\//, '')}
                       </a>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-4 flex items-center gap-3">
+                <div className="mt-8 flex items-center gap-4">
                   {portfolioVisibility === 'public' && userId && (
                     <ShareProfileButton userId={userId} slug={slug} displayName={displayName} />
                   )}
                   <Link href="/profile/edit">
-                    <Button variant="outline" size="sm" className="px-4 py-2 text-sm font-semibold rounded-full border-slate-300 text-slate-700 hover:bg-slate-50">
+                    <Button variant="outline" size="sm" className="px-6 py-3 text-sm font-semibold rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
                       プロフィール編集
                     </Button>
                   </Link>

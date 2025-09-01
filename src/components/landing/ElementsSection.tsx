@@ -52,11 +52,11 @@ const elements = [
 ]
 
 const colorClasses = {
-  purple: 'border-purple-200/40 bg-purple-50/50 hover:bg-purple-100/70 hover:border-purple-300/60',
-  emerald: 'border-emerald-200/40 bg-emerald-50/50 hover:bg-emerald-100/70 hover:border-emerald-300/60',
-  orange: 'border-orange-200/40 bg-orange-50/50 hover:bg-orange-100/70 hover:border-orange-300/60',
-  sky: 'border-sky-200/40 bg-sky-50/50 hover:bg-sky-100/70 hover:border-sky-300/60',
-  rose: 'border-rose-200/40 bg-rose-50/50 hover:bg-rose-100/70 hover:border-rose-300/60',
+  purple: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
+  emerald: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
+  orange: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
+  sky: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
+  rose: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
 } as const
 
 export default function ElementsSection() {
@@ -66,11 +66,11 @@ export default function ElementsSection() {
     <section className="bg-white pt-32 pb-2 px-4 md:pt-1 md:pb-1">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-slate-800 md:text-5xl">
-            AIが作品の価値を多角的に分析
+          <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
+            作品の価値を多角的に評価
           </h2>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-slate-600">
-            balubo独自のAIが、5つの視点（技術力・創造性・専門性・影響力・総合評価）から作品価値を多角的に分析します。
+          <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
+            5つの視点（技術力・創造性・専門性・影響力・総合評価）から作品価値を客観的に評価します。
           </p>
         </div>
 
@@ -91,12 +91,8 @@ export default function ElementsSection() {
                 }}
               >
                 <div className="mb-6 flex items-center gap-4">
-                  <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl shadow-sm transition-all duration-500 ${
+                  <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-900 text-white transition-all duration-500 ${
                     visibleItems.includes(idx) ? 'scale-100 rotate-0' : 'scale-75 rotate-12'
-                  } ${
-                    el.color === 'purple' ? 'bg-purple-100/80 hover:bg-purple-200/80' :
-                    el.color === 'emerald' ? 'bg-emerald-100/80 hover:bg-emerald-200/80' :
-                    'bg-orange-100/80 hover:bg-orange-200/80'
                   } hover:scale-110`}
                     style={{ 
                       transitionDelay: `${idx * 250 + 200}ms` 
@@ -105,7 +101,7 @@ export default function ElementsSection() {
                     {el.icon}
                   </div>
                   <div>
-                    <h3 className={`text-2xl font-bold text-slate-800 transition-all duration-500 ${
+                    <h3 className={`text-2xl font-bold text-gray-900 transition-all duration-500 ${
                       visibleItems.includes(idx) ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                     }`}
                       style={{ 
@@ -114,11 +110,7 @@ export default function ElementsSection() {
                     >
                       {el.title}
                     </h3>
-                    <p className={`text-sm font-semibold transition-all duration-500 ${
-                      el.color === 'purple' ? 'text-purple-500' :
-                      el.color === 'emerald' ? 'text-emerald-500' :
-                      'text-orange-500'
-                    } ${
+                    <p className={`text-sm font-semibold text-blue-600 transition-all duration-500 ${
                       visibleItems.includes(idx) ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                     }`}
                       style={{ 
@@ -129,7 +121,7 @@ export default function ElementsSection() {
                     </p>
                   </div>
                 </div>
-                <p className={`text-base leading-relaxed text-slate-600 transition-all duration-500 ${
+                <p className={`text-base leading-relaxed text-gray-600 transition-all duration-500 ${
                   visibleItems.includes(idx) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
                   style={{ 

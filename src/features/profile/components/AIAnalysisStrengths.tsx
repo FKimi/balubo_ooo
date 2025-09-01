@@ -41,10 +41,10 @@ export function AIAnalysisStrengths({
     <section className={`${compact ? 'mt-4' : 'mt-8 mb-8'} ${className}`}>
       {/* あなたのタグセクション */}
       {yourTags.length > 0 && (
-        <div className={`${compact ? 'border border-gray-200 rounded-xl p-4 sm:p-5 mb-4' : 'border border-gray-200 rounded-2xl p-6 mb-6'}`}>
+        <div className={`${compact ? 'border border-gray-200/80 rounded-xl p-5 sm:p-6 mb-5 shadow-elegant' : 'border border-gray-200/80 rounded-2xl p-8 mb-8 shadow-elegant'}`}>
           <div className="flex items-center justify-between mb-4">
             <h2 className={`${compact ? 'text-base' : 'text-lg'} font-semibold flex items-center gap-2`}>
-              <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
               <span>あなたのタグ</span>
@@ -67,7 +67,7 @@ export function AIAnalysisStrengths({
                     px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer
                     ${index < 3
                       ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300'
-                      : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300'
                     }
                   `}
                 >
@@ -99,11 +99,11 @@ export function AIAnalysisStrengths({
       )}
 
       {/* AI分析による強みセクション */}
-      <div className={`${compact ? 'border border-gray-200 rounded-xl p-4 sm:p-5' : 'border border-gray-200 rounded-2xl p-6'}`}>
+      <div className={`${compact ? 'border border-gray-200/80 rounded-xl p-5 sm:p-6 shadow-elegant' : 'border border-gray-200/80 rounded-2xl p-8 shadow-elegant'}`}>
         {/* ヘッダーセクション */}
         <div className="flex items-center justify-between mb-4">
           <h2 className={`${compact ? 'text-base' : 'text-lg'} font-semibold flex items-center gap-2`}>
-            <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             <span>AI分析による強み</span>
@@ -134,13 +134,13 @@ export function AIAnalysisStrengths({
 
         {/* 仕事マッチングのヒント */}
         {jobMatchingHints && jobMatchingHints.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="mt-8 pt-6 border-t border-gray-100">
             <button
               onClick={() => setShowJobHints(!showJobHints)}
-              className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
             >
               <span className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2M8 6v2a2 2 0 002 2h4a2 2 0 002-2V6m0 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2z" />
                 </svg>
                 こんな仕事が向いているかも
@@ -156,13 +156,13 @@ export function AIAnalysisStrengths({
             </button>
 
             {showJobHints && (
-              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 animate-fade-in">
                 {jobMatchingHints.map((hint, idx) => (
                   <div
                     key={idx}
-                    className="p-3 bg-blue-50 rounded-lg border border-blue-200 hover:border-blue-300 hover:bg-blue-100 transition-colors"
+                    className="p-4 bg-gray-50/80 rounded-xl border border-gray-200/60 hover:border-gray-300 hover:bg-gray-100/80 hover:shadow-sm transition-all duration-200"
                   >
-                    <p className="text-xs text-blue-700 leading-relaxed">{hint}</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{hint}</p>
                   </div>
                 ))}
               </div>
@@ -172,8 +172,8 @@ export function AIAnalysisStrengths({
 
         {/* 追加情報 */}
         {showDetails && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500 leading-relaxed">
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <p className="text-sm text-gray-600 leading-relaxed">
               この分析は、あなたの作品に含まれるタグデータを基にAIが自動生成しています。
               作品を追加するほど分析精度が向上し、より適切な仕事マッチングが可能になります。
             </p>

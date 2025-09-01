@@ -142,12 +142,11 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8 relative overflow-hidden">
       {/* 背景の装飾要素 */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-300/15 to-blue-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/15 to-blue-300/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-gradient-to-br from-blue-300/25 to-blue-400/30 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gray-100 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-gray-50 rounded-full blur-2xl"></div>
       </div>
       
       <div className="w-full max-w-md">
@@ -155,13 +154,13 @@ function LoginForm() {
         <div className="text-center mb-8 relative z-10">
           <Link href="/">
             <div className="inline-block">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-gray-900">
                 balubo
               </h1>
-              <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 rounded-full mt-1"></div>
+              <div className="h-1 w-full bg-blue-600 rounded-full mt-1"></div>
             </div>
           </Link>
-          <p className="text-gray-600 mt-3 font-medium">クリエイターのためのキャリアSNS</p>
+          <p className="text-gray-600 mt-3 font-medium">クリエイターのためのAI分析型ポートフォリオ</p>
         </div>
 
         {/* ログインフォーム */}
@@ -223,7 +222,7 @@ function LoginForm() {
                   placeholder="your@email.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white/60 backdrop-blur-sm focus:bg-white hover:bg-white/80 focus:shadow-lg focus:shadow-blue-200/20 ${errors.email ? 'border-red-300 focus:border-red-400' : 'border-blue-200/50 focus:border-blue-400 hover:border-blue-300/70'}`}
+                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white focus:bg-white focus:shadow-lg focus:shadow-gray-200/20 ${errors.email ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-gray-400 hover:border-gray-400'}`}
                   required
                 />
                 {errors.email && (
@@ -245,7 +244,7 @@ function LoginForm() {
                   placeholder="パスワードを入力"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white/60 backdrop-blur-sm focus:bg-white hover:bg-white/80 focus:shadow-lg focus:shadow-blue-200/20 ${errors.password ? 'border-red-300 focus:border-red-400' : 'border-blue-200/50 focus:border-blue-400 hover:border-blue-300/70'}`}
+                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white focus:bg-white focus:shadow-lg focus:shadow-gray-200/20 ${errors.password ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-gray-400 hover:border-gray-400'}`}
                   required
                 />
                 {errors.password && (
@@ -266,7 +265,7 @@ function LoginForm() {
                     type="checkbox"
                     checked={formData.rememberMe}
                     onChange={handleInputChange}
-                    className="w-4 h-4 rounded-lg border-2 border-blue-300 text-blue-500 focus:ring-blue-400 focus:border-blue-400 transition-colors duration-200"
+                    className="w-4 h-4 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                   />
                   <Label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer">
                     ログイン状態を保持
@@ -277,9 +276,9 @@ function LoginForm() {
                 </Link>
               </div>
 
-              <Button 
+              <Button
                 type="submit"
-                className="w-full h-14 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-300/30"
+                className="w-full h-14 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl"
                 disabled={isLoading}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -296,7 +295,7 @@ function LoginForm() {
               {/* 区切り線 */}
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-blue-200/40" />
+                  <span className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="bg-white px-6 text-gray-500 font-medium">または</span>
@@ -309,7 +308,7 @@ function LoginForm() {
                 variant="outline"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full h-14 border-2 border-blue-200/40 hover:border-blue-300/60 bg-white hover:bg-blue-50/30 text-gray-700 font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-200/20"
+                className="w-full h-14 border-2 border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -342,27 +341,27 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8 relative overflow-hidden">
         {/* 背景の装飾要素 */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-orange-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gray-100 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-gray-50 rounded-full blur-2xl"></div>
         </div>
         <div className="w-full max-w-md">
           <div className="text-center mb-8 relative z-10">
             <Link href="/">
               <div className="inline-block">
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold text-gray-900">
                   balubo
                 </h1>
-                <div className="h-1 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-full mt-1"></div>
+                <div className="h-1 w-full bg-blue-600 rounded-full mt-1"></div>
               </div>
             </Link>
-            <p className="text-gray-600 mt-3 font-medium">クリエイターのためのキャリアSNS</p>
+            <p className="text-gray-600 mt-3 font-medium">クリエイターのためのAI分析型ポートフォリオ</p>
           </div>
-          <Card className="backdrop-blur-sm bg-white/80 shadow-2xl border-0 relative z-10">
+          <Card className="backdrop-blur-sm bg-white shadow-lg border-0 relative z-10">
             <CardContent className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </CardContent>
           </Card>
         </div>

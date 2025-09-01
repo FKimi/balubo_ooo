@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useRef } from 'react'
-import { motion, useInView, useAnimation, Variants } from 'framer-motion'
+import React from 'react'
 
 interface Voice {
   name: string
@@ -31,93 +30,44 @@ const voices: Voice[] = [
   },
 ]
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-}
-
-const itemVariants: Variants = {
-  hidden: { y: 20, opacity: 0, scale: 0.95 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: 'easeOut',
-    },
-  },
-}
-
 export default function VoicesSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
-  const controls = useAnimation()
-
-  React.useEffect(() => {
-    if (isInView) {
-      controls.start('visible')
-    }
-  }, [isInView, controls])
-
   return (
-    <section className="relative overflow-hidden bg-white py-20 px-4 md:py-28">
-       <div className="absolute inset-x-0 top-0 z-0 h-full bg-gradient-to-b from-blue-50/20 to-white"></div>
+    <section className="relative overflow-hidden bg-gray-50 py-20 px-4 md:py-28">
       <div className="container relative z-10 mx-auto max-w-5xl">
-        <motion.div 
-          className="text-center"
-          ref={ref}
-          initial="hidden"
-          animate={controls}
-          variants={itemVariants}
-        >
-          <h2 className="text-4xl font-extrabold text-slate-800 sm:text-5xl">
-            <span className="bg-gradient-to-r from-blue-500 via-sky-500 to-cyan-500 bg-clip-text text-transparent">
-              先行ユーザーからの期待の声
-            </span>
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+            先行ユーザーからの期待の声
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
             すでに多くの方々から、baluboが提供する新しい価値にご期待いただいています。
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3"
-          ref={ref}
-          initial="hidden"
-          animate={controls}
-          variants={containerVariants}
-        >
+        <div className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
           {voices.map((voice) => (
-            <motion.div
-              key={voice.name} 
-              variants={itemVariants}
-              className="relative flex flex-col rounded-3xl border border-slate-200/80 bg-white/90 p-8 shadow-lg transition-all duration-300 hover:border-slate-300 hover:shadow-xl"
+            <div
+              key={voice.name}
+              className="relative flex flex-col rounded-lg border border-gray-200 bg-white p-8 shadow-md transition-all duration-300 hover:shadow-lg"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-3xl"/>
+              <div className="absolute top-0 left-0 right-0 h-1 bg-blue-600 rounded-t-lg"/>
               <div className="flex-grow">
-                <p className="relative text-base leading-relaxed text-slate-600">
-                  <span className="absolute -left-3 -top-3 text-7xl font-bold text-blue-500/10 opacity-70">&quot;</span>
+                <p className="relative text-base leading-relaxed text-gray-600">
+                  <span className="absolute -left-3 -top-3 text-7xl font-bold text-gray-300 opacity-30">&quot;</span>
                   <span className="relative">{voice.comment}</span>
                 </p>
               </div>
-              <div className="mt-6 flex items-center pt-6 border-t border-slate-200/80">
-                <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-sky-500 text-white text-xl font-bold">
+              <div className="mt-6 flex items-center pt-6 border-t border-gray-200">
+                <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-white text-xl font-bold">
                   {voice.avatarInitial}
                 </div>
                 <div>
-                  <div className="font-semibold text-slate-800">{voice.name}</div>
-                  <div className="text-sm text-slate-500">{voice.role}</div>
+                  <div className="font-semibold text-gray-900">{voice.name}</div>
+                  <div className="text-sm text-gray-500">{voice.role}</div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

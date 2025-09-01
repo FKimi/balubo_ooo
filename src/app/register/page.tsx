@@ -159,12 +159,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100/50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8 relative overflow-hidden">
       {/* 背景の装飾要素 */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-300/15 to-blue-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/15 to-blue-300/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-gradient-to-br from-blue-300/25 to-blue-400/30 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gray-100 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-gray-50 rounded-full blur-2xl"></div>
       </div>
       
       <div className="w-full max-w-md">
@@ -172,13 +171,13 @@ export default function RegisterPage() {
         <div className="text-center mb-8 relative z-10">
           <Link href="/">
             <div className="inline-block">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-gray-900">
                 balubo
               </h1>
-              <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 rounded-full mt-1"></div>
+              <div className="h-1 w-full bg-blue-600 rounded-full mt-1"></div>
             </div>
           </Link>
-          <p className="text-gray-600 mt-3 font-medium">クリエイターのためのキャリアSNS</p>
+          <p className="text-gray-600 mt-3 font-medium">クリエイターのためのAI分析型ポートフォリオ</p>
         </div>
 
         {/* 新規登録フォーム */}
@@ -212,7 +211,7 @@ export default function RegisterPage() {
                   placeholder="あなたの名前またはニックネーム"
                   value={formData.displayName}
                   onChange={handleInputChange}
-                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white/60 backdrop-blur-sm focus:bg-white hover:bg-white/80 focus:shadow-lg focus:shadow-blue-200/20 ${errors.displayName ? 'border-red-300 focus:border-red-400' : 'border-blue-200/50 focus:border-blue-400 hover:border-blue-300/70'}`}
+                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white focus:bg-white focus:shadow-lg focus:shadow-gray-200/20 ${errors.displayName ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-gray-400 hover:border-gray-400'}`}
                   required
                 />
                 {errors.displayName && (
@@ -234,7 +233,7 @@ export default function RegisterPage() {
                   placeholder="your@email.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white/60 backdrop-blur-sm focus:bg-white hover:bg-white/80 focus:shadow-lg focus:shadow-blue-200/20 ${errors.email ? 'border-red-300 focus:border-red-400' : 'border-blue-200/50 focus:border-blue-400 hover:border-blue-300/70'}`}
+                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white focus:bg-white focus:shadow-lg focus:shadow-gray-200/20 ${errors.email ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-gray-400 hover:border-gray-400'}`}
                   required
                 />
                 {errors.email && (
@@ -256,7 +255,7 @@ export default function RegisterPage() {
                   placeholder="8文字以上のパスワード"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white/60 backdrop-blur-sm focus:bg-white hover:bg-white/80 focus:shadow-lg focus:shadow-blue-200/20 ${errors.password ? 'border-red-300 focus:border-red-400' : 'border-blue-200/50 focus:border-blue-400 hover:border-blue-300/70'}`}
+                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white focus:bg-white focus:shadow-lg focus:shadow-gray-200/20 ${errors.password ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-gray-400 hover:border-gray-400'}`}
                   required
                 />
                 {errors.password && (
@@ -278,7 +277,7 @@ export default function RegisterPage() {
                   placeholder="パスワードを再入力"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white/60 backdrop-blur-sm focus:bg-white hover:bg-white/80 focus:shadow-lg focus:shadow-blue-200/20 ${errors.confirmPassword ? 'border-red-300 focus:border-red-400' : 'border-blue-200/50 focus:border-blue-400 hover:border-blue-300/70'}`}
+                  className={`transition-all duration-300 border-2 rounded-2xl px-5 py-4 bg-white focus:bg-white focus:shadow-lg focus:shadow-gray-200/20 ${errors.confirmPassword ? 'border-red-300 focus:border-red-400' : 'border-gray-300 focus:border-gray-400 hover:border-gray-400'}`}
                   required
                 />
                 {errors.confirmPassword && (
@@ -293,14 +292,14 @@ export default function RegisterPage() {
               
               {/* 利用規約同意 */}
               <div className="space-y-4">
-                <div className="flex items-start space-x-3 p-5 rounded-2xl border-2 border-blue-100/50 bg-blue-50/30 hover:border-blue-200/60 hover:bg-blue-50/50 transition-all duration-300">
+                <div className="flex items-start space-x-3 p-5 rounded-2xl border-2 border-gray-200 bg-gray-50/30 hover:border-gray-300 hover:bg-gray-100/50 transition-all duration-300">
                   <input
                     id="agreeToTerms"
                     name="agreeToTerms"
                     type="checkbox"
                     checked={formData.agreeToTerms}
                     onChange={handleInputChange}
-                    className="w-5 h-5 rounded-lg border-2 border-blue-300 text-blue-500 focus:ring-blue-400 focus:border-blue-400 mt-0.5 transition-colors duration-200"
+                    className="w-5 h-5 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:border-blue-500 mt-0.5 transition-colors duration-200"
                     required
                   />
                   <Label htmlFor="agreeToTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
@@ -324,9 +323,9 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              <Button 
+              <Button
                 type="submit"
-                className="w-full h-14 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-300/30"
+                className="w-full h-14 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl"
                 disabled={isLoading}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -343,7 +342,7 @@ export default function RegisterPage() {
               {/* 区切り線 */}
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-blue-200/40" />
+                  <span className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="bg-white px-6 text-gray-500 font-medium">または</span>
@@ -356,7 +355,7 @@ export default function RegisterPage() {
                 variant="outline"
                 onClick={handleGoogleSignUp}
                 disabled={isLoading}
-                className="w-full h-14 border-2 border-blue-200/40 hover:border-blue-300/60 bg-white hover:bg-blue-50/30 text-gray-700 font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-200/20"
+                className="w-full h-14 border-2 border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" viewBox="0 0 24 24">

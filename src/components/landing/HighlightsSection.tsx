@@ -6,7 +6,7 @@ import { useStaggeredAnimation } from '@/hooks'
 const highlights = [
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500 transition-colors duration-300 group-hover:text-blue-600"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-white"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
     ),
     title: '瞬間的な価値の可視化',
     description:
@@ -14,7 +14,7 @@ const highlights = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500 transition-colors duration-300 group-hover:text-blue-600"><path d="M16 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8z"/><path d="M12 7h.01"/><path d="M12 11h.01"/><path d="M12 15h.01"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-white"><path d="M16 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8z"/><path d="M12 7h.01"/><path d="M12 11h.01"/><path d="M12 15h.01"/></svg>
     ),
     title: '自動生成のポートフォリオ',
     description:
@@ -22,7 +22,7 @@ const highlights = [
   },
   {
     icon: (
-       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500 transition-colors duration-300 group-hover:text-blue-600"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-white"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
     ),
     title: '成長を可視化するレポート',
     description:
@@ -34,13 +34,13 @@ export default function HighlightsSection() {
   const { ref, visibleItems } = useStaggeredAnimation(highlights.length, 250)
 
   return (
-    <section className="bg-slate-50 py-2 px-4 md:py-2">
+    <section className="bg-white py-20 px-4 md:py-28">
       <div className="container mx-auto max-w-5xl">
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-slate-800 md:text-5xl">
+          <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
             新しいクリエイター体験を、今すぐ
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
             証明する、繋がる、成長する。baluboは単なるツールではありません。
             <br className="hidden sm:block" />
             あなたのキャリアを加速させるパートナーです。
@@ -51,47 +51,40 @@ export default function HighlightsSection() {
           {highlights.map((item, idx) => (
             <div
               key={item.title}
-              className={`group relative cursor-pointer rounded-3xl border border-blue-200/30 bg-white/90 p-8 shadow-lg backdrop-blur-sm transition-all duration-700 ease-in-out hover:-translate-y-2 hover:border-blue-300/60 hover:shadow-xl hover:shadow-blue-500/10 ${
-                visibleItems.includes(idx) 
-                  ? 'opacity-100 translate-y-0 scale-100' 
+              className={`group relative cursor-pointer rounded-lg border border-gray-200 bg-white p-8 shadow-md transition-all duration-700 ease-in-out hover:shadow-lg ${
+                visibleItems.includes(idx)
+                  ? 'opacity-100 translate-y-0 scale-100'
                   : 'opacity-0 translate-y-8 scale-95'
               }`}
-              style={{ 
-                transitionDelay: `${idx * 250}ms` 
+              style={{
+                transitionDelay: `${idx * 250}ms`
               }}
             >
-              <div
-                className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                style={{
-                  background: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05), transparent 50%)',
-                }}
-              ></div>
-              
               <div className="relative z-10">
-                <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-200/40 bg-blue-50/60 transition-all duration-500 group-hover:bg-white shadow-sm ${
+                <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-gray-900 text-white transition-all duration-500 ${
                   visibleItems.includes(idx) ? 'scale-100 rotate-0' : 'scale-75 rotate-12'
                 }`}
-                  style={{ 
-                    transitionDelay: `${idx * 250 + 200}ms` 
+                  style={{
+                    transitionDelay: `${idx * 250 + 200}ms`
                   }}
                 >
                   {item.icon}
                 </div>
 
-                <h3 className={`mb-3 text-xl font-semibold text-slate-800 transition-all duration-500 group-hover:text-blue-700 ${
+                <h3 className={`mb-3 text-xl font-semibold text-gray-900 transition-all duration-500 ${
                   visibleItems.includes(idx) ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                 }`}
-                  style={{ 
-                    transitionDelay: `${idx * 250 + 300}ms` 
+                  style={{
+                    transitionDelay: `${idx * 250 + 300}ms`
                   }}
                 >
                   {item.title}
                 </h3>
-                <p className={`text-base leading-relaxed text-slate-600 transition-all duration-500 ${
+                <p className={`text-base leading-relaxed text-gray-600 transition-all duration-500 ${
                   visibleItems.includes(idx) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
-                  style={{ 
-                    transitionDelay: `${idx * 250 + 400}ms` 
+                  style={{
+                    transitionDelay: `${idx * 250 + 400}ms`
                   }}
                 >
                   {item.description}

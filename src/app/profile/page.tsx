@@ -551,9 +551,9 @@ function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <main className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-        <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50/30">
+      <main className="px-6 sm:px-8 lg:px-12 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto">
           {/* プロフィールヘッダー */}
           <ProfileHeader
             displayName={displayName}
@@ -575,7 +575,7 @@ function ProfileContent() {
                   strengths={strengthsAnalysis.strengths}
                   compact
                   variant="horizontal"
-                  className="mt-0"
+                  className="mt-4 animate-fade-in"
                   showDetails={true}
                   jobMatchingHints={strengthsAnalysis.jobMatchingHints}
                   works={savedWorks}
@@ -585,7 +585,8 @@ function ProfileContent() {
           />
 
           {/* タブコンテンツ */}
-          <ProfileTabs
+          <div className="mt-12">
+            <ProfileTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             profileData={profileData}
@@ -601,7 +602,8 @@ function ProfileContent() {
             setIsCareerModalOpen={setIsCareerModalOpen}
             onUpdateIntroduction={handleUpdateIntroduction}
             setIsIntroductionModalOpen={setIsIntroductionModalOpen}
-          />
+            />
+          </div>
            
           {/* モーダル群 */}
           <ProfileModals
