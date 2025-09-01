@@ -171,11 +171,11 @@ async function getPublicProfile(userId: string) {
     }
 
     // インプット機能は削除されているので、inputsは空配列を使用
-    const _inputs = []
-    const _inputsError = null
+    const _inputs: any[] = []
+    const _inputsError: any = null
 
     // インプット機能が削除されているので、inputAnalysisもnull
-    const _inputAnalysis = null
+    const _inputAnalysis: any = null
 
     const result = {
       profileExists: true,
