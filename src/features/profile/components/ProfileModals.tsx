@@ -10,37 +10,37 @@ import { CareerItem } from '../types'
 interface ProfileModalsProps {
   /* --- Skill --- */
   isSkillModalOpen: boolean
-  setIsSkillModalOpen: (open: boolean) => void
+  setIsSkillModalOpen: (_open: boolean) => void
   newSkill: string
-  setNewSkill: (value: string) => void
+  setNewSkill: (_value: string) => void
   onAddSkill: () => void
   isUpdatingSkills: boolean
   skillError: string | null
-  setSkillError: (err: string | null) => void
+  setSkillError: (_err: string | null) => void
   /* --- Introduction --- */
   isIntroductionModalOpen: boolean
-  setIsIntroductionModalOpen: (open: boolean) => void
+  setIsIntroductionModalOpen: (_open: boolean) => void
   currentIntroduction: string
-  setCurrentIntroduction: (value: string) => void
+  setCurrentIntroduction: (_value: string) => void
   isUpdatingIntroduction: boolean
-  onUpdateIntroduction: (intro: string) => void
+  onUpdateIntroduction: (_intro: string) => void
   /* --- Career add --- */
   isCareerModalOpen: boolean
-  setIsCareerModalOpen: (open: boolean) => void
+  setIsCareerModalOpen: (_open: boolean) => void
   newCareer: Partial<CareerItem>
-  setNewCareer: (career: Partial<CareerItem>) => void
+  setNewCareer: (_career: Partial<CareerItem>) => void
   onAddCareer: () => void
   /* --- Career edit --- */
   isEditCareerModalOpen: boolean
-  setIsEditCareerModalOpen: (open: boolean) => void
+  setIsEditCareerModalOpen: (_open: boolean) => void
   editingCareer: CareerItem | null
-  setEditingCareer: (career: CareerItem | null) => void
+  setEditingCareer: (_career: CareerItem | null) => void
   onUpdateCareer: () => void
   /* --- Career delete --- */
   isDeleteConfirmOpen: boolean
-  setIsDeleteConfirmOpen: (open: boolean) => void
+  setIsDeleteConfirmOpen: (_open: boolean) => void
   deletingCareerId: string | null
-  setDeletingCareerId: (id: string | null) => void
+  setDeletingCareerId: (_id: string | null) => void
   onDeleteCareer: () => void
   isUpdatingCareer: boolean
 }

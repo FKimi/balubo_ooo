@@ -31,7 +31,7 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
     userId
   })
   
-  const { profile, works, inputs, inputAnalysis } = data
+  const { profile, works, inputs, inputAnalysis: _inputAnalysis } = data
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'details'>('profile')
 
   // 強みカード生成 (詳細分析)

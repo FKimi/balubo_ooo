@@ -233,7 +233,7 @@ export class InputAnalysisEnhancer {
   /**
    * 興味分野の推定
    */
-  private static inferInterests(input: InputData, aiAnalysis?: any, externalData?: any): string[] {
+  private static inferInterests(input: InputData, aiAnalysis?: any, _externalData?: any): string[] {
     const interests = new Set<string>()
     
     // タグから興味を推定

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ShareProfileButton } from './ShareProfileButton'
 import { FollowStats } from '@/features/follow/components/FollowStats'
@@ -31,9 +32,9 @@ export function ProfileHeader({
   websiteUrl,
   backgroundImageUrl,
   avatarImageUrl,
-  isProfileEmpty,
-  hasCustomBackground,
-  hasCustomAvatar,
+  isProfileEmpty: _isProfileEmpty,
+  hasCustomBackground: _hasCustomBackground,
+  hasCustomAvatar: _hasCustomAvatar,
   userId,
   slug,
   portfolioVisibility,
@@ -65,10 +66,11 @@ export function ProfileHeader({
             style={{ minHeight: '200px' }}
           >
             {resolvedBgUrl ? (
-              <img 
+              <Image 
                 src={resolvedBgUrl} 
                 alt="プロフィール背景" 
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                className="object-cover"
                 style={{ 
                   display: 'block',
                   width: '100%',
@@ -96,10 +98,11 @@ export function ProfileHeader({
                     style={{ minWidth: '128px', minHeight: '128px' }}
                   >
                     {resolvedAvatarUrl ? (
-                      <img
+                      <Image
                         src={resolvedAvatarUrl}
                         alt="プロフィール画像"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     ) : (
                       <span className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-gray-400">

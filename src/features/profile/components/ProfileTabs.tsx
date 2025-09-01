@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TabNavigation } from '@/components/ui/TabNavigation'
+import Image from 'next/image'
 
 import type { WorkData } from '@/features/work/types'
 import type { ProfileData, CareerItem } from '@/features/profile/types'
@@ -396,16 +397,18 @@ export function ProfileTabs({
                               <a href={`/works/${work.id}`} className="block">
                                 <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                                   {work.banner_image_url ? (
-                                    <img 
+                                    <Image 
                                       src={work.banner_image_url} 
                                       alt={work.title} 
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      fill
+                                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
                                   ) : work.preview_data?.image ? (
-                                    <img 
+                                    <Image 
                                       src={work.preview_data.image} 
                                       alt={work.title} 
-                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      fill
+                                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center">

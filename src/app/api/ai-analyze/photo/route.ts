@@ -14,7 +14,7 @@ export async function POST(body: any) {
       description,
       title,
       url,
-      fullContent,
+      fullContent: _fullContent,
       productionNotes,
       uploadedFiles,
       fileCount,

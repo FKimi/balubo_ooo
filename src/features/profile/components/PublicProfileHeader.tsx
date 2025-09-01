@@ -4,6 +4,7 @@
 import FollowButton from '@/features/follow/components/FollowButton'
 import MessageButton from './MessageButton'
 import { FollowStats } from '@/features/follow/components/FollowStats'
+import Image from 'next/image'
 
 interface PublicProfileHeaderProps {
   userId: string
@@ -57,10 +58,11 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
             style={{ minHeight: '200px' }}
           >
             {resolvedBgUrl ? (
-              <img 
+              <Image 
                 src={resolvedBgUrl} 
                 alt="プロフィール背景" 
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                className="object-cover"
                 style={{ 
                   display: 'block',
                   width: '100%',
@@ -88,10 +90,11 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
                     style={{ minWidth: '112px', minHeight: '112px' }}
                   >
                     {resolvedAvatarUrl ? (
-                      <img
+                      <Image
                         src={resolvedAvatarUrl}
                         alt="プロフィール画像"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     ) : (
                       <span className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-gray-400">

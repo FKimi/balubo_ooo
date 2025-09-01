@@ -210,7 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('[AuthContext] Googleサインイン開始')
     
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { data: _data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,

@@ -1687,10 +1687,12 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
                   {uploadedFiles.filter(f => f.type.startsWith('image/')).length > 0 && (
                     <div className="mt-6 flex flex-wrap justify-center gap-4">
                       {uploadedFiles.filter(f => f.type.startsWith('image/')).map((file, idx) => (
-                        <img
+                        <Image
                           key={idx}
                           src={URL.createObjectURL(file)}
                           alt={file.name}
+                          width={192}
+                          height={192}
                           className="w-48 h-48 object-cover rounded-lg shadow"
                         />
                       ))}

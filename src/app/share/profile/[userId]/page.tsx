@@ -2,8 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from './public-profile-content'
-import { calculateInputTopTags, calculateGenreDistribution } from '@/features/profile/lib/profileUtils'
-import { InputData } from '@/types/input'
+import Link from 'next/link'
 
 async function getPublicProfile(userId: string) {
   console.log('公開プロフィール取得開始:', userId)
@@ -36,7 +35,7 @@ async function getPublicProfile(userId: string) {
 
   // Supabase接続テスト
   try {
-    const { data: testData, error: testError } = await supabase
+    const { data: _testData, error: testError } = await supabase
       .from('profiles')
       .select('count')
       .limit(1)
@@ -172,11 +171,11 @@ async function getPublicProfile(userId: string) {
     }
 
     // インプット機能は削除されているので、inputsは空配列を使用
-    const inputs = []
-    const inputsError = null
+    const _inputs = []
+    const _inputsError = null
 
     // インプット機能が削除されているので、inputAnalysisもnull
-    const inputAnalysis = null
+    const _inputAnalysis = null
 
     const result = {
       profileExists: true,
