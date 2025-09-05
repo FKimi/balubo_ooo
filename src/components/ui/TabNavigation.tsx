@@ -6,6 +6,7 @@ export interface TabConfig {
   key: string
   label: string
   count?: number
+  icon?: React.ReactNode
 }
 
 interface TabNavigationProps {
@@ -17,25 +18,48 @@ interface TabNavigationProps {
 
 export function TabNavigation({ tabs, activeTab, onTabChange, className = '' }: TabNavigationProps) {
   return (
-    <div className={`flex space-x-2 bg-gray-100 p-2 rounded-xl ${className}`}>
-      {tabs.map((tab) => (
+    <div className={`flex justify-center ${className}`}>
+      <div className="flex relative">
+        {tabs.map((tab) => (
         <button
           key={tab.key}
           onClick={() => onTabChange(tab.key)}
-          className={`flex-1 py-3 px-6 rounded-lg text-base font-semibold transition-all duration-200 ${
+          className={`relative flex items-center gap-3 px-6 py-4 text-sm font-semibold transition-all duration-200 ease-out ${
             activeTab === tab.key
-              ? 'bg-white text-gray-900 shadow-md border border-gray-200'
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              ? 'text-[#1976D2] bg-white/80'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
           }`}
         >
-          {tab.label}
+          {/* アイコン */}
+          {tab.icon && (
+            <div className={`w-4 h-4 transition-colors duration-200 ${
+              activeTab === tab.key ? 'text-[#1976D2]' : 'text-slate-400'
+            }`}>
+              {tab.icon}
+            </div>
+          )}
+          
+          {/* ラベル */}
+          <span className="whitespace-nowrap tracking-wide">{tab.label}</span>
+          
+          {/* カウント */}
           {tab.count !== undefined && (
-            <span className="ml-1 text-sm opacity-75">
-              ({tab.count})
+            <span className={`ml-2 px-2.5 py-1 text-xs font-medium rounded-full transition-colors duration-200 ${
+              activeTab === tab.key
+                ? 'bg-slate-100 text-slate-700'
+                : 'bg-slate-50 text-slate-500'
+            }`}>
+              {tab.count}
             </span>
           )}
+          
+          {/* アクティブ時の下線 - より洗練されたデザイン */}
+          {activeTab === tab.key && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1976D2]"></div>
+          )}
         </button>
-      ))}
+        ))}
+      </div>
     </div>
   )
 } 

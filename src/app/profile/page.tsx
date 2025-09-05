@@ -8,7 +8,6 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { ProfileData, CareerItem } from '@/features/profile/types'
 import type { InputData, InputAnalysis } from '@/types/input'
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
-import { AIAnalysisStrengths } from '@/features/profile/components/AIAnalysisStrengths'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
 import { ProfileModals } from '@/features/profile/components/ProfileModals'
 import { analyzeStrengthsFromWorks } from '@/features/profile/lib/profileUtils'
@@ -36,7 +35,7 @@ const completeDefaultProfileData: ProfileData = {
 
 function ProfileLoadingFallback() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-blue-50/20 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-600">プロフィールを読み込んでいます...</p>
@@ -51,6 +50,16 @@ function ProfileContent() {
   const searchParams = useSearchParams()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('works')
+  const [tabsInfo, setTabsInfo] = useState<{
+    tabs: Array<{
+      key: string
+      label: string
+      icon?: React.ReactNode
+      count?: number
+    }>
+    activeTab: string
+    onTabChange: (_tab: string) => void
+  } | null>(null)
   
   // スキル管理用のstate
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
@@ -551,9 +560,10 @@ function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
-      <main className="px-6 sm:px-8 lg:px-12 py-8 sm:py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#1976D2]/5 via-white to-[#1976D2]/3 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1976D2]/8 via-transparent to-transparent"></div>
+      <main className="relative px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+        <div className="max-w-7xl mx-auto space-y-16">
           {/* プロフィールヘッダー */}
           <ProfileHeader
             displayName={displayName}
@@ -569,23 +579,13 @@ function ProfileContent() {
             userId={user?.id}
             slug={slug}
             portfolioVisibility={profileData?.portfolioVisibility}
-            rightSlot={
-              <div className="w-full">
-                <AIAnalysisStrengths
-                  strengths={strengthsAnalysis.strengths}
-                  compact
-                  variant="horizontal"
-                  className="mt-4 animate-fade-in"
-                  showDetails={true}
-                  jobMatchingHints={strengthsAnalysis.jobMatchingHints}
-                  works={savedWorks}
-                />
-              </div>
-            }
+            tabs={tabsInfo?.tabs}
+            activeTab={tabsInfo?.activeTab}
+            onTabChange={tabsInfo?.onTabChange}
           />
 
           {/* タブコンテンツ */}
-          <div className="mt-12">
+          <div className="mt-0">
             <ProfileTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -602,6 +602,8 @@ function ProfileContent() {
             setIsCareerModalOpen={setIsCareerModalOpen}
             onUpdateIntroduction={handleUpdateIntroduction}
             setIsIntroductionModalOpen={setIsIntroductionModalOpen}
+            strengthsAnalysis={strengthsAnalysis}
+            getTabsInfo={setTabsInfo}
             />
           </div>
            

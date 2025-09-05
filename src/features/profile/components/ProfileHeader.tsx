@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ShareProfileButton } from './ShareProfileButton'
 import { FollowStats } from '@/features/follow/components/FollowStats'
+import { TabNavigation } from '@/components/ui/TabNavigation'
 import React from 'react'
 
 interface ProfileHeaderProps {
@@ -22,6 +23,15 @@ interface ProfileHeaderProps {
   slug?: string
   portfolioVisibility?: string
   rightSlot?: React.ReactNode
+  // タブ関連
+  tabs?: Array<{
+    key: string
+    label: string
+    icon?: React.ReactNode
+    count?: number
+  }> | undefined
+  activeTab?: string | undefined
+  onTabChange?: ((_tab: string) => void) | undefined
 }
 
 export function ProfileHeader({
@@ -38,7 +48,10 @@ export function ProfileHeader({
   userId,
   slug,
   portfolioVisibility,
-  rightSlot
+  rightSlot: _rightSlot,
+  tabs,
+  activeTab,
+  onTabChange
 }: ProfileHeaderProps) {
   // Supabaseストレージの相対パスの場合はフルURLを付与、既にフルURLの場合はそのまま使用
   const resolvedBgUrl = backgroundImageUrl && backgroundImageUrl.trim()
@@ -56,44 +69,46 @@ export function ProfileHeader({
 
 
   return (
-    <div className="mb-12">
-      {/* メインカード */}
-      <div className="relative max-w-7xl mx-auto">
-        {/* 背景画像 - フルブリード */}
-        <div
-          className="relative h-48 sm:h-64 md:h-72 lg:h-80 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden shadow-elegant"
-          style={{ minHeight: '200px' }}
-        >
-          {resolvedBgUrl ? (
-            <Image 
-              src={resolvedBgUrl} 
-              alt="プロフィール背景" 
-              fill
-              className="object-cover"
-              style={{ 
-                display: 'block',
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200" />
-          )}
-          {/* 洗練されたオーバーレイ */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-          {/* 洗練されたセパレーター */}
-          <div className="absolute inset-x-0 bottom-0 h-px bg-white/20 backdrop-blur-sm" />
-        </div>
-        
-        {/* プロフィール情報コンテナ - 背景画像に重ねて表示 */}
-        <div className="relative px-6 sm:px-8 lg:px-12">
-          {/* プロフィール画像を背景画像に重ねる */}
-          <div className="relative -mt-16 sm:-mt-20 md:-mt-24 lg:-mt-28">
-            <div className="flex items-end gap-6">
+    <div className="mb-8 -mt-4">
+      {/* 背景画像 - フルブリード */}
+      <div
+        className="relative h-48 sm:h-64 md:h-72 lg:h-80 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden shadow-elegant"
+        style={{ minHeight: '200px' }}
+      >
+        {resolvedBgUrl ? (
+          <Image 
+            src={resolvedBgUrl} 
+            alt="プロフィール背景" 
+            fill
+            className="object-cover"
+            style={{ 
+              display: 'block',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-white" />
+        )}
+        {/* 洗練されたオーバーレイ */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+        {/* 洗練されたセパレーター */}
+        <div className="absolute inset-x-0 bottom-0 h-px bg-white/20 backdrop-blur-sm" />
+      </div>
+      
+      {/* プロフィール情報コンテナ - 背景画像の下から線で囲む */}
+      <div className="relative">
+        {/* 背景画像の下から線で囲むコンテナ */}
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg -mt-8 relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative">
+          {/* プロフィール画像を背景画像に重ねる - ユートラスト風レイアウト */}
+          <div className="relative -mt-32 sm:-mt-36 md:-mt-40 lg:-mt-44">
+            <div className="flex items-end gap-4 sm:gap-6">
               <div
-                className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-2xl overflow-hidden border-4 border-white shadow-elegant-xl bg-white"
-                style={{ minWidth: '128px', minHeight: '128px' }}
+                className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border-4 border-white shadow-elegant-xl bg-white flex-shrink-0"
+                style={{ minWidth: '144px', minHeight: '144px' }}
               >
                 {resolvedAvatarUrl ? (
                   <Image
@@ -103,25 +118,25 @@ export function ProfileHeader({
                     className="object-cover"
                   />
                 ) : (
-                  <span className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-gray-400">
+                  <span className="absolute inset-0 flex items-center justify-center text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-400">
                     {displayName ? displayName.charAt(0) : 'N'}
                   </span>
                 )}
               </div>
-              <div className="pb-3">
-                <h1 className="text-3xl font-bold text-gray-900 leading-tight">{displayName || 'ユーザー'}</h1>
-                {title && <p className="text-lg text-gray-600 mt-1 font-medium">{title}</p>}
+              <div className="pb-2 sm:pb-3 flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight truncate">{displayName || 'ユーザー'}</h1>
+                {title && <p className="text-sm sm:text-base lg:text-lg text-gray-600 mt-1 font-medium truncate">{title}</p>}
               </div>
             </div>
           </div>
 
-          {/* プロフィール情報カード */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 sm:p-8 mt-6">
+          {/* プロフィール情報カード - ユートラスト風のレイアウト */}
+          <div className="pt-6 pb-8">
             {bio && (
               <p className="text-base text-gray-700 leading-relaxed mb-6">{bio}</p>
             )}
 
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 mb-6">
               {userId && <FollowStats userId={userId} />}
               {location && (
                 <div className="flex items-center gap-1">
@@ -139,7 +154,7 @@ export function ProfileHeader({
               )}
             </div>
 
-            <div className="mt-8 flex items-center gap-4">
+            <div className="flex items-center gap-4">
               {portfolioVisibility === 'public' && userId && (
                 <ShareProfileButton userId={userId} slug={slug} displayName={displayName} />
               )}
@@ -151,12 +166,19 @@ export function ProfileHeader({
             </div>
           </div>
 
-          {/* 右カラム：アクションボタン */}
-          {rightSlot && (
-            <div className="mt-6 md:mt-0">
-              {rightSlot}
+          {/* タブナビゲーション - プロフィールカードに統合 */}
+          {tabs && tabs.length > 0 && activeTab && onTabChange && (
+            <div className="border-t border-gray-200 bg-gray-50/50 px-4 sm:px-6 lg:px-8 pb-2 rounded-b-2xl">
+              <TabNavigation
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                className="bg-transparent border-0"
+              />
             </div>
           )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

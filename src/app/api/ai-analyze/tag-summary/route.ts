@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
-const CACHE_VERSION = 'v4'
+const CACHE_VERSION = 'v5'
 
 // Service Role Key を使用した Supabase クライアント
 const supabaseAdmin = createClient(
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       .map((t: { name: string; count: number }) => `${t.name}: ${t.count}件`)
       .join('\n')
 
-    const prompt = `あなたはクリエイターの強みを見抜くキャリアアドバイザーです。以下のタグ一覧から作品傾向を分析し、クライアントに魅力が伝わる紹介文を500字以内で日本語で生成してください。\n\n要件:\n1. 改行せずに1段落で書く。\n2. タグの具体キーワード列挙は最大3個まで。\n3. 「技術力」「創造性」「専門性」「影響力」を意識した描写を含める。\n4. 親しみやすくプロフェッショナルなトーン。\n5. 名前や「Aさん」「このクリエイター」といった呼称を使わず、作品特徴の描写から書き始める。\n6. 見出しやラベルは書かない。\n\nタグ一覧:\n${tagList}`;
+    const prompt = `あなたはクリエイターの強みを見抜くキャリアアドバイザーです。以下のタグ一覧から作品傾向を分析し、クライアントに魅力が伝わる紹介文を300字以内で日本語で生成してください。\n\n【重要】絶対に守るべきルール:\n1. 必ず句点（。）で文章を終える\n2. 文章の途中で切れないよう、必ず最後まで書き終える\n3. 300字以内で完結した文章にする\n4. 改行せずに1段落で書く\n5. 作品の特徴を具体的かつ魅力的に描写する\n6. 技術力・創造性・専門性・影響力をバランスよく織り交ぜる\n7. 親しみやすくプロフェッショナルなトーンを保つ\n8. 名前や「Aさん」「このクリエイター」といった呼称を使わず、作品特徴の描写から自然に始める\n9. 読者が「このクリエイターと仕事をしてみたい」と思えるような表現を心がける\n10. 文字数制限に近づいたら適切に文章を終わらせる\n\nタグ一覧:\n${tagList}`;
 
     // Gemini へリクエスト
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
@@ -67,8 +67,9 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.5,
-          maxOutputTokens: 256
+          temperature: 0.2,
+          maxOutputTokens: 300,
+          stopSequences: []
         }
       })
     })
@@ -84,8 +85,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No summary generated' }, { status: 500 })
     }
 
-    // 文字数制限（500字以内）
-    const finalSummary = summaryText.trim().slice(0, 500)
+    // 文字数制限（300字以内）と文章の完結性を確保
+    let finalSummary = summaryText.trim()
+    
+    // 300字を超える場合は、最後の句点（。）で区切って完結させる
+    if (finalSummary.length > 300) {
+      const truncated = finalSummary.slice(0, 300)
+      const lastPeriodIndex = truncated.lastIndexOf('。')
+      if (lastPeriodIndex > 150) { // 150字以上ある場合は句点で区切る
+        finalSummary = truncated.slice(0, lastPeriodIndex + 1)
+      } else {
+        // 句点がない場合は、最後に句点を追加
+        finalSummary = truncated + '。'
+      }
+    }
+    
+    // 最後に句点がない場合は追加
+    if (!finalSummary.endsWith('。') && !finalSummary.endsWith('！') && !finalSummary.endsWith('？')) {
+      finalSummary = finalSummary + '。'
+    }
 
     // 2. キャッシュ保存
     await supabaseAdmin.from('tag_summaries').upsert({

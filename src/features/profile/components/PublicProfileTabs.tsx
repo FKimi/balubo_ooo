@@ -10,7 +10,6 @@ import { PublicWorksCategoryManager } from '@/features/work/components/PublicWor
 import { RolePieChart } from './RolePieChart'
 import { calculateTopTags } from '@/features/profile/lib/profileUtils'
 import { EmptyState } from '@/components/common'
-import { CreatorIntroCard } from './CreatorIntroCard'
 import { useTagStatistics } from '@/hooks/useTagStatistics'
 
 interface PublicProfileTabsProps {
@@ -198,9 +197,6 @@ export function PublicProfileTabs({
 
         {activeTab === 'details' && (
           <div className="space-y-8">
-            {profile && (
-              <CreatorIntroCard tags={topTags} />
-            )}
 
             <Card>
               <CardContent className="p-6">
