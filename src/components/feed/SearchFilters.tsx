@@ -46,7 +46,7 @@ export function SearchFilters({
             <input
               type="text"
               placeholder="作品を検索..."
-              value={searchQuery}
+              value={_searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
