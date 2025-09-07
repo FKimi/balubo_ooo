@@ -50,7 +50,7 @@ interface DiscoverySectionProps {
   onWorkClick?: (work: FeaturedWork) => void
 }
 
-export const DiscoverySection = ({ onTagClick, onWorkClick }: DiscoverySectionProps) => {
+export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWorkClick }: DiscoverySectionProps) => {
   const [data, setData] = useState<DiscoveryData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

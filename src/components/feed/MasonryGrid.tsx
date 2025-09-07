@@ -26,7 +26,7 @@ export function MasonryGrid({
   gap = 24 
 }: MasonryGridProps) {
   const gridRef = useRef<HTMLDivElement>(null)
-  const [columnCount, setColumnCount] = useState(columns.default)
+  const [_columnCount, setColumnCount] = useState(columns.default)
 
   useEffect(() => {
     const updateLayout = () => {
@@ -47,7 +47,7 @@ export function MasonryGrid({
       const items = grid.children
       const columnHeights = new Array(cols).fill(0)
 
-      Array.from(items).forEach((item, index) => {
+      Array.from(items).forEach((item, _index) => {
         const element = item as HTMLElement
         const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights))
         

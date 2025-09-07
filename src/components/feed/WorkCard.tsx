@@ -41,9 +41,9 @@ interface WorkCardProps {
 }
 
 export function WorkCard({ 
-  work, 
+  work: _work, 
   currentUser, 
-  isAuthenticated, 
+  isAuthenticated: _isAuthenticated, 
   onLike, 
   onShare, 
   onOpenComments 

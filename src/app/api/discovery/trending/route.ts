@@ -98,14 +98,14 @@ export async function GET(request: NextRequest) {
           }
 
           // いいね数（フィードAPIと同じ方法）
-          const { count: likesCount, error: likesError } = await supabase
+          const { count: likesCount, error: _likesError } = await supabase
             .from('likes')
             .select('*', { count: 'exact', head: true })
             .eq('target_id', work.id)
             .eq('target_type', 'work')
 
           // コメント数（フィードAPIと同じ方法）
-          const { count: commentsCount, error: commentsError } = await supabase
+          const { count: commentsCount, error: _commentsError } = await supabase
             .from('comments')
             .select('*', { count: 'exact', head: true })
             .eq('target_id', work.id)

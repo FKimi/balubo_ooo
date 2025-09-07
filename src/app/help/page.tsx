@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { MobileBottomNavigation } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
@@ -17,7 +16,6 @@ import {
   MessageCircle,
   Share2,
   Search,
-  Filter,
   Settings,
   Eye,
   FileText,

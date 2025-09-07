@@ -34,7 +34,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
   
 
   // メモ化された検索パラメータ
-  const searchParams = useMemo(() => ({
+  const _searchParams = useMemo(() => ({
     currentUserId,
     isAuthenticated
   }), [currentUserId, isAuthenticated])

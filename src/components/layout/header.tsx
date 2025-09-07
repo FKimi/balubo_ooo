@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 export function Header() {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const { openContentTypeSelector } = useLayout()
-  const router = useRouter()
+  const _router = useRouter()
   const { user, signOut } = useAuth()
   const { profile } = useProfile()
   const pathname = usePathname()

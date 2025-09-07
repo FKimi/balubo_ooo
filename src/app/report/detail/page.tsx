@@ -213,7 +213,7 @@ function DetailedReportContent() {
             <CardContent className="p-4">
               <div className="text-center text-xs text-gray-500">
                 <p>
-                  Generated from {displayName}'s portfolio data • {new Date().toLocaleDateString('ja-JP')}
+                  Generated from {displayName}&apos;s portfolio data • {new Date().toLocaleDateString('ja-JP')}
                 </p>
               </div>
             </CardContent>

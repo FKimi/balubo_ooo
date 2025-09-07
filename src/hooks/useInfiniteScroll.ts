@@ -13,7 +13,7 @@ export function useInfiniteScroll({
   hasMore,
   isLoading,
   onLoadMore,
-  threshold = 300, // スクロールが底から300px以内になったらロード
+  threshold: _threshold = 300, // スクロールが底から300px以内になったらロード
 }: UseInfiniteScrollOptions) {
   const [isFetching, setIsFetching] = useState(false)
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -104,9 +104,9 @@ function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: any, ..._args: Parameters<T>) {
     if (!inThrottle) {
-      func.apply(this, args)
+      func.apply(this, _args)
       inThrottle = true
       setTimeout(() => (inThrottle = false), limit)
     }

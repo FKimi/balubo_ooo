@@ -226,7 +226,7 @@ export default function FeedPage() {
         feedMode,
       })
     }
-  }, [isAuthenticated, feedMode, fetchFeedData])
+  }, [isAuthenticated, feedMode, fetchFeedData, filterTag, filterType, searchQuery])
 
   // 無限スクロール
   const loadMore = useCallback(() => {

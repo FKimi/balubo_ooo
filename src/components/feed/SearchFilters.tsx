@@ -17,11 +17,11 @@ interface SearchFiltersProps {
 }
 
 export function SearchFilters({
-  searchQuery,
+  searchQuery: _searchQuery,
   onSearchChange,
-  filterType,
+  filterType: _filterType,
   onFilterTypeChange,
-  filterTag,
+  filterTag: _filterTag,
   onFilterTagChange,
   popularTags,
   onApplyFilters,

@@ -81,7 +81,7 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
       startup: ['スタートアップ', 'ベンチャー', 'startup', '新規']
     }
 
-    const experiencedIndustries = Object.entries(industryKeywords).filter(([industry, keywords]) => 
+    const experiencedIndustries = Object.entries(industryKeywords).filter(([_industry, keywords]) => 
       keywords.some(keyword => allDescription.toLowerCase().includes(keyword))
     ).map(([industry]) => industry)
 
@@ -269,14 +269,14 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
 
   const analysis = analyzeMatching()
 
-  const getCompatibilityColor = (score: number): string => {
+  const _getCompatibilityColor = (score: number): string => {
     if (score >= 90) return 'bg-green-500'
     if (score >= 80) return 'bg-blue-500'
     if (score >= 70) return 'bg-yellow-500'
     return 'bg-gray-500'
   }
 
-  const getCompatibilityBgColor = (score: number): string => {
+  const _getCompatibilityBgColor = (score: number): string => {
     if (score >= 90) return 'bg-green-50 border-green-200'
     if (score >= 80) return 'bg-blue-50 border-blue-200'
     if (score >= 70) return 'bg-yellow-50 border-yellow-200'

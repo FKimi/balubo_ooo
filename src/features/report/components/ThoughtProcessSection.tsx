@@ -179,7 +179,7 @@ export function ThoughtProcessSection({ works }: ThoughtProcessProps) {
 
     // 主要な思考特性を判定
     let primaryType = ''
-    let secondaryTraits: string[] = []
+    const secondaryTraits: string[] = []
 
     if (systematicCount > creativeCount && systematicCount > detailCount) {
       primaryType = '論理的思考型'
