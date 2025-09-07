@@ -195,7 +195,7 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
                   <Card 
                     key={work.id} 
                     className="flex-shrink-0 w-80 hover:shadow-lg transition-all duration-300 cursor-pointer group border border-gray-200 hover:border-[#5570F3]/30"
-                    onClick={() => onWorkClick?.(work)}
+                    onClick={() => _onWorkClick?.(work)}
                   >
                     <CardContent className="p-0">
                       {/* 画像とランキングバッジ */}
