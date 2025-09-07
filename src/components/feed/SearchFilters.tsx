@@ -34,7 +34,7 @@ export function SearchFilters({
     onApplyFilters()
   }
 
-  const hasActiveFilters = searchQuery || filterType !== 'all' || filterTag
+  const hasActiveFilters = _searchQuery || _filterType !== 'all' || _filterTag
 
   return (
     <div className="bg-white border-b border-gray-200 sticky top-[73px] z-20">
