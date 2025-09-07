@@ -99,7 +99,7 @@ export function useScrollInfiniteLoad({
 }
 
 // スロットリング関数
-function throttle<T extends (...args: any[]) => any>(
+function throttle<T extends (..._args: any[]) => any>(
   func: T,
   limit: number
 ): (..._args: Parameters<T>) => void {

@@ -67,8 +67,8 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
     const descriptions = works.map(work => work.description || '').filter(Boolean)
     const allDescription = descriptions.join(' ')
     const avgDescLength = descriptions.length > 0 ? allDescription.length / descriptions.length : 0
-    const technologies = works.flatMap(work => work.design_tools || []).filter(Boolean)
-    const uniqueTechnologies = new Set(technologies.map(tech => tech.toLowerCase()))
+    const designTools = works.flatMap(work => work.design_tools || []).filter(Boolean)
+    const uniqueTechnologies = new Set(designTools.map(tech => tech.toLowerCase()))
 
     // 業界キーワード分析
     const industryKeywords = {
@@ -99,7 +99,7 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
     const brandingTypes = ['branding', 'ブランド', 'identity', 'ci', 'vi']
 
     if (workTypes.some(type => webTypes.some(web => type.includes(web)))) {
-      const compatibility = 88 + (technologies.filter(tech => 
+      const compatibility = 88 + (designTools.filter(tech => 
         ['react', 'vue', 'next', 'typescript'].includes(tech.toLowerCase())
       ).length * 2)
       
@@ -113,7 +113,7 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
     }
 
     if (workTypes.some(type => uiTypes.some(ui => type.includes(ui)))) {
-      const hasModernTech = technologies.filter(tech => 
+      const hasModernTech = designTools.filter(tech => 
         ['figma', 'sketch', 'adobe xd', 'react', 'vue'].includes(tech.toLowerCase())
       ).length > 0
       
@@ -247,7 +247,7 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
     // 推奨スキル（不足分野の提案）
     analysis.recommendedSkills = []
 
-    if (!technologies.some(tech => ['figma', 'sketch', 'adobe xd'].includes(tech.toLowerCase()))) {
+    if (!designTools.some(tech => ['figma', 'sketch', 'adobe xd'].includes(tech.toLowerCase()))) {
       analysis.recommendedSkills.push('最新デザインツールの習得（Figma等）')
     }
     if (!workTypes.some(type => uiTypes.some(ui => type.includes(ui)))) {

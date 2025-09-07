@@ -120,12 +120,12 @@ export function TasteAnalysisSection({ works }: TasteAnalysisProps) {
     const classicTech = ['jquery', 'php', 'html', 'css']
     
     const modernTechCount = works.filter(work => {
-      const tech = (work.technologies || []).join(' ').toLowerCase()
+      const tech = (work.design_tools || []).join(' ').toLowerCase()
       return modernTech.some(modern => tech.includes(modern))
     }).length
     
     const classicTechCount = works.filter(work => {
-      const tech = (work.technologies || []).join(' ').toLowerCase()
+      const tech = (work.design_tools || []).join(' ').toLowerCase()
       return classicTech.some(classic => tech.includes(classic))
     }).length
 
