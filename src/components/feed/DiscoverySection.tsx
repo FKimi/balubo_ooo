@@ -319,7 +319,7 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
                     key={tagItem.tag}
                     variant="ghost"
                     size="sm"
-                    onClick={() => onTagClick?.(tagItem.tag)}
+                    onClick={() => _onTagClick?.(tagItem.tag)}
                     className={`rounded-full px-4 py-2 transition-all duration-200 ${
                       index < 3 
                         ? 'bg-[#5570F3]/10 text-[#5570F3] hover:bg-[#5570F3]/20 border border-[#5570F3]/20' 
