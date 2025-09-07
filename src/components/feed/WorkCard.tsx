@@ -54,15 +54,15 @@ export function WorkCard({
 
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (currentUser && work.user.id === currentUser.id) {
+    if (currentUser && _work.user.id === currentUser.id) {
       router.push('/profile')
     } else {
-      router.push(`/share/profile/${work.user.id}`)
+      router.push(`/share/profile/${_work.user.id}`)
     }
   }
 
   const handleWorkClick = () => {
-    router.push(`/works/${work.id}`)
+    router.push(`/works/${_work.id}`)
   }
 
   const formatTimeAgo = (dateString: string) => {
@@ -85,11 +85,11 @@ export function WorkCard({
         className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden"
         onClick={handleWorkClick}
       >
-        {work.banner_image_url && !imageError ? (
+        {_work.banner_image_url && !imageError ? (
           <>
             <Image
-              src={work.banner_image_url}
-              alt={work.title}
+              src={_work.banner_image_url}
+              alt={_work.title}
               fill
               className={`object-cover transition-all duration-500 group-hover:scale-105 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -108,7 +108,7 @@ export function WorkCard({
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 mx-auto">
                 <span className="text-2xl">🎨</span>
               </div>
-              <p className="text-sm font-medium">{work.title}</p>
+              <p className="text-sm font-medium">{_work.title}</p>
             </div>
           </div>
         )}
@@ -123,19 +123,19 @@ export function WorkCard({
                 className="bg-white bg-opacity-90 hover:bg-white rounded-full shadow-lg"
                 onClick={(e) => {
                   e.stopPropagation()
-                  onShare(work)
+                  onShare(_work)
                 }}
               >
                 <Share className="h-4 w-4 text-gray-700" />
               </Button>
-              {work.external_url && (
+              {_work.external_url && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="bg-white bg-opacity-90 hover:bg-white rounded-full shadow-lg"
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.open(work.external_url, '_blank')
+                    window.open(_work.external_url, '_blank')
                   }}
                 >
                   <ExternalLink className="h-4 w-4 text-gray-700" />
@@ -158,10 +158,10 @@ export function WorkCard({
         </div>
 
         {/* タグ表示（左下） */}
-        {work.tags && work.tags.length > 0 && (
+        {_work.tags && _work.tags.length > 0 && (
           <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
             <div className="flex flex-wrap gap-1">
-              {work.tags.slice(0, 2).map((tag, index) => (
+              {_work.tags.slice(0, 2).map((tag, index) => (
                 <span
                   key={index}
                   className="bg-white bg-opacity-90 text-gray-700 text-xs px-2 py-1 rounded-full"
@@ -169,9 +169,9 @@ export function WorkCard({
                   #{tag}
                 </span>
               ))}
-              {work.tags.length > 2 && (
+              {_work.tags.length > 2 && (
                 <span className="bg-white bg-opacity-90 text-gray-700 text-xs px-2 py-1 rounded-full">
-                  +{work.tags.length - 2}
+                  +{_work.tags.length - 2}
                 </span>
               )}
             </div>
@@ -186,20 +186,20 @@ export function WorkCard({
           className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
           onClick={handleWorkClick}
         >
-          {work.title}
+          {_work.title}
         </h3>
 
         {/* 作品の説明 */}
-        {work.description && (
+        {_work.description && (
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {work.description}
+            {_work.description}
           </p>
         )}
 
         {/* 役割 */}
-        {work.roles && work.roles.length > 0 && (
+        {_work.roles && _work.roles.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {work.roles.slice(0, 3).map((role, index) => (
+            {_work.roles.slice(0, 3).map((role, index) => (
               <span
                 key={index}
                 className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full font-medium"
@@ -217,10 +217,10 @@ export function WorkCard({
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleUserClick}
           >
-            {work.user.avatar_image_url ? (
+            {_work.user.avatar_image_url ? (
               <Image
-                src={work.user.avatar_image_url}
-                alt={work.user.display_name}
+                src={_work.user.avatar_image_url}
+                alt={_work.user.display_name}
                 width={32}
                 height={32}
                 className="rounded-full object-cover"
@@ -232,10 +232,10 @@ export function WorkCard({
             )}
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {work.user.display_name}
+                {_work.user.display_name}
               </p>
               <p className="text-xs text-gray-500">
-                {formatTimeAgo(work.created_at)}
+                {formatTimeAgo(_work.created_at)}
               </p>
             </div>
           </div>
@@ -246,17 +246,17 @@ export function WorkCard({
               variant="ghost"
               size="sm"
               className={`p-1 transition-colors ${
-                work.user_has_liked 
+                _work.user_has_liked 
                   ? 'text-red-500 hover:text-red-600' 
                   : 'text-gray-400 hover:text-red-500'
               }`}
               onClick={(e) => {
                 e.stopPropagation()
-                onLike(work.id, work.type)
+                onLike(_work.id, _work.type)
               }}
             >
-              <Heart className={`h-4 w-4 ${work.user_has_liked ? 'fill-current' : ''}`} />
-              <span className="ml-1 text-xs">{work.likes_count || 0}</span>
+              <Heart className={`h-4 w-4 ${_work.user_has_liked ? 'fill-current' : ''}`} />
+              <span className="ml-1 text-xs">{_work.likes_count || 0}</span>
             </Button>
 
             <Button
@@ -265,11 +265,11 @@ export function WorkCard({
               className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
               onClick={(e) => {
                 e.stopPropagation()
-                onOpenComments(work.id)
+                onOpenComments(_work.id)
               }}
             >
               <MessageCircle className="h-4 w-4" />
-              <span className="ml-1 text-xs">{work.comments_count || 0}</span>
+              <span className="ml-1 text-xs">{_work.comments_count || 0}</span>
             </Button>
           </div>
         </div>
