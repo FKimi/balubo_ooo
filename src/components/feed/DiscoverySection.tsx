@@ -46,8 +46,8 @@ interface DiscoveryData {
 }
 
 interface DiscoverySectionProps {
-  onTagClick?: (tag: string) => void
-  onWorkClick?: (work: FeaturedWork) => void
+  onTagClick?: (_tag: string) => void
+  onWorkClick?: (_work: FeaturedWork) => void
 }
 
 export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWorkClick }: DiscoverySectionProps) => {

@@ -35,9 +35,9 @@ interface WorkCardProps {
   }
   currentUser?: any
   isAuthenticated: boolean
-  onLike: (workId: string, workType: 'work') => void
-  onShare: (work: any) => void
-  onOpenComments: (workId: string) => void
+  onLike: (_workId: string, _workType: 'work') => void
+  onShare: (_work: any) => void
+  onOpenComments: (_workId: string) => void
 }
 
 export function WorkCard({ 

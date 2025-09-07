@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button'
 
 interface SearchFiltersProps {
   searchQuery: string
-  onSearchChange: (query: string) => void
+  onSearchChange: (_query: string) => void
   filterType: 'all' | 'work'
-  onFilterTypeChange: (type: 'all' | 'work') => void
+  onFilterTypeChange: (_type: 'all' | 'work') => void
   filterTag: string
-  onFilterTagChange: (tag: string) => void
+  onFilterTagChange: (_tag: string) => void
   popularTags: string[]
   onApplyFilters: () => void
   onClearFilters: () => void

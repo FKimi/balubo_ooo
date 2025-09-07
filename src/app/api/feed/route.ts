@@ -305,7 +305,7 @@ async function processFeedRequest(request: NextRequest) {
     
     // ページネーション情報を計算
     const hasMore = feedItems.length === limit && works.length === limit
-    const nextCursor = limitedItems.length > 0 ? limitedItems[limitedItems.length - 1].created_at : null
+    const nextCursor = limitedItems.length > 0 ? limitedItems[limitedItems.length - 1]?.created_at : null
 
     const stats = {
       total: limitedItems.length,
