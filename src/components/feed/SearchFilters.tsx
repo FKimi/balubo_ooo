@@ -117,9 +117,9 @@ export function SearchFilters({
                     <Button
                       key={tag}
                       type="button"
-                      variant={filterTag === tag ? 'default' : 'outline'}
+                      variant={_filterTag === tag ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => onFilterTagChange(filterTag === tag ? '' : tag)}
+                      onClick={() => onFilterTagChange(_filterTag === tag ? '' : tag)}
                       className="rounded-full text-xs px-3 py-1"
                     >
                       #{tag}
