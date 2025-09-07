@@ -249,7 +249,7 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
                                 className="text-xs bg-[#5570F3]/10 text-[#5570F3] hover:bg-[#5570F3]/20 cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  onTagClick?.(tag)
+                                  _onTagClick?.(tag)
                                 }}
                               >
                                 {tag}
