@@ -95,7 +95,7 @@ export function SearchFilters({
                   <Button
                     key={type.key}
                     type="button"
-                    variant={filterType === type.key ? 'default' : 'outline'}
+                    variant={_filterType === type.key ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => onFilterTypeChange(type.key as any)}
                     className="rounded-full text-xs px-3 py-1"
