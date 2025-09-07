@@ -21,7 +21,6 @@ interface RecommendedUsersProps {
 }
 
 export function RecommendedUsers({ currentUserId, isAuthenticated }: RecommendedUsersProps) {
-  return null;
   const [users, setUsers] = useState<RecommendedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -106,7 +105,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
         clearTimeout(timeoutId)
       }
     }
-  }, [searchParams.isAuthenticated, searchParams.currentUserId]) // 具体的なプロパティのみ依存配列に設定
+  }, [isAuthenticated, currentUserId]) // 具体的なプロパティのみ依存配列に設定
 
   // メモ化されたユーザーリスト
   const memoizedUsers = useMemo(() => users, [users])

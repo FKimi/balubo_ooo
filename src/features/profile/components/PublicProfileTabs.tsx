@@ -72,7 +72,7 @@ export function PublicProfileTabs({
         {activeTab === 'profile' && (
           <div className="space-y-8">
             {(!profile?.bio && (!skills || skills.length === 0) && (!career || career.length === 0)) && (
-              <Card className="border-dashed border-2 border-blue-200 bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
+              <Card className="border-dashed border-2 border-[#1e3a8a]/20 bg-gradient-to-br from-[#1e3a8a]/5 via-[#1e3a8a]/5 to-[#1e3a8a]/10">
                 <CardContent className="p-8 text-center">
                   <h3 className="text-xl font-bold text-gray-900 mb-3">素敵なクリエイターです！</h3>
                   <p className="text-gray-600 mb-6 leading-relaxed">
@@ -115,7 +115,7 @@ export function PublicProfileTabs({
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="px-3 py-1 bg-blue-50 text-blue-700 text-sm border border-blue-200"
+                        className="px-3 py-1 bg-[#1e3a8a]/10 text-[#1e3a8a] text-sm border border-[#1e3a8a]/20"
                       >
                         {skill}
                       </Badge>
@@ -207,15 +207,15 @@ export function PublicProfileTabs({
                 {workStats.totalWorks > 0 ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div className="text-center lg:text-left">
-                      <div className="bg-gradient-to-br from-blue-50/80 to-blue-100/50 rounded-xl p-6 border border-blue-200 h-full">
+                      <div className="bg-gradient-to-br from-[#1e3a8a]/5 to-[#1e3a8a]/10 rounded-xl p-6 border border-[#1e3a8a]/20 h-full">
                         <h4 className="text-lg font-semibold text-gray-700 mb-2">総作品数</h4>
-                        <div className="text-4xl font-bold text-blue-600">{workStats.totalWorks}</div>
+                        <div className="text-4xl font-bold text-[#1e3a8a]">{workStats.totalWorks}</div>
                         <p className="text-gray-600 mt-2">これまでに制作した作品</p>
 
                         {workStats.totalWordCount > 0 && (
-                          <div className="mt-4 pt-4 border-t border-blue-200">
+                          <div className="mt-4 pt-4 border-t border-[#1e3a8a]/20">
                             <h5 className="text-sm font-medium text-gray-600 mb-1">総文字数</h5>
-                            <div className="text-2xl font-bold text-blue-600">
+                            <div className="text-2xl font-bold text-[#1e3a8a]">
                               {workStats.totalWordCount.toLocaleString('ja-JP')}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">記事・ライティング作品の合計</p>
@@ -250,7 +250,7 @@ export function PublicProfileTabs({
                       <h3 className="text-2xl font-bold text-gray-900">よく使用するタグ</h3>
                       <p className="text-gray-600 mt-1">得意分野・専門領域の分析</p>
                     </div>
-                    <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                    <div className="text-sm text-[#1e3a8a] bg-[#1e3a8a]/10 px-3 py-1 rounded-full border border-[#1e3a8a]/20">
                       トップ7
                     </div>
                   </div>
@@ -259,7 +259,7 @@ export function PublicProfileTabs({
                     {topTags.slice(0, 7).map(([tag, count]: [string, number], index: number) => (
                       <div
                         key={tag}
-                        className="flex items-center justify-between p-2 rounded-md border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
+                        className="flex items-center justify-between p-2 rounded-md border border-gray-200 hover:border-[#1e3a8a]/30 hover:bg-[#1e3a8a]/5 transition-all duration-200"
                       >
                         <div className="flex items-center space-x-2">
                           <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
@@ -281,7 +281,7 @@ export function PublicProfileTabs({
 
                         <div className="text-right">
                           <div className={`text-sm font-bold ${
-                            index < 3 ? 'text-blue-600' : 'text-gray-600'
+                            index < 3 ? 'text-[#1e3a8a]' : 'text-gray-600'
                           }`}>
                             {count}
                           </div>
@@ -307,13 +307,13 @@ export function PublicProfileTabs({
                     </div>
                   )}
 
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="p-3 bg-[#1e3a8a]/5 rounded-lg border border-[#1e3a8a]/20">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
                           <h4 className="text-sm font-semibold text-gray-800">専門性分析</h4>
                           {tagStatistics && (
-                            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                            <span className="text-xs text-[#1e3a8a] bg-[#1e3a8a]/10 px-2 py-1 rounded-full">
                               全{tagStatistics.totalWorks}件のデータ
                             </span>
                           )}
@@ -323,7 +323,7 @@ export function PublicProfileTabs({
                         </p>
                       </div>
                       <div className="text-right ml-4">
-                        <div className="text-lg font-bold text-blue-600">
+                        <div className="text-lg font-bold text-[#1e3a8a]">
                           {topTags.length}
                         </div>
                         <div className="text-xs text-gray-500">分野</div>

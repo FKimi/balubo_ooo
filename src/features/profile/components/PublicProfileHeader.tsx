@@ -2,7 +2,6 @@
 
 
 import FollowButton from '@/features/follow/components/FollowButton'
-import MessageButton from './MessageButton'
 import { FollowStats } from '@/features/follow/components/FollowStats'
 import Image from 'next/image'
 
@@ -134,7 +133,6 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
             </div>
 
             <div className="flex items-center gap-3">
-              <MessageButton targetUserId={userId} />
               <FollowButton targetUserId={userId} />
             </div>
           </div>

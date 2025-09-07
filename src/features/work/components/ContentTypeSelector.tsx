@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 
 interface ContentType {
@@ -89,24 +88,59 @@ export function ContentTypeSelector({ isOpen, onClose }: ContentTypeSelectorProp
 
   // portal setup
   const [mounted, setMounted] = useState(false)
-  const [headerOffset, setHeaderOffset] = useState(0)
   useEffect(() => setMounted(true), [])
 
-  // Measure header height
+  // モーダルが開かれたときに画面を上部にスクロール
   useEffect(() => {
-    const headerEl = document.querySelector('header') as HTMLElement | null
-    if (headerEl) {
-      setHeaderOffset(headerEl.offsetHeight + 24) // header height + 24px margin
+    if (isOpen) {
+      // モーダルが開かれたときに画面を最上部にスクロール
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      // 背景スクロールを無効化
+      document.body.style.overflow = 'hidden'
     } else {
-      setHeaderOffset(96) // fallback
+      // モーダルが閉じられたときに背景スクロールを有効化
+      document.body.style.overflow = 'unset'
+    }
+
+    // クリーンアップ
+    return () => {
+      document.body.style.overflow = 'unset'
     }
   }, [isOpen])
+
+  // ESCキーでモーダルを閉じる
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [isOpen, onClose])
 
   if (!isOpen || !mounted) return null
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] flex items-start md:items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm p-4" style={{ paddingTop: headerOffset }}>
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div 
+      className="modal-overlay-top flex items-start justify-center bg-black/60 backdrop-blur-sm pt-12 pb-4 px-4 overflow-y-auto"
+      onClick={(e) => {
+        // 背景クリック時にモーダルを閉じる
+        if (e.target === e.currentTarget) {
+          onClose()
+        }
+      }}
+    >
+      <div 
+        className="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200"
+        style={{
+          marginTop: '3rem',
+          transform: 'none',
+          position: 'relative',
+          zIndex: 2147483647, // コンテンツも最前面に
+        }}
+      >
           {/* コンテンツエリア */}
           <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8">
             {/* 左カラム：タイトルと説明 */}
@@ -226,5 +260,6 @@ export function ContentTypeSelector({ isOpen, onClose }: ContentTypeSelectorProp
     </div>
   )
 
-  return mounted ? createPortal(modalContent, document.body) : null
+  // すでにGlobalModalManagerでcreatePortalが使用されているため、直接コンテンツを返す
+  return modalContent
 } 

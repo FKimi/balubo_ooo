@@ -31,8 +31,7 @@ export default function SettingsPage() {
   const [privacySettings, setPrivacySettings] = useState({
     profileVisibility: 'public' as 'public' | 'connections_only' | 'private',
     showEmail: false,
-    showLocation: true,
-    allowDirectMessages: true
+    showLocation: true
   })
 
   const handleAccountUpdate = async (e: React.FormEvent) => {
@@ -400,18 +399,6 @@ export default function SettingsPage() {
                           />
                         </div>
                         
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">ダイレクトメッセージを許可</p>
-                            <p className="text-sm text-text-secondary">他のクリエイターからのメッセージを受け取る</p>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={privacySettings.allowDirectMessages}
-                            onChange={(e) => setPrivacySettings(prev => ({ ...prev, allowDirectMessages: e.target.checked }))}
-                            className="rounded border-border-color"
-                          />
-                        </div>
                       </div>
                       
                       <Button

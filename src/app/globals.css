@@ -271,6 +271,15 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+  
+  /* 横スクロール用のスタイル */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+  }
 }
 
 /* 洗練されたアニメーションキーフレーム */
@@ -344,4 +353,17 @@
 
 .animate-progress {
   animation: progress 1.5s ease-in-out;
+}
+
+/* 作品追加モーダル専用 - 確実に最前面表示 */
+.modal-overlay-top {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
 } 

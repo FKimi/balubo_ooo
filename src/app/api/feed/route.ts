@@ -16,7 +16,7 @@ interface FeedUser {
 
 interface FeedItem {
   id: string
-  type: 'work' | 'input'
+  type: 'work'
   title: string
   created_at: string
   user: FeedUser
@@ -29,10 +29,6 @@ interface FeedItem {
   tags?: string[]
   roles?: string[]
   banner_image_url?: string
-  // input specific
-  author_creator?: string
-  rating?: number
-  cover_image_url?: string
 }
 
 interface Work {
@@ -47,16 +43,6 @@ interface Work {
   created_at: string
 }
 
-interface Input {
-  id: string
-  user_id: string
-  title: string
-  author_creator?: string
-  rating?: number
-  tags?: string[]
-  cover_image_url?: string
-  created_at: string
-}
 
 export async function GET(request: NextRequest) {
   console.log('=== Feed API: フィードデータ取得開始 ===')
@@ -79,6 +65,7 @@ export async function GET(request: NextRequest) {
       items: [],
       stats: { total: 0, works: 0, inputs: 0, unique_users: 0 },
       total: 0,
+      pagination: { hasMore: false, nextCursor: null },
       debug: { 
         message: 'エラーが発生しました', 
         error: true, 
@@ -91,6 +78,15 @@ export async function GET(request: NextRequest) {
 
 async function processFeedRequest(request: NextRequest) {
   const startTime = Date.now()
+  
+  // URLパラメータから検索条件を取得
+  const { searchParams } = new URL(request.url)
+  const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50) // 最大50件
+  const cursor = searchParams.get('cursor') // カーソルベースページネーション
+  const searchQuery = searchParams.get('q') // 検索クエリ
+  const filterType = searchParams.get('type') as 'work' | null // タイプフィルター
+  const filterTag = searchParams.get('tag') // タグフィルター
+  const followingOnly = searchParams.get('followingOnly') === 'true' // フォロー中のみ
   
   // フィード用にService roleクライアントを作成（全ユーザーのパブリックデータにアクセス）
   const supabase = createClient(
@@ -124,49 +120,103 @@ async function processFeedRequest(request: NextRequest) {
     }
   }
 
-  console.log('Feed API: Step 1 - 軽量データ取得開始')
+  console.log('Feed API: Step 1 - 軽量データ取得開始', {
+    limit,
+    cursor,
+    searchQuery,
+    filterType,
+    filterTag,
+    followingOnly,
+    currentUserId
+  })
   
-  // 最新の作品とインプットを直接取得（軽量化）
-  const worksPromise = supabase
+  // フォロー中のユーザーIDを取得（フォロー中フィルターが有効な場合）
+  let followingUserIds: string[] = []
+  if (followingOnly && currentUserId) {
+    try {
+      const { data: followData } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', currentUserId)
+      
+      followingUserIds = followData?.map(f => f.following_id) || []
+      
+      // フォロー中のユーザーがいない場合は空の結果を返す
+      if (followingUserIds.length === 0) {
+        console.log('フォロー中のユーザーがいません')
+        return NextResponse.json({
+          items: [],
+          stats: { total: 0, works: 0, inputs: 0, unique_users: 0 },
+          total: 0,
+          pagination: { hasMore: false, nextCursor: null, limit },
+          debug: { 
+            message: 'フォロー中のユーザーがいません', 
+            followingOnly: true,
+            followingCount: 0,
+            timestamp: new Date().toISOString()
+          }
+        })
+      }
+      
+      console.log('フォロー中のユーザー数:', followingUserIds.length)
+    } catch (followError) {
+      console.error('フォロー関係取得エラー:', followError)
+      // エラーの場合はフォローフィルターを無効化
+    }
+  }
+
+  // 作品のみを取得（インプット機能は削除済み）
+  let worksQuery = supabase
     .from('works')
     .select('id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at')
     .order('created_at', { ascending: false })
-    .limit(50) // パフォーマンス重視でデータ量を制限
 
-  const inputsPromise = supabase
-    .from('inputs')
-    .select('id, user_id, title, author_creator, rating, tags, cover_image_url, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50) // パフォーマンス重視でデータ量を制限
+  // フォロー中フィルタリング
+  if (followingOnly && followingUserIds.length > 0) {
+    worksQuery = worksQuery.in('user_id', followingUserIds)
+  }
+
+  // 検索クエリがある場合のフィルタリング
+  if (searchQuery) {
+    worksQuery = worksQuery.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+  }
+
+  // タグフィルタリング
+  if (filterTag) {
+    worksQuery = worksQuery.contains('tags', [filterTag])
+  }
+
+  // カーソルベースページネーション
+  if (cursor) {
+    const cursorDate = new Date(cursor).toISOString()
+    worksQuery = worksQuery.lt('created_at', cursorDate)
+  }
+
+  // 作品のみを取得
+  const worksPromise = worksQuery.limit(limit)
 
   const dataTimeout = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('データ取得タイムアウト')), 15000) // 15秒に延長
   })
 
   try {
-    const [worksResult, inputsResult] = await Promise.race([
-      Promise.all([worksPromise, inputsPromise]),
+    const [worksResult] = await Promise.race([
+      Promise.all([worksPromise]),
       dataTimeout
     ]) as any
 
     const works = worksResult.data || []
-    const inputs = inputsResult.data || []
 
     console.log('Feed API: Step 2 - データ取得結果:', {
-      works: works.length,
-      inputs: inputs.length
+      works: works.length
     })
 
     // ユーザーIDを収集
-    const userIds = [...new Set([
-      ...works.map((w: Work) => w.user_id),
-      ...inputs.map((i: Input) => i.user_id)
-    ])]
+    const userIds = [...new Set(works.map((w: Work) => w.user_id))]
 
-    // 作品・インプットIDリスト
+    // 作品IDリスト
     const workIds = works.map((w: Work) => w.id)
-    const inputIds = inputs.map((i: Input) => i.id)
-    const allIds = [...workIds, ...inputIds]
+    const allIds = workIds
 
     // likes一括取得（全件取得＋JS集計）
     let likesCountMap = new Map<string, number>()
@@ -176,7 +226,7 @@ async function processFeedRequest(request: NextRequest) {
         .from('likes')
         .select('target_id, target_type, user_id')
         .in('target_id', allIds.length > 0 ? allIds : ['dummy'])
-        .in('target_type', ['work', 'input'])
+        .eq('target_type', 'work')
       ;(likesRaw || []).forEach((like: any) => {
         const key = `${like.target_type}_${like.target_id}`
         likesCountMap.set(key, (likesCountMap.get(key) || 0) + 1)
@@ -197,7 +247,7 @@ async function processFeedRequest(request: NextRequest) {
         .from('comments')
         .select('target_id, target_type')
         .in('target_id', allIds.length > 0 ? allIds : ['dummy'])
-        .in('target_type', ['work', 'input'])
+        .eq('target_type', 'work')
       ;(commentsRaw || []).forEach((c: any) => {
         const key = `${c.target_type}_${c.target_id}`
         commentsCountMap.set(key, (commentsCountMap.get(key) || 0) + 1)
@@ -246,60 +296,56 @@ async function processFeedRequest(request: NextRequest) {
       }
     }
 
-    // インプットを処理
-    for (const input of inputs) {
-      const userProfile = profileMap.get(input.user_id)
-      if (userProfile) {
-        const key = `input_${input.id}`
-        feedItems.push({
-          id: input.id,
-          type: 'input' as const,
-          title: input.title,
-          author_creator: input.author_creator,
-          rating: input.rating,
-          tags: input.tags?.slice(0, 3) || [],
-          cover_image_url: input.cover_image_url,
-          created_at: input.created_at,
-          user: userProfile,
-          likes_count: likesCountMap.get(key) || 0,
-          comments_count: commentsCountMap.get(key) || 0,
-          user_has_liked: userLikesSet.has(key)
-        })
-      }
-    }
 
     // 作成日時でソート
     feedItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
+    // 実際に返すアイテム数を制限
+    const limitedItems = feedItems.slice(0, limit)
+    
+    // ページネーション情報を計算
+    const hasMore = feedItems.length === limit && works.length === limit
+    const nextCursor = limitedItems.length > 0 ? limitedItems[limitedItems.length - 1].created_at : null
+
     const stats = {
-      total: feedItems.length,
-      works: feedItems.filter(item => item.type === 'work').length,
-      inputs: feedItems.filter(item => item.type === 'input').length,
-      unique_users: new Set(feedItems.map(item => item.user.id)).size
+      total: limitedItems.length,
+      works: limitedItems.filter(item => item.type === 'work').length,
+      inputs: 0, // インプットは削除済み
+      unique_users: new Set(limitedItems.map(item => item.user.id)).size
     }
 
     const processingTime = Date.now() - startTime
 
     console.log('=== Feed API: 軽量フィードデータ取得成功 ===', {
-      total: feedItems.length,
+      total: limitedItems.length,
       stats,
+      hasMore,
+      nextCursor,
       processingTime: `${processingTime}ms`
     })
 
     console.log('Feed API: works件数', works.length)
-    console.log('Feed API: inputs件数', inputs.length)
     console.log('Feed API: likesCountMap', Array.from(likesCountMap.entries()))
     console.log('Feed API: commentsCountMap', Array.from(commentsCountMap.entries()))
 
     return NextResponse.json({
-      items: feedItems,
+      items: limitedItems,
       stats,
-      total: feedItems.length,
+      total: limitedItems.length,
+      pagination: {
+        hasMore,
+        nextCursor,
+        limit
+      },
       debug: { 
         message: '軽量フィード取得成功', 
         currentUserId: currentUserId ? 'あり' : 'なし',
         worksCount: works.length,
-        inputsCount: inputs.length,
+        searchQuery,
+        filterType,
+        filterTag,
+        followingOnly,
+        followingCount: followingOnly ? followingUserIds.length : undefined,
         processingTime: `${processingTime}ms`,
         timestamp: new Date().toISOString()
       }

@@ -159,7 +159,7 @@ export function ProfileHeader({
                 <ShareProfileButton userId={userId} slug={slug} displayName={displayName} />
               )}
               <Link href="/profile/edit">
-                <Button variant="outline" size="sm" className="px-6 py-3 text-sm font-semibold rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                <Button variant="outline" size="sm" className="px-6 py-3 text-sm font-semibold rounded-xl border-[#5570F3] text-[#5570F3] hover:bg-[#5570F3]/10 hover:border-[#4461E8] transition-all duration-200">
                   プロフィール編集
                 </Button>
               </Link>

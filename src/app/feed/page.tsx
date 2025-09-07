@@ -1,21 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 // ブラウザでクッキー保存された Supabase セッションを取得するため `@supabase/ssr` のヘルパーを利用
 import { getSupabaseBrowserClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
+import { LayoutProvider } from '@/contexts/LayoutContext'
+import { GlobalModalManager } from '@/components/common/GlobalModalManager'
 import { Button } from '@/components/ui/button'
 import { RecommendedUsers } from '@/features/feed'
 import { 
   Share, 
   ExternalLink,
-  User
+  User,
+  RefreshCw
 } from 'lucide-react'
 import { EmptyState } from '@/components/common'
-import { TabNavigation } from '@/components/ui/TabNavigation'
+// import { TabNavigation } from '@/components/ui/TabNavigation' // 未使用のため一時的にコメントアウト
 import { Skeleton } from '@/components/ui'
+import { SearchFilters } from '@/components/feed/SearchFilters'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
+import { WorkCard } from '@/components/feed/WorkCard'
+import { DiscoverySection } from '@/components/feed/DiscoverySection'
 
 // Supabaseクライアントをコンポーネント外で初期化
 // `getSupabaseBrowserClient` はクッキーに保存されたセッションを自動で参照します
@@ -29,16 +36,13 @@ interface User {
 
 interface FeedItem {
   id: string
-  type: 'work' | 'input'
+  type: 'work'
   title: string
   description?: string
   external_url?: string
-  author_creator?: string
-  rating?: number
   tags?: string[]
   roles?: string[]
   banner_image_url?: string
-  cover_image_url?: string
   created_at: string
   user: User
   likes_count?: number
@@ -51,8 +55,9 @@ interface FeedItem {
 export default function FeedPage() {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'works' | 'inputs'>('works')
+  const [_activeTab, _setActiveTab] = useState<'works'>('works')
   const [selectedItem, setSelectedItem] = useState<FeedItem | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -63,102 +68,224 @@ export default function FeedPage() {
   const [loadingComments, setLoadingComments] = useState(false)
   const [_stats, setStats] = useState({ total: 0, works: 0, inputs: 0, unique_users: 0 })
   const [_total, setTotal] = useState(0)
+  
+  // 新しい状態変数：検索・フィルタリング・ページネーション
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterType, setFilterType] = useState<'all' | 'work'>('all')
+  const [filterTag, setFilterTag] = useState('')
+  const [hasMore, setHasMore] = useState(true)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [popularTags, setPopularTags] = useState<string[]>([])
+  const [refreshing, setRefreshing] = useState(false)
+  
+  // フォローフィード用の状態
+  const [feedMode, setFeedMode] = useState<'all' | 'following'>('all')
 
   const router = useRouter()
   
+  // 認証状態確認
   useEffect(() => {
-    const checkAuthAndFetchFeed = async () => {
-      const startTime = Date.now()
-      console.log('フィード画面: データ取得開始')
-      
+    const checkAuth = async () => {
       try {
-        // 認証状態を確認
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         
-        // 認証エラーがあってもセッションがないだけのケースが多いため、
-        // エラー表示は行わず未認証として続行する
         if (authError && authError.message !== 'Auth session missing!') {
           console.error('フィード画面: 認証エラー:', authError)
-          setError('認証エラーが発生しました')
         }
 
-        // 認証状態を設定
         setIsAuthenticated(!!user)
         setCurrentUser(user)
-
-        console.log('フィード画面: 認証確認完了、フィードデータ取得開始', { isAuthenticated: !!user })
-
-        // フィードデータを取得（タイムアウトを20秒に延長）
-        const feedTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('フィード取得タイムアウト')), 20000) // 20秒に延長
-        })
-
-        const { data: { session: currentSession } } = await supabase.auth.getSession()
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-        }
-        if (currentSession?.access_token) {
-          headers['Authorization'] = `Bearer ${currentSession.access_token}`
-        }
-
-        const feedPromise = fetch('/api/feed', {
-          method: 'GET',
-          headers,
-        })
-
-        const response = await Promise.race([feedPromise, feedTimeout]) as Response
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const feedData = await response.json()
-        
-        const processingTime = Date.now() - startTime
-        console.log('フィード画面: データ取得成功', {
-          items: feedData.items?.length || 0,
-          processingTime: `${processingTime}ms`
-        })
-
-        if (feedData.items && Array.isArray(feedData.items)) {
-          setFeedItems(feedData.items)
-          setStats(feedData.stats || { total: 0, works: 0, inputs: 0, unique_users: 0 })
-          setTotal(feedData.total || 0)
-          setError(null)
-        } else {
-          console.warn('フィード画面: 無効なデータ形式:', feedData)
-          setFeedItems([])
-          setStats({ total: 0, works: 0, inputs: 0, unique_users: 0 })
-          setTotal(0)
-          setError('データ形式エラー')
-        }
-
       } catch (error) {
-        const processingTime = Date.now() - startTime
-        console.error('フィード画面: データ取得エラー:', error)
-        console.log('処理時間:', processingTime)
-        
-        setError(error instanceof Error ? error.message : 'データ取得エラー')
-        setFeedItems([])
-        setStats({ total: 0, works: 0, inputs: 0, unique_users: 0 })
-        setTotal(0)
-      } finally {
-        setLoading(false)
+        console.error('認証確認エラー:', error)
       }
     }
 
-    checkAuthAndFetchFeed()
+    checkAuth()
   }, [])
 
-  const filteredItems = feedItems.filter(item => {
-    if (activeTab === 'works') return item.type === 'work'
-    if (activeTab === 'inputs') return item.type === 'input'
-    return true
+  // フィードデータ取得関数
+  const fetchFeedData = useCallback(async (
+    append = false,
+    params: {
+      searchQuery?: string
+      filterType?: 'all' | 'work'
+      filterTag?: string
+      cursor?: string | null
+      feedMode?: 'all' | 'following'
+    } = {}
+  ) => {
+    const startTime = Date.now()
+    console.log('フィード画面: データ取得開始', { append, params })
+    
+    try {
+      if (append) {
+        setLoadingMore(true)
+      } else {
+        setLoading(true)
+        setError(null)
+      }
+
+      const { data: { session: currentSession } } = await supabase.auth.getSession()
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      if (currentSession?.access_token) {
+        headers['Authorization'] = `Bearer ${currentSession.access_token}`
+      }
+
+      // クエリパラメータを構築
+      const searchParams = new URLSearchParams({
+        limit: '20',
+        ...(params.cursor && { cursor: params.cursor }),
+        ...(params.searchQuery && { q: params.searchQuery }),
+        ...(params.filterType && params.filterType !== 'all' && { type: params.filterType }),
+        ...(params.filterTag && { tag: params.filterTag }),
+        ...(params.feedMode === 'following' && { followingOnly: 'true' }),
+      })
+
+      const response = await fetch(`/api/feed?${searchParams}`, {
+        method: 'GET',
+        headers,
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const feedData = await response.json()
+      
+      const processingTime = Date.now() - startTime
+      console.log('フィード画面: データ取得成功', {
+        items: feedData.items?.length || 0,
+        append,
+        processingTime: `${processingTime}ms`
+      })
+
+      if (feedData.items && Array.isArray(feedData.items)) {
+        if (append) {
+          setFeedItems(prev => [...prev, ...feedData.items])
+        } else {
+          setFeedItems(feedData.items)
+        }
+        
+        setStats(feedData.stats || { total: 0, works: 0, inputs: 0, unique_users: 0 })
+        setTotal(feedData.total || 0)
+        setHasMore(feedData.pagination?.hasMore || false)
+        setNextCursor(feedData.pagination?.nextCursor || null)
+        
+        // 人気タグの更新（初回のみ）
+        if (!append && feedData.items.length > 0) {
+          const allTags = feedData.items.flatMap((item: FeedItem) => item.tags || [])
+          const tagCounts = allTags.reduce((acc: Record<string, number>, tag: string) => {
+            acc[tag] = (acc[tag] || 0) + 1
+            return acc
+          }, {})
+          const sortedTags = Object.entries(tagCounts)
+            .sort(([,a], [,b]) => (b as number) - (a as number))
+            .slice(0, 10)
+            .map(([tag]) => tag)
+          setPopularTags(sortedTags)
+        }
+        
+        setError(null)
+      } else {
+        console.warn('フィード画面: 無効なデータ形式:', feedData)
+        if (!append) {
+          setFeedItems([])
+          setStats({ total: 0, works: 0, inputs: 0, unique_users: 0 })
+          setTotal(0)
+        }
+        setError('データ形式エラー')
+      }
+
+    } catch (error) {
+      const processingTime = Date.now() - startTime
+      console.error('フィード画面: データ取得エラー:', error)
+      console.log('処理時間:', processingTime)
+      
+      setError(error instanceof Error ? error.message : 'データ取得エラー')
+      if (!append) {
+        setFeedItems([])
+        setStats({ total: 0, works: 0, inputs: 0, unique_users: 0 })
+        setTotal(0)
+      }
+    } finally {
+      setLoading(false)
+      setLoadingMore(false)
+      setRefreshing(false)
+    }
+  }, [])
+
+  // 初回データ取得
+  useEffect(() => {
+    if (isAuthenticated !== null) { // 認証状態が確定してから実行
+      fetchFeedData(false, {
+        searchQuery,
+        filterType,
+        filterTag,
+        feedMode,
+      })
+    }
+  }, [isAuthenticated, feedMode, fetchFeedData])
+
+  // 無限スクロール
+  const loadMore = useCallback(() => {
+    if (hasMore && !loadingMore && nextCursor) {
+      fetchFeedData(true, {
+        searchQuery,
+        filterType,
+        filterTag,
+        feedMode,
+        cursor: nextCursor,
+      })
+    }
+  }, [hasMore, loadingMore, nextCursor, searchQuery, filterType, filterTag, feedMode, fetchFeedData])
+
+  const { sentinelRef } = useInfiniteScroll({
+    hasMore,
+    isLoading: loadingMore,
+    onLoadMore: loadMore,
   })
 
-  const tabConfigs = [
+  // 検索・フィルタリング用のハンドラー関数
+  const handleApplyFilters = useCallback(() => {
+    console.log('フィルター適用:', { searchQuery, filterType, filterTag, feedMode })
+    setHasMore(true)
+    setNextCursor(null)
+    fetchFeedData(false, { searchQuery, filterType, filterTag, feedMode })
+  }, [searchQuery, filterType, filterTag, feedMode, fetchFeedData])
+
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery('')
+    setFilterType('all')
+    setFilterTag('')
+    setHasMore(true)
+    setNextCursor(null)
+    fetchFeedData(false, { feedMode })
+  }, [feedMode, fetchFeedData])
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true)
+    setHasMore(true)
+    setNextCursor(null)
+    fetchFeedData(false, { searchQuery, filterType, filterTag, feedMode })
+  }, [searchQuery, filterType, filterTag, feedMode, fetchFeedData])
+
+  // フィードモード切り替えハンドラー
+  const handleFeedModeChange = useCallback((mode: 'all' | 'following') => {
+    setFeedMode(mode)
+    setHasMore(true)
+    setNextCursor(null)
+    fetchFeedData(false, { searchQuery, filterType, filterTag, feedMode: mode })
+  }, [searchQuery, filterType, filterTag, fetchFeedData])
+
+  // 作品のみをフィルタリング（インプットは削除済み）
+  const filteredItems = useMemo(() => {
+    return feedItems.filter(item => item.type === 'work')
+  }, [feedItems])
+
+  const _tabConfigs = [
     { key: 'works', label: '作品' },
-    { key: 'inputs', label: 'インプット' },
   ]
 
   const formatTimeAgo = (dateString: string) => {
@@ -175,7 +302,7 @@ export default function FeedPage() {
   }
 
   // いいね処理
-  const handleLike = async (itemId: string, itemType: 'work' | 'input') => {
+  const handleLike = async (itemId: string, itemType: 'work') => {
     console.log('いいね処理開始:', { itemId, itemType, isAuthenticated })
     
     if (!isAuthenticated) {
@@ -343,7 +470,7 @@ export default function FeedPage() {
         body: JSON.stringify({
           workId: itemId,
           content: newComment.trim(),
-          targetType: targetItem.type // 'work' または 'input'
+          targetType: targetItem.type // 'work'
         })
       })
 
@@ -430,51 +557,119 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-full">
           {/* スケルトンヘッダー */}
-          <div className="border-x border-b border-gray-200">
-            <Skeleton className="h-14 w-full" />
+          <div className="bg-white border-b border-gray-200">
+            <Skeleton className="h-16 w-full" />
           </div>
-          {/* スケルトンフィードアイテム */}
-          {[...Array(5)].map((_, idx) => (
-            <div key={idx} className="border-x border-b border-gray-200 p-4 max-w-4xl mx-auto">
-              <div className="flex items-start space-x-3 mb-3">
-                <Skeleton className="w-10 h-10 rounded-full" />
-                <div className="flex-1">
-                  <Skeleton className="h-4 w-1/3 mb-2" />
-                  <Skeleton className="h-3 w-1/4" />
+          {/* スケルトングリッドアイテム */}
+          <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {[...Array(20)].map((_, idx) => (
+              <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <Skeleton className="aspect-[4/3] w-full" />
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-8 h-8 rounded-full" />
+                      <div>
+                        <Skeleton className="h-3 w-16" />
+                        <Skeleton className="h-3 w-12 mt-1" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-6 w-8" />
+                      <Skeleton className="h-6 w-8" />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="ml-12 space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-11/12" />
-                <Skeleton className="h-4 w-10/12" />
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
+    <LayoutProvider>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-full">
         <div className="flex">
-          {/* メインフィード - 横幅を広げて中央配置 */}
-          <div className="flex-1 max-w-4xl mx-auto border-x border-gray-200">
-        {/* タブナビゲーション */}
+          {/* メインフィード - フル幅対応 */}
+          <div className="flex-1 max-w-full">
+        {/* 検索・フィルタリング */}
+        <SearchFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          filterType={filterType}
+          onFilterTypeChange={setFilterType}
+          filterTag={filterTag}
+          onFilterTagChange={setFilterTag}
+          popularTags={popularTags}
+          onApplyFilters={handleApplyFilters}
+          onClearFilters={handleClearFilters}
+        />
+
+        {/* 見つけるセクション */}
+        <DiscoverySection 
+          onTagClick={(tag) => {
+            setFilterTag(tag)
+            setSearchQuery('')
+            setFilterType('all')
+            setHasMore(true)
+            setNextCursor(null)
+            fetchFeedData(false, { searchQuery: '', filterType: 'all', filterTag: tag, feedMode })
+          }}
+          onWorkClick={(work) => {
+            // 作品詳細ページに遷移
+            router.push(`/works/${work.id}`)
+          }}
+        />
+
+        {/* フィードタブとリフレッシュボタン */}
         <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 mb-0 p-2">
-          <TabNavigation
-            tabs={tabConfigs}
-            activeTab={activeTab}
-            onTabChange={(key) => setActiveTab(key as any)}
-            className="bg-transparent"
-          />
+          <div className="flex items-center justify-between mb-3">
+
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="rounded-full"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+          
+          {/* フィードモード切り替えタブ */}
+          <div className="flex gap-1">
+            <Button
+              variant={feedMode === 'all' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => handleFeedModeChange('all')}
+              className="rounded-full px-4 text-sm"
+            >
+              すべて
+            </Button>
+            {isAuthenticated && (
+              <Button
+                variant={feedMode === 'following' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => handleFeedModeChange('following')}
+                className="rounded-full px-4 text-sm"
+              >
+                フォロー中
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* 未ログインユーザー向けバナー */}
@@ -507,272 +702,89 @@ export default function FeedPage() {
           </div>
         )}
 
-        {/* フィードアイテム */}
+        {/* フィードアイテム - グリッドレイアウト */}
         {filteredItems.length > 0 ? (
-          <div className="bg-white">
-            {filteredItems.map((item, index) => (
-              <article
-                key={item.id}
-                className={`p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer ${
-                  index !== filteredItems.length - 1 ? 'border-b border-gray-100' : ''
-                }`}
-              >
-                {/* ユーザー情報ヘッダー */}
-                <div className="flex items-start space-x-3 mb-3">
-                  <div 
-                    className="relative cursor-pointer group flex-shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // 自分の投稿の場合は自分のプロフィールページに遷移
-                      if (currentUser && item.user.id === currentUser.id) {
-                        router.push('/profile')
-                      } else {
-                        router.push(`/share/profile/${item.user.id}`)
-                      }
-                    }}
-                  >
-                    {item.user.avatar_image_url ? (
-                      <Image
-                        src={item.user.avatar_image_url}
-                        alt={item.user.display_name}
-                        width={40}
-                        height={40}
-                        className="rounded-full object-cover hover:opacity-90 transition-opacity"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center hover:opacity-90 transition-opacity">
-                        <User className="h-5 w-5 text-white" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p 
-                        className="font-bold text-gray-900 truncate cursor-pointer hover:underline text-sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          // 自分の投稿の場合は自分のプロフィールページに遷移
-                          if (currentUser && item.user.id === currentUser.id) {
-                            router.push('/profile')
-                          } else {
-                            router.push(`/share/profile/${item.user.id}`)
-                          }
-                        }}
-                      >
-                        {item.user.display_name}
-                      </p>
-                      <span className="text-gray-500 text-sm">·</span>
-                      <span className="text-gray-500 text-sm">
-                        {formatTimeAgo(item.created_at)}
-                      </span>
-                      <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
-                        item.type === 'work' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'bg-green-100 text-green-700'
-                      }`}>
-                        {item.type === 'work' ? '作品' : 'インプット'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* コンテンツ */}
-                <div className="ml-12 mb-3">
-                  <div 
-                    className="cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (item.type === 'work') {
-                        router.push(`/works/${item.id}`)
-                      } else {
-                        router.push(`/inputs/${item.id}`)
-                      }
-                    }}
-                  >
-                    <p className="text-gray-900 text-sm leading-relaxed mb-2">
-                      {item.description && item.description.length > 280 
-                        ? `${item.description.substring(0, 280)}...` 
-                        : item.description || item.title
-                      }
-                    </p>
-
-                    {/* 追加情報 */}
-                    {item.type === 'input' && item.author_creator && (
-                      <p className="text-sm text-gray-500 mb-2">
-                        著者: {item.author_creator}
-                      </p>
-                    )}
-
-                    {item.type === 'input' && item.rating && (
-                      <div className="flex items-center mb-2">
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <span key={i} className={i < item.rating! ? 'text-yellow-400' : 'text-gray-300'}>
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                        <span className="text-sm text-gray-600 ml-2">{item.rating}/5</span>
-                      </div>
-                    )}
-
-                    {/* タグ */}
-                    {(item.tags && item.tags.length > 0) && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {item.tags.slice(0, 3).map((tag, index) => (
-                          <span
-                            key={index}
-                            className="text-blue-500 text-sm hover:underline cursor-pointer"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {item.tags.length > 3 && (
-                          <span className="text-gray-500 text-sm">
-                            +{item.tags.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* 役割（作品の場合） */}
-                    {item.type === 'work' && item.roles && item.roles.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {item.roles.slice(0, 3).map((role, index) => (
-                          <span
-                            key={index}
-                            className="text-blue-600 text-sm font-medium"
-                          >
-                            {role}{index < Math.min(item.roles!.length, 3) - 1 ? ' · ' : ''}
-                          </span>
-                        ))}
-                        {item.roles.length > 3 && (
-                          <span className="text-gray-500 text-sm">
-                            +{item.roles.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* 画像 */}
-                {(item.banner_image_url || item.cover_image_url) && (
-                  <div className="ml-12 mb-3">
-                    <Image
-                       src={(item.banner_image_url || item.cover_image_url) as string}
-                       alt={item.title}
-                       width={800}
-                       height={256}
-                       className="w-full max-w-lg h-64 object-cover rounded-2xl cursor-pointer hover:opacity-95 transition-opacity border border-gray-200"
-                       onClick={(e) => {
-                         e.stopPropagation()
-                         if (item.type === 'work') {
-                           router.push(`/works/${item.id}`)
-                         } else {
-                           router.push(`/inputs/${item.id}`)
-                         }
-                       }}
-                     />
+          <div className="bg-gray-50 min-h-screen">
+            {/* グリッドコンテナ */}
+            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 auto-rows-max">
+              {filteredItems.map((item) => (
+                <WorkCard
+                  key={`${item.id}-${item.type}`}
+                  work={item}
+                  currentUser={currentUser}
+                  isAuthenticated={isAuthenticated}
+                  onLike={handleLike}
+                  onShare={handleShare}
+                  onOpenComments={openCommentModal}
+                />
+              ))}
+            </div>
+            
+            {/* 無限スクロール用のセンチネル要素 */}
+            {hasMore && (
+              <div ref={sentinelRef} className="py-8">
+                {loadingMore && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-200 border-t-blue-600"></div>
+                    <span className="text-gray-600">さらに読み込み中...</span>
                   </div>
                 )}
-
-                {/* アクションボタン */}
-                <div className="ml-12 flex items-center gap-4 text-gray-500">
-                  {/* コメント */}
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="コメントする"
-                      className="hover:text-blue-500 hover:bg-blue-50 group"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openCommentModal(item.id)
-                      }}
-                    >
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.93-6.94c-.042-.3-.07-.611-.07-.94v-.12A8.001 8.001 0 0112 4c4.418 0 8 3.582 8 8z" />
-                      </svg>
-                    </Button>
-                    <span className="text-sm">{item.comments_count || 0}</span>
-                  </div>
-                  {/* いいね */}
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="いいね"
-                      className={`transition-colors group ${
-                        item.user_has_liked 
-                          ? 'text-red-500 hover:bg-red-50' 
-                          : 'hover:text-red-500 hover:bg-red-50'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleLike(item.id, item.type)
-                      }}
-                    >
-                      <svg className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                        item.user_has_liked ? 'fill-current' : ''
-                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </Button>
-                    <span className="text-sm">{item.likes_count || 0}</span>
-                  </div>
-                  {/* シェア */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="シェア"
-                    className="hover:text-green-500 hover:bg-green-50 group"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleShare(item)
-                    }}
-                  >
-                    <Share className="h-5 w-5 transition-transform group-hover:scale-110" />
-                  </Button>
+              </div>
+            )}
+            
+            {/* 全て読み込み完了メッセージ */}
+            {!hasMore && filteredItems.length > 0 && (
+              <div className="text-center py-12 text-gray-500 bg-white mx-4 rounded-xl shadow-sm">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">✨</span>
                 </div>
-              </article>
-            ))}
+                <p className="text-lg font-medium">全ての作品を表示しました</p>
+                <p className="text-sm text-gray-400 mt-1">新しい作品をお楽しみに！</p>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="bg-white p-12 border-b border-gray-200">
-            <EmptyState
-              title={error ? 'データの取得に失敗しました' :
-                activeTab === 'works' ? '作品がまだありません' :
-                activeTab === 'inputs' ? 'インプットがまだありません' :
-                'フィードが空です'}
-              message={error ? 'サーバーに接続できませんでした。しばらくしてから再度お試しください。' :
-                !isAuthenticated ? 'ログインすると、クリエイターのポートフォリオを閲覧できます。' :
-                activeTab === 'works' ? 'クリエイターの作品が投稿されるとここに表示されます。' :
-                activeTab === 'inputs' ? 'クリエイターのインプットが投稿されるとここに表示されます。' :
-                'まだ投稿がありません。'}
-              ctaLabel={error ? '再読み込み' :
-                !isAuthenticated ? 'ログイン' :
-                activeTab === 'works' ? '作品を投稿' :
-                activeTab === 'inputs' ? 'インプットを追加' : ''}
-              onCtaClick={error ? () => window.location.reload() :
-                !isAuthenticated ? () => router.push('/auth') :
-                activeTab === 'works' ? () => router.push('/works/new') :
-                activeTab === 'inputs' ? () => router.push('/inputs/new') : () => {}}
-            >
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                <span className="text-2xl">
-                  {error ? '⚠️' : activeTab === 'works' ? '🎨' : activeTab === 'inputs' ? '📚' : '📱'}
-                </span>
-              </div>
-            </EmptyState>
+          <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+            <div className="bg-white p-12 rounded-2xl shadow-lg max-w-md mx-4">
+              <EmptyState
+                title={
+                  error ? 'データの取得に失敗しました' :
+                  feedMode === 'following' ? 'フォロー中の作品がありません' :
+                  '作品がまだありません'
+                }
+                message={
+                  error ? 'サーバーに接続できませんでした。しばらくしてから再度お試しください。' :
+                  feedMode === 'following' ? 'フォロー中のユーザーの作品がまだありません。気になるクリエイターをフォローしてみましょう。' :
+                  !isAuthenticated ? 'ログインすると、クリエイターのポートフォリオを閲覧できます。' :
+                  'クリエイターの作品が投稿されるとここに表示されます。'
+                }
+                ctaLabel={
+                  error ? '再読み込み' :
+                  feedMode === 'following' ? 'おすすめユーザーを見る' :
+                  !isAuthenticated ? 'ログイン' : '作品を投稿'
+                }
+                onCtaClick={
+                  error ? () => window.location.reload() :
+                  feedMode === 'following' ? () => handleFeedModeChange('all') :
+                  !isAuthenticated ? () => router.push('/auth') :
+                  () => router.push('/works/new')
+                }
+              >
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
+                  <span className="text-3xl">
+                    {error ? '⚠️' : feedMode === 'following' ? '👥' : '🎨'}
+                  </span>
+                </div>
+              </EmptyState>
+            </div>
           </div>
         )}
 
 
           </div>
 
-          {/* 右サイドバー - デスクトップのみ表示 */}
-          <div className="hidden lg:block w-80 flex-shrink-0 p-4">
+          {/* 右サイドバー - 小さく調整 */}
+          <div className="hidden 2xl:block w-72 flex-shrink-0 p-4">
             <div className="sticky top-[97px] space-y-4">
               <RecommendedUsers 
                 currentUserId={currentUser?.id}
@@ -849,9 +861,9 @@ export default function FeedPage() {
                 <p className="text-gray-600 mb-6 leading-relaxed text-lg">{selectedItem.description}</p>
               )}
 
-              {(selectedItem.banner_image_url || selectedItem.cover_image_url) && (
+              {selectedItem.banner_image_url && (
                 <Image
-                   src={(selectedItem.banner_image_url || selectedItem.cover_image_url) as string}
+                   src={selectedItem.banner_image_url}
                    alt={selectedItem.title}
                    width={1000}
                    height={320}
@@ -1080,5 +1092,7 @@ export default function FeedPage() {
         </div>
       )}
     </div>
+    <GlobalModalManager />
+    </LayoutProvider>
   )
 } 

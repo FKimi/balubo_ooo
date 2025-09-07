@@ -355,11 +355,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   useEffect(() => {
     // 閲覧数をインクリメントする非同期関数
     const incrementViewCount = async () => {
-      // 開発環境ではカウントアップしない（ホットリロードによる意図しないカウントを防ぐ）
-      if (process.env.NODE_ENV === 'development') {
-        console.log('開発環境のため、閲覧数のカウントアップをスキップしました。');
-        return;
-      }
+      // 開発環境でも閲覧数をカウント（Discovery機能のテスト用）
+      console.log('閲覧数をカウントしています...');
       try {
         await fetch(`/api/works/${workId}/view`, {
           method: 'POST',
