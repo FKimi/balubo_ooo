@@ -67,7 +67,7 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
     const descriptions = works.map(work => work.description || '').filter(Boolean)
     const allDescription = descriptions.join(' ')
     const avgDescLength = descriptions.length > 0 ? allDescription.length / descriptions.length : 0
-    const technologies = works.flatMap(work => work.technologies || []).filter(Boolean)
+    const technologies = works.flatMap(work => work.design_tools || []).filter(Boolean)
     const uniqueTechnologies = new Set(technologies.map(tech => tech.toLowerCase()))
 
     // 業界キーワード分析

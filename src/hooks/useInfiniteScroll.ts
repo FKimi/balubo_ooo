@@ -104,9 +104,9 @@ function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (..._args: Parameters<T>) => void {
   let inThrottle: boolean
-  return function (this: any, ..._args: Parameters<T>) {
+  return function (this: any, ...args: Parameters<T>) {
     if (!inThrottle) {
-      func.apply(this, _args)
+      func.apply(this, args)
       inThrottle = true
       setTimeout(() => (inThrottle = false), limit)
     }
