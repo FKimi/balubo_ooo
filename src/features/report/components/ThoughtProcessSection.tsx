@@ -46,12 +46,12 @@ export function ThoughtProcessSection({ works }: ThoughtProcessProps) {
     }
 
     // 技術スタックの分析
-    const allTechnologies = works.flatMap(work => work.technologies || []).filter(Boolean)
+    const allTechnologies = works.flatMap(work => work.design_tools || []).filter(Boolean)
     const uniqueTechnologies = new Set(allTechnologies).size
     const techDiversity = uniqueTechnologies / Math.max(allTechnologies.length, 1)
 
     // 作品タイプの分析
-    const workTypes = works.map(work => work.work_type || '').filter(Boolean)
+    const workTypes = works.map(work => work.content_type || '').filter(Boolean)
     const uniqueTypes = new Set(workTypes).size
     const typeDiversity = uniqueTypes / Math.max(workTypes.length, 1)
 
@@ -165,8 +165,8 @@ export function ThoughtProcessSection({ works }: ThoughtProcessProps) {
     const descriptions = works.map(work => work.description || '').filter(Boolean)
     const allDescription = descriptions.join(' ')
     const avgDescLength = descriptions.length > 0 ? allDescription.length / descriptions.length : 0
-    const uniqueTypes = new Set(works.map(work => work.work_type || '').filter(Boolean)).size
-    const uniqueTechnologies = new Set(works.flatMap(work => work.technologies || []).filter(Boolean)).size
+    const uniqueTypes = new Set(works.map(work => work.content_type || '').filter(Boolean)).size
+    const uniqueTechnologies = new Set(works.flatMap(work => work.design_tools || []).filter(Boolean)).size
     
     // 分析キーワード
     const systematicKeywords = ['分析', 'データ', '検証', '測定', '改善', 'ロジック', '効率']

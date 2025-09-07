@@ -37,7 +37,7 @@ export function TasteAnalysisSection({ works }: TasteAnalysisProps) {
     let btobScore = 5    // 1(BtoB) ～ 10(BtoC)
 
     // 作品タイプによる分析
-    const workTypes = works.map(work => work.work_type?.toLowerCase() || '').filter(Boolean)
+    const workTypes = works.map(work => work.content_type?.toLowerCase() || '').filter(Boolean)
     const typeCount = workTypes.length
 
     if (typeCount > 0) {
