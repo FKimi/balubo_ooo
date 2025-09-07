@@ -62,7 +62,7 @@ export function MatchingAffinitySection({ works }: MatchingAffinityProps) {
     }
 
     // 実際の作品データを詳細分析
-    const workTypes = works.map(work => work.work_type?.toLowerCase() || '').filter(Boolean)
+    const workTypes = works.map(work => work.content_type?.toLowerCase() || '').filter(Boolean)
     const uniqueTypes = new Set(workTypes)
     const descriptions = works.map(work => work.description || '').filter(Boolean)
     const allDescription = descriptions.join(' ')
