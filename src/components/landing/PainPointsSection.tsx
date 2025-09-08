@@ -3,44 +3,68 @@
 import React from 'react'
 import { useScrollAnimation } from '@/hooks'
 
-//【推敲後】クリエイターの悩みをより具体的に
+//【推敲後】クリエイターの悩みをより具体的に（3つに厳選）
 const creatorPains = [
-  'ポートフォリオ作りに追われ、本業の制作時間を削られてしまう',
-  '自分のスキルや作風の強みをうまく言葉にできず、効果的な自己PRが苦手',
-  '作品の本当の価値やこだわりが、クライアントに伝わっているか不安',
-  'スキルと依頼内容が合わない案件が多く、消耗してしまう',
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10,9 9,9 8,9"/>
+      </svg>
+    ),
+    title: "ポートフォリオ作りが面倒すぎる",
+    description: "一から作品のタイトルや説明文を考えるのに時間がかかりすぎて、本業に支障が出てしまう"
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="m12 1 3 6 6 3-6 3-3 6-3-6-6-3 6-3 3-6z"/>
+      </svg>
+    ), 
+    title: "自分の強みが分からない",
+    description: "ポートフォリオは作ったけど、具体的にどこが強みで魅力なのか言語化できない"
+  },
+  {
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="m19 8 2 2-2 2"/>
+        <path d="m17 12h4"/>
+      </svg>
+    ),
+    title: "営業・自己PRが苦手",
+    description: "自分のスキルを適切にアピールできず、理想的なクライアントとの出会いがない"
+  }
 ]
 
-//【推敲後】クライアントの悩みをより具体的に
-const clientPains = [
-  'ポートフォリオだけでは、クリエイターの本当のスキルレベルを見極められない',
-  '作風は良くても、実際の仕事の進め方や品質までは予測できない',
-  '期待していたイメージと、実際の納品物との間にズレが生じてしまう',
-  'プロジェクトに本当に合うクリエイターを探すのに、時間と手間がかかりすぎる',
-]
 
 //【推敲後】解決策の表現を、メリットが分かりやすいように調整
 const solutions = [
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><path d="M14 2v6h6"/><path d="M3 15h6"/><path d="m5 12 2 2-2 2"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
     ),
-    title: 'ポートフォリオを“自動”で最適化',
-    description: '作品のURLやファイルを登録するだけ。AIがあなたのスキルや実績から強みを自動で引き出し、クライアントに響くポートフォリオを作成します。',
+    title: 'URL入力だけで楽々作品登録',
+    description: 'WebサイトやBehance、noteなどのURLを入力するだけで、AIが自動的に作品のタイトル、説明文、画像を抽出。一から入力する手間を省いて、簡単にポートフォリオに登録できます。',
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M12 20V4"/><path d="m6 14 6 6 6-6"/><path d="M12 20V4"/><path d="m18 14-6-6-6 6"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     ),
-    title: 'AIが“隠れた強み”を分析',
-    description: '作品をAIが多角的に分析し、「専門性」「創造性」といったスキルを客観的にスコア化。自分では気づきにくい強みや作風の特徴を可視化します。',
+    title: 'AIがあなたの強みを言語化',
+    description: '作品をAIが深く分析し、「デザインの独創性」「ユーザビリティへの配慮」「ブランディング力」など、あなた自身では気づきにくい強みや魅力を具体的な言葉で表現します。',
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m21.3 16.5-1.8-1.8-1.8 1.8-1.8-1.8 1.8-1.8-1.8-1.8 1.8-1.8 1.8 1.8 1.8-1.8 1.8 1.8 1.8-1.8-1.8 1.8 1.8 1.8z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     ),
-    title: '“理想の出会い”を創出',
-    description: 'AIの分析データが、あなたのスキルや個性を正しく理解したクライアントとの出会いを創出。スキルとニーズのミスマッチを防ぎます。',
+    title: '親和性の高いマッチングを実現',
+    description: 'AIが分析したあなたのスキルデータを基に、相性の良いクライアントとの出会いを創出。営業が苦手でも、あなたの実力を理解してくれるクライアントと自然につながれます。',
   },
 ]
 
@@ -49,128 +73,143 @@ export default function PainPointsSection() {
   const { ref: solutionsRef, isVisible: solutionsVisible } = useScrollAnimation(0.2)
 
   return (
-    <section className="bg-white py-20 px-4 md:py-1">
-      <div className="container mx-auto max-w-5xl">
+    <section className="relative bg-white py-24 px-4 md:py-32">
+      <div className="container mx-auto max-w-7xl relative">
         {/* 問題提起部分 */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
-            こんな課題、ありませんか？
+          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-gray-50 rounded-full border border-gray-200">
+            <span className="text-sm font-medium text-gray-700">副業クリエイターのリアルな課題</span>
+          </div>
+          
+          <h2 className="text-4xl font-bold text-gray-900 md:text-5xl mb-6">
+            こんなお悩み、<br className="sm:hidden" />
+            <span className="text-blue-600">ありませんか？</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            従来のポートフォリオでは、
-            <span className="whitespace-nowrap">クリエイターの本当の実力</span>も、
-            <span className="whitespace-nowrap">クライアントの真のニーズ</span>も、
+          
+          <p className="mx-auto max-w-3xl text-lg text-gray-600 leading-relaxed">
+            忙しい副業クリエイターが直面する
+            <span className="font-semibold text-gray-900">ポートフォリオ作成</span>と
+            <span className="font-semibold text-gray-900">案件獲得</span>の課題。
             <br className="hidden sm:block" />
-            互いに伝わりきらないのが現状です。
+            あなたも同じような経験はありませんか？
           </p>
         </div>
 
-        <div ref={problemsRef} className="mt-16 grid gap-8 md:mt-20 md:grid-cols-2">
-          {/* Creator Pains */}
-          <div className={`rounded-lg border border-gray-200 bg-white p-8 shadow-sm transition-all duration-700 ease-out ${
-            problemsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
-            <h3 className="mb-6 flex items-center gap-3 text-2xl font-semibold text-gray-900">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-gray-900"><path d="M15.5 2H8.6c-.4 0-.8.2-1.1.5-.3.3-.5.7-.5 1.1V14c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8c.4 0 .8-.2 1.1-.5.3-.3.5-.7.5-1.1V6.5L15.5 2z"/><path d="M3 7.6v12.8c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8"/><path d="M15 2v5h5"/></svg>
-              クリエイターの課題
-            </h3>
-            <ul className="space-y-4">
-              {creatorPains.map((pain, idx) => (
-                <li key={pain} className={`flex items-start gap-3 transition-all duration-500 ease-out ${
-                  problemsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
-                }`} style={{ transitionDelay: `${idx * 100}ms` }}>
-                  <svg className="h-5 w-5 flex-shrink-0 text-amber-500 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.001-1.742 3.001H4.42c-1.53 0-2.493-1.667-1.743-3.001l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1.75-5.25a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z" clipRule="evenodd" /></svg>
-                  <span className="text-slate-600">{pain}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div ref={problemsRef} className="mt-20 md:mt-24">
+          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+            {creatorPains.map((pain, idx) => (
+              <div
+                key={pain.title}
+                className={`group relative bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-500 ease-out hover:-translate-y-1 ${
+                  problemsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: `${idx * 200}ms` }}
+              >
+                {/* アイコン */}
+                <div className="mb-6 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-gray-700 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                    {pain.icon}
+                  </div>
+                </div>
 
-          {/* Client Pains */}
-          <div className={`rounded-lg border border-gray-200 bg-white p-8 shadow-sm transition-all duration-700 ease-out ${
-            problemsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`} style={{ transitionDelay: '200ms' }}>
-            <h3 className="mb-6 flex items-center gap-3 text-2xl font-semibold text-gray-900">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-gray-900"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-              クライアントの課題
-            </h3>
-            <ul className="space-y-4">
-              {clientPains.map((pain, idx) => (
-                <li key={pain} className={`flex items-start gap-3 transition-all duration-500 ease-out ${
-                  problemsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
-                }`} style={{ transitionDelay: `${(idx + 4) * 100}ms` }}>
-                  <svg className="h-5 w-5 flex-shrink-0 text-amber-500 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.001-1.742 3.001H4.42c-1.53 0-2.493-1.667-1.743-3.001l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1.75-5.25a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z" clipRule="evenodd" /></svg>
-                  <span className="text-slate-600">{pain}</span>
-                </li>
-              ))}
-            </ul>
+                {/* タイトル */}
+                <h3 className="mb-4 text-xl font-bold text-gray-900 text-center">
+                  {pain.title}
+                </h3>
+
+                {/* 説明文 */}
+                <p className="text-gray-600 text-center leading-relaxed">
+                  {pain.description}
+                </p>
+
+                {/* ホバー時のアクセント */}
+                <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-blue-600 group-hover:w-16 group-hover:-translate-x-8 transition-all duration-300 rounded-full" />
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* 区切り矢印 */}
-        <div className="flex justify-center py-16 md:py-20">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={`text-slate-300 transition-all duration-700 ease-out ${
-              problemsVisible ? 'opacity-100 scale-100 animate-bounce' : 'opacity-0 scale-75'
-            }`}
-            style={{ transitionDelay: '1000ms' }}
-          >
-            <path
-              d="M24 6L24 42"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M16 34L24 42L32 34"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        {/* シンプルな区切り */}
+        <div className="flex justify-center py-20 md:py-24">
+          <div className={`transition-all duration-1000 ease-out ${
+            problemsVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+          }`} style={{ transitionDelay: '800ms' }}>
+            <div className="w-12 h-12 bg-white rounded-full border border-gray-200 shadow-sm flex items-center justify-center group hover:border-blue-600 transition-colors duration-300">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="text-gray-400 group-hover:text-blue-600 transition-colors duration-300"
+              >
+                <path
+                  d="M12 5v14m7-7l-7 7-7-7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* 解決策部分 */}
         <div ref={solutionsRef} className="text-center">
-          <h2 className={`text-4xl font-bold text-gray-900 md:text-5xl transition-all duration-700 ease-out ${
+          <div className={`inline-flex items-center gap-3 mb-6 px-4 py-2 bg-blue-50 rounded-full border border-blue-200 transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
-            その課題、
-            <span className="text-blue-600">
+            <span className="text-sm font-medium text-blue-700">AI搭載の革新的ソリューション</span>
+          </div>
+          
+          <h2 className={`text-4xl font-bold text-gray-900 md:text-5xl mb-6 transition-all duration-700 ease-out ${
+            solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`} style={{ transitionDelay: '100ms' }}>
+            その課題、<br className="sm:hidden" />
+            <span className="text-blue-600 font-bold">
               balubo
             </span>
             が解決します
           </h2>
-          <p className={`mx-auto mt-6 max-w-3xl text-lg text-gray-600 transition-all duration-700 ease-out ${
+          
+          <p className={`mx-auto max-w-3xl text-lg text-gray-600 leading-relaxed transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`} style={{ transitionDelay: '200ms' }}>
-            ポートフォリオ「balubo」は、あなたの作品に眠る
-            「見えない価値」を客観的なデータで可視化し、
-            あなたの実力を正しく、力強く証明します。
+            <span className="font-semibold text-gray-900">AI搭載ポートフォリオ「balubo」</span>なら、
+            作品登録の手間を大幅に削減し、あなたの隠れた強みを自動で発見・言語化。
+            <br className="hidden sm:block" />
+            効率的で魅力的なポートフォリオ作成を実現します。
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 md:mt-20 md:grid-cols-3">
+        <div className="mt-16 grid gap-8 md:mt-20 md:grid-cols-3 max-w-6xl mx-auto">
           {solutions.map((solution, idx) => (
             <div 
               key={solution.title} 
-              className={`rounded-lg border border-gray-200 bg-white p-8 transition-all duration-700 ease-out hover:border-gray-300 hover:bg-gray-50 hover:shadow-lg hover:scale-105 ${
+              className={`group relative bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-500 ease-out hover:-translate-y-1 ${
                 solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
-              style={{ transitionDelay: `${(idx + 2) * 200}ms` }}
+              style={{ transitionDelay: `${idx * 200}ms` }}
             >
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-lg bg-gray-900 text-white shadow-sm transition-all duration-300 hover:bg-gray-800 hover:scale-110">
-                {solution.icon}
+              {/* アイコン */}
+              <div className="mb-6 flex items-center justify-center">
+                <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-all duration-300">
+                  {solution.icon}
+                </div>
               </div>
-              <h3 className="mb-3 text-xl font-semibold text-gray-900">{solution.title}</h3>
-              <p className="text-base leading-relaxed text-gray-600">{solution.description}</p>
+
+              {/* タイトル */}
+              <h3 className="mb-4 text-xl font-bold text-gray-900 text-center">
+                {solution.title}
+              </h3>
+
+              {/* 説明文 */}
+              <p className="text-gray-600 text-center leading-relaxed">
+                {solution.description}
+              </p>
+
+              {/* ホバー時のアクセント */}
+              <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-blue-600 group-hover:w-16 group-hover:-translate-x-8 transition-all duration-300 rounded-full" />
             </div>
           ))}
         </div>
