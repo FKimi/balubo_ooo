@@ -373,6 +373,8 @@ export async function GET(
         headers: {
           'Cache-Control': 'public, max-age=3600, s-maxage=3600',
           'Content-Type': 'image/png',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'SAMEORIGIN',
         },
       }
     )
@@ -408,6 +410,8 @@ function generateErrorImage(message: string) {
       headers: {
         'Cache-Control': 'public, max-age=3600, s-maxage=3600',
         'Content-Type': 'image/png',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
       },
     }
   )

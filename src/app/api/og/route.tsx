@@ -254,6 +254,8 @@ export async function GET(request: NextRequest) {
         headers: {
           'Cache-Control': 'public, max-age=3600, s-maxage=3600',
           'Content-Type': 'image/png',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'SAMEORIGIN',
         },
       }
     )
@@ -285,6 +287,8 @@ export async function GET(request: NextRequest) {
         headers: {
           'Cache-Control': 'public, max-age=3600, s-maxage=3600',
           'Content-Type': 'image/png',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'SAMEORIGIN',
         },
       }
     )
