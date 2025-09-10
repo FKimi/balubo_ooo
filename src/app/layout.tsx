@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: 'balubo',
     images: [
       {
-        url: '/api/og',
+        url: '/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default',
         width: 1200,
         height: 630,
         alt: 'balubo - クリエイターのためのポートフォリオプラットフォーム',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'balubo - クリエイターのためのポートフォリオプラットフォーム',
     description: '作品を共有し、つながりを深め、新しい機会を見つけよう。AIがあなたの実績を言語化し、クリエイターとしての価値を最大化します。',
-    images: ['/api/og'],
+    images: ['/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default'],
     creator: '@AiBalubo56518',
     site: '@AiBalubo56518',
   },

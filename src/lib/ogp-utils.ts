@@ -14,7 +14,7 @@ export const BACKGROUND_COLORS = {
   profile: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
   article: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%)',
   input: 'linear-gradient(135deg, #fa709a 0%, #fee140 50%, #ff9a9e 100%)',
-  default: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)',
+  default: '#3b82f6', // 青い背景（添付画像の色に合わせて）
 } as const
 
 // 特徴アイコンの設定

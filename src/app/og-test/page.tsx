@@ -5,7 +5,7 @@ export const metadata: Metadata = generateDefaultOGPMetadata({
   title: 'OGPテストページ - balubo',
   description: 'SNS投稿時の画像表示をテストするためのページです。',
   url: 'https://www.balubo.jp/og-test',
-  imageUrl: '/api/og?title=OGPテスト&description=SNS投稿時の画像表示テスト&type=default'
+  imageUrl: '/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default'
 })
 
 export default function OGTestPage() {
@@ -39,7 +39,7 @@ export default function OGTestPage() {
                   <h3 className="font-semibold text-gray-900 mb-2">🖼️ OGP画像URL</h3>
                   <p className="text-sm text-gray-600 mb-2">生成されるOGP画像：</p>
                   <code className="bg-gray-100 p-2 rounded text-sm block break-all">
-                    /api/og?title=OGPテスト&description=SNS投稿時の画像表示テスト&type=default
+                    /api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default
                   </code>
                 </div>
               </div>
