@@ -3,7 +3,6 @@ import { NextRequest } from 'next/server'
 import { 
   OGP_CONFIG, 
   BACKGROUND_COLORS, 
-  FEATURE_ICONS, 
   sanitizeOGPInput, 
   getBackgroundColor,
   type OGImageType 
@@ -16,10 +15,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     
     // パラメータの取得とサニタイズ
-    const title = sanitizeOGPInput(searchParams.get('title'), 100, OGP_CONFIG.defaultTitle)
-    const description = sanitizeOGPInput(searchParams.get('description'), 200, OGP_CONFIG.defaultDescription)
+    const _title = sanitizeOGPInput(searchParams.get('title'), 100, OGP_CONFIG.defaultTitle)
+    const _description = sanitizeOGPInput(searchParams.get('description'), 200, OGP_CONFIG.defaultDescription)
     const type = sanitizeOGPInput(searchParams.get('type'), 20, 'default') as OGImageType
-    const author = sanitizeOGPInput(searchParams.get('author'), 50, '')
+    const _author = sanitizeOGPInput(searchParams.get('author'), 50, '')
 
     return new ImageResponse(
       (
