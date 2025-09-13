@@ -59,22 +59,22 @@ export function StrengthProfileSection({ works }: StrengthProfileProps) {
     return 'バランス型（着実に質と量を両立）'
   })()
 
-  // 強み（データに裏打ち）
+  // 強み（ストーリー性のある表現）
   const strengths: string[] = []
-  if (recent90Days >= 3) strengths.push(`直近90日で${recent90Days}件の制作。継続力と自己管理力が強み。`)
-  if (uniqueTypes >= 3) strengths.push(`作品タイプは${uniqueTypes}分野。領域を横断できる適応力。`)
-  if (uniqueTools >= 5) strengths.push(`使用ツールは${uniqueTools}種。新技術のキャッチアップが早い。`)
-  if (avgViews >= 100) strengths.push(`平均閲覧数は${avgViews}。成果が外部から評価されやすい。`)
-  if (avgDescLen >= 120) strengths.push(`平均説明${avgDescLen}字。意図や背景を丁寧に言語化できる。`)
-  if (strengths.length === 0) strengths.push('厳選した作品で安定した品質を実現。確実性の高い制作が強み。')
+  if (recent90Days >= 3) strengths.push('継続的な制作活動で安定したアウトプット力を持っている。')
+  if (uniqueTypes >= 3) strengths.push('複数分野にわたる柔軟な適応力と横断的な視点を備えている。')
+  if (uniqueTools >= 5) strengths.push('新しいツールや技術への習得意欲が高く、学習能力に長けている。')
+  if (avgViews >= 100) strengths.push('制作物が外部から評価されやすく、成果を可視化する力が強い。')
+  if (avgDescLen >= 120) strengths.push('作品の背景や意図を丁寧に言語化し、伝達力に優れている。')
+  if (strengths.length === 0) strengths.push('厳選した作品で安定した品質を実現する、確実性の高い制作スタイル。')
 
   // 伸ばすと良い領域
   const growth: string[] = []
-  if (recent90Days < 2) growth.push('制作の更新頻度を月2件以上に。小さなアウトプットを積み上げる。')
-  if (uniqueTypes <= 2) growth.push('隣接領域の案件に挑戦し、応用範囲を広げる。')
-  if (avgDescLen < 80) growth.push('作品の背景・役割・成果を100〜150字で要約し、伝達力を強化。')
-  if (uniqueTools < 4) growth.push('Figma等の最新ワークフローや自動化を取り入れ生産性を向上。')
-  if (avgViews < 80) growth.push('サムネイル/タイトル最適化で閲覧率を改善。検証→改善のサイクルを導入。')
+  if (recent90Days < 2) growth.push('制作の更新頻度を上げ、小さなアウトプットを積み重ねることで継続力を強化。')
+  if (uniqueTypes <= 2) growth.push('隣接領域の案件に挑戦し、応用範囲を広げることで多様性を獲得。')
+  if (avgDescLen < 80) growth.push('作品の背景や成果を丁寧に言語化し、伝達力を向上させる。')
+  if (uniqueTools < 4) growth.push('最新のワークフローやツールを積極的に取り入れ、制作効率を向上させる。')
+  if (avgViews < 80) growth.push('作品の訴求力を高め、より多くの人に価値を届けられるようにする。')
 
   // キャリアのヒント
   const careerHints: string[] = []
@@ -103,14 +103,18 @@ export function StrengthProfileSection({ works }: StrengthProfileProps) {
         {/* サマリー */}
         <div className="bg-gradient-to-r from-white to-gray-50 p-4 rounded border border-gray-200">
           <p className="text-sm text-gray-800 leading-relaxed">
-            {persona}。{workSpanMonths > 0 ? `活動スパンは約${workSpanMonths}ヶ月、` : ''}総作品数{totalWorks}、分野{uniqueTypes}、使用ツール{uniqueTools}種。
+            {persona}。{workSpanMonths > 0 ? `約${workSpanMonths}ヶ月にわたる制作活動を通じて、` : ''}{totalWorks > 0 ? `${totalWorks}作品の制作実績` : '制作活動'}を積み重ねている。
           </p>
         </div>
 
         {/* エビデンスチップス */}
         <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700">直近90日 {recent90Days}</span>
-          <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700">平均閲覧 {avgViews}</span>
+          {recent90Days > 0 && (
+            <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700">直近90日 {recent90Days}件</span>
+          )}
+          {avgViews > 0 && (
+            <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-700">平均閲覧 {avgViews}</span>
+          )}
           {topTags.slice(0, 3).map((tag, i) => (
             <span key={i} className="inline-flex items-center rounded-full border border-blue-200 bg-white px-3 py-1 text-xs text-gray-700">{tag}</span>
           ))}
@@ -172,10 +176,10 @@ export function StrengthProfileSection({ works }: StrengthProfileProps) {
             {/* 行動提案 */}
             <div className="flex flex-wrap gap-2 mt-3">
               {recent90Days < 2 && (
-                <a href="/works/new" className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-700">小さな作品を追加</a>
+                <a href="/works/new" className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-700 hover:bg-blue-50 transition-colors">新しい作品を追加</a>
               )}
               {uniqueTypes <= 2 && (
-                <a href="/works/new" className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-700">異分野の作品に挑戦</a>
+                <a href="/works/new" className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-700 hover:bg-blue-50 transition-colors">異分野に挑戦</a>
               )}
             </div>
           </div>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRateLimitStats } from '../utils/ai-analyzer'
 
 // Gemini APIのレート制限統計情報を取得するAPIエンドポイント
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const stats = getRateLimitStats()
     

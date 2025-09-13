@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Header, MobileBottomNavigation } from '@/components/layout/header'
+import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
 import { TasteAnalysisSection } from '@/features/report/components/TasteAnalysisSection'
 import { ThoughtProcessSection } from '@/features/report/components/ThoughtProcessSection'
 import { MatchingAffinitySection } from '@/features/report/components/MatchingAffinitySection'
@@ -117,20 +117,20 @@ function DetailedReportContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-base-light-gray">
-        <Header />
-        <main className="pt-20 pb-24 px-4">
-          <div className="max-w-4xl mx-auto">
-            <EmptyState title="エラーが発生しました">
-              <p className="text-gray-600 mb-4">{error}</p>
-              <Button onClick={() => window.location.reload()}>
-                再読み込み
-              </Button>
-            </EmptyState>
-          </div>
-        </main>
-        <MobileBottomNavigation />
-      </div>
+      <AuthenticatedLayout>
+        <div className="min-h-screen bg-base-light-gray">
+          <main className="pt-20 pb-24 px-4">
+            <div className="max-w-4xl mx-auto">
+              <EmptyState title="エラーが発生しました">
+                <p className="text-gray-600 mb-4">{error}</p>
+                <Button onClick={() => window.location.reload()}>
+                  再読み込み
+                </Button>
+              </EmptyState>
+            </div>
+          </main>
+        </div>
+      </AuthenticatedLayout>
     )
   }
 
@@ -212,10 +212,9 @@ function DetailedReportContent() {
   }
 
   return (
-    <div className="min-h-screen bg-base-light-gray">
-      <Header />
-      
-      <main className="pt-20 pb-24 px-4">
+    <AuthenticatedLayout>
+      <div className="min-h-screen bg-base-light-gray">
+        <main className="pt-20 pb-24 px-4">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* ヘッダーセクション（モダン&ミニマル） */}
           <Card className="bg-gradient-to-r from-white to-gray-50 border border-gray-200">
@@ -355,10 +354,9 @@ function DetailedReportContent() {
             </CardContent>
           </Card>
         </div>
-      </main>
-
-      <MobileBottomNavigation />
-    </div>
+        </main>
+      </div>
+    </AuthenticatedLayout>
   )
 }
 
