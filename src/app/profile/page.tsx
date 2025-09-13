@@ -50,7 +50,7 @@ function ProfileContent() {
   const searchParams = useSearchParams()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('works')
-  const [tabsInfo, setTabsInfo] = useState<{
+  const [_tabsInfo, setTabsInfo] = useState<{
     tabs: Array<{
       key: string
       label: string

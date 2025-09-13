@@ -120,7 +120,7 @@ export default function ProfileEditPage() {
   })
 
   // ドラッグ&ドロップ状態の管理
-  const [isDraggingBackground, setIsDraggingBackground] = useState(false)
+  const [_isDraggingBackground, setIsDraggingBackground] = useState(false)
   const [isDraggingAvatar, setIsDraggingAvatar] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

@@ -93,7 +93,9 @@ export async function GET(request: NextRequest) {
       }
 
       // 1) 直近24時間かつ view_count>0
-      let { data: featuredWorks, error: featuredError } = await baseSelectPositiveViews().gte('created_at', twentyFourHoursAgo)
+      let featuredWorks
+      const { data, error: featuredError } = await baseSelectPositiveViews().gte('created_at', twentyFourHoursAgo)
+      featuredWorks = data
 
       // 2) 直近7日（24hで不足時）
       if (!featuredError && (featuredWorks?.length || 0) < 10) {
