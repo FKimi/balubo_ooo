@@ -97,7 +97,62 @@ interface GeminiImage {
   data: string
 }
 
-export async function callGeminiAPI(prompt: string, temperature: number = 0.3, maxTokens: number = 4096, images: GeminiImage[] = []) {
+// レート制限監視用のグローバル変数
+let rateLimitCount = 0
+let lastRateLimitTime = 0
+const RATE_LIMIT_WINDOW = 60000 // 1分間のウィンドウ
+
+// エクスポネンシャルバックオフでリトライ処理を実装
+async function callGeminiAPIWithRetry(prompt: string, temperature: number = 0.3, maxTokens: number = 4096, images: GeminiImage[] = [], maxRetries: number = 3) {
+  let lastError: any = null
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await callGeminiAPISingle(prompt, temperature, maxTokens, images)
+      
+      // 成功時はレート制限カウンターをリセット
+      if (attempt === 0) {
+        rateLimitCount = 0
+      }
+      
+      return result
+    } catch (error: any) {
+      lastError = error
+      
+      // 429エラー（レート制限）の場合のみリトライ
+      if (error.status === 429 && attempt < maxRetries) {
+        const now = Date.now()
+        
+        // レート制限統計を更新
+        if (now - lastRateLimitTime < RATE_LIMIT_WINDOW) {
+          rateLimitCount++
+        } else {
+          rateLimitCount = 1
+          lastRateLimitTime = now
+        }
+        
+        const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // 最大10秒
+        console.log(`🚨 Gemini API レート制限エラー (${rateLimitCount}回目/分)`)
+        console.log(`⏳ ${delay}ms後にリトライします... (試行 ${attempt + 1}/${maxRetries + 1})`)
+        
+        // レート制限が頻繁に発生している場合は警告
+        if (rateLimitCount >= 3) {
+          console.warn(`⚠️ レート制限が頻繁に発生しています (${rateLimitCount}回/分)。API利用頻度の調整を検討してください。`)
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, delay))
+        continue
+      }
+      
+      // 429以外のエラーまたは最大リトライ回数に達した場合はエラーを投げる
+      throw error
+    }
+  }
+  
+  throw lastError
+}
+
+async function callGeminiAPISingle(prompt: string, temperature: number = 0.3, maxTokens: number = 4096, images: GeminiImage[] = []) {
   // v1beta では gemini-pro が利用できなくなったため、
   // 画像付き → gemini-1.5-flash、テキストのみ → gemini-1.5-pro を使用
   // 将来的に v1 (GA) へ移行する際はエンドポイントを変更すること
@@ -196,6 +251,27 @@ export async function callGeminiAPI(prompt: string, temperature: number = 0.3, m
   }
 
   return generatedText
+}
+
+// 外部から呼び出すメイン関数（リトライ機能付き）
+export async function callGeminiAPI(prompt: string, temperature: number = 0.3, maxTokens: number = 4096, images: GeminiImage[] = []) {
+  return await callGeminiAPIWithRetry(prompt, temperature, maxTokens, images)
+}
+
+// レート制限統計情報を取得する関数
+export function getRateLimitStats() {
+  const now = Date.now()
+  const timeSinceLastRateLimit = now - lastRateLimitTime
+  
+  return {
+    rateLimitCount,
+    lastRateLimitTime: lastRateLimitTime > 0 ? new Date(lastRateLimitTime).toISOString() : null,
+    timeSinceLastRateLimit: timeSinceLastRateLimit,
+    isRecentRateLimit: timeSinceLastRateLimit < RATE_LIMIT_WINDOW,
+    recommendation: rateLimitCount >= 3 ? 
+      'レート制限が頻繁に発生しています。API利用頻度の調整または上位プランへのアップグレードを検討してください。' : 
+      '正常な利用状況です。'
+  }
 }
 
 // JSONパース用の共通関数
