@@ -50,9 +50,9 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
     <div className="mb-8">
       {/* メインカード */}
       <div className="relative max-w-7xl mx-auto">
-        {/* 背景画像 - フルブリード */}
+        {/* 背景画像 - フルブリード（コンテナパディングを相殺） */}
         <div 
-          className="relative h-40 sm:h-56 md:h-64 lg:h-72 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden"
+          className="relative h-40 sm:h-56 md:h-64 lg:h-72 -mx-6 sm:-mx-8 lg:-mx-12 overflow-hidden"
           style={{ minHeight: '200px' }}
         >
           {resolvedBgUrl ? (

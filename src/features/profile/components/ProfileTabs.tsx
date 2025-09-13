@@ -5,6 +5,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { TabNavigation } from '@/components/ui/TabNavigation'
 import Image from 'next/image'
 
 import type { WorkData } from '@/features/work/types'
@@ -153,17 +154,30 @@ export function ProfileTabs({
   }, [getTabsInfo, tabs, activeTab, setActiveTab])
 
   return (
-    <div className="space-y-6">
-      {/* タブコンテンツ */}
+    <div>
+      {/* 完全に統合されたタブカード */}
       <div className="relative">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg relative z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white border border-gray-200 border-t-0 rounded-b-2xl shadow-lg relative z-10 overflow-hidden">
+          {/* タブナビゲーション */}
+          <div className="border-b border-gray-200 bg-white">
+            <div className="px-4 sm:px-6 lg:px-8">
+              <TabNavigation
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={(tab) => setActiveTab(tab as 'profile' | 'works' | 'details')}
+                className="bg-transparent border-0"
+              />
+            </div>
+          </div>
+          
+          {/* タブコンテンツ */}
+          <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
         {/* プロフィールタブ */}
         {activeTab === 'profile' && (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-6">
             {/* 新規ユーザー向けウェルカムメッセージ */}
             {(!profileData?.bio && (!profileData?.skills || profileData.skills.length === 0) && (!profileData?.career || profileData.career.length === 0)) && (
-              <Card className="border-dashed border-2 border-[#5570F3]/30 bg-gradient-to-br from-[#5570F3]/10 via-[#5570F3]/15 to-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 backdrop-blur-sm">
+              <Card className="border-dashed border-2 border-[#5570F3]/30 bg-gradient-to-br from-[#5570F3]/10 via-[#5570F3]/15 to-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 backdrop-blur-sm w-full">
                 <CardContent className="p-8 text-center">
 
                   <h3 className="text-xl font-bold text-gray-900 mb-3">プロフィールを充実させましょう！</h3>
@@ -197,7 +211,7 @@ export function ProfileTabs({
             )}
 
             {/* 詳細自己紹介セクション */}
-            <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300">
+            <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 w-full">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-gray-900">自己紹介</h3>
@@ -236,7 +250,7 @@ export function ProfileTabs({
             </Card>
 
             {/* できること（スキル）セクション */}
-            <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300">
+            <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 w-full">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-gray-900">経験・スキル</h3>
@@ -288,7 +302,7 @@ export function ProfileTabs({
             </Card>
 
             {/* キャリアセクション */}
-            <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300">
+            <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 w-full">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-gray-900">キャリア</h3>
@@ -389,12 +403,12 @@ export function ProfileTabs({
 
         {/* 作品タブ */}
         {activeTab === 'works' && (
-          <div className="mt-6">
+          <div>
             {savedWorks.length > 0 ? (
               <div className="space-y-6">
                 {/* 主な作品セクション */}
                 {savedWorks.filter(work => work.is_featured).length > 0 && (
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full">
                     <div className="p-6 border-b border-gray-100">
                       <div className="flex items-center justify-between">
                         <div>
@@ -406,9 +420,9 @@ export function ProfileTabs({
                         </span>
                       </div>
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 w-full">
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {savedWorks
                         .filter(work => work.is_featured)
                         .sort((a, b) => (a.featured_order || 0) - (b.featured_order || 0))
@@ -480,7 +494,7 @@ export function ProfileTabs({
                 )}
 
                 {/* 通常の作品一覧 */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full">
                   <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <div>
@@ -497,7 +511,7 @@ export function ProfileTabs({
                       </Button>
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 w-full">
                     <WorksCategoryManager
                       savedWorks={savedWorks}
                       categories={categories}
@@ -525,7 +539,7 @@ export function ProfileTabs({
 
         {/* クリエイター詳細タブ */}
         {activeTab === 'details' && (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-6">
             {/* AI分析による強み */}
             {strengthsAnalysis && strengthsAnalysis.strengths && strengthsAnalysis.strengths.length > 0 && (
               <AIAnalysisStrengths
@@ -538,7 +552,7 @@ export function ProfileTabs({
 
 
             {/* 作品統計・役割分析 */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full">
               <div className="p-6 border-b border-gray-100">
                 <h3 className="text-xl font-semibold text-gray-900">作品統計・役割分析</h3>
                 <p className="text-sm text-gray-600 mt-1">あなたの作品の傾向と専門性を分析</p>
@@ -546,9 +560,9 @@ export function ProfileTabs({
               
               {workStats.totalWorks > 0 ? (
                 <div className="p-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                     {/* 左側: グラフ */}
-                    <div className="lg:col-span-2">
+                    <div className="xl:col-span-2">
                       <div className="mb-6">
                         <h4 className="text-lg font-semibold text-gray-900 mb-4">役割分布</h4>
                         {workStats.roleDistribution.length > 0 ? (

@@ -560,11 +560,11 @@ function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1976D2]/5 via-white to-[#1976D2]/3 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1976D2]/8 via-transparent to-transparent"></div>
+    <div className="min-h-screen bg-gray-50 relative overflow-visible">
       <main className="relative px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
-        <div className="max-w-7xl mx-auto space-y-16">
+        <div className="w-full">
           {/* プロフィールヘッダー */}
+          <div className="mb-0">
           <ProfileHeader
             displayName={displayName}
             title={title}
@@ -579,13 +579,11 @@ function ProfileContent() {
             userId={user?.id}
             slug={slug}
             portfolioVisibility={profileData?.portfolioVisibility}
-            tabs={tabsInfo?.tabs}
-            activeTab={tabsInfo?.activeTab}
-            onTabChange={tabsInfo?.onTabChange}
           />
+          </div>
 
-          {/* タブコンテンツ */}
-          <div className="mt-0">
+          {/* タブコンテンツ - ヘッダーと直接つなげる */}
+          <div className="-mt-4">
             <ProfileTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}

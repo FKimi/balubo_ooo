@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 // レスポンスキャッシュを追加
-export const revalidate = 300 // 5分間キャッシュ
+export const revalidate = 60 // より新鮮さを保つため1分キャッシュ
 
 // 今日の注目コンテンツとトレンドタグを取得するAPIエンドポイント
 export async function GET(request: NextRequest) {
@@ -48,28 +48,80 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || 'all' // 'featured', 'tags', 'all'
     const results: any = {}
 
-    // 今日の注目コンテンツ（閲覧数上位）
+    // 今日の注目コンテンツ（直近24時間を優先し、足りなければ7日間→全期間の順で補完）
     if (type === 'featured' || type === 'all') {
       console.log('注目コンテンツ取得開始')
       
-      // 閲覧数順で作品を取得（view_countがnullの場合は最後に表示）
-      const { data: featuredWorks, error: featuredError } = await supabase
-        .from('works')
-        .select(`
-          id,
-          title,
-          description,
-          banner_image_url,
-          external_url,
-          tags,
-          roles,
-          view_count,
-          created_at,
-          user_id
-        `)
-        .order('view_count', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false })
-        .limit(10)
+      // 期間フィルタを段階的に適用
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+      const baseSelect = () =>
+        supabase
+          .from('works')
+          .select(`
+            id,
+            title,
+            description,
+            banner_image_url,
+            external_url,
+            tags,
+            roles,
+            view_count,
+            created_at,
+            user_id
+          `)
+          .order('view_count', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false })
+          .limit(10)
+
+      // view_count が正の作品のみを優先
+      const baseSelectPositiveViews = () => baseSelect().gt('view_count', 0)
+
+      // 重複排除＋最大N件に整形
+      const mergeUnique = (existing: any[] | null | undefined, add: any[] | null | undefined, max: number) => {
+        const list = [...(existing || [])]
+        const seen = new Set<string>(list.map(w => w.id))
+        for (const w of add || []) {
+          if (!seen.has(w.id)) {
+            list.push(w)
+            seen.add(w.id)
+            if (list.length >= max) break
+          }
+        }
+        return list
+      }
+
+      // 1) 直近24時間かつ view_count>0
+      let { data: featuredWorks, error: featuredError } = await baseSelectPositiveViews().gte('created_at', twentyFourHoursAgo)
+
+      // 2) 直近7日（24hで不足時）
+      if (!featuredError && (featuredWorks?.length || 0) < 10) {
+        const { data: weekWorks, error: weekErr } = await baseSelectPositiveViews().gte('created_at', sevenDaysAgo)
+        if (!weekErr) featuredWorks = mergeUnique(featuredWorks, weekWorks, 10)
+      }
+
+      // 3) 全期間（それでも不足時）
+      if (!featuredError && (featuredWorks?.length || 0) < 10) {
+        const { data: allWorks, error: allErr } = await baseSelectPositiveViews()
+        if (!allErr) featuredWorks = mergeUnique(featuredWorks, allWorks, 10)
+      }
+
+      // 4) それでも不足時は、view_count=0 も新着順で後方に補完（ランキングの誠実さ維持）
+      if (!featuredError && (featuredWorks?.length || 0) < 10) {
+        const need = 10 - (featuredWorks?.length || 0)
+        const { data: recent24Any } = await baseSelect().gte('created_at', twentyFourHoursAgo)
+        let list = mergeUnique(featuredWorks, recent24Any, (featuredWorks?.length || 0) + need)
+        if ((list?.length || 0) < 10) {
+          const { data: recent7Any } = await baseSelect().gte('created_at', sevenDaysAgo)
+          list = mergeUnique(list, recent7Any, 10)
+        }
+        if ((list?.length || 0) < 10) {
+          const { data: recentAllAny } = await baseSelect()
+          list = mergeUnique(list, recentAllAny, 10)
+        }
+        featuredWorks = list
+      }
 
       console.log('作品取得結果:', { count: featuredWorks?.length || 0, error: featuredError })
 
@@ -153,7 +205,7 @@ export async function GET(request: NextRequest) {
     if (type === 'tags' || type === 'all') {
       console.log('トレンドタグ取得開始')
       
-      // 全期間の作品からタグを集計（テスト用）
+      // 以前の仕様に戻し、全期間の作品からタグを集計
       const { data: recentWorks, error: worksError } = await supabase
         .from('works')
         .select('tags')
@@ -190,11 +242,20 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('=== Discovery API: データ取得完了 ===')
-    return NextResponse.json({
-      success: true,
-      data: results,
-      timestamp: new Date().toISOString(),
-    })
+    return NextResponse.json(
+      {
+        success: true,
+        data: results,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
+    )
 
   } catch (error) {
     console.error('Discovery API error:', error)

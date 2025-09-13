@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -57,33 +57,50 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
   const [scrollPosition, setScrollPosition] = useState(0)
 
   // データ取得
-  useEffect(() => {
-    const fetchDiscoveryData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  const fetchDiscoveryData = useCallback(async () => {
+    try {
+      setError(null)
+      // 初回のみローディング表示を出す
+      if (!data) setLoading(true)
 
-        const response = await fetch('/api/discovery/trending?type=all')
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const result = await response.json()
-        if (result.success) {
-          setData(result.data)
-        } else {
-          throw new Error(result.error || 'データ取得に失敗しました')
-        }
-      } catch (error) {
-        console.error('Discovery data fetch error:', error)
-        setError(error instanceof Error ? error.message : 'データ取得エラー')
-      } finally {
-        setLoading(false)
+      // キャッシュを避けるためのタイムスタンプを付与し、no-storeで取得
+      const ts = Date.now()
+      const response = await fetch(`/api/discovery/trending?type=all&ts=${ts}`, { cache: 'no-store' })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-    }
 
+      const result = await response.json()
+      if (result.success) {
+        setData(result.data)
+      } else {
+        throw new Error(result.error || 'データ取得に失敗しました')
+      }
+    } catch (error) {
+      console.error('Discovery data fetch error:', error)
+      setError(error instanceof Error ? error.message : 'データ取得エラー')
+    } finally {
+      setLoading(false)
+    }
+  }, [data])
+
+  useEffect(() => {
     fetchDiscoveryData()
-  }, [])
+
+    // 30秒ごとにポーリングして最新ランキングを取得
+    const intervalId = setInterval(() => {
+      fetchDiscoveryData()
+    }, 30000)
+
+    // フォーカス時にも更新
+    const onFocus = () => fetchDiscoveryData()
+    window.addEventListener('focus', onFocus)
+
+    return () => {
+      clearInterval(intervalId)
+      window.removeEventListener('focus', onFocus)
+    }
+  }, [fetchDiscoveryData])
 
   // 横スクロール処理
   const scrollFeatured = (direction: 'left' | 'right') => {

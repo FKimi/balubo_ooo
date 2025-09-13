@@ -145,10 +145,10 @@ export async function callGeminiAPI(prompt: string, temperature: number = 0.3, m
     console.error('エラーデータ型:', typeof errorData)
     console.error('エラーデータキー:', Object.keys(errorData))
     console.error('=======================')
-    
+
     // エラーメッセージの適切な処理
     let errorMessage = `HTTP ${response.status}`
-    
+
     if (errorData && typeof errorData === 'object') {
       if (typeof errorData.error === 'string') {
         errorMessage = errorData.error
@@ -166,8 +166,13 @@ export async function callGeminiAPI(prompt: string, temperature: number = 0.3, m
         errorMessage = errorData.message
       }
     }
-    
-    throw new Error(`AI分析に失敗しました: ${errorMessage}`)
+
+    // 返却用の Error に追加情報を付与
+    const err: any = new Error(`AI分析に失敗しました: ${errorMessage}`)
+    err.status = response.status
+    err.code = response.status === 429 || /rate limit|quota/i.test(errorMessage) ? 'RATE_LIMIT' : 'GEMINI_ERROR'
+    err.isRateLimit = err.code === 'RATE_LIMIT'
+    throw err
   }
 
   const data = await response.json()
@@ -309,15 +314,22 @@ export function handleAnalysisError(error: any) {
   let statusCode = 500
   
   if (error instanceof Error) {
+    const messageLower = error.message.toLowerCase()
+    const statusFromError = (error as any).status as number | undefined
+    const isRateLimit = (error as any).isRateLimit || messageLower.includes('rate limit') || messageLower.includes('quota')
+
     if (error.message.includes('GEMINI_API_KEY')) {
       errorMessage = 'AI分析の設定に問題があります。GEMINI_API_KEYが設定されていません。'
       statusCode = 500
+    } else if (isRateLimit || statusFromError === 429) {
+      errorMessage = '現在AI分析の上限に達しています。数分後に再実行してください。必要に応じてプランや課金設定をご確認ください。'
+      statusCode = 429
     } else if (error.message.includes('AI分析に失敗しました')) {
       errorMessage = error.message
-      statusCode = 500
+      statusCode = statusFromError || 500
     } else {
       errorMessage = `AI分析エラー: ${error.message}`
-      statusCode = 500
+      statusCode = statusFromError || 500
     }
   }
   

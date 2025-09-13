@@ -21,7 +21,6 @@ function DetailedReportContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [profile, setProfile] = useState<any>(null)
-  const [isExporting, setIsExporting] = useState(false)
 
   // 表示するユーザーIDを決定（URLパラメータがあればそれを、なければログインユーザーを使用）
   const displayUserId = targetUserId || user?.id
@@ -77,20 +76,7 @@ function DetailedReportContent() {
     fetchData()
   }, [displayUserId])
 
-  // PDF出力機能（簡易版）
-  const handleExportPDF = async () => {
-    setIsExporting(true)
-    try {
-      // 実際のPDF出力実装は既存のexportToPDF関数を参考に実装
-      await new Promise(resolve => setTimeout(resolve, 2000)) // 仮の待機
-      alert('詳細レポートのPDF出力機能は開発中です')
-    } catch (error) {
-      console.error('PDF出力エラー:', error)
-      alert('PDF出力に失敗しました')
-    } finally {
-      setIsExporting(false)
-    }
-  }
+  // 以前はここにPDF出力機能がありましたが、実装コストのため削除しました
 
   if (loading) {
     return (
@@ -149,25 +135,7 @@ function DetailedReportContent() {
                     <span>分析日: {new Date().toLocaleDateString('ja-JP')}</span>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={handleExportPDF}
-                    disabled={isExporting}
-                    variant="outline"
-                    className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    {isExporting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        出力中...
-                      </>
-                    ) : (
-                      <>
-                        PDF出力
-                      </>
-                    )}
-                  </Button>
-                </div>
+                {/* PDF出力ボタンは仕様変更により削除 */}
               </div>
             </CardHeader>
           </Card>

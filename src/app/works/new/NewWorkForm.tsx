@@ -1262,8 +1262,20 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
         }
       }
       
-      console.log('表示するエラーメッセージ:', errorMessage)
-      alert(errorMessage)
+      // レート制限・クオータ超過のときは丁寧なメッセージに差し替え
+      const msgLower = (errorMessage || '').toLowerCase()
+      const isRateLimit =
+        errorMessage.includes('上限に達しています') ||
+        msgLower.includes('rate limit') ||
+        msgLower.includes('quota') ||
+        msgLower.includes('429')
+
+      const finalMessage = isRateLimit
+        ? '現在AI分析の上限に達しています。数分〜10分ほど待ってから再度お試しください。継続するにはGeminiのプラン/課金設定もご確認ください。'
+        : errorMessage
+
+      console.log('表示するエラーメッセージ:', finalMessage)
+      alert(finalMessage)
     } finally {
       setIsAnalyzing(false)
     }
