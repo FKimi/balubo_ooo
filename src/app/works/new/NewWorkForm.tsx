@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -568,6 +568,9 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
   // デザイン用の状態変数
   const [newDesignTool, setNewDesignTool] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isCooldown, setIsCooldown] = useState(false)
+  const [cooldownRemaining, setCooldownRemaining] = useState(0)
+  const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
@@ -875,8 +878,44 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
     }))
   }
 
+  // クールダウン開始
+  const startCooldown = (seconds: number) => {
+    if (cooldownTimerRef.current) {
+      clearInterval(cooldownTimerRef.current)
+      cooldownTimerRef.current = null
+    }
+
+    setIsCooldown(true)
+    setCooldownRemaining(seconds)
+
+    cooldownTimerRef.current = setInterval(() => {
+      setCooldownRemaining(prev => {
+        if (prev <= 1) {
+          if (cooldownTimerRef.current) {
+            clearInterval(cooldownTimerRef.current)
+            cooldownTimerRef.current = null
+          }
+          setIsCooldown(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  // アンマウント時にタイマーをクリア
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) {
+        clearInterval(cooldownTimerRef.current)
+        cooldownTimerRef.current = null
+      }
+    }
+  }, [])
+
   // AI分析
   const analyzeWithAI = async () => {
+    if (isAnalyzing || isCooldown) return
     // デザイン作品の場合は、ファイルがアップロードされていれば分析可能
     const hasContent = formData.description || previewData?.description || articleContent || uploadedFiles.length > 0
     
@@ -1278,6 +1317,7 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
       alert(finalMessage)
     } finally {
       setIsAnalyzing(false)
+      startCooldown(10)
     }
   }
 
@@ -2083,11 +2123,11 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
               <div className="flex flex-col items-center lg:items-end gap-2">
                 <Button 
                   onClick={analyzeWithAI}
-                  disabled={isAnalyzing}
+                  disabled={isAnalyzing || isCooldown}
                   className="bg-white/20 hover:bg-white/30 text-white border-white/30 px-8 py-3 font-medium min-w-[140px] whitespace-nowrap backdrop-blur-sm transition-all duration-200 hover:scale-105"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
-                  {isAnalyzing ? '分析実行中...' : 'AI分析実行'}
+                  {isAnalyzing ? '分析実行中...' : isCooldown ? `待機中 (${cooldownRemaining}s)` : 'AI分析実行'}
                 </Button>
                 <p className="text-blue-100 text-sm text-center lg:text-right">
                   作品の強みと特徴を自動分析
