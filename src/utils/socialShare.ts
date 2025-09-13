@@ -1,5 +1,4 @@
 import type { WorkData } from '@/features/work/types'
-import type { InputData } from '@/types/input'
 
 // X（Twitter）共有用のデータ型
 interface ShareData {
@@ -93,107 +92,6 @@ export function generateWorkShareMessage(work: WorkData, _userDisplayName: strin
   return result
 }
 
-// インプット共有用メッセージ生成
-export function generateInputShareMessage(input: InputData, _userDisplayName: string = 'クリエイター'): ShareData {
-  const typeMap = {
-    'book': '本',
-    'movie': '映画',
-    'anime': 'アニメ',
-    'manga': '漫画',
-    'tv': 'TV番組',
-    'game': 'ゲーム',
-    'podcast': 'ポッドキャスト',
-    'youtube': 'YouTube',
-    'other': 'コンテンツ'
-  }
-
-  const typeText = typeMap[input.type as keyof typeof typeMap] || 'コンテンツ'
-  
-  // 基本メッセージ
-  let message = `新しい${typeText}をインプットしました！\n\n${input.title}`
-  
-  // 作者がいれば追加
-  if (input.authorCreator) {
-    message += `\n👤 ${input.authorCreator}`
-  }
-
-  // 評価があれば追加
-  if (input.rating && input.rating > 0) {
-    const stars = '⭐'.repeat(input.rating)
-    message += `\n⭐ ${stars} (${input.rating}/5)`
-  }
-
-  // メモ・感想があれば追加（抜粋）
-  if (input.notes && input.notes.length > 0) {
-    const maxNoteLength = 60
-    const note = input.notes.length > maxNoteLength 
-      ? input.notes.substring(0, maxNoteLength) + '...' 
-      : input.notes
-    message += `\n\n💭 ${note}`
-  }
-
-  message += '\n\n#balubo #コンテンツ'
-
-  // ハッシュタグ生成
-  const hashtags = ['balubo', '学習記録', 'インプット']
-  
-  // タイプ別ハッシュタグ
-  switch (input.type) {
-    case 'book':
-      hashtags.push('読書', '本', '読書記録')
-      break
-    case 'movie':
-      hashtags.push('映画', '映画鑑賞', 'シネマ')
-      break
-    case 'anime':
-      hashtags.push('アニメ', 'アニメ鑑賞')
-      break
-    case 'manga':
-      hashtags.push('漫画', 'マンガ', 'コミック')
-      break
-    case 'game':
-      hashtags.push('ゲーム', 'ゲーム体験')
-      break
-    case 'podcast':
-      hashtags.push('ポッドキャスト', '音声学習')
-      break
-    case 'youtube':
-      hashtags.push('YouTube', '動画学習')
-      break
-    case 'tv':
-      hashtags.push('TV番組', 'テレビ', '視聴記録')
-      break
-    case 'other':
-      hashtags.push('その他', 'コンテンツ')
-      break
-  }
-
-  // ジャンルタグを追加（最大3つまで）
-  if (input.genres && input.genres.length > 0) {
-    input.genres.slice(0, 3).forEach(genre => {
-      if (genre.length <= 10) { // 長すぎるタグは除外
-        hashtags.push(genre)
-      }
-    })
-  }
-
-  // カテゴリがあれば追加
-  if (input.category && input.category.length <= 10) {
-    hashtags.push(input.category)
-  }
-
-  const result: ShareData = {
-    text: message,
-    hashtags: hashtags.slice(0, 10) // 最大10個まで
-  }
-
-  // インプット詳細ページのURLを使用（external_urlの代わりに）
-  if (input.id && typeof window !== 'undefined') {
-    result.url = `${window.location.origin}/profile/works/${input.id}`
-  }
-
-  return result
-}
 
 // X共有URL生成
 export function generateTwitterShareUrl(shareData: ShareData): string {
@@ -217,20 +115,14 @@ export function generateTwitterShareUrl(shareData: ShareData): string {
 }
 
 // 共有モーダル用コンポーネント用のデータ生成
-export function generateShareModalData(type: 'work' | 'input', data: WorkData | InputData, userDisplayName?: string) {
-  let shareData: ShareData
-  
-  if (type === 'work') {
-    shareData = generateWorkShareMessage(data as WorkData, userDisplayName)
-  } else {
-    shareData = generateInputShareMessage(data as InputData, userDisplayName)
-  }
+export function generateShareModalData(data: WorkData, userDisplayName?: string) {
+  const shareData = generateWorkShareMessage(data, userDisplayName)
 
   return {
     ...shareData,
     twitterUrl: generateTwitterShareUrl(shareData),
     preview: {
-      type: type === 'work' ? '作品' : 'インプット',
+      type: '作品',
       title: data.title,
       message: shareData.text
     }
@@ -238,12 +130,9 @@ export function generateShareModalData(type: 'work' | 'input', data: WorkData | 
 }
 
 // 簡単共有（直接X画面を開く）
-export function shareToTwitter(type: 'work' | 'input', data: WorkData | InputData, userDisplayName?: string) {
+export function shareToTwitter(data: WorkData, userDisplayName?: string) {
   try {
-    const shareData = type === 'work' 
-      ? generateWorkShareMessage(data as WorkData, userDisplayName)
-      : generateInputShareMessage(data as InputData, userDisplayName)
-    
+    const shareData = generateWorkShareMessage(data, userDisplayName)
     const twitterUrl = generateTwitterShareUrl(shareData)
     
     // 新しいタブでX共有画面を開く

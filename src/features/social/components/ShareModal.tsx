@@ -21,7 +21,13 @@ interface ShareModalProps {
 }
 
 export function ShareModal({ isOpen, onClose, type, data, userDisplayName, variant = 'modal' }: ShareModalProps) {
-  const modalData = useMemo(() => generateShareModalData(type, data, userDisplayName), [type, data, userDisplayName])
+  const modalData = useMemo(() => {
+    if (type === 'work') {
+      return generateShareModalData(data, userDisplayName)
+    }
+    // inputタイプは廃止されているため、workタイプのみ対応
+    return generateShareModalData(data, userDisplayName)
+  }, [type, data, userDisplayName])
 
   // 作品の場合はシェア用画像 URL を生成 (OGP Route)
   const ogImageUrl = useMemo(() => {
@@ -91,7 +97,7 @@ export function ShareModal({ isOpen, onClose, type, data, userDisplayName, varia
 
           {/* アクション */}
           <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <Button onClick={() => shareToTwitter(type, data, userDisplayName)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+            <Button onClick={() => shareToTwitter(data, userDisplayName)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.3 4.3 0 001.88-2.37 8.59 8.59 0 01-2.72 1.04 4.28 4.28 0 00-7.29 3.9 12.14 12.14 0 01-8.82-4.47 4.28 4.28 0 001.32 5.71 4.28 4.28 0 01-1.94-.54v.05a4.28 4.28 0 003.44 4.2 4.3 4.3 0 01-1.93.07 4.28 4.28 0 004 2.97 8.58 8.58 0 01-5.31 1.83A8.65 8.65 0 012 19.54a12.13 12.13 0 006.56 1.92c7.88 0 12.2-6.53 12.2-12.2 0-.19 0-.37-.01-.56A8.65 8.65 0 0022.46 6z" />
               </svg>
