@@ -1,11 +1,10 @@
 import type { WorkData } from '@/features/work/types'
-import type { InputData } from '@/types/input'
 
 /**
  * 月別のアウトプット（作品）数とインプット数を計算して返す。
  * 返却形式: [{ month: 'YYYY-MM', works: number, inputs: number }]
  */
-export function calculateMonthlyProgress(works: WorkData[], inputs: InputData[]) {
+export function calculateMonthlyProgress(works: WorkData[], inputs: any[]) {
   const monthlyData: Record<string, { works: number; inputs: number }> = {}
 
   works.forEach((work) => {
@@ -39,7 +38,7 @@ export type TimelineEvent = {
 /**
  * 作品制作とインプット学習のタイムライン（最新20件）を生成する。
  */
-export function generateTimeline(works: WorkData[], inputs: InputData[]): TimelineEvent[] {
+export function generateTimeline(works: WorkData[], inputs: any[]): TimelineEvent[] {
   const events: TimelineEvent[] = []
 
   works.forEach((work) => {

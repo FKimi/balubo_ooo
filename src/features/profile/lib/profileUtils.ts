@@ -1,5 +1,4 @@
 import type { WorkData, WorkCategory } from '@/features/work/types'
-import type { InputData } from '@/types/input'
 
 /**
  * 作品データからよく使用するタグを計算する
@@ -9,7 +8,7 @@ export function calculateTopTags(works: WorkData[]): [string, number][] {
   
   works.forEach(work => {
     if (work.tags && Array.isArray(work.tags)) {
-      work.tags.forEach(tag => {
+      work.tags.forEach((tag: string) => {
         tagCount[tag] = (tagCount[tag] || 0) + 1
       })
     }
@@ -23,12 +22,12 @@ export function calculateTopTags(works: WorkData[]): [string, number][] {
 /**
  * インプットデータからよく使用するタグを計算する
  */
-export function calculateInputTopTags(inputs: InputData[]): [string, number][] {
+export function calculateInputTopTags(inputs: any[]): [string, number][] {
   const tagCount: { [key: string]: number } = {}
   
   inputs.forEach(input => {
     if (input.tags && Array.isArray(input.tags)) {
-      input.tags.forEach(tag => {
+      input.tags.forEach((tag: string) => {
         tagCount[tag] = (tagCount[tag] || 0) + 1
       })
     }
@@ -42,7 +41,7 @@ export function calculateInputTopTags(inputs: InputData[]): [string, number][] {
 /**
  * 作品とインプットの両方からタグを統合集計する
  */
-export function calculateCombinedTopTags(works: WorkData[], inputs: InputData[]): [string, number][] {
+export function calculateCombinedTopTags(works: WorkData[], inputs: any[]): [string, number][] {
   const tagCount: { [key: string]: number } = {}
   
   // 作品のタグを集計
@@ -57,7 +56,7 @@ export function calculateCombinedTopTags(works: WorkData[], inputs: InputData[])
   // インプットのタグを集計
   inputs.forEach(input => {
     if (input.tags && Array.isArray(input.tags)) {
-      input.tags.forEach(tag => {
+      input.tags.forEach((tag: string) => {
         tagCount[tag] = (tagCount[tag] || 0) + 1
       })
     }
@@ -71,12 +70,12 @@ export function calculateCombinedTopTags(works: WorkData[], inputs: InputData[])
 /**
  * インプットデータからジャンル分布を計算する
  */
-export function calculateGenreDistribution(inputs: InputData[]): [string, number][] {
+export function calculateGenreDistribution(inputs: any[]): [string, number][] {
   const genreCount: { [key: string]: number } = {}
   
   inputs.forEach(input => {
     if (input.genres && Array.isArray(input.genres)) {
-      input.genres.forEach(genre => {
+      input.genres.forEach((genre: string) => {
         genreCount[genre] = (genreCount[genre] || 0) + 1
       })
     }
@@ -125,7 +124,7 @@ export function getMediaTypeLabel(type: string): string {
 /**
  * インプット分析の統計情報を計算する
  */
-export function calculateInputStats(inputs: InputData[]) {
+export function calculateInputStats(inputs: any[]) {
   const totalInputs = inputs.length
   const favoriteCount = inputs.filter(input => input.favorite).length
   const averageRating = totalInputs > 0

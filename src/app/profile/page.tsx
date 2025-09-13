@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { ProfileData, CareerItem } from '@/features/profile/types'
-import type { InputData, InputAnalysis } from '@/types/input'
+// import type { InputData, InputAnalysis } from '@/types/input'
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
 import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
 import { ProfileModals } from '@/features/profile/components/ProfileModals'
@@ -49,7 +49,7 @@ function ProfileContent() {
   const _router = useRouter()
   const searchParams = useSearchParams()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
-  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'inputs' | 'details'>('works')
+  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'details'>('works')
   const [_tabsInfo, setTabsInfo] = useState<{
     tabs: Array<{
       key: string
@@ -104,9 +104,9 @@ function ProfileContent() {
   const [_isLoadingWorks, setIsLoadingWorks] = useState(false)
   
   // インプット関連のstate（一時的に未使用）
-  const [_inputs, _setInputs] = useState<InputData[]>([])
-  const [_inputAnalysis, _setInputAnalysis] = useState<InputAnalysis | null>(null)
-  const [_isLoadingInputs, _setIsLoadingInputs] = useState(false)
+  // const [_inputs, _setInputs] = useState<InputData[]>([])
+  // const [_inputAnalysis, _setInputAnalysis] = useState<InputAnalysis | null>(null)
+  // const [_isLoadingInputs, _setIsLoadingInputs] = useState(false)
 
   // クエリパラメータからタブを設定
   useEffect(() => {

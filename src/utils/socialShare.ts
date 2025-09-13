@@ -189,7 +189,7 @@ export function generateInputShareMessage(input: InputData, _userDisplayName: st
 
   // インプット詳細ページのURLを使用（external_urlの代わりに）
   if (input.id && typeof window !== 'undefined') {
-    result.url = `${window.location.origin}/profile/inputs/${input.id}`
+    result.url = `${window.location.origin}/profile/works/${input.id}`
   }
 
   return result

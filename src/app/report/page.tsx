@@ -7,12 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Header, MobileBottomNavigation } from '@/components/layout/header'
 import { useWorkStatistics } from '@/features/work/hooks/useWorkStatistics'
 import { WorksSection } from '@/features/report/components/WorksSection'
-import { InputsSection } from '@/features/report/components/InputsSection'
 import { ActivitySection } from '@/features/report/components/ActivitySection'
 import { exportToPDF, exportScreenshotToPDF, exportComprehensiveReportToPDF } from '@/utils/pdfExport'
 import { supabase } from '@/lib/supabase'
 import type { WorkData } from '@/features/work/types'
-import type { InputData } from '@/types/input'
+// import type { InputData } from '@/types/input' // inputs 機能は廃止
 import { Card, CardContent } from '@/components/ui/card'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
 import AdvancedMetricsGrid from '@/features/report/components/AdvancedMetricsGrid'
@@ -25,7 +24,7 @@ function ReportContent() {
   const targetUserId = searchParams.get('userId') // URLパラメータからuserIdを取得
   const [activeSection, setActiveSection] = useState<string>('outputs')
   const [works, setWorks] = useState<WorkData[]>([])
-  const [inputs, setInputs] = useState<InputData[]>([])
+  const [inputs, setInputs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [_isExporting, setIsExporting] = useState(false)
@@ -216,7 +215,7 @@ function ReportContent() {
 
   // 作品統計を計算
   const workStats = useWorkStatistics(works)
-  const hasInputs = inputs.length > 0
+  const hasInputs = false
   const comprehensiveAnalysis = generateComprehensiveAnalysis()
 
   // タブの定義
@@ -337,11 +336,8 @@ function ReportContent() {
         // 認証ヘッダーを取得
         const headers = await getAuthHeaders()
 
-        // 作品データと作品分析を並行取得
-        const [worksResponse, inputsResponse] = await Promise.all([
-          fetch('/api/works', { headers }),
-          fetch('/api/inputs', { headers })
-        ])
+        // 作品データのみ取得（インプット機能は廃止）
+        const worksResponse = await fetch('/api/works', { headers })
 
         if (!worksResponse.ok) {
           throw new Error('作品データの取得に失敗しました')
@@ -352,12 +348,7 @@ function ReportContent() {
         const worksArray = Array.isArray(worksData) ? worksData : (worksData?.works || [])
         setWorks(worksArray)
 
-        if (inputsResponse.ok) {
-          const inputsData = await inputsResponse.json()
-          // APIレスポンスの構造に応じて配列を抽出
-          const inputsArray = Array.isArray(inputsData) ? inputsData : (inputsData?.inputs || [])
-          setInputs(inputsArray)
-        }
+        setInputs([])
 
       } catch (error) {
         console.error('データ取得エラー:', error)
@@ -428,7 +419,7 @@ function ReportContent() {
       const genreCount: { [key: string]: number } = {}
       inputs.forEach(input => {
         if (input.genres && Array.isArray(input.genres)) {
-          input.genres.forEach(genre => {
+          input.genres.forEach((genre: string) => {
             genreCount[genre] = (genreCount[genre] || 0) + 1
           })
         }
@@ -529,15 +520,15 @@ function ReportContent() {
 
         const topGenres = () => {
           const genreCount: { [key: string]: number } = {}
-          inputs.forEach(input => {
+          inputs.forEach((input: any) => {
             if (input.genres && Array.isArray(input.genres)) {
-              input.genres.forEach(genre => {
+              input.genres.forEach((genre: string) => {
                 genreCount[genre] = (genreCount[genre] || 0) + 1
               })
             }
           })
           return Object.entries(genreCount)
-            .sort(([, a], [, b]) => b - a)
+            .sort(([, a], [, b]) => (b as number) - (a as number))
             .slice(0, 6)
             .map(([genre]) => genre)
         }
@@ -581,7 +572,7 @@ function ReportContent() {
 
   // 総合分析セクションをレンダリング
   const renderComprehensiveAnalysisSection = () => {
-    if (works.length === 0 && inputs.length === 0) {
+    if (works.length === 0) {
       return (
         <Card>
           <CardContent className="p-8 text-center text-gray-500">
@@ -592,7 +583,7 @@ function ReportContent() {
     }
 
     // タグを統合集計
-    const topTags = calculateCombinedTopTags(works, inputs)
+    const topTags = calculateCombinedTopTags(works, [])
 
     // 傾向文生成
     const tendencySentences = () => {
@@ -798,7 +789,6 @@ function ReportContent() {
           {/* メインコンテンツ */}
           <div id="report-content" className="space-y-6">
             {activeSection === 'outputs' && <WorksSection works={works} workStats={workStats} analysis={comprehensiveAnalysis} />}
-            {activeSection === 'inputs' && <InputsSection inputs={inputs} />}
             {activeSection === 'activity' && (
               <ActivitySection works={works} inputs={inputs} />
             )}

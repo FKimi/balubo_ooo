@@ -99,9 +99,9 @@ export function PublicProfileContent({ data, userId }: PublicProfileContentProps
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
 
   return (
-    <div className="min-h-screen bg-white">
-    <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 relative overflow-visible">
+    <main className="relative px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+      <div className="w-full">
         {/* 戻るリンク */}
         <div className="mb-4">
           <Link href="/">

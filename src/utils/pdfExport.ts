@@ -1,7 +1,6 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import type { WorkData } from '@/features/work/types'
-import type { InputData } from '@/types/input'
 
 interface ProfileData {
   displayName: string
@@ -15,7 +14,7 @@ interface ProfileData {
 interface ExportData {
   profile: ProfileData
   works: WorkData[]
-  inputs: InputData[]
+  inputs: any[]
   stats: {
     totalWorks: number
     totalWordCount: number
@@ -50,7 +49,7 @@ interface ComprehensiveReportData {
     }
   }
   inputsAnalysis: {
-    inputs: InputData[]
+    inputs: any[]
     genrePreferences: { [key: string]: number }
     ratingDistribution: { [key: number]: number }
     monthlyInputs: { month: string; count: number }[]

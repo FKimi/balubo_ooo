@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { PublicProfileContent } from '@/app/share/profile/[userId]/public-profile-content'
 import { calculateInputTopTags, calculateGenreDistribution } from '@/features/profile/lib/profileUtils'
-import { InputData } from '@/types/input'
+// import { InputData } from '@/types/input'
 
 async function getPublicProfileBySlug(slug: string) {
   // anon クライアントで公開プロフィールを取得
@@ -68,7 +68,7 @@ async function getPublicProfileBySlug(slug: string) {
     .order('created_at', { ascending: false })
 
   // データベースから取得したデータを InputData 型に変換
-  const inputs: InputData[] = (rawInputs || []).map((item: any) => ({
+  const inputs: any[] = (rawInputs || []).map((item: any) => ({
     id: item.id,
     userId: userId,
     title: item.title || '',

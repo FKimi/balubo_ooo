@@ -1,13 +1,12 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { SimpleProgress } from './SimpleProgress'
 import type { WorkData } from '@/features/work/types'
-import type { InputData } from '@/types/input'
 import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
 import { EmptyState } from '@/components/common'
 
 interface ActivitySectionProps {
   works: WorkData[]
-  inputs: InputData[]
+  inputs: any[]
 }
 
 export function ActivitySection({ works, inputs }: ActivitySectionProps) {

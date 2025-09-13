@@ -172,29 +172,7 @@ export const apiEndpoints = {
     }
   },
 
-  // インプット関連
-  inputs: {
-    list: (userId?: string): Promise<ApiResponse<any[]>> => {
-      const params = userId ? { userId } : undefined
-      return api.get('/api/inputs', params)
-    },
-    get: (id: string): Promise<ApiResponse<any>> => {
-      return api.get(`/api/inputs/${id}`)
-    },
-    create: (inputData: any): Promise<ApiResponse<any>> => {
-      return api.post('/api/inputs', inputData)
-    },
-    update: (id: string, inputData: any): Promise<ApiResponse<any>> => {
-      return api.put(`/api/inputs/${id}`, inputData)
-    },
-    delete: (id: string): Promise<ApiResponse<any>> => {
-      return api.delete(`/api/inputs/${id}`)
-    },
-    analyze: (userId?: string): Promise<ApiResponse<any>> => {
-      const params = userId ? { userId } : undefined
-      return api.get('/api/inputs/analysis', params)
-    }
-  },
+  // インプット関連（廃止）
 
   // フィード関連
   feed: {

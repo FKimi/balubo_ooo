@@ -1,5 +1,5 @@
 // インプット分析精度向上ライブラリ
-import { InputData } from '@/types/input'
+// import { InputData } from '@/types/input' // inputs 機能は廃止
 
 
 
@@ -118,7 +118,7 @@ export class InputAnalysisEnhancer {
    * AI分析と外部データを統合した高精度分析
    */
   static async enhanceInputAnalysis(
-    input: InputData, 
+    input: any, 
     aiAnalysis: any, 
     externalData?: any
   ): Promise<EnhancedAnalysisResult> {
@@ -205,7 +205,7 @@ export class InputAnalysisEnhancer {
   /**
    * 年齢層の推定
    */
-  private static inferAgeGroup(input: InputData, externalData?: any): string {
+  private static inferAgeGroup(input: any, externalData?: any): string {
     const title = input.title.toLowerCase()
     const genres = input.genres?.join(' ').toLowerCase() || ''
     
@@ -233,7 +233,7 @@ export class InputAnalysisEnhancer {
   /**
    * 興味分野の推定
    */
-  private static inferInterests(input: InputData, aiAnalysis?: any, _externalData?: any): string[] {
+  private static inferInterests(input: any, aiAnalysis?: any, _externalData?: any): string[] {
     const interests = new Set<string>()
     
     // タグから興味を推定
@@ -257,8 +257,8 @@ export class InputAnalysisEnhancer {
    * 関連コンテンツの推薦アルゴリズム
    */
   static async generateRecommendations(
-    userInputs: InputData[], 
-    currentInput: InputData
+    userInputs: any[], 
+    currentInput: any
   ): Promise<Array<{ title: string; score: number; reason: string }>> {
     // ユーザーの好みパターン分析
     const _userPreferences = this.analyzeUserPreferences(userInputs)
@@ -286,7 +286,7 @@ export class InputAnalysisEnhancer {
   /**
    * ユーザーの好みパターン分析
    */
-  private static analyzeUserPreferences(inputs: InputData[]): any {
+  private static analyzeUserPreferences(inputs: any[]): any {
     const preferences = {
       favoriteGenres: this.getMostFrequent(inputs.flatMap(i => i.genres || [])),
       // averageRating: inputs.filter(i => i.rating).reduce((sum, i) => sum + (i.rating || 0), 0) / inputs.filter(i => i.rating).length,

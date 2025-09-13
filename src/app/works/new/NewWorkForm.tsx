@@ -1507,8 +1507,8 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
       // 保存されたデータを設定
       setSavedWorkData(data)
       
-      // マイページ（プロフィール）へ即座にリダイレクト
-      router.push('/profile')
+      // 保存後にさりげなく共有トーストを表示
+      setShowShareModal(true)
 
     } catch (error) {
       console.error('Work save error:', error)
@@ -2413,6 +2413,7 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
         type="work"
         data={savedWorkData || {}}
         userDisplayName={userDisplayName}
+        variant="toast"
       />
 
       {/* 削除確認モーダル */}

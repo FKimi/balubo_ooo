@@ -79,11 +79,17 @@ export function WorkCard({
   }
 
   return (
-    <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
+    <div 
+      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+      onClick={handleWorkClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleWorkClick() } }}
+      aria-label={`${_work.title} の詳細を開く`}
+    >
       {/* 作品画像 */}
       <div 
         className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden"
-        onClick={handleWorkClick}
       >
         {_work.banner_image_url && !imageError ? (
           <>

@@ -155,6 +155,30 @@ export function ThoughtProcessSection({ works }: ThoughtProcessProps) {
 
   const analysis = analyzeThoughtProcess()
 
+  // データドリブンな重要度順に並べ替え（頻度・長さ・多様性など簡易スコア）
+  const rankItems = (items: string[]): string[] => {
+    const scoreByKeyword: Record<string, number> = {
+      '継続': 3,
+      '計画': 2,
+      '詳細': 3,
+      '効率': 2,
+      'データ': 3,
+      '分析': 3,
+      '創造': 3,
+      '独自': 2,
+      '柔軟': 2,
+      '品質': 2,
+    }
+    return [...items]
+      .map(text => {
+        const base = 1
+        const bonus = Object.entries(scoreByKeyword).reduce((acc, [kw, v]) => acc + (text.includes(kw) ? v : 0), 0)
+        return { text, score: base + bonus }
+      })
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.text)
+  }
+
   const generateSummary = (): string => {
     const totalWorks = works.length
     if (totalWorks === 0) {
@@ -226,53 +250,42 @@ export function ThoughtProcessSection({ works }: ThoughtProcessProps) {
 
   const summary = generateSummary()
 
+  const ChipList = ({ items, color = 'gray' }: { items: string[]; color?: 'gray' | 'blue' }) => (
+    <div className="flex flex-wrap gap-2">
+      {rankItems(items).slice(0, 2).map((item, index) => (
+        <span
+          key={index}
+          className={`inline-flex items-center rounded-full border border-${color}-300 bg-white px-3 py-1 text-xs text-gray-700`}
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  )
+
   return (
     <Card className="w-full">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-900">
-          ワークスタイル分析
-        </CardTitle>
-        <p className="text-sm text-gray-500 mt-1">
-          制作アプローチと専門性の特徴
-        </p>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-semibold text-gray-900">ワークスタイル</CardTitle>
+        <p className="text-xs text-gray-500 mt-1">制作アプローチの要点</p>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="bg-gray-50 p-4 rounded border-l-4 border-blue-600">
-          <p className="text-sm text-gray-700 leading-relaxed">{summary}</p>
+      <CardContent className="space-y-4">
+        <div className="bg-blue-50/60 p-4 rounded border border-blue-100">
+          <p className="text-sm text-blue-900 leading-relaxed">{summary}</p>
         </div>
 
-        <div className="space-y-5">
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">制作アプローチ</h4>
-            <div className="space-y-2">
-              {analysis.workingStyle.slice(0, 2).map((item, index) => (
-                <p key={index} className="text-sm text-gray-600 border-l-2 border-gray-300 pl-3">
-                  {item}
-                </p>
-              ))}
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-500">制作アプローチ</h4>
+            <ChipList items={analysis.workingStyle} />
           </div>
-
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">価値観・姿勢</h4>
-            <div className="space-y-2">
-              {analysis.valueOrientation.slice(0, 2).map((item, index) => (
-                <p key={index} className="text-sm text-gray-600 border-l-2 border-gray-300 pl-3">
-                  {item}
-                </p>
-              ))}
-            </div>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-500">価値観・姿勢</h4>
+            <ChipList items={analysis.valueOrientation} />
           </div>
-
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">問題解決スタイル</h4>
-            <div className="space-y-2">
-              {analysis.problemSolvingApproach.slice(0, 2).map((item, index) => (
-                <p key={index} className="text-sm text-gray-600 border-l-2 border-gray-300 pl-3">
-                  {item}
-                </p>
-              ))}
-            </div>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-500">問題解決</h4>
+            <ChipList items={analysis.problemSolvingApproach} />
           </div>
         </div>
       </CardContent>

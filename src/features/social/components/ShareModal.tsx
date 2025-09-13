@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { generateShareModalData, shareToTwitter } from '@/utils/socialShare'
 import type { WorkData } from '@/features/work/types'
-import type { InputData } from '@/types/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import Image from 'next/image'
@@ -12,7 +11,7 @@ interface ShareModalProps {
   isOpen: boolean
   onClose: () => void
   type: 'work' | 'input'
-  data: WorkData | InputData
+  data: WorkData | any
   userDisplayName?: string
   /**
    * 表示スタイルを切り替えるオプション。デフォルトは従来のモーダル。
