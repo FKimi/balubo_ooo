@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { processDbArrayResult } from './api-utils'
+import { generateUserSlug } from '@/utils/slug'
 
 // データベース操作のヘルパー関数（認証対応版）
 export class DatabaseClient {
@@ -133,6 +134,36 @@ export class DatabaseClient {
         }
       )
 
+      // スラッグの自動生成
+      let slug = profileData.slug
+      if (!slug && profileData.displayName) {
+        slug = generateUserSlug(profileData.displayName)
+        
+        // スラッグの重複チェックと調整
+        if (slug) {
+          let finalSlug = slug
+          let counter = 1
+          
+          while (true) {
+            const { data: existingProfile } = await dbClient
+              .from('profiles')
+              .select('user_id')
+              .eq('slug', finalSlug)
+              .neq('user_id', userId)
+              .single()
+            
+            if (!existingProfile) {
+              break
+            }
+            
+            finalSlug = `${slug}-${counter}`
+            counter++
+          }
+          
+          slug = finalSlug
+        }
+      }
+
       // フロントエンドのProfileData型をデータベースの形式に変換
       const profileToSave = {
         user_id: userId,
@@ -147,6 +178,7 @@ export class DatabaseClient {
         portfolio_visibility: profileData.portfolioVisibility,
         background_image_url: profileData.backgroundImageUrl,
         avatar_image_url: profileData.avatarImageUrl,
+        slug: slug,
         desired_rate: profileData.desiredRate,
         job_change_intention: profileData.jobChangeIntention,
         side_job_intention: profileData.sideJobIntention,

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,15 @@ interface WorkDetailData extends WorkData {
   preview_data?: any
   createdAt: string
   updatedAt: string
+}
+
+interface ProfileData {
+  user_id: string
+  display_name: string
+  avatar_image_url?: string
+  slug?: string
+  bio?: string
+  professions?: string[]
 }
 
 // AI評価セクションコンポーネント
@@ -342,6 +352,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [authorProfile, setAuthorProfile] = useState<ProfileData | null>(null)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -460,6 +471,20 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
         if (token) {
           const { data: { user } } = await supabase.auth.getUser()
           setCurrentUser(user)
+        }
+
+        // 作品の作者のプロフィール情報を取得
+        try {
+          const profileResponse = await fetch(`/api/profile?userId=${formattedWork.user_id}`)
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json()
+            if (profileData.data) {
+              setAuthorProfile(profileData.data)
+            }
+          }
+        } catch (profileError) {
+          console.error('作者プロフィール取得エラー:', profileError)
+          // プロフィール取得に失敗しても作品表示は続行
         }
 
       } catch (err) {
@@ -790,6 +815,61 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                     </span>
                   )}
                 </div>
+
+                {/* 作者情報 */}
+                {authorProfile && (
+                  <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center gap-4">
+                      {/* プロフィール画像 */}
+                      <div className="flex-shrink-0">
+                        {authorProfile.avatar_image_url ? (
+                          <Image
+                            src={authorProfile.avatar_image_url}
+                            alt={authorProfile.display_name}
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-sm">
+                            {authorProfile.display_name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* 作者情報 */}
+                      <div className="flex-grow">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {authorProfile.display_name}
+                          </h3>
+                          {authorProfile.professions && authorProfile.professions.length > 0 && (
+                            <span className="text-sm text-gray-600">
+                              {authorProfile.professions.join(' / ')}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {authorProfile.bio && (
+                          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                            {authorProfile.bio}
+                          </p>
+                        )}
+                        
+                        {/* プロフィールへのリンク */}
+                        <Link 
+                          href={authorProfile.slug ? `/${authorProfile.slug}` : `/share/profile/${authorProfile.user_id}`}
+                          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          プロフィールを見る
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* 役割 */}
                 {work.roles && work.roles.length > 0 && (

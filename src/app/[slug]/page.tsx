@@ -7,6 +7,8 @@ import { calculateInputTopTags, calculateGenreDistribution } from '@/features/pr
 // import { InputData } from '@/types/input'
 
 async function getPublicProfileBySlug(slug: string) {
+  console.log('getPublicProfileBySlug: 検索スラッグ:', slug)
+  
   // anon クライアントで公開プロフィールを取得
   const profileResponse = await supabase
     .from('profiles')
@@ -14,6 +16,8 @@ async function getPublicProfileBySlug(slug: string) {
     .eq('slug', slug)
     .eq('portfolio_visibility', 'public')
     .single()
+  
+  console.log('getPublicProfileBySlug: anonクライアント結果:', { data: profileResponse.data, error: profileResponse.error })
 
   let profile = profileResponse.data
   const error = profileResponse.error

@@ -15,7 +15,7 @@ export function ShareProfileButton({ userId, displayName, slug }: ShareProfileBu
 
   const shareUrl = typeof window !== 'undefined' ?
     slug && slug.length > 0
-      ? `${window.location.origin}/p/${slug}`
+      ? `${window.location.origin}/${slug}`
       : `${window.location.origin}/share/profile/${userId}`
     : ''
 
