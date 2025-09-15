@@ -36,9 +36,9 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
       className={`group relative h-full ${
         isFeatured ? 'transform group-hover:scale-105 transition-transform duration-300' : ''
       }`}>
-      <Link href={`/works/${work.id}`} className="block h-full">
+      <Link href={`/works/${work.id}`} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/30 rounded-xl">
         <Card 
-          className={`h-full overflow-hidden transition-all duration-300 ease-in-out rounded-lg shadow-md hover:shadow-xl cursor-pointer bg-white`}>
+          className={`h-full overflow-hidden transition-all duration-300 ease-in-out rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-lg hover:-translate-y-0.5`}>
           <CardContent className="p-0 flex flex-col h-full">
             {/* 画像セクション */}
             <div className="relative w-full aspect-video overflow-hidden">
@@ -61,7 +61,7 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
 
             {/* コンテンツセクション */}
             <div className="p-4 flex flex-col flex-grow">
-              <h3 className="font-semibold text-gray-800 text-base leading-snug mb-2 line-clamp-2">
+              <h3 className="font-semibold text-gray-900 text-base leading-snug mb-2 line-clamp-2 transition-colors group-hover:text-gray-800">
                 {work.title}
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2 flex-grow">
@@ -72,7 +72,7 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
               {work.tags && work.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                   {work.tags.slice(0, 3).map((tag, index) => (
-                    <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                    <span key={index} className="px-3 py-1 bg-[#1e3a8a]/10 text-[#1e3a8a] rounded-full text-xs font-medium">
                       {tag}
                     </span>
                   ))}

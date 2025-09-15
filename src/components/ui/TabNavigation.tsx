@@ -19,24 +19,26 @@ interface TabNavigationProps {
 export function TabNavigation({ tabs, activeTab, onTabChange, className = '' }: TabNavigationProps) {
   return (
     <div className={`flex justify-center ${className}`}>
-      <div className="flex items-center gap-1 p-1 bg-gray-50/30 rounded-2xl">
+      <div className="inline-flex items-center gap-1 p-1 bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-2xl border border-gray-200 shadow-sm">
         {tabs.map((tab) => (
         <button
           key={tab.key}
           onClick={() => onTabChange(tab.key)}
-          className={`relative flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-300 ease-out ${
+          type="button"
+          role="tab"
+          aria-selected={activeTab === tab.key}
+          aria-controls={`panel-${tab.key}`}
+          className={`relative flex items-center gap-2 px-4 sm:px-5 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/40 rounded-xl ${
             activeTab === tab.key
               ? 'text-[#1e3a8a]'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-gray-600 hover:text-gray-800'
           }`}
         >
           {/* アイコン */}
           {tab.icon && (
-            <div className={`w-4 h-4 transition-colors duration-300 ${
-              activeTab === tab.key ? 'text-[#1e3a8a]' : 'text-gray-400'
-            }`}>
+            <span className={`w-4 h-4 ${activeTab === tab.key ? 'text-[#1e3a8a]' : 'text-gray-400'}`}>
               {tab.icon}
-            </div>
+            </span>
           )}
           
           {/* ラベル */}
@@ -44,10 +46,8 @@ export function TabNavigation({ tabs, activeTab, onTabChange, className = '' }: 
           
           {/* カウント */}
           {tab.count !== undefined && (
-            <span className={`text-xs font-normal ${
-              activeTab === tab.key
-                ? 'text-[#1e3a8a]/70'
-                : 'text-gray-400'
+            <span className={`text-xs ${
+              activeTab === tab.key ? 'text-[#1e3a8a]/70' : 'text-gray-400'
             }`}>
               {tab.count}
             </span>
@@ -55,7 +55,7 @@ export function TabNavigation({ tabs, activeTab, onTabChange, className = '' }: 
           
           {/* アクティブ時の背景 */}
           {activeTab === tab.key && (
-            <div className="absolute inset-0 bg-white rounded-xl shadow-sm border border-gray-100 -z-10"></div>
+            <span className="absolute inset-0 -z-10 rounded-xl bg-white shadow-sm border border-gray-200" />
           )}
         </button>
         ))}

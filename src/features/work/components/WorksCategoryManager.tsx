@@ -74,14 +74,16 @@ function DroppableCategoryTab({
   category, 
   selectedCategory, 
   onSelect,
-  children,
+  label,
+  count,
   isDragActive = false
 }: { 
-  category: { id: string }, 
+  category: { id: string, color?: string, name?: string }, 
   selectedCategory: string, 
   // eslint-disable-next-line unused-imports/no-unused-vars
   onSelect: (id: string) => void,
-  children: React.ReactNode,
+  label: string,
+  count: number,
   isDragActive?: boolean
 }) {
   const { isOver, setNodeRef } = useDroppable({
@@ -89,44 +91,56 @@ function DroppableCategoryTab({
   });
 
   const isSelected = selectedCategory === category.id
+  const displayLabel = label && label.trim().length > 0
+    ? label
+    : (category.id === 'all' ? 'ALL' : (category.name || 'カテゴリ'))
 
   return (
     <div
       ref={setNodeRef}
       onClick={() => onSelect(category.id)}
+      role="tab"
+      aria-selected={isSelected}
       className={`
-        inline-flex items-center justify-center px-4 py-1 rounded-full transition-colors cursor-pointer text-sm
+        relative inline-flex items-center justify-center px-4 py-1.5 rounded-full border transition-colors cursor-pointer text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 gap-2 min-w-[90px]
         ${isSelected 
-          ? 'bg-blue-600 text-white shadow' 
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-        }
+          ? 'bg-[#1e3a8a] text-white border-[#1e3a8a] shadow-sm' 
+          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'}
         ${isOver 
-          ? 'border-blue-500 bg-blue-100 shadow-2xl scale-110 ring-4 ring-blue-300 ring-opacity-50 transform' 
+          ? 'ring-2 ring-blue-300' 
           : isDragActive 
-            ? 'border-dashed border-blue-400 bg-blue-50 scale-105' 
+            ? 'border-dashed border-blue-400 bg-blue-50' 
             : ''
         }
       `}
     >
+      {/* カテゴリ色のドット */}
+      <span
+        className={`w-2.5 h-2.5 rounded-full ${isSelected ? 'ring-2 ring-white/60' : 'ring-1 ring-black/0'}`}
+        style={{ backgroundColor: category.color || '#9CA3AF' }}
+        aria-hidden
+      />
+
       {/* 強化されたドロップゾーンの視覚的表現 */}
       {isDragActive && (
-        <div className="absolute inset-2 border-3 border-dashed border-blue-400 rounded-lg opacity-80 animate-pulse"></div>
+        <div className="absolute inset-2 border-3 border-dashed border-blue-400 rounded-lg opacity-80 animate-pulse pointer-events-none"></div>
       )}
 
       {/* より目立つドロップアニメーション */}
       {isOver && (
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/30 to-blue-500/30 animate-pulse">
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/30 to-blue-500/30 animate-pulse pointer-events-none">
           <div className="w-full h-full flex items-center justify-center">
-            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold animate-bounce shadow-lg">
+            <div className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-lg">
               📂 ここにドロップ
             </div>
           </div>
         </div>
       )}
 
-      {/* カテゴリ名 */}
-      <div className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-900'} ${isDragActive ? 'opacity-70' : ''}`}>
-        {children}
+      {/* カテゴリ名と件数（括弧付き表記） */}
+      <div className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-gray-900'} ${isDragActive ? 'opacity-70' : ''} whitespace-nowrap flex items-center gap-1`}>
+        <span>{displayLabel}</span>
+        <span className={`${isSelected ? 'text-white/80' : 'text-gray-500'}`}>({count})</span>
       </div>
 
       {/* より目立つドラッグアクティブ時のインジケーター */}
@@ -232,10 +246,11 @@ export function WorksCategoryManager({
 
   // ALLタブを含む全カテゴリリスト
   const allCategoriesWithAll = [
-    { id: 'all', name: 'ALL', color: '#6B7280', works: savedWorks },
+    { id: 'all', name: 'すべて', color: '#6B7280', works: savedWorks },
     // "未分類" タブはユーザー体験向上のため非表示
     ...categories.filter(cat => cat.id !== 'uncategorized')
   ]
+
 
   // 選択されたカテゴリと月の作品を取得
   const getFilteredWorks = () => {
@@ -395,41 +410,70 @@ export function WorksCategoryManager({
 
           {/* カテゴリボックス（横一列） */}
           <div className="flex flex-wrap gap-3 mb-6">
-            {allCategoriesWithAll.map((category) => (
+            {/* ALL ボタン（絶対に表示される） */}
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={selectedCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px 16px',
+                borderRadius: '9999px',
+                border: '1px solid',
+                borderColor: selectedCategory === 'all' ? '#2563eb' : '#d1d5db',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                minWidth: '80px',
+                gap: '8px',
+                backgroundColor: selectedCategory === 'all' ? '#2563eb' : '#f3f4f6',
+                color: selectedCategory === 'all' ? 'white' : '#374151'
+              }}
+            >
+              <span style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: selectedCategory === 'all' ? 'white' : '#6b7280',
+                display: 'inline-block'
+              }} />
+              ALL ({savedWorks.length})
+            </button>
+
+            {/* その他のカテゴリ */}
+            {categories.filter(cat => cat.id !== 'uncategorized').map((category) => (
               <div key={category.id} className="relative group">
                 {isEditingCategory === category.id ? (
-                  <div className="px-4 py-3 bg-white border-2 border-blue-500 rounded-lg shadow-lg flex flex-col items-center justify-center min-w-[100px] relative">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-blue-400 rounded-full shadow-sm ring-2 ring-blue-200 min-h-[40px] relative">
                     {/* 新しく作成されたカテゴリの場合のヒント */}
                     {category.works.length === 0 && editCategoryName === '' && (
-                      <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-md whitespace-nowrap z-10">
+                      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-md whitespace-nowrap z-10">
                         カテゴリ名を入力してください
                         <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
                       </div>
                     )}
-                    
-                    <div className="w-full">
-                      <input
-                        type="text"
-                        value={editCategoryName}
-                        onChange={(e) => setEditCategoryName(e.target.value)}
-                        className="w-full text-sm bg-transparent outline-none text-center font-medium"
-                        onKeyPress={(e) => e.key === 'Enter' && handleSaveCategory(category.id)}
-                        onKeyDown={(e) => e.key === 'Escape' && setIsEditingCategory(null)}
-                        autoFocus
-                        placeholder="カテゴリ名"
-                        maxLength={20}
-                      />
-                      <div className="flex justify-center gap-1 mt-1">
-                        <button onClick={() => handleSaveCategory(category.id)} className="text-green-600 hover:text-green-800" title="保存 (Enter)">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                        </button>
-                        <button onClick={() => setIsEditingCategory(null)} className="text-red-600 hover:text-red-800" title="キャンセル (Esc)">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1 text-center">
-                        {editCategoryName.length}/20文字
-                      </div>
+                    {/* 色ドット */}
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: category.color }} />
+                    <input
+                      type="text"
+                      value={editCategoryName}
+                      onChange={(e) => setEditCategoryName(e.target.value)}
+                      className="w-32 min-w-[8rem] text-sm bg-gray-50 outline-none text-center font-medium rounded-full px-3 py-1 border border-gray-200 focus:border-blue-400 placeholder-gray-400"
+                      onKeyPress={(e) => e.key === 'Enter' && handleSaveCategory(category.id)}
+                      onKeyDown={(e) => e.key === 'Escape' && setIsEditingCategory(null)}
+                      autoFocus
+                      placeholder="カテゴリ名"
+                      maxLength={20}
+                    />
+                    <button onClick={() => handleSaveCategory(category.id)} className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-green-500/10 text-green-700 hover:bg-green-500/20" title="保存 (Enter)">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    </button>
+                    <button onClick={() => setIsEditingCategory(null)} className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-red-500/10 text-red-700 hover:bg-red-500/20" title="キャンセル (Esc)">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-gray-500">
+                      {editCategoryName.length}/20文字
                     </div>
                   </div>
                 ) : (
@@ -438,10 +482,9 @@ export function WorksCategoryManager({
                     selectedCategory={selectedCategory}
                     onSelect={setSelectedCategory}
                     isDragActive={isDragActive}
-                  >
-                    {category.name}
-                    <span className="text-xs opacity-75 ml-1">({category.works.length})</span>
-                  </DroppableCategoryTab>
+                    label={category.name || 'カテゴリ'}
+                    count={category.works?.length || 0}
+                  />
                 )}
 
                 {/* カテゴリ管理ボタン */}
@@ -473,17 +516,13 @@ export function WorksCategoryManager({
             {/* カテゴリ追加ボタン */}
             <button
               onClick={handleAddCategory}
-              className="px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 min-w-[100px] flex items-center justify-center gap-2 text-sm font-medium group"
+              className="inline-flex items-center justify-center gap-2 px-4 py-1.5 border-2 border-dashed border-blue-300 rounded-full text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 text-sm font-medium min-h-[40px]"
               title="新しいカテゴリを追加"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               追加
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                新規カテゴリ作成
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-              </div>
             </button>
           </div>
 

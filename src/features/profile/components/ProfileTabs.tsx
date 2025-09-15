@@ -504,7 +504,7 @@ export function ProfileTabs({
                       <Button
                         onClick={openContentTypeSelector}
                         size="sm"
-                        className="bg-[#1976D2] hover:bg-[#1565C0] text-white rounded-xl shadow-sm transition-all duration-300"
+                        className="bg-[#1e3a8a] hover:bg-[#1b2f6e] text-white rounded-xl shadow-sm transition-all duration-200"
                       >
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/></svg>
                         作品を追加
