@@ -1,10 +1,80 @@
 import { NextResponse } from 'next/server'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+// 複数のGemini APIキーを管理
+const GEMINI_API_KEYS = [
+  process.env.GEMINI_API_KEY,
+  process.env.GEMINI_API_KEY_BACKUP
+].filter(Boolean) // undefinedを除外
 
-if (!GEMINI_API_KEY) {
-  console.error('GEMINI_API_KEY is not set in environment variables')
-  throw new Error('GEMINI_API_KEY is not set in environment variables')
+if (GEMINI_API_KEYS.length === 0) {
+  console.error('No GEMINI_API_KEY is set in environment variables')
+  throw new Error('No GEMINI_API_KEY is set in environment variables')
+}
+
+// APIキーの使用状況を追跡
+let currentApiKeyIndex = 0
+const apiKeyFailures: { [key: string]: number } = {}
+const MAX_FAILURES_PER_KEY = 3 // キーあたりの最大失敗回数
+
+// 現在のAPIキーを取得
+function getCurrentApiKey(): string {
+  return GEMINI_API_KEYS[currentApiKeyIndex] as string
+}
+
+// 次のAPIキーに切り替え
+function switchToNextApiKey(): boolean {
+  const currentKey = getCurrentApiKey()
+  console.log(`🔄 APIキー切り替え: ${currentKey.substring(0, 10)}... → `)
+  
+  currentApiKeyIndex = (currentApiKeyIndex + 1) % GEMINI_API_KEYS.length
+  const newKey = getCurrentApiKey()
+  
+  console.log(`🔄 新しいAPIキー: ${newKey.substring(0, 10)}...`)
+  console.log(`📊 利用可能なAPIキー数: ${GEMINI_API_KEYS.length}`)
+  
+  return true
+}
+
+// APIキーの失敗を記録
+function recordApiKeyFailure(apiKey: string): void {
+  apiKeyFailures[apiKey] = (apiKeyFailures[apiKey] || 0) + 1
+  console.log(`❌ APIキー失敗記録: ${apiKey.substring(0, 10)}... (${apiKeyFailures[apiKey]}/${MAX_FAILURES_PER_KEY})`)
+  
+  if (apiKeyFailures[apiKey] >= MAX_FAILURES_PER_KEY) {
+    console.warn(`⚠️ APIキーが制限に達しました: ${apiKey.substring(0, 10)}...`)
+  }
+}
+
+// 利用可能なAPIキーがあるかチェック
+function hasAvailableApiKey(): boolean {
+  return GEMINI_API_KEYS.some(key => key && (apiKeyFailures[key] || 0) < MAX_FAILURES_PER_KEY)
+}
+
+// APIキーの使用状況を取得
+function getApiKeyStatus(): { [key: string]: { failures: number, isAvailable: boolean } } {
+  const status: { [key: string]: { failures: number, isAvailable: boolean } } = {}
+  
+  GEMINI_API_KEYS.forEach(key => {
+    if (key) {
+      const failures = apiKeyFailures[key] || 0
+      status[key.substring(0, 10) + '...'] = {
+        failures,
+        isAvailable: failures < MAX_FAILURES_PER_KEY
+      }
+    }
+  })
+  
+  return status
+}
+
+// APIキーの使用状況をログ出力
+function logApiKeyStatus(): void {
+  console.log('📊 APIキー使用状況:')
+  const status = getApiKeyStatus()
+  Object.entries(status).forEach(([key, info]) => {
+    const statusIcon = info.isAvailable ? '✅' : '❌'
+    console.log(`  ${statusIcon} ${key}: 失敗${info.failures}/${MAX_FAILURES_PER_KEY}回`)
+  })
 }
 
 // 共通の型定義
@@ -100,7 +170,11 @@ interface GeminiImage {
 // レート制限監視用のグローバル変数
 let rateLimitCount = 0
 let lastRateLimitTime = 0
+let totalRateLimitCount = 0 // 総レート制限回数
+let firstRateLimitTime = 0 // 最初のレート制限時刻
 const RATE_LIMIT_WINDOW = 60000 // 1分間のウィンドウ
+const RATE_LIMIT_ALERT_THRESHOLD = 3 // 3回で警告（無料トライアル終了により厳格化）
+const RATE_LIMIT_CRITICAL_THRESHOLD = 5 // 5回でクリティカル（無料トライアル終了により厳格化）
 
 // エクスポネンシャルバックオフでリトライ処理を実装
 async function callGeminiAPIWithRetry(prompt: string, temperature: number = 0.3, maxTokens: number = 4096, images: GeminiImage[] = [], maxRetries: number = 3) {
@@ -119,6 +193,21 @@ async function callGeminiAPIWithRetry(prompt: string, temperature: number = 0.3,
     } catch (error: any) {
       lastError = error
       
+      // 401/403（未有効API・無効キー・権限不足）の場合はキー切替して即時再試行
+      if ((error.status === 401 || error.status === 403) && GEMINI_API_KEYS.length > 1) {
+        console.warn(`🔐 認可エラー(${error.status})を検知。別のAPIキーへフォールバックします。`)
+        if (hasAvailableApiKey()) {
+          switchToNextApiKey()
+          // 即時リトライ（attemptは消費しない）
+          try {
+            const retryResult = await callGeminiAPISingle(prompt, temperature, maxTokens, images)
+            return retryResult
+          } catch (retryErr: any) {
+            lastError = retryErr
+          }
+        }
+      }
+
       // 429エラー（レート制限）の場合のみリトライ
       if (error.status === 429 && attempt < maxRetries) {
         const now = Date.now()
@@ -131,13 +220,35 @@ async function callGeminiAPIWithRetry(prompt: string, temperature: number = 0.3,
           lastRateLimitTime = now
         }
         
-        const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // 最大10秒
-        console.log(`🚨 Gemini API レート制限エラー (${rateLimitCount}回目/分)`)
+        // 総レート制限回数を更新
+        totalRateLimitCount++
+        if (firstRateLimitTime === 0) {
+          firstRateLimitTime = now
+        }
+        
+        // 利用可能なAPIキーがある場合は切り替えを試行
+        if (hasAvailableApiKey() && GEMINI_API_KEYS.length > 1) {
+          console.log(`🔄 レート制限によりAPIキーを切り替えます...`)
+          logApiKeyStatus()
+          switchToNextApiKey()
+        } else {
+          console.warn(`⚠️ 利用可能なAPIキーがありません。全てのキーが制限に達しています。`)
+          logApiKeyStatus()
+        }
+        
+        const delay = Math.min(2000 * Math.pow(2, attempt), 30000) // 最大30秒（無料トライアル終了により延長）
+        console.log(`🚨 Gemini API レート制限エラー (${rateLimitCount}回目/分, 総計${totalRateLimitCount}回)`)
         console.log(`⏳ ${delay}ms後にリトライします... (試行 ${attempt + 1}/${maxRetries + 1})`)
         
         // レート制限が頻繁に発生している場合は警告
-        if (rateLimitCount >= 3) {
+        if (rateLimitCount >= RATE_LIMIT_ALERT_THRESHOLD) {
           console.warn(`⚠️ レート制限が頻繁に発生しています (${rateLimitCount}回/分)。API利用頻度の調整を検討してください。`)
+        }
+        
+        // クリティカルな状況の場合は追加の警告
+        if (totalRateLimitCount >= RATE_LIMIT_CRITICAL_THRESHOLD) {
+          const timeSinceFirst = Math.round((now - firstRateLimitTime) / 1000 / 60) // 分単位
+          console.error(`🚨 クリティカル: レート制限が${totalRateLimitCount}回発生 (${timeSinceFirst}分間)。Gemini APIのプラン・課金設定を確認してください。`)
         }
         
         await new Promise(resolve => setTimeout(resolve, delay))
@@ -160,7 +271,8 @@ async function callGeminiAPISingle(prompt: string, temperature: number = 0.3, ma
   // 画像がある場合は Vision 対応モデル、それ以外は 1.5 Pro を使用
   const model = images.length > 0 ? 'gemini-1.5-flash' : 'gemini-1.5-pro'
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-  const urlWithKey = `${endpoint}?key=${GEMINI_API_KEY}`
+  const currentApiKey = getCurrentApiKey()
+  const urlWithKey = `${endpoint}?key=${currentApiKey}`
 
   // parts 配列を構築
   const parts: any[] = []
@@ -194,12 +306,18 @@ async function callGeminiAPISingle(prompt: string, temperature: number = 0.3, ma
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
+    const currentApiKey = getCurrentApiKey()
+    
     console.error('=== Gemini API Error ===')
+    console.error('使用中のAPIキー:', currentApiKey.substring(0, 10) + '...')
     console.error('ステータス:', response.status)
     console.error('エラーデータ:', errorData)
     console.error('エラーデータ型:', typeof errorData)
     console.error('エラーデータキー:', Object.keys(errorData))
     console.error('=======================')
+
+    // APIキーの失敗を記録
+    recordApiKeyFailure(currentApiKey)
 
     // エラーメッセージの適切な処理
     let errorMessage = `HTTP ${response.status}`
@@ -398,7 +516,15 @@ export function handleAnalysisError(error: any) {
       errorMessage = 'AI分析の設定に問題があります。GEMINI_API_KEYが設定されていません。'
       statusCode = 500
     } else if (isRateLimit || statusFromError === 429) {
-      errorMessage = '現在AI分析の上限に達しています。数分後に再実行してください。必要に応じてプランや課金設定をご確認ください。'
+      // レート制限の詳細情報を含むメッセージ
+      const timeSinceFirst = firstRateLimitTime > 0 ? Math.round((Date.now() - firstRateLimitTime) / 1000 / 60) : 0
+      const isFrequent = totalRateLimitCount >= RATE_LIMIT_ALERT_THRESHOLD
+      
+      if (isFrequent) {
+        errorMessage = `現在AI分析の上限に達しています。\n\n・${totalRateLimitCount}回の制限が発生しています（${timeSinceFirst}分間）\n・Google Cloud Platformの無料トライアルが終了している可能性があります\n・数分〜10分ほど待ってから再度お試しください\n・継続するにはGoogle Cloud PlatformとGemini APIの有料プランへのアップグレードをご検討ください\n\n頻繁に制限が発生しているため、しばらく時間を置いてからご利用ください。`
+      } else {
+        errorMessage = '現在AI分析の上限に達しています。Google Cloud Platformの無料トライアル終了により制限が厳しくなっている可能性があります。数分〜10分ほど待ってから再度お試しください。継続するには有料プランへのアップグレードをご検討ください。'
+      }
       statusCode = 429
     } else if (error.message.includes('AI分析に失敗しました')) {
       errorMessage = error.message

@@ -571,6 +571,11 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
   const [isCooldown, setIsCooldown] = useState(false)
   const [cooldownRemaining, setCooldownRemaining] = useState(0)
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    isActive: boolean
+    message: string
+    retryAfter?: number
+  } | null>(null)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [isAIAnalysisDetailOpen, setIsAIAnalysisDetailOpen] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
@@ -1181,6 +1186,9 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
       }
       
       if (result.success && result.analysis) {
+        // レート制限情報をリセット
+        setRateLimitInfo(null)
+        
         // AI分析結果と評価スコアの両方を設定
         const completeAnalysisResult = {
           ...result.analysis,
@@ -1314,10 +1322,46 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
         : errorMessage
 
       console.log('表示するエラーメッセージ:', finalMessage)
-      alert(finalMessage)
+      
+      // レート制限の場合はより詳細な情報を表示
+      if (isRateLimit) {
+        const detailedMessage = `🚨 AI分析の上限に達しています
+
+現在、Google Cloud Platformの無料トライアル終了により、AI分析の利用制限に達しています。
+
+【根本原因】
+• Google Cloud Platformの無料トライアルが終了（2025年10月9日までにアップグレード必要）
+• OAuth トークン付与レートの制限（1日10,000件）
+• Gemini APIの無料枠制限
+
+【対処方法】
+• 数分〜10分ほど待ってから再度お試しください
+• Google Cloud Platformの有料プランにアップグレード
+• Gemini APIの有料プランにアップグレード
+• OAuth トークン付与レートの上限増加申請
+
+【代替手段】
+• 手動でタグを追加することも可能です
+• 作品の保存は通常通り行えます
+
+しばらくお待ちいただくか、手動での入力をお試しください。`
+        
+        // レート制限情報を状態に保存
+        setRateLimitInfo({
+          isActive: true,
+          message: 'AI分析の上限に達しています。しばらくお待ちください。',
+          retryAfter: 30 // 30秒後に再試行可能
+        })
+        
+        alert(detailedMessage)
+      } else {
+        alert(finalMessage)
+      }
     } finally {
       setIsAnalyzing(false)
-      startCooldown(10)
+      // レート制限の場合はクールダウン時間を延長
+      const cooldownTime = 10 // デフォルトは10秒
+      startCooldown(cooldownTime)
     }
   }
 
@@ -2132,6 +2176,14 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
                 <p className="text-blue-100 text-sm text-center lg:text-right">
                   作品の強みと特徴を自動分析
                 </p>
+                {/* レート制限情報の表示 */}
+                {rateLimitInfo?.isActive && (
+                  <div className="mt-2 p-2 bg-orange-100 border border-orange-200 rounded-lg">
+                    <p className="text-orange-800 text-xs text-center">
+                      ⚠️ {rateLimitInfo.message}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
