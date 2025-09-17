@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { Analytics } from '@vercel/analytics/react'
 
 import { ErrorFilter } from '@/components/utils/ErrorFilter'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -91,6 +92,7 @@ export default function RootLayout({
             <NuqsAdapter>{children}</NuqsAdapter>
           </AuthProvider>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   )
