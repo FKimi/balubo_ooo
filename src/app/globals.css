@@ -6,6 +6,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap');
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   :root {
     /* 洗練されたプロフェッショナルカラーパレット */
     --background: 0 0% 100%;

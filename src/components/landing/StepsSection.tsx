@@ -47,7 +47,7 @@ export default function StepsSection() {
   const { ref, visibleItems } = useStaggeredAnimation(steps.length, 250)
 
   return (
-    <section className="bg-white py-20 px-4 md:py-28">
+    <section id="how-to-start" className="bg-white py-20 px-4 md:py-28">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">baluboをはじめる「3つのステップ」</h2>
@@ -64,11 +64,11 @@ export default function StepsSection() {
               style={{ transitionDelay: `${idx * 250}ms` }}
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gray-900 text-white">
+                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-indigo-600 text-white">
                   {step.icon}
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-blue-600">{step.number}</span>
+                  <span className="text-sm font-medium text-indigo-600">{step.number}</span>
                   <h3 className="text-xl font-semibold text-gray-900 mt-1">{step.title}</h3>
                 </div>
               </div>

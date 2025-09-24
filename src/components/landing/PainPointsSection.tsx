@@ -77,13 +77,13 @@ export default function PainPointsSection() {
       <div className="container mx-auto max-w-7xl relative">
         {/* 問題提起部分 */}
         <div className="text-center">
-          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-gray-50 rounded-full border border-gray-200">
-            <span className="text-sm font-medium text-gray-700">副業クリエイターのリアルな課題</span>
+          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-slate-50 rounded-full border border-slate-200">
+            <span className="text-sm font-medium text-slate-700">副業クリエイターのリアルな課題</span>
           </div>
           
           <h2 className="text-4xl font-bold text-gray-900 md:text-5xl mb-6">
             こんなお悩み、<br className="sm:hidden" />
-            <span className="text-blue-600">ありませんか？</span>
+            <span className="text-indigo-600">ありませんか？</span>
           </h2>
           
           <p className="mx-auto max-w-3xl text-lg text-gray-600 leading-relaxed">
@@ -100,14 +100,14 @@ export default function PainPointsSection() {
             {creatorPains.map((pain, idx) => (
               <div
                 key={pain.title}
-                className={`group relative bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-500 ease-out hover:-translate-y-1 ${
+                className={`group relative bg-white border border-slate-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-500 ease-out hover:-translate-y-1 ${
                   problemsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
                 style={{ transitionDelay: `${idx * 200}ms` }}
               >
                 {/* アイコン */}
                 <div className="mb-6 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-gray-700 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                  <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-gray-700 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all duration-300">
                     {pain.icon}
                   </div>
                 </div>
@@ -123,7 +123,7 @@ export default function PainPointsSection() {
                 </p>
 
                 {/* ホバー時のアクセント */}
-                <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-blue-600 group-hover:w-16 group-hover:-translate-x-8 transition-all duration-300 rounded-full" />
+                <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-indigo-600 group-hover:w-16 group-hover:-translate-x-8 transition-all duration-300 rounded-full" />
               </div>
             ))}
           </div>
@@ -134,13 +134,13 @@ export default function PainPointsSection() {
           <div className={`transition-all duration-1000 ease-out ${
             problemsVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
           }`} style={{ transitionDelay: '800ms' }}>
-            <div className="w-12 h-12 bg-white rounded-full border border-gray-200 shadow-sm flex items-center justify-center group hover:border-blue-600 transition-colors duration-300">
+            <div className="w-12 h-12 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center group hover:border-slate-600 transition-colors duration-300">
               <svg
                 width="20"
                 height="20"
                 viewBox="0 0 24 24"
                 fill="none"
-                className="text-gray-400 group-hover:text-blue-600 transition-colors duration-300"
+                className="text-slate-400 group-hover:text-slate-600 transition-colors duration-300"
               >
                 <path
                   d="M12 5v14m7-7l-7 7-7-7"
@@ -156,17 +156,17 @@ export default function PainPointsSection() {
 
         {/* 解決策部分 */}
         <div ref={solutionsRef} className="text-center">
-          <div className={`inline-flex items-center gap-3 mb-6 px-4 py-2 bg-blue-50 rounded-full border border-blue-200 transition-all duration-700 ease-out ${
+          <div className={`inline-flex items-center gap-3 mb-6 px-4 py-2 bg-slate-50 rounded-full border border-slate-200 transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
-            <span className="text-sm font-medium text-blue-700">AI搭載の革新的ソリューション</span>
+            <span className="text-sm font-medium text-slate-700">AI搭載の革新的ソリューション</span>
           </div>
           
           <h2 className={`text-4xl font-bold text-gray-900 md:text-5xl mb-6 transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`} style={{ transitionDelay: '100ms' }}>
             その課題、<br className="sm:hidden" />
-            <span className="text-blue-600 font-bold">
+            <span className="text-indigo-600 font-bold">
               balubo
             </span>
             が解決します
@@ -186,14 +186,14 @@ export default function PainPointsSection() {
           {solutions.map((solution, idx) => (
             <div 
               key={solution.title} 
-              className={`group relative bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-500 ease-out hover:-translate-y-1 ${
+              className={`group relative bg-white border border-slate-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-all duration-500 ease-out hover:-translate-y-1 ${
                 solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
               style={{ transitionDelay: `${idx * 200}ms` }}
             >
               {/* アイコン */}
               <div className="mb-6 flex items-center justify-center">
-                <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-all duration-300">
+                <div className="w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition-all duration-300">
                   {solution.icon}
                 </div>
               </div>
@@ -209,7 +209,7 @@ export default function PainPointsSection() {
               </p>
 
               {/* ホバー時のアクセント */}
-              <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-blue-600 group-hover:w-16 group-hover:-translate-x-8 transition-all duration-300 rounded-full" />
+              <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-indigo-600 group-hover:w-16 group-hover:-translate-x-8 transition-all duration-300 rounded-full" />
             </div>
           ))}
         </div>

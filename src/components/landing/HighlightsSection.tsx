@@ -34,7 +34,7 @@ export default function HighlightsSection() {
   const { ref, visibleItems } = useStaggeredAnimation(highlights.length, 250)
 
   return (
-    <section className="bg-white py-20 px-4 md:py-28">
+    <section id="features" className="bg-white py-20 px-4 md:py-28">
       <div className="container mx-auto max-w-5xl">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
@@ -61,7 +61,7 @@ export default function HighlightsSection() {
               }}
             >
               <div className="relative z-10">
-                <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-gray-900 text-white transition-all duration-500 ${
+                <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-indigo-600 text-white transition-all duration-500 ${
                   visibleItems.includes(idx) ? 'scale-100 rotate-0' : 'scale-75 rotate-12'
                 }`}
                   style={{

@@ -32,7 +32,7 @@ const voices: Voice[] = [
 
 export default function VoicesSection() {
   return (
-    <section className="relative overflow-hidden bg-gray-50 py-20 px-4 md:py-28">
+    <section id="voices" className="relative overflow-hidden bg-gray-50 py-20 px-4 md:py-28">
       <div className="container relative z-10 mx-auto max-w-5xl">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl">
@@ -49,7 +49,7 @@ export default function VoicesSection() {
               key={voice.name}
               className="relative flex flex-col rounded-lg border border-gray-200 bg-white p-8 shadow-md transition-all duration-300 hover:shadow-lg"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-blue-600 rounded-t-lg"/>
+              <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-lg"/>
               <div className="flex-grow">
                 <p className="relative text-base leading-relaxed text-gray-600">
                   <span className="absolute -left-3 -top-3 text-7xl font-bold text-gray-300 opacity-30">&quot;</span>
@@ -57,7 +57,7 @@ export default function VoicesSection() {
                 </p>
               </div>
               <div className="mt-6 flex items-center pt-6 border-t border-gray-200">
-                <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-white text-xl font-bold">
+                <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white text-xl font-bold">
                   {voice.avatarInitial}
                 </div>
                 <div>

@@ -6,7 +6,7 @@ import { useStaggeredAnimation } from '@/hooks'
 const elements = [
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
     ),
     title: '創造性',
     subtitle: 'オリジナリティ',
@@ -15,7 +15,7 @@ const elements = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="m2.8 15.1.7-1.2 1.2.7-1.2.7-.7-1.2Zm1.5-8.2.7-1.2 1.2.7-1.2.7-.7-1.2Zm8.9 4.3.7-1.2 1.2.7-1.2.7-.7-1.2Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="m2.8 15.1.7-1.2 1.2.7-1.2.7-.7-1.2Zm1.5-8.2.7-1.2 1.2.7-1.2.7-.7-1.2Zm8.9 4.3.7-1.2 1.2.7-1.2.7-.7-1.2Z"/></svg>
     ),
     title: '専門性',
     subtitle: 'クオリティ',
@@ -24,7 +24,7 @@ const elements = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="M10 17a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5H7a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h3Z"/><path d="M21 17a5 5 0 0 0 0-10h-1a5 5 0 0 0-5 5v3a5 5 0 0 0 5 5h1Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="M10 17a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5H7a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h3Z"/><path d="M21 17a5 5 0 0 0 0-10h-1a5 5 0 0 0-5 5v3a5 5 0 0 0 5 5h1Z"/></svg>
     ),
     title: '影響力',
     subtitle: 'エンゲージメント',
@@ -33,7 +33,7 @@ const elements = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><path d="m7 21 5-5 5 5"/><path d="m7 14 5-5 5 5"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="m7 21 5-5 5 5"/><path d="m7 14 5-5 5 5"/></svg>
     ),
     title: '技術力',
     subtitle: 'スキル',
@@ -42,7 +42,7 @@ const elements = [
   },
   {
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l3 3"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l3 3"/></svg>
     ),
     title: '総合評価',
     subtitle: 'バランス',
@@ -52,24 +52,24 @@ const elements = [
 ]
 
 const colorClasses = {
-  purple: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
-  emerald: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
-  orange: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
-  sky: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
-  rose: 'border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300',
+  purple: 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300',
+  emerald: 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300',
+  orange: 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300',
+  sky: 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300',
+  rose: 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300',
 } as const
 
 export default function ElementsSection() {
   const { ref, visibleItems } = useStaggeredAnimation(elements.length, 250)
 
   return (
-    <section className="bg-white pt-32 pb-2 px-4 md:pt-1 md:pb-1">
+    <section id="analysis" className="bg-white pt-32 pb-2 px-4 md:pt-1 md:pb-1">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
+          <h2 className="text-4xl font-bold text-slate-900 md:text-5xl">
             作品の価値を多角的に評価
           </h2>
-          <p className="mx-auto mt-6 max-w-3xl text-lg text-gray-600">
+          <p className="mx-auto mt-6 max-w-3xl text-lg text-slate-600">
             5つの視点（技術力・創造性・専門性・影響力・総合評価）から作品価値を客観的に評価します。
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function ElementsSection() {
                 }}
               >
                 <div className="mb-6 flex items-center gap-4">
-                  <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-900 text-white transition-all duration-500 ${
+                  <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white transition-all duration-500 ${
                     visibleItems.includes(idx) ? 'scale-100 rotate-0' : 'scale-75 rotate-12'
                   } hover:scale-110`}
                     style={{ 
@@ -101,7 +101,7 @@ export default function ElementsSection() {
                     {el.icon}
                   </div>
                   <div>
-                    <h3 className={`text-2xl font-bold text-gray-900 transition-all duration-500 ${
+                    <h3 className={`text-2xl font-bold text-slate-900 transition-all duration-500 ${
                       visibleItems.includes(idx) ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                     }`}
                       style={{ 
@@ -110,7 +110,7 @@ export default function ElementsSection() {
                     >
                       {el.title}
                     </h3>
-                    <p className={`text-sm font-semibold text-blue-600 transition-all duration-500 ${
+                    <p className={`text-sm font-semibold text-indigo-600 transition-all duration-500 ${
                       visibleItems.includes(idx) ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                     }`}
                       style={{ 
@@ -121,7 +121,7 @@ export default function ElementsSection() {
                     </p>
                   </div>
                 </div>
-                <p className={`text-base leading-relaxed text-gray-600 transition-all duration-500 ${
+                <p className={`text-base leading-relaxed text-slate-600 transition-all duration-500 ${
                   visibleItems.includes(idx) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
                   style={{ 
