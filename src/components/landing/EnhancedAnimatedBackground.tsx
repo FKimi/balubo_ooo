@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useEffect, useCallback } from 'react'
+import React, { useRef, useEffect, useCallback, Suspense } from 'react'
 
 class Particle {
   x: number
@@ -136,10 +136,12 @@ const EnhancedAnimatedBackground = () => {
   }, [handleMouseMove])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute top-0 left-0 w-full h-full -z-10"
-    />
+    <Suspense fallback={<div className="absolute top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-blue-50 to-indigo-100" />}>
+      <canvas
+        ref={canvasRef}
+        className="absolute top-0 left-0 w-full h-full -z-10"
+      />
+    </Suspense>
   )
 }
 

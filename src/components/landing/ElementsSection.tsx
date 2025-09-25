@@ -8,46 +8,37 @@ const elements = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
     ),
-    title: '創造性',
-    subtitle: 'オリジナリティ',
-    description: '作品の独創性や新しい視点を分析し、他者との差別化ポイントを明確化します。',
+    title: '業界への解像度',
+    subtitle: 'Industry Expertise',
+    description: 'クライアントの業界特有の課題、商習慣、言語をどれだけ深く理解しているかを分析。専門用語や文脈から、あなたの業界知識レベルを証明します。',
     color: 'purple',
   },
   {
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="M10 10.3c.7-1.2 1-2.5.7-3.9-.6-2.4-3.4-4.1-6.1-4.1-1.6 0-3.1.5-4.4 1.3"/><path d="m2.8 15.1.7-1.2 1.2.7-1.2.7-.7-1.2Zm1.5-8.2.7-1.2 1.2.7-1.2.7-.7-1.2Zm8.9 4.3.7-1.2 1.2.7-1.2.7-.7-1.2Z"/></svg>
     ),
-    title: '専門性',
-    subtitle: 'クオリティ',
-    description: '専門知識や技術的熟練度を評価し、作品の完成度を客観的に測定します。',
+    title: '課題解決力',
+    subtitle: 'Problem Solving',
+    description: '制作物が「誰の、どんな課題を、どのように解決したか」を分析。あなたの思考プロセスと、ビジネス課題への貢献度を可視化します。',
     color: 'emerald',
   },
   {
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="M10 17a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5H7a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h3Z"/><path d="M21 17a5 5 0 0 0 0-10h-1a5 5 0 0 0-5 5v3a5 5 0 0 0 5 5h1Z"/></svg>
     ),
-    title: '影響力',
-    subtitle: 'エンゲージメント',
-    description: '作品が読者や視聴者に与える影響や共感を分析し、人の心を動かす力を可視化します。',
+    title: '専門性',
+    subtitle: 'Quality & Skill',
+    description: '専門知識の正確性や技術的熟練度を評価し、制作物の完成度を客観的に測定。プロフェッショナルとしての品質の高さを証明します。',
     color: 'orange',
   },
   {
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><path d="m7 21 5-5 5 5"/><path d="m7 14 5-5 5 5"/></svg>
     ),
-    title: '技術力',
-    subtitle: 'スキル',
-    description: '文章力・デザインセンス・撮影技術など、多様なクリエイティブ領域で培ったスキルを分析し、あなたの強みを可視化します。',
+    title: '実績インパクト',
+    subtitle: 'Performance',
+    description: '制作物がもたらした具体的な成果（CVR改善、リード獲得数など）を分析。あなたの仕事がビジネスに与えた影響力を定量的に示します。',
     color: 'sky',
-  },
-  {
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-indigo-500"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l3 3"/></svg>
-    ),
-    title: '総合評価',
-    subtitle: 'バランス',
-    description: '4つの指標を統合し、作品の総合的な価値を分かりやすく言語化します。',
-    color: 'rose',
   },
 ]
 
@@ -67,14 +58,14 @@ export default function ElementsSection() {
       <div className="container mx-auto max-w-4xl">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-slate-900 md:text-5xl">
-            作品の価値を多角的に評価
+            専門性を多角的に分析・証明
           </h2>
           <p className="mx-auto mt-6 max-w-3xl text-lg text-slate-600">
-            5つの視点（技術力・創造性・専門性・影響力・総合評価）から作品価値を客観的に評価します。
+            baluboは、従来の指標では測れなかった「ビジネス貢献度」を可視化します。
           </p>
         </div>
 
-        <div ref={ref} className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
+        <div ref={ref} className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-2">
           {elements.map((el, idx) => {
             return (
               <div 

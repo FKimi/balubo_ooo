@@ -6,55 +6,10 @@ import {
   processFileInfo,
   processImageFiles,
   processToolsInfo,
-  AnalysisRequest, 
-  AnalysisResult 
+  AnalysisRequest
 } from '../utils/ai-analyzer'
 
-// デザイン特化のサマリー生成関数（5軸を1~2行で言語化）
-async function getDesignEvaluationSummaries(analysisResult: AnalysisResult) {
-  const summaryPrompt = `
-あなたは、与えられたデザイン作品の分析レポートをもとに作品の魅力を簡潔にまとめるデザイン専門アナリストです。
-次のJSON形式の分析レポートを読み、以下の5つの軸について、読者やクリエイターの自己肯定感を高めるような前向きでエンパワーメントを促す表現で、各1〜2行の日本語テキストで魅力や強みをわかりやすく称賛・可視化してください。課題指摘は含めず、ポジティブな言葉でまとめてください。
-
-1. 総合評価 (overall)
-2. 技術力 (technology)
-3. 専門性 (expertise)
-4. 創造性 (creativity)
-5. 影響力 (impact)
-
-## 分析レポート
-${JSON.stringify(analysisResult)}
-
-## 出力フォーマット（必ずJSONのみ。その他の文字は出力しないこと）
-{
-  "summaries": {
-    "overall": "作品全体の魅力を1〜2行でまとめたテキスト",
-    "technology": "技術力の強みを1〜2行でまとめたテキスト",
-    "expertise": "専門性の強みを1〜2行でまとめたテキスト",
-    "creativity": "創造性の強みを1〜2行でまとめたテキスト",
-    "impact": "影響力の強みを1〜2行でまとめたテキスト"
-  }
-}
-`
-
-  try {
-    const generatedText = await callGeminiAPI(summaryPrompt, 0.3, 1024)
-    const cleanedText = generatedText.replace(/```json\n?|\n?```/g, '').trim()
-    return JSON.parse(cleanedText)
-  } catch (error) {
-    console.error('サマリー生成エラー:', error)
-    // フォールバック: デフォルトサマリー
-    return {
-      summaries: {
-        overall: '作品全体の魅力を簡潔に伝えるサマリー (生成失敗時のデフォルト)',
-        technology: '技術力の強みを示すサマリー (生成失敗時のデフォルト)',
-        expertise: '専門性の強みを示すサマリー (生成失敗時のデフォルト)',
-        creativity: '創造性の強みを示すサマリー (生成失敗時のデフォルト)',
-        impact: '影響力の強みを示すサマリー (生成失敗時のデフォルト)'
-      }
-    }
-  }
-}
+// デザイン特化のサマリー生成関数 - 削除済み
 
 export async function POST(body: any) {
   try {
@@ -250,18 +205,9 @@ ${imageContentText}
     
     const analysisResult = parseAnalysisResult(generatedText)
 
-    // 評価サマリーを取得
-    let evaluationSummaries = null
-    try {
-      evaluationSummaries = await getDesignEvaluationSummaries(analysisResult)
-    } catch(scoringError) {
-      console.error('Scoring Error:', scoringError)
-    }
-
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      evaluation: evaluationSummaries,
       contentType: 'デザイン',
       analysisType: 'design_specialized_analysis',
       rawResponse: generatedText

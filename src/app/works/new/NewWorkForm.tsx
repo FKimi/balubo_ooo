@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { AIAnalysisDetailModal } from '@/features/work/components/AIAnalysisDetailModal'
 import { ShareModal } from '@/features/social/components/ShareModal'
+import { EnhancedAnalysisProgress } from '@/components/works/EnhancedAnalysisProgress'
+import { BtoBAnalysisSection } from '@/components/works/BtoBAnalysisSection'
 import { ArrowLeft, Sparkles, X } from 'lucide-react'
-import { AIAnalysisResult } from '@/features/work/types'
 import { supabase } from '@/lib/supabase'
 
 interface LinkPreviewData {
@@ -30,492 +31,7 @@ interface LinkPreviewData {
   locale: string
 }
 
-// AI評価セクションコンポーネント
-function AIEvaluationSection({ aiAnalysis }: { aiAnalysis: AIAnalysisResult }) {
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
-
-  const toggleExpanded = (item: string) => {
-    const newExpanded = new Set(expandedItems)
-    if (newExpanded.has(item)) {
-      newExpanded.delete(item)
-    } else {
-      newExpanded.add(item)
-    }
-    setExpandedItems(newExpanded)
-  }
-
-  // 新しいサマリー形式（テキスト）を優先表示
-  const summariesObj = aiAnalysis.evaluation?.summaries
-  if (summariesObj) {
-    type SummaryKey = 'overall' | 'technology' | 'expertise' | 'creativity' | 'impact'
-    const axisLabels: Record<SummaryKey, string> = {
-      overall: '総合評価',
-      technology: '技術力',
-      expertise: '専門性',
-      creativity: '創造性',
-      impact: '影響力',
-    }
-    const axisOrder: SummaryKey[] = ['technology', 'expertise', 'creativity', 'impact']
-    const colorMap: Record<SummaryKey, string> = {
-      overall: 'border-green-300 bg-green-100',       // 総合: グリーン
-      technology: 'border-sky-300 bg-sky-100',        // 技術力: スカイブルー
-      expertise: 'border-teal-300 bg-teal-100',       // 専門性: ティール
-      creativity: 'border-violet-300 bg-violet-100',  // 創造性: バイオレット
-      impact: 'border-amber-300 bg-amber-100',        // 影響力: アンバー
-    }
-
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h4 className="text-lg font-bold text-blue-900">AI評価サマリー</h4>
-        </div>
-
-        {/* 総合評価 */}
-        {summariesObj.overall && (
-          <div className={`mb-4 p-4 rounded-lg shadow-sm ${colorMap.overall}`}>
-            <span className="block font-semibold text-gray-800 mb-1">{axisLabels.overall}</span>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{summariesObj.overall}</p>
-          </div>
-        )}
-
-        {/* その他の4軸 */}
-        <div className="space-y-4">
-          {axisOrder.map((key) => {
-            const text = summariesObj[key]
-            if (!text) return null
-            return (
-              <div key={key} className={`p-4 rounded-lg shadow-sm ${colorMap[key]}`}>
-                <span className="block font-bold mb-1 text-gray-800">{axisLabels[key]}</span>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">{text}</p>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-
-  // 新しい形式のスコアがあるかチェック
-  const hasNewFormat = aiAnalysis.evaluation?.scores
-  // 古い形式のスコアがあるかチェック  
-  const hasLegacyFormat = aiAnalysis.legacyEvaluation?.scores
-
-  // 新しい形式を優先的に表示
-  if (hasNewFormat) {
-    const scores = hasNewFormat!
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h4 className="text-lg font-bold text-blue-900">AI評価スコア</h4>
-        </div>
-        
-        {/* 総合評価 */}
-        {scores.overall && (
-          <div className="mb-4 p-3 bg-white rounded-lg border border-green-100">
-            <div 
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => toggleExpanded('overall')}
-            >
-              <span className="font-semibold text-gray-800">総合評価</span>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-green-600">
-                  {scores.overall.score}
-                </span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  scores.overall.score >= 90 ? 'bg-purple-100 text-purple-700' :
-                  scores.overall.score >= 80 ? 'bg-blue-100 text-blue-700' :
-                  scores.overall.score >= 70 ? 'bg-green-100 text-green-700' :
-                  scores.overall.score >= 60 ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-gray-100 text-gray-700'
-                }`}>
-                  {scores.overall.score >= 90 ? 'エキスパート' :
-                   scores.overall.score >= 80 ? '上級者' :
-                   scores.overall.score >= 70 ? '中級者' :
-                   scores.overall.score >= 60 ? '初級者' : 'ビギナー'}
-                </span>
-                <svg 
-                  className={`w-4 h-4 text-gray-400 transition-transform ${
-                    expandedItems.has('overall') ? 'rotate-180' : ''
-                  }`} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            {expandedItems.has('overall') && (
-              <p className="mt-2 text-xs text-gray-600 leading-relaxed">
-                {scores.overall.reason}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* 個別評価項目 */}
-        <div className="grid grid-cols-2 gap-3">
-          {scores.technology && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('technology')}
-              >
-                <span className="text-sm font-medium text-gray-700">技術力</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-gray-700">
-                    {scores.technology.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('technology') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('technology') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.technology.reason}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.expertise && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('expertise')}
-              >
-                <span className="text-sm font-medium text-gray-700">専門性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-blue-600">
-                    {scores.expertise.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('expertise') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('expertise') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.expertise.reason}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.creativity && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('creativity')}
-              >
-                <span className="text-sm font-medium text-gray-700">創造性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-purple-600">
-                    {scores.creativity.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('creativity') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('creativity') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.creativity.reason}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.impact && (
-            <div className="p-3 bg-white rounded-lg border border-green-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('impact')}
-              >
-                <span className="text-sm font-medium text-gray-700">影響力</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-orange-600">
-                    {scores.impact.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('impact') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('impact') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.impact.reason}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* スコア基準の説明 */}
-        <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-100">
-          <h5 className="text-sm font-medium text-green-800 mb-2">評価基準</h5>
-          <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
-            <div><span className="font-medium">90-100点:</span> エキスパート（プロレベル）</div>
-            <div><span className="font-medium">80-89点:</span> 上級者（高品質）</div>
-            <div><span className="font-medium">70-79点:</span> 中級者（標準品質）</div>
-            <div><span className="font-medium">60-69点:</span> 初級者（基本品質）</div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // 古い形式の表示（後方互換性）
-  if (hasLegacyFormat) {
-    const scores = aiAnalysis.legacyEvaluation!.scores
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h4 className="text-lg font-bold text-blue-900">AI評価スコア</h4>
-          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">レガシー形式</span>
-        </div>
-        
-        {/* 総合評価 */}
-        {scores.overall && (
-          <div className="mb-4 p-3 bg-white rounded-lg border border-blue-100">
-            <div 
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => toggleExpanded('overall')}
-            >
-              <span className="font-semibold text-gray-800">総合評価</span>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-blue-600">
-                  {scores.overall.score}
-                </span>
-                <svg 
-                  className={`w-4 h-4 text-gray-400 transition-transform ${
-                    expandedItems.has('overall') ? 'rotate-180' : ''
-                  }`} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-            {expandedItems.has('overall') && scores.overall.reason && (
-              <p className="mt-2 text-xs text-gray-600 leading-relaxed">
-                {scores.overall.reason}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* 古い形式の個別評価項目 */}
-        <div className="grid grid-cols-2 gap-3">
-          {scores.logic && (
-            <div className="p-3 bg-white rounded-lg border border-blue-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('logic')}
-              >
-                <span className="text-sm font-medium text-gray-700">論理性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-blue-600">
-                    {scores.logic.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('logic') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('logic') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.logic.reason || '論理的な構成や文章の組み立てが評価されています。'}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.practicality && (
-            <div className="p-3 bg-white rounded-lg border border-blue-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('practicality')}
-              >
-                <span className="text-sm font-medium text-gray-700">実用性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-green-600">
-                    {scores.practicality.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('practicality') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('practicality') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.practicality.reason || '実際の活用場面での価値や有用性が評価されています。'}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.readability && (
-            <div className="p-3 bg-white rounded-lg border border-blue-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('readability')}
-              >
-                <span className="text-sm font-medium text-gray-700">読みやすさ</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-purple-600">
-                    {scores.readability.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('readability') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('readability') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.readability.reason || '文章の分かりやすさや読者にとっての理解しやすさが評価されています。'}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.originality && (
-            <div className="p-3 bg-white rounded-lg border border-blue-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('originality')}
-              >
-                <span className="text-sm font-medium text-gray-700">独自性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-orange-600">
-                    {scores.originality.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('originality') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('originality') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.originality.reason || 'オリジナリティや他にはない独特な視点・アプローチが評価されています。'}
-                </p>
-              )}
-            </div>
-          )}
-
-          {scores.clarity && (
-            <div className="p-3 bg-white rounded-lg border border-blue-100">
-              <div 
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => toggleExpanded('clarity')}
-              >
-                <span className="text-sm font-medium text-gray-700">明確性</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-lg font-bold text-indigo-600">
-                    {scores.clarity.score}
-                  </span>
-                  <svg 
-                    className={`w-3 h-3 text-gray-400 transition-transform ${
-                      expandedItems.has('clarity') ? 'rotate-180' : ''
-                    }`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              {expandedItems.has('clarity') && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-                  {scores.clarity.reason || 'メッセージや目的の明確さ、読者への伝達力が評価されています。'}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* レガシー形式の説明 */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-          <h5 className="text-sm font-medium text-blue-800 mb-2">レガシー評価形式について</h5>
-          <p className="text-xs text-blue-700">
-            この評価は旧形式で記録されたデータです。最新のAI分析を実行すると、より詳細な4軸評価（技術力、専門性、創造性、影響力）を受けることができます。
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  return null
-}
+// AI評価セクションコンポーネント - 削除済み
 
 interface WorkFormProps {
   initialData?: {
@@ -627,6 +143,7 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
   const fetchLinkPreview = async (url: string) => {
     if (!url.trim()) return
 
+    console.log('Fetching link preview for URL:', url)
     setIsLoadingPreview(true)
     setPreviewError('')
 
@@ -639,9 +156,35 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
         body: JSON.stringify({ url: url.trim() }),
       })
 
+      console.log('Link preview response status:', response.status)
+
       const data = await response.json()
+      console.log('Link preview response data:', data)
 
       if (!response.ok) {
+        // APIキーが設定されていない場合（503エラー）は、基本的なURL情報のみ表示
+        if (response.status === 503) {
+          const basicPreview = {
+            title: url.split('/').pop() || url,
+            description: 'リンクプレビュー機能は現在利用できません',
+            url: url,
+            image: '',
+            siteName: new URL(url).hostname,
+            // その他のフィールドは空文字列で初期化
+            imageWidth: 0,
+            imageHeight: 0,
+            imageSize: 0,
+            imageType: '',
+            icon: '',
+            iconWidth: 0,
+            iconHeight: 0,
+            iconSize: 0,
+            iconType: '',
+            locale: ''
+          }
+          setPreviewData(basicPreview)
+          return
+        }
         throw new Error(data.error || 'プレビューの取得に失敗しました')
       }
 
@@ -657,7 +200,15 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
 
     } catch (error) {
       console.error('Preview fetch error:', error)
-      setPreviewError(error instanceof Error ? error.message : 'プレビューの取得に失敗しました')
+      let errorMessage = 'プレビューの取得に失敗しました'
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMessage = String(error.message)
+      }
+      
+      setPreviewError(errorMessage)
     } finally {
       setIsLoadingPreview(false)
     }
@@ -1196,6 +747,8 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
         }
         
         setAnalysisResult(completeAnalysisResult)
+        console.log('AI分析結果:', completeAnalysisResult)
+        console.log('btobAnalysis:', completeAnalysisResult.btobAnalysis)
         
         // 作品名と概要の自動生成（デザイン作品でファイルがアップロードされている場合）
         if ((contentType === 'design' || contentType === 'photo') && uploadedFiles.length > 0 && result.analysis) {
@@ -2249,17 +1802,12 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
             )}
 
             {isAnalyzing && (
-              <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  <div>
-                    <p className="text-blue-900 font-bold text-lg">高度AI分析を実行中...</p>
-                    <p className="text-blue-700">
-                      {contentType === 'design' ? '技術力・専門性・創造性・影響力の観点から詳細分析しています（画像ファイルの視覚的内容も含む・作品名・概要も自動生成中）' : '技術力・専門性・創造性・影響力の観点から詳細分析しています'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <EnhancedAnalysisProgress 
+                contentType={contentType}
+                contentLength={(formData.description || previewData?.description || articleContent || '').length}
+                hasImages={uploadedFiles.length > 0}
+                onCancel={() => setIsAnalyzing(false)}
+              />
             )}
 
             {analysisResult && (
@@ -2282,10 +1830,10 @@ function NewWorkForm({ initialData, mode, workId, onSubmit }: WorkFormProps = {}
                     </p>
                   </div>
 
-                  {/* AI評価スコア */}
-                  {(analysisResult.evaluation?.summaries || analysisResult.evaluation?.scores || analysisResult.legacyEvaluation?.scores) && (
-                    <AIEvaluationSection aiAnalysis={analysisResult} />
-                  )}
+                  {/* AI評価スコア - 削除済み */}
+
+                  {/* 専門性分析 */}
+                  <BtoBAnalysisSection aiAnalysis={analysisResult || {}} />
 
                   {/* 強み分析 */}
                   {false && analysisResult.strengths && (

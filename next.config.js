@@ -3,8 +3,53 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['recharts'],
   
+  // パフォーマンス最適化設定
+  experimental: {
+    optimizePackageImports: ['@heroicons/react', 'lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-tabs'],
+    // メインスレッド最適化
+    optimizeCss: true,
+    // バンドル分析の有効化
+    bundlePagesRouterDependencies: true,
+  },
+  
   // 開発時の設定
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
+    // 本番環境での最適化
+    if (!dev && !isServer) {
+      // バンドルサイズの最適化
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      }
+      
+      // 不要なポリフィルの削除（最新ブラウザ向け）
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // 最新ブラウザでは不要なポリフィルを無効化
+        'core-js/modules/es.array.at': false,
+        'core-js/modules/es.array.flat': false,
+        'core-js/modules/es.array.flat-map': false,
+        'core-js/modules/es.object.from-entries': false,
+        'core-js/modules/es.object.has-own': false,
+        'core-js/modules/es.string.trim-end': false,
+        'core-js/modules/es.string.trim-start': false,
+      }
+    }
+    
     return config
   },
   
@@ -103,6 +148,21 @@ const nextConfig = {
           {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
+          },
+          // パフォーマンス最適化ヘッダー
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // 静的アセット用のキャッシュ設定
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

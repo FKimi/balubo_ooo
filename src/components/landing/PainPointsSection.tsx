@@ -3,7 +3,7 @@
 import React from 'react'
 import { useScrollAnimation } from '@/hooks'
 
-//【推敲後】クリエイターの悩みをより具体的に（3つに厳選）
+//【推敲後】BtoBプロフェッショナルの悩みをより具体的に（3つに厳選）
 const creatorPains = [
   {
     icon: (
@@ -15,8 +15,8 @@ const creatorPains = [
         <polyline points="10,9 9,9 8,9"/>
       </svg>
     ),
-    title: "ポートフォリオ作りが面倒すぎる",
-    description: "一から作品のタイトルや説明文を考えるのに時間がかかりすぎて、本業に支障が出てしまう"
+    title: "実績の背景にある価値まで伝えるのが難しい",
+    description: "完成した制作物を見せるだけでは、その裏にある業界知識や、課題解決までの思考プロセスが伝わらない。"
   },
   {
     icon: (
@@ -25,8 +25,8 @@ const creatorPains = [
         <path d="m12 1 3 6 6 3-6 3-3 6-3-6-6-3 6-3 3-6z"/>
       </svg>
     ), 
-    title: "自分の強みが分からない",
-    description: "ポートフォリオは作ったけど、具体的にどこが強みで魅力なのか言語化できない"
+    title: "自分の専門性が、客観的に伝わらない",
+    description: "自分の強みや得意領域を説明しようとしても、主観的なアピールになってしまい、相手に納得感を与えられない。"
   },
   {
     icon: (
@@ -37,8 +37,8 @@ const creatorPains = [
         <path d="m17 12h4"/>
       </svg>
     ),
-    title: "営業・自己PRが苦手",
-    description: "自分のスキルを適切にアピールできず、理想的なクライアントとの出会いがない"
+    title: "専門性の価値が伝わらず、価格競争に陥りがち",
+    description: "スキルの本質的な価値が理解されず、「同じようなことができる人」として扱われ、適正な評価や報酬を得られない。"
   }
 ]
 
@@ -56,15 +56,15 @@ const solutions = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     ),
-    title: 'AIがあなたの強みを言語化',
-    description: '作品をAIが深く分析し、「デザインの独創性」「ユーザビリティへの配慮」「ブランディング力」など、あなた自身では気づきにくい強みや魅力を具体的な言葉で表現します。',
+    title: 'AIがあなたの「価値」を言語化',
+    description: '作品をAIが深く分析し、「SaaS業界のビジネスモデルへの深い理解」「複雑な情報を整理し、本質を突く構成力」など、あなたのビジネス貢献度や思考プロセスまで踏み込んで、専門性を具体的な言葉で表現します。',
   },
   {
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     ),
-    title: '親和性の高いマッチングを実現',
-    description: 'AIが分析したあなたのスキルデータを基に、相性の良いクライアントとの出会いを創出。営業が苦手でも、あなたの実力を理解してくれるクライアントと自然につながれます。',
+    title: '価値がわかるクライアントと出会える',
+    description: 'AIが分析したあなたのスキルデータを基に、専門性を求めるクライアントとの高精度なマッチングを実現。不毛な価格競争から脱却し、あなたの価値を正当に評価してくれるクライアントと繋がれます。',
   },
 ]
 
@@ -78,18 +78,18 @@ export default function PainPointsSection() {
         {/* 問題提起部分 */}
         <div className="text-center">
           <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-slate-50 rounded-full border border-slate-200">
-            <span className="text-sm font-medium text-slate-700">副業クリエイターのリアルな課題</span>
+            <span className="text-sm font-medium text-slate-700">&ldquo;専門家&rdquo;である、あなたの悩み</span>
           </div>
           
           <h2 className="text-4xl font-bold text-gray-900 md:text-5xl mb-6">
-            こんなお悩み、<br className="sm:hidden" />
-            <span className="text-indigo-600">ありませんか？</span>
+            深い知見と高いスキルを持つプロフェッショナルだからこそ、<br className="sm:hidden" />
+            <span className="text-indigo-600">直面する壁があります。</span>
           </h2>
           
           <p className="mx-auto max-w-3xl text-lg text-gray-600 leading-relaxed">
-            忙しい副業クリエイターが直面する
-            <span className="font-semibold text-gray-900">ポートフォリオ作成</span>と
-            <span className="font-semibold text-gray-900">案件獲得</span>の課題。
+            BtoB領域で活躍するプロフェッショナルが抱える
+            <span className="font-semibold text-gray-900">専門性の可視化</span>と
+            <span className="font-semibold text-gray-900">価値の伝達</span>の課題。
             <br className="hidden sm:block" />
             あなたも同じような経験はありませんか？
           </p>
@@ -159,26 +159,24 @@ export default function PainPointsSection() {
           <div className={`inline-flex items-center gap-3 mb-6 px-4 py-2 bg-slate-50 rounded-full border border-slate-200 transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
-            <span className="text-sm font-medium text-slate-700">AI搭載の革新的ソリューション</span>
+            <span className="text-sm font-medium text-slate-700">その課題、baluboが解決します</span>
           </div>
           
           <h2 className={`text-4xl font-bold text-gray-900 md:text-5xl mb-6 transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`} style={{ transitionDelay: '100ms' }}>
-            その課題、<br className="sm:hidden" />
+            AIがあなたの「第三者の目」となり、<br className="sm:hidden" />
             <span className="text-indigo-600 font-bold">
-              balubo
+              実績に隠された価値を客観的に分析・言語化
             </span>
-            が解決します
           </h2>
           
           <p className={`mx-auto max-w-3xl text-lg text-gray-600 leading-relaxed transition-all duration-700 ease-out ${
             solutionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`} style={{ transitionDelay: '200ms' }}>
-            <span className="font-semibold text-gray-900">AI搭載ポートフォリオ「balubo」</span>なら、
-            作品登録の手間を大幅に削減し、あなたの隠れた強みを自動で発見・言語化。
+            あなたの専門性を、誰にでも伝わる「<span className="font-semibold text-gray-900">証明書</span>」へと変換します。
             <br className="hidden sm:block" />
-            効率的で魅力的なポートフォリオ作成を実現します。
+            これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明します。
           </p>
         </div>
 

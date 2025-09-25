@@ -10,7 +10,8 @@ const config: Config = {
     extend: {
       fontFamily: {
         'sans': [
-          'Inter',
+          'var(--font-inter)',
+          'var(--font-noto-sans-jp)',
           'ui-sans-serif',
           'system-ui',
           '-apple-system',
@@ -27,7 +28,7 @@ const config: Config = {
           'Noto Color Emoji'
         ],
         'display': [
-          'Inter',
+          'var(--font-inter)',
           'ui-sans-serif',
           'system-ui'
         ]

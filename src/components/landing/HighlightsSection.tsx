@@ -38,12 +38,12 @@ export default function HighlightsSection() {
       <div className="container mx-auto max-w-5xl">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">
-            新しいクリエイター体験を、今すぐ
+            専門性を証明し、価値を最大化する
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
             証明する、繋がる、成長する。baluboは単なるツールではありません。
             <br className="hidden sm:block" />
-            あなたのキャリアを加速させるパートナーです。
+            あなたの専門性を正当に評価されるパートナーです。
           </p>
         </div>
 

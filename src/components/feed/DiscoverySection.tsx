@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { debounce, throttle, runInIdle } from '@/utils/performance'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -56,26 +57,29 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
   const [error, setError] = useState<string | null>(null)
   const [scrollPosition, setScrollPosition] = useState(0)
 
-  // データ取得
+  // データ取得（パフォーマンス最適化済み）
   const fetchDiscoveryData = useCallback(async () => {
     try {
       setError(null)
       // 初回のみローディング表示を出す
       if (!data) setLoading(true)
 
-      // キャッシュを避けるためのタイムスタンプを付与し、no-storeで取得
-      const ts = Date.now()
-      const response = await fetch(`/api/discovery/trending?type=all&ts=${ts}`, { cache: 'no-store' })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
+      // 重い処理をrequestIdleCallbackで実行
+      await runInIdle(async () => {
+        // キャッシュを避けるためのタイムスタンプを付与し、no-storeで取得
+        const ts = Date.now()
+        const response = await fetch(`/api/discovery/trending?type=all&ts=${ts}`, { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-      const result = await response.json()
-      if (result.success) {
-        setData(result.data)
-      } else {
-        throw new Error(result.error || 'データ取得に失敗しました')
-      }
+        const result = await response.json()
+        if (result.success) {
+          setData(result.data)
+        } else {
+          throw new Error(result.error || 'データ取得に失敗しました')
+        }
+      })
     } catch (error) {
       console.error('Discovery data fetch error:', error)
       setError(error instanceof Error ? error.message : 'データ取得エラー')
@@ -92,8 +96,9 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
       fetchDiscoveryData()
     }, 30000)
 
-    // フォーカス時にも更新
-    const onFocus = () => fetchDiscoveryData()
+    // フォーカス時にも更新（デバウンス適用）
+    const debouncedFetch = debounce(fetchDiscoveryData, 1000)
+    const onFocus = () => debouncedFetch()
     window.addEventListener('focus', onFocus)
 
     return () => {
@@ -102,8 +107,8 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
     }
   }, [fetchDiscoveryData])
 
-  // 横スクロール処理
-  const scrollFeatured = (direction: 'left' | 'right') => {
+  // 横スクロール処理（スロットル適用）
+  const scrollFeatured = useCallback(throttle((direction: 'left' | 'right') => {
     const container = document.getElementById('featured-scroll-container')
     if (container) {
       const scrollAmount = 320 // カード幅 + gap
@@ -114,7 +119,7 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
       container.scrollTo({ left: newPosition, behavior: 'smooth' })
       setScrollPosition(newPosition)
     }
-  }
+  }, 100), [scrollPosition])
 
   if (loading) {
     return (

@@ -23,24 +23,23 @@ export default function HeroSection() {
 
               <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-5xl lg:text-6xl">
                 <span className="block leading-tight">
-                  あなたの
+                  その専門性、
                   <span className="ml-2 text-indigo-600">
-                    隠れた強み
+                    証明できますか？
                   </span>
-                  を発見・証明
                 </span>
               </h1>
 
               <div className="mx-auto max-w-2xl space-y-6 text-base text-gray-600 sm:text-lg lg:mx-0">
                 <p>
-                  <span className="font-semibold text-gray-900">balubo</span>は、副業を探すクリエイターのためのAI分析型ポートフォリオサービスです。
+                  <span className="font-semibold text-gray-900">balubo</span>は、BtoB領域で活躍するプロフェッショナルのためのAIポートフォリオプラットフォームです。
                 </p>
                 <p>
-                  作品を登録することで、強み・特徴を可視化。AIが<span className="font-medium text-indigo-600">「技術力」「創造性」「専門性」「影響力」そして「総合評価」</span>の5つの視点から分析し、
-                  あなたのスキルを客観的に証明します。
+                  あなたの実績を登録するだけで、AIがその背景にある「<span className="font-semibold text-gray-900">業界への解像度</span>」や「<span className="font-semibold text-gray-900">課題解決力</span>」を分析・可視化。これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明します。
                 </p>
                 <p>
-                  また抽出されたタグデータから、親和性の高い仕事とのマッチングを実現。クリエイターと発注者のミスマッチの課題を解決し、コンテンツの力で日本全体のビジネスを加速させることを目指します。
+                  専門性を正しく伝え、その価値を理解するクライアントと出会う。
+                  <span className="font-semibold text-gray-900">balubo</span>は、クリエイターと発注者のミスマッチを解消し、日本のビジネスをさらに前進させます。
                 </p>
               </div>
               
@@ -58,7 +57,7 @@ export default function HeroSection() {
                 >
                   {isRedirecting ? '読み込み中…' : (
                     <span className="inline-flex items-center">
-                      無料で始める
+                      無料であなたの「価値」を可視化する
                       <svg className="ml-2 h-5 w-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                     </span>
                   )}

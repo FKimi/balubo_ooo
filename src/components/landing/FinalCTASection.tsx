@@ -45,16 +45,16 @@ export default function FinalCTASection() {
         {/* CTA部分 */}
         <div className="text-center">
           <h2 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            あなたの才能は、まだ見ぬ
+            その専門知識は、
             <br />
             <span className="text-indigo-600">
-              可能性に満ちています
+              高く評価されるべき資産です。
             </span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            baluboで、その扉を開きませんか？
+            baluboで、あなたの価値を正しく、高く、伝えませんか？
             <br className="hidden sm:block" />
-            新しい自分、新しい仕事、新しい仲間が、あなたを待っています。
+            新しい評価、新しい仕事、新しいキャリアが、あなたを待っています。
           </p>
           
           <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -64,7 +64,7 @@ export default function FinalCTASection() {
               className="w-full max-w-xs transform-gpu rounded-lg bg-indigo-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl sm:w-auto"
             >
               <Link href="/register">
-                今すぐbaluboを始める
+                今すぐ無料で「専門性」を証明する
                 <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
               </Link>
             </Button>
@@ -84,7 +84,7 @@ export default function FinalCTASection() {
           <div className="mt-16">
             <div className="rounded-lg border border-slate-200 bg-white p-8 shadow-lg">
               <p className="text-lg italic text-slate-600">
-                &ldquo;あなたのクリエイティビティを、世界はまだ知らない&rdquo;
+                &ldquo;あなたの本当の価値を、世界はまだ知らない&rdquo;
               </p>
               <p className="mt-2 text-sm text-slate-500">
                 — 今日から、それを変えてみませんか？

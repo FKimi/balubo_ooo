@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Noto_Sans_JP } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { Analytics } from '@vercel/analytics/react'
@@ -9,7 +9,20 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Toaster } from 'react-hot-toast'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
-const inter = Inter({ subsets: ['latin'] })
+// フォント最適化設定
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+})
+
+const notoSansJP = Noto_Sans_JP({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-noto-sans-jp',
+  preload: true,
+})
 
 export const metadata: Metadata = {
   title: 'balubo - クリエイターのためのポートフォリオプラットフォーム',
@@ -85,7 +98,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className={inter.className}>
+      <head>
+        {/* 重要なオリジンへのpreconnectヒント */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://kdrnxnorxquxvxutkwnq.supabase.co" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://vitals.vercel-insights.com" />
+        
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://storage.googleapis.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
+      </head>
+      <body className={`${inter.variable} ${notoSansJP.variable} font-sans`}>
         <Toaster position="top-right" />
         <ErrorBoundary FallbackComponent={ErrorFilter}>
           <AuthProvider>

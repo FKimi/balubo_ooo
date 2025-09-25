@@ -1,7 +1,13 @@
 'use client'
 
-import React from 'react'
-import { TagCloud } from 'react-tagcloud'
+import React, { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+
+// 動的インポートでWordCloudを最適化
+const TagCloud = dynamic(() => import('react-tagcloud').then(mod => ({ default: mod.TagCloud })), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-200 h-48 rounded-lg" />
+})
 
 interface WordCloudData {
   value: string
@@ -38,15 +44,16 @@ export function WordCloud({
 
   return (
     <div className={`word-cloud-container ${className}`}>
-      <TagCloud
-        minSize={minSize}
-        maxSize={maxSize}
-        tags={tagCloudData}
-        className="word-cloud"
-        onClick={(_tag: any) => {
-          // タグクリック時の処理（必要に応じて実装）
-        }}
-        renderer={(_tag: any, size: number, color: string) => (
+      <Suspense fallback={<div className="animate-pulse bg-gray-200 h-48 rounded-lg" />}>
+        <TagCloud
+          minSize={minSize}
+          maxSize={maxSize}
+          tags={tagCloudData}
+          className="word-cloud"
+          onClick={(_tag: any) => {
+            // タグクリック時の処理（必要に応じて実装）
+          }}
+          renderer={(_tag: any, size: number, color: string) => (
           <span
             key={_tag.value}
             style={{
@@ -77,7 +84,8 @@ export function WordCloud({
             {_tag.value}
           </span>
         )}
-      />
+        />
+      </Suspense>
       <style jsx>{`
         .word-cloud-container {
           width: 100%;

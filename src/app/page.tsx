@@ -83,8 +83,8 @@ export default function HomePage() {
             <Link href="#features" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
               特徴
             </Link>
-            <Link href="#how-to-start" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
-              始め方
+            <Link href="#analysis" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
+              分析指標
             </Link>
             <Link href="#voices" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">
               利用者の声
@@ -93,7 +93,7 @@ export default function HomePage() {
               <Link href="/login">ログイン</Link>
             </Button>
             <Button asChild className="rounded-lg bg-indigo-600 font-medium text-white shadow-sm transition-colors hover:bg-indigo-700">
-              <Link href="/register">無料で始める</Link>
+              <Link href="/register">無料で「価値」を可視化</Link>
             </Button>
           </nav>
         </div>

@@ -120,6 +120,50 @@ export interface AIAnalysisResult {
       }
     }
   }
+  // BtoB特化分析指標（新形式）
+  btobAnalysis?: {
+    /** BtoB分析サマリー */
+    summaries?: {
+      industryIdentification: string
+      problemPurposeAnalysis: string
+      achievementExtraction: string
+      targetReaderEstimation: string
+      btobContextUnderstanding: string
+    }
+    /** BtoB分析スコア */
+    scores?: {
+      industryIdentification: {
+        score: number
+        reason: string
+        industryTags: string[]
+        domainKeywords: string[]
+      }
+      problemPurposeAnalysis: {
+        score: number
+        reason: string
+        problemTags: string[]
+        purposeKeywords: string[]
+      }
+      achievementExtraction: {
+        score: number
+        reason: string
+        quantitativeResults: string[]
+        impactScore: number
+      }
+      targetReaderEstimation: {
+        score: number
+        reason: string
+        targetTags: string[]
+        readerLevel: string
+      }
+      btobContextUnderstanding: {
+        score: number
+        reason: string
+        contextScore: number
+        btobElements: string[]
+      }
+    }
+  }
   // 古い形式のAI評価スコア（後方互換性のため）
   legacyEvaluation?: {
     scores: LegacyEvaluationScores
