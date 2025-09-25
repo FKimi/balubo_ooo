@@ -15,7 +15,7 @@ const creatorPains = [
         <polyline points="10,9 9,9 8,9"/>
       </svg>
     ),
-    title: "実績の背景にある価値まで伝えるのが難しい",
+    title: "制作実績の背景にある価値まで伝えるのが難しい",
     description: "完成した制作物を見せるだけでは、その裏にある業界知識や、課題解決までの思考プロセスが伝わらない。"
   },
   {
@@ -49,15 +49,15 @@ const solutions = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
     ),
-    title: 'URL入力だけで楽々作品登録',
-    description: 'WebサイトやBehance、noteなどのURLを入力するだけで、AIが自動的に作品のタイトル、説明文、画像を抽出。一から入力する手間を省いて、簡単にポートフォリオに登録できます。',
+    title: 'URL入力だけで楽々制作物登録',
+    description: 'WebサイトやBehance、noteなどのURLを入力するだけで、AIが自動的に制作物のタイトル、説明文、画像を抽出。一から入力する手間を省いて、簡単にポートフォリオに登録できます。',
   },
   {
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     ),
     title: 'AIがあなたの「価値」を言語化',
-    description: '作品をAIが深く分析し、「SaaS業界のビジネスモデルへの深い理解」「複雑な情報を整理し、本質を突く構成力」など、あなたのビジネス貢献度や思考プロセスまで踏み込んで、専門性を具体的な言葉で表現します。',
+    description: '制作物をAIが深く分析し、「SaaS業界のビジネスモデルへの深い理解」「複雑な情報を整理し、本質を突く構成力」など、あなたのビジネス貢献度や思考プロセスまで踏み込んで、専門性を具体的な言葉で表現します。',
   },
   {
     icon: (
@@ -87,7 +87,7 @@ export default function PainPointsSection() {
           </h2>
           
           <p className="mx-auto max-w-3xl text-lg text-gray-600 leading-relaxed">
-            BtoB領域で活躍するプロフェッショナルが抱える
+            BtoB領域で活躍するプロクリエイターが抱える
             <span className="font-semibold text-gray-900">専門性の可視化</span>と
             <span className="font-semibold text-gray-900">価値の伝達</span>の課題。
             <br className="hidden sm:block" />

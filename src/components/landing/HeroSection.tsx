@@ -32,14 +32,14 @@ export default function HeroSection() {
 
               <div className="mx-auto max-w-2xl space-y-6 text-base text-gray-600 sm:text-lg lg:mx-0">
                 <p>
-                  <span className="font-semibold text-gray-900">balubo</span>は、BtoB領域で活躍するプロフェッショナルのためのAIポートフォリオプラットフォームです。
+                  <span className="font-semibold text-gray-900">balubo</span>は、BtoB領域で活躍するプロクリエイターのためのAIポートフォリオプラットフォームです。
                 </p>
                 <p>
-                  あなたの実績を登録するだけで、AIがその背景にある「<span className="font-semibold text-gray-900">業界への解像度</span>」や「<span className="font-semibold text-gray-900">課題解決力</span>」を分析・可視化。これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明します。
+                  あなたの制作実績を登録するだけで、AIがその背景にある「<span className="font-semibold text-gray-900">業界への解像度</span>」や「<span className="font-semibold text-gray-900">課題解決力</span>」を分析・可視化。これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明します。
                 </p>
                 <p>
                   専門性を正しく伝え、その価値を理解するクライアントと出会う。
-                  <span className="font-semibold text-gray-900">balubo</span>は、クリエイターと発注者のミスマッチを解消し、日本のビジネスをさらに前進させます。
+                  <span className="font-semibold text-gray-900">balubo</span>は、プロクリエイターと発注者のミスマッチを解消し、日本のビジネスをさらに前進させます。
                 </p>
               </div>
               

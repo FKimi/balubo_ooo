@@ -52,7 +52,7 @@ export default function FinalCTASection() {
             </span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            baluboで、あなたの価値を正しく、高く、伝えませんか？
+            baluboで、あなたの専門性を正しく、高く、伝えませんか？
             <br className="hidden sm:block" />
             新しい評価、新しい仕事、新しいキャリアが、あなたを待っています。
           </p>

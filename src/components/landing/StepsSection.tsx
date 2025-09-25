@@ -23,7 +23,7 @@ const steps: Step[] = [
   },
   {
     number: 'STEP 2',
-    title: '作品を追加',
+    title: '制作物を追加',
     description: '記事・写真・デザインなど、ドラッグ＆ドロップで簡単にアップロード。',
     icon: (
       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
