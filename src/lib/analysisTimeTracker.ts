@@ -60,7 +60,7 @@ class AnalysisTimeTracker {
   }
 
   // 分析完了を記録
-  recordAnalysisEnd(sessionId: string) {
+  recordAnalysisEnd(_sessionId: string) {
     try {
       const sessionData = sessionStorage.getItem('current_analysis')
       if (!sessionData) return
@@ -112,7 +112,7 @@ class AnalysisTimeTracker {
     // 平均時間を計算（最新の記録により重み付け）
     const weights = similarRecords.map((_, index) => Math.pow(0.9, index))
     const weightedSum = similarRecords.reduce((sum, record, index) => 
-      sum + (record.analysisTime / 1000) * weights[index], 0
+      sum + ((record.analysisTime || 0) / 1000) * weights[index], 0
     )
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0)
 

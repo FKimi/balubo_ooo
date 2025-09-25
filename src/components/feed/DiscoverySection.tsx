@@ -108,7 +108,7 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
   }, [fetchDiscoveryData])
 
   // 横スクロール処理（スロットル適用）
-  const scrollFeatured = useCallback(throttle((direction: 'left' | 'right') => {
+  const scrollFeatured = useCallback((direction: 'left' | 'right') => {
     const container = document.getElementById('featured-scroll-container')
     if (container) {
       const scrollAmount = 320 // カード幅 + gap
@@ -119,7 +119,7 @@ export const DiscoverySection = ({ onTagClick: _onTagClick, onWorkClick: _onWork
       container.scrollTo({ left: newPosition, behavior: 'smooth' })
       setScrollPosition(newPosition)
     }
-  }, 100), [scrollPosition])
+  }, [scrollPosition])
 
   if (loading) {
     return (

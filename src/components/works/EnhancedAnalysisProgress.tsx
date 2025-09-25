@@ -110,7 +110,7 @@ export function EnhancedAnalysisProgress({
       clearInterval(timeInterval)
       clearInterval(tipInterval)
     }
-  }, [contentType, contentLength, hasImages])
+  }, [contentType, contentLength, hasImages, analysisSteps.length])
 
   // コンポーネントのアンマウント時に分析終了を記録
   useEffect(() => {

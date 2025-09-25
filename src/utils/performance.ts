@@ -6,7 +6,7 @@
 /**
  * 重い処理をrequestIdleCallbackで実行し、メインスレッドをブロックしないようにする
  */
-export function runInIdle<T extends (...args: any[]) => any>(
+export function runInIdle<T extends (..._args: any[]) => any>(
   callback: T,
   timeout = 5000
 ): Promise<ReturnType<T>> {
@@ -34,7 +34,7 @@ export function runInIdle<T extends (...args: any[]) => any>(
  */
 export async function runInChunks<T>(
   items: T[],
-  processor: (item: T) => void,
+  processor: (_item: T) => void,
   chunkSize = 10,
   delay = 0
 ): Promise<void> {
@@ -54,10 +54,10 @@ export async function runInChunks<T>(
 /**
  * デバウンス関数 - 連続する呼び出しを制限
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (..._args: any[]) => any>(
   func: T,
   wait: number
-): (...args: Parameters<T>) => void {
+): (..._args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null
   
   return (...args: Parameters<T>) => {
@@ -74,10 +74,10 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * スロットル関数 - 一定間隔でのみ実行
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (..._args: any[]) => any>(
   func: T,
   limit: number
-): (...args: Parameters<T>) => void {
+): (..._args: Parameters<T>) => void {
   let inThrottle: boolean
   
   return (...args: Parameters<T>) => {
