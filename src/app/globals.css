@@ -253,7 +253,7 @@
 }
 
 /* Line clamp utilities - handled by @tailwindcss/line-clamp plugin */
-  
+@layer utilities {
   /* 横スクロール用のスタイル */
   .scrollbar-hide {
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
