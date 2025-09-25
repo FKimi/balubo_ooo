@@ -138,15 +138,20 @@ class AnalysisTimeTracker {
       if (!stats[record.contentType]) {
         stats[record.contentType] = { count: 0, totalTime: 0 }
       }
-      stats[record.contentType].count++
-      stats[record.contentType].totalTime += record.analysisTime / 1000
+      const stat = stats[record.contentType]
+      if (stat) {
+        stat.count++
+        stat.totalTime += record.analysisTime / 1000
+      }
       return stats
-    }, {} as Record<string, { count: number, totalTime: number }>)
+    }, {} as Record<string, { count: number, totalTime: number, averageTime?: number }>)
 
     // 平均時間を計算
     Object.keys(contentTypeStats).forEach(contentType => {
       const stat = contentTypeStats[contentType]
-      stat.averageTime = stat.totalTime / stat.count
+      if (stat) {
+        stat.averageTime = stat.totalTime / stat.count
+      }
     })
 
     return {
