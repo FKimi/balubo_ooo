@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server'
 // 複数のGemini APIキーを管理
 const GEMINI_API_KEYS = [
   process.env.GEMINI_API_KEY,
-  process.env.GEMINI_API_KEY_BACKUP
+  process.env.GEMINI_API_KEY_BACKUP,
+  process.env.GEMINI_API_KEY_THIRD
 ].filter(Boolean) // undefinedを除外
 
 if (GEMINI_API_KEYS.length === 0) {
