@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { debounce, throttle, runInIdle } from '@/utils/performance'
+import { debounce, runInIdle } from '@/utils/performance'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
