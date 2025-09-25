@@ -6,8 +6,8 @@ const nextConfig = {
   // パフォーマンス最適化設定
   experimental: {
     optimizePackageImports: ['@heroicons/react', 'lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-tabs'],
-    // メインスレッド最適化
-    optimizeCss: true,
+    // メインスレッド最適化（crittersモジュールの問題のため無効化）
+    // optimizeCss: true,
     // バンドル分析の有効化
     bundlePagesRouterDependencies: true,
   },
