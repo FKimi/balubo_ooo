@@ -1,22 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { generateMockReportData } from "@/features/report/components/mockData";
-import type {
-  ReportData,
-  AISummaryData,
-  SpecialtyAnalysisData,
-  KeywordData,
-  PerformanceMetricsData,
-  IndustryData,
+import type { 
+  ReportData, 
+  AISummaryData, 
+  SpecialtyAnalysisData, 
+  KeywordData, 
+  PerformanceMetricsData, 
+  IndustryData, 
   FeaturedWorkData,
 } from "@/features/report/components/types";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { userId: string } },
+  context: { params: Promise<{ userId: string }> },
 ) {
   try {
-    const { userId } = params;
+    const { userId } = await context.params;
     const body = await request.json();
     const { works } = body;
 
@@ -87,7 +86,7 @@ export async function POST(
       keywordAnalysis,
       performanceMetrics: {
         ...performanceMetrics,
-        experienceYears,
+        ...(experienceYears !== undefined ? { experienceYears } : {}),
       },
       clientIndustryBreakdown,
       featuredWorks,
@@ -151,18 +150,17 @@ function generateAISummary(
   };
   works.forEach((w: any) => {
     const tags = w.tags || [];
-    if (
-      tags.some((t: string) => t.includes("SaaS") || t.includes("ソフトウェア"))
-    )
-      industryScore["SaaS"]++;
-    else if (tags.some((t: string) => t.includes("製造") || t.includes("工場")))
-      industryScore["製造業"]++;
-    else if (tags.some((t: string) => t.includes("金融") || t.includes("銀行")))
-      industryScore["金融"]++;
-    else if (tags.some((t: string) => t.includes("医療") || t.includes("病院")))
-      industryScore["医療"]++;
-    else if (tags.some((t: string) => t.includes("小売") || t.includes("EC")))
-      industryScore["小売"]++;
+    if (tags.some((t: string) => t.includes("SaaS") || t.includes("ソフトウェア"))) {
+      industryScore["SaaS"] = (industryScore["SaaS"] ?? 0) + 1;
+    } else if (tags.some((t: string) => t.includes("製造") || t.includes("工場"))) {
+      industryScore["製造業"] = (industryScore["製造業"] ?? 0) + 1;
+    } else if (tags.some((t: string) => t.includes("金融") || t.includes("銀行"))) {
+      industryScore["金融"] = (industryScore["金融"] ?? 0) + 1;
+    } else if (tags.some((t: string) => t.includes("医療") || t.includes("病院"))) {
+      industryScore["医療"] = (industryScore["医療"] ?? 0) + 1;
+    } else if (tags.some((t: string) => t.includes("小売") || t.includes("EC"))) {
+      industryScore["小売"] = (industryScore["小売"] ?? 0) + 1;
+    }
   });
   const mainIndustry = industries.sort(
     (a, b) => (industryScore[b] || 0) - (industryScore[a] || 0),
@@ -322,34 +320,21 @@ function generateIndustryBreakdown(works: any[]): IndustryData[] {
   };
 
   works.forEach((work) => {
-    const clientName = work.client_name || "";
     const tags = work.tags || [];
-
+    
     // 簡易的な業界判定ロジック
-    if (
-      tags.some(
-        (tag: string) => tag.includes("SaaS") || tag.includes("ソフトウェア"),
-      )
-    ) {
-      industryCounts["SaaS"]++;
-    } else if (
-      tags.some((tag: string) => tag.includes("製造") || tag.includes("工場"))
-    ) {
-      industryCounts["製造業"]++;
-    } else if (
-      tags.some((tag: string) => tag.includes("金融") || tag.includes("銀行"))
-    ) {
-      industryCounts["金融"]++;
-    } else if (
-      tags.some((tag: string) => tag.includes("医療") || tag.includes("病院"))
-    ) {
-      industryCounts["医療"]++;
-    } else if (
-      tags.some((tag: string) => tag.includes("小売") || tag.includes("EC"))
-    ) {
-      industryCounts["小売"]++;
+    if (tags.some((tag: string) => tag.includes("SaaS") || tag.includes("ソフトウェア"))) {
+      industryCounts["SaaS"] = (industryCounts["SaaS"] ?? 0) + 1;
+    } else if (tags.some((tag: string) => tag.includes("製造") || tag.includes("工場"))) {
+      industryCounts["製造業"] = (industryCounts["製造業"] ?? 0) + 1;
+    } else if (tags.some((tag: string) => tag.includes("金融") || tag.includes("銀行"))) {
+      industryCounts["金融"] = (industryCounts["金融"] ?? 0) + 1;
+    } else if (tags.some((tag: string) => tag.includes("医療") || tag.includes("病院"))) {
+      industryCounts["医療"] = (industryCounts["医療"] ?? 0) + 1;
+    } else if (tags.some((tag: string) => tag.includes("小売") || tag.includes("EC"))) {
+      industryCounts["小売"] = (industryCounts["小売"] ?? 0) + 1;
     } else {
-      industryCounts["その他"]++;
+      industryCounts["その他"] = (industryCounts["その他"] ?? 0) + 1;
     }
   });
 
@@ -372,7 +357,7 @@ function generateIndustryBreakdown(works: any[]): IndustryData[] {
       industry,
       percentage: total > 0 ? (count / total) * 100 : 0,
       count,
-      color: colors[index % colors.length],
+      color: colors[index % colors.length] || "#6b7280",
     }));
 }
 

@@ -1,8 +1,8 @@
 "use client";
 
 interface HighlightChipsProps {
-  totalWorks?: number;
-  experienceYears?: number;
+  totalWorks?: number | undefined;
+  experienceYears?: number | undefined;
 }
 
 export function HighlightChips({

@@ -349,7 +349,7 @@ export function ValueVisualizationReport({
             </h3>
             <p className="text-sm text-gray-600 mb-4">{error}</p>
             <Button
-              onClick={generateReport}
+              onClick={() => generateReport()}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               再試行
