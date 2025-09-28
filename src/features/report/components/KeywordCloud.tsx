@@ -69,25 +69,7 @@ export function KeywordCloud({ keywords }: KeywordCloudProps) {
         </div>
       </div>
 
-      {/* トップキーワード */}
-      {sortedKeywords.length > 0 && (
-        <div>
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">
-            トップキーワード
-          </h4>
-          <div className="space-y-1">
-            {sortedKeywords.slice(0, 5).map((keyword, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center text-sm"
-              >
-                <span className="text-gray-700">{keyword.keyword}</span>
-                <span className="text-gray-500">{keyword.frequency}回</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* トップキーワードは削除し、情報を集約してシンプル化 */}
     </div>
   );
 }

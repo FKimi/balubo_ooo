@@ -21,7 +21,9 @@ export function AISummary({ aiCatchphrase, coreCompetencies }: AISummaryProps) {
           {aiCatchphrase}
         </p>
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-gray-800">上位の強み</h3>
+          <h3 className="text-sm font-semibold text-gray-800">
+            思考プロセスと提供価値
+          </h3>
           <ul className="list-disc pl-5 space-y-1 text-gray-700">
             {coreCompetencies.slice(0, 3).map((competency, index) => (
               <li key={index} className="leading-relaxed">

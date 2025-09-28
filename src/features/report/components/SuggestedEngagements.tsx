@@ -90,7 +90,7 @@ export function SuggestedEngagements({
     <Card className="border-gray-200 bg-white">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold text-gray-900">
-          適した業務例
+          特に活躍が期待されるプロジェクト
         </CardTitle>
         <p className="text-sm text-gray-600">強みが発揮されやすい領域の参考</p>
       </CardHeader>

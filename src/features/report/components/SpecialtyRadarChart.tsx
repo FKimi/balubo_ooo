@@ -81,7 +81,8 @@ export function SpecialtyRadarChart({ data }: SpecialtyRadarChartProps) {
     // データポイントを描画
     ctx.beginPath();
     axes.forEach((axis, index) => {
-      const value = (normalizedData[axis.key as keyof typeof normalizedData] ?? 0) as number;
+      const value = (normalizedData[axis.key as keyof typeof normalizedData] ??
+        0) as number;
       const angle = (axis.angle * Math.PI) / 180;
       const x = centerX + radius * value * Math.cos(angle - Math.PI / 2);
       const y = centerY + radius * value * Math.sin(angle - Math.PI / 2);
@@ -106,7 +107,8 @@ export function SpecialtyRadarChart({ data }: SpecialtyRadarChartProps) {
     // データポイントを描画
     ctx.fillStyle = "#3b82f6";
     axes.forEach((axis) => {
-      const value = (normalizedData[axis.key as keyof typeof normalizedData] ?? 0) as number;
+      const value = (normalizedData[axis.key as keyof typeof normalizedData] ??
+        0) as number;
       const angle = (axis.angle * Math.PI) / 180;
       const x = centerX + radius * value * Math.cos(angle - Math.PI / 2);
       const y = centerY + radius * value * Math.sin(angle - Math.PI / 2);
@@ -121,7 +123,8 @@ export function SpecialtyRadarChart({ data }: SpecialtyRadarChartProps) {
     ctx.font = "12px Inter, sans-serif";
     ctx.textAlign = "center";
     axes.forEach((axis) => {
-      const value = (normalizedData[axis.key as keyof typeof normalizedData] ?? 0) as number;
+      const value = (normalizedData[axis.key as keyof typeof normalizedData] ??
+        0) as number;
       const angle = (axis.angle * Math.PI) / 180;
       const labelRadius = radius + 20;
       const x = centerX + labelRadius * Math.cos(angle - Math.PI / 2);
