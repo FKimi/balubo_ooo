@@ -95,7 +95,7 @@ export function ClientIndustryBreakdown({
           </div>
         </div>
 
-        {/* 凡例 */}
+        {/* 凡例（シンプル表記: 業界名 - パーセンテージ） */}
         <div className="flex-1 space-y-2">
           {industryData.map((industry, index) => (
             <div
@@ -113,10 +113,7 @@ export function ClientIndustryBreakdown({
               </div>
               <div className="text-right">
                 <div className="text-sm font-semibold text-gray-900">
-                  {industry.percentage.toFixed(1)}% ・ {industry.count}件
-                </div>
-                <div className="text-xs text-gray-500">
-                  合計{industryData.reduce((s, i) => s + i.count, 0)}件
+                  {`${industry.percentage.toFixed(1)}%`}
                 </div>
               </div>
             </div>

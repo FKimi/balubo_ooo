@@ -99,11 +99,27 @@ export function SuggestedEngagements({
           {items.map((it, idx) => (
             <div
               key={idx}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-sm"
+              className="border border-gray-200 rounded-lg p-4 hover:shadow-sm flex items-start gap-3"
             >
-              <div className="font-semibold text-gray-900 mb-1">{it.title}</div>
-              <div className="text-sm text-gray-600 leading-relaxed">
-                {it.desc}
+              <div className="flex-shrink-0 mt-0.5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5 text-blue-600"
+                >
+                  <path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 3 2-7L2 9h7z" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900 mb-1">{it.title}</div>
+                <div className="text-sm text-gray-600 leading-relaxed">
+                  {it.desc}
+                </div>
               </div>
             </div>
           ))}

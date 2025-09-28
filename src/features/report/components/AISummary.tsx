@@ -17,9 +17,13 @@ export function AISummary({ aiCatchphrase, coreCompetencies }: AISummaryProps) {
         <p className="text-xs text-gray-500">作品データをもとに自動要約</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-[15px] text-gray-900 leading-relaxed">
-          {aiCatchphrase}
-        </p>
+        {/* 主要サマリーをblockquote風に強調 */}
+        <blockquote className="relative px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <span className="absolute -left-2 -top-2 text-3xl text-gray-300 select-none">“</span>
+          <p className="text-[16px] md:text-[17px] text-gray-900 leading-relaxed">
+            {aiCatchphrase}
+          </p>
+        </blockquote>
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-800">
             思考プロセスと提供価値

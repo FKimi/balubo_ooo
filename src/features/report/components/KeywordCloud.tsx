@@ -50,26 +50,7 @@ export function KeywordCloud({ keywords }: KeywordCloudProps) {
         ))}
       </div>
 
-      {/* 統計情報 */}
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        <div className="text-center p-3 bg-white border border-gray-100 rounded-xl">
-          <div className="font-semibold text-gray-900">{keywords.length}</div>
-          <div className="text-gray-600">専門キーワード</div>
-        </div>
-        <div className="text-center p-3 bg-white border border-gray-100 rounded-xl">
-          <div className="font-semibold text-gray-900">
-            {keywords.length > 0
-              ? Math.round(
-                  keywords.reduce((sum, k) => sum + k.frequency, 0) /
-                    keywords.length,
-                )
-              : 0}
-          </div>
-          <div className="text-gray-600">平均出現回数</div>
-        </div>
-      </div>
-
-      {/* トップキーワードは削除し、情報を集約してシンプル化 */}
+      {/* ノイズ削減のため統計情報は非表示 */}
     </div>
   );
 }

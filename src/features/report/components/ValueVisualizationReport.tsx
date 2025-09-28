@@ -10,7 +10,7 @@ import { KeywordCloud } from "./KeywordCloud";
 import { ClientIndustryBreakdown } from "./ClientIndustryBreakdown";
 import { FeaturedWorks } from "./FeaturedWorks";
 import { SuggestedEngagements } from "./SuggestedEngagements";
-import { HighlightChips } from "./HighlightChips";
+// HighlightChipsはヘッダー統合により不使用
 import type { WorkData } from "@/features/work/types";
 import type { ReportData } from "./types";
 
@@ -403,11 +403,16 @@ export function ValueVisualizationReport({
   return (
     <div className="space-y-6">
       {/* 1) ヘッダー */}
-      <ReportHeader profile={profile} />
-      <HighlightChips
-        totalWorks={reportData.performanceMetrics?.totalWorks}
-        experienceYears={reportData.performanceMetrics?.experienceYears}
-      />
+      {(() => {
+        const totalWorksMetric =
+          (reportData.performanceMetrics?.totalWorks as number | undefined) ??
+          works.length;
+        // マッチング未実装のため、総作品数のみ表示
+        const metrics: { totalWorks?: number } = {
+          ...(typeof totalWorksMetric === "number" && { totalWorks: totalWorksMetric }),
+        };
+        return <ReportHeader profile={profile} metrics={metrics} />;
+      })()}
 
       {/* 2) サマリー */}
       <AISummary
