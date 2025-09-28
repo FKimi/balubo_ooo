@@ -8,25 +8,25 @@
  */
 export function runInIdle<T extends (..._args: any[]) => any>(
   callback: T,
-  timeout = 5000
+  timeout = 5000,
 ): Promise<ReturnType<T>> {
   return new Promise((resolve, reject) => {
     const wrappedCallback = () => {
       try {
-        const result = callback()
-        resolve(result)
+        const result = callback();
+        resolve(result);
       } catch (error) {
-        reject(error)
+        reject(error);
       }
-    }
+    };
 
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(wrappedCallback, { timeout })
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(wrappedCallback, { timeout });
     } else {
       // requestIdleCallbackがサポートされていない場合はsetTimeoutで代替
-      setTimeout(wrappedCallback, 0)
+      setTimeout(wrappedCallback, 0);
     }
-  })
+  });
 }
 
 /**
@@ -36,17 +36,17 @@ export async function runInChunks<T>(
   items: T[],
   processor: (_item: T) => void,
   chunkSize = 10,
-  delay = 0
+  delay = 0,
 ): Promise<void> {
   for (let i = 0; i < items.length; i += chunkSize) {
-    const chunk = items.slice(i, i + chunkSize)
-    
+    const chunk = items.slice(i, i + chunkSize);
+
     // チャンク内のアイテムを処理
-    chunk.forEach(processor)
-    
+    chunk.forEach(processor);
+
     // 次のチャンクの前に少し待機してメインスレッドを解放
     if (delay > 0 && i + chunkSize < items.length) {
-      await new Promise(resolve => setTimeout(resolve, delay))
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }
@@ -56,19 +56,19 @@ export async function runInChunks<T>(
  */
 export function debounce<T extends (..._args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (..._args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null
-  
+  let timeout: NodeJS.Timeout | null = null;
+
   return (...args: Parameters<T>) => {
     if (timeout) {
-      clearTimeout(timeout)
+      clearTimeout(timeout);
     }
-    
+
     timeout = setTimeout(() => {
-      func(...args)
-    }, wait)
-  }
+      func(...args);
+    }, wait);
+  };
 }
 
 /**
@@ -76,38 +76,38 @@ export function debounce<T extends (..._args: any[]) => any>(
  */
 export function throttle<T extends (..._args: any[]) => any>(
   func: T,
-  limit: number
+  limit: number,
 ): (..._args: Parameters<T>) => void {
-  let inThrottle: boolean
-  
+  let inThrottle: boolean;
+
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
-      func(...args)
-      inThrottle = true
-      setTimeout(() => inThrottle = false, limit)
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
     }
-  }
+  };
 }
 
 /**
  * 重い計算処理をWeb Workerで実行（将来的な拡張用）
  */
 export class PerformanceWorker {
-  private worker: Worker | null = null
-  
+  private worker: Worker | null = null;
+
   constructor() {
     // Web Workerの実装は必要に応じて追加
     // 現在はブラウザサポートの制約により、requestIdleCallbackを使用
   }
-  
+
   async processHeavyTask<T>(task: () => T): Promise<T> {
-    return runInIdle(task)
+    return runInIdle(task);
   }
-  
+
   destroy() {
     if (this.worker) {
-      this.worker.terminate()
-      this.worker = null
+      this.worker.terminate();
+      this.worker = null;
     }
   }
 }
@@ -116,62 +116,62 @@ export class PerformanceWorker {
  * メモリ使用量を監視するユーティリティ
  */
 export function getMemoryUsage(): {
-  usedJSHeapSize: number
-  totalJSHeapSize: number
-  jsHeapSizeLimit: number
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
 } | null {
-  if ('memory' in performance) {
-    const memory = (performance as any).memory
+  if ("memory" in performance) {
+    const memory = (performance as any).memory;
     return {
       usedJSHeapSize: memory.usedJSHeapSize,
       totalJSHeapSize: memory.totalJSHeapSize,
       jsHeapSizeLimit: memory.jsHeapSizeLimit,
-    }
+    };
   }
-  return null
+  return null;
 }
 
 /**
  * パフォーマンス測定用のマーカー
  */
 export class PerformanceMarker {
-  private markers: Map<string, number> = new Map()
-  
+  private markers: Map<string, number> = new Map();
+
   start(name: string): void {
-    this.markers.set(name, performance.now())
+    this.markers.set(name, performance.now());
   }
-  
+
   end(name: string): number {
-    const startTime = this.markers.get(name)
+    const startTime = this.markers.get(name);
     if (!startTime) {
-      console.warn(`Marker "${name}" was not started`)
-      return 0
+      console.warn(`Marker "${name}" was not started`);
+      return 0;
     }
-    
-    const duration = performance.now() - startTime
-    this.markers.delete(name)
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Performance: ${name} took ${duration.toFixed(2)}ms`)
+
+    const duration = performance.now() - startTime;
+    this.markers.delete(name);
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(`Performance: ${name} took ${duration.toFixed(2)}ms`);
     }
-    
-    return duration
+
+    return duration;
   }
-  
+
   measure<T>(name: string, fn: () => T): T {
-    this.start(name)
-    const result = fn()
-    this.end(name)
-    return result
+    this.start(name);
+    const result = fn();
+    this.end(name);
+    return result;
   }
-  
+
   async measureAsync<T>(name: string, fn: () => Promise<T>): Promise<T> {
-    this.start(name)
-    const result = await fn()
-    this.end(name)
-    return result
+    this.start(name);
+    const result = await fn();
+    this.end(name);
+    return result;
   }
 }
 
 // グローバルインスタンス
-export const performanceMarker = new PerformanceMarker()
+export const performanceMarker = new PerformanceMarker();

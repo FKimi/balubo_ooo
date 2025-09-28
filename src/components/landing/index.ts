@@ -1,7 +1,7 @@
-export { default as ElementsSection } from './ElementsSection'
-export { default as HeroSection } from './HeroSection'
-export { default as HighlightsSection } from './HighlightsSection'
-export { default as PainPointsSection } from './PainPointsSection'
-export { default as StepsSection } from './StepsSection'
-export { default as VoicesSection } from './VoicesSection'
-export { default as FinalCTASection } from './FinalCTASection'
+export { default as ElementsSection } from "./ElementsSection";
+export { default as HeroSection } from "./HeroSection";
+export { default as HighlightsSection } from "./HighlightsSection";
+export { default as PainPointsSection } from "./PainPointsSection";
+export { default as StepsSection } from "./StepsSection";
+export { default as VoicesSection } from "./VoicesSection";
+export { default as FinalCTASection } from "./FinalCTASection";

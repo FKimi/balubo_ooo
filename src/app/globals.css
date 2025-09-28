@@ -8,7 +8,7 @@
   html {
     scroll-behavior: smooth;
   }
-  
+
   :root {
     /* 洗練されたプロフェッショナルカラーパレット */
     --background: 0 0% 100%;
@@ -48,10 +48,14 @@
 
     /* 洗練されたシャドウ */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-base:
+      0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md:
+      0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg:
+      0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl:
+      0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
     /* チャートカラー - 洗練された色合い */
     --chart-1: 212 100% 48%;
@@ -96,7 +100,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-family: "Inter", "Noto Sans JP", sans-serif;
     font-weight: 400;
     line-height: 1.6;
     letter-spacing: -0.01em;
@@ -105,7 +109,12 @@
   }
 
   /* 洗練されたHTML要素のデフォルトスタイル */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.02em;
@@ -256,11 +265,11 @@
 @layer utilities {
   /* 横スクロール用のスタイル */
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none; /* Firefox */
   }
-  .scrollbar-hide::-webkit-scrollbar { 
-    display: none;  /* Safari and Chrome */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
   }
 }
 
@@ -311,7 +320,8 @@
 
 /* 洗練されたローディングアニメーション */
 @keyframes pulse-elegant {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -348,4 +358,4 @@
   height: 100vh !important;
   z-index: 2147483647 !important;
   pointer-events: auto !important;
-} 
+}

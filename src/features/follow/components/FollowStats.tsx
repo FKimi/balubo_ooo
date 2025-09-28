@@ -1,58 +1,67 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { fetcher } from '@/utils/fetcher'
-import { Users, UserCheck } from 'lucide-react'
-import { FollowModal } from './FollowModal'
+import { useState, useEffect, useCallback } from "react";
+import { fetcher } from "@/utils/fetcher";
+import { Users, UserCheck } from "lucide-react";
+import { FollowModal } from "./FollowModal";
 
 interface FollowStatsProps {
-  userId: string
+  userId: string;
 }
 
 interface FollowStatsData {
-  followerCount: number
-  followingCount: number
+  followerCount: number;
+  followingCount: number;
 }
 
 export function FollowStats({ userId }: FollowStatsProps) {
-  const [stats, setStats] = useState<FollowStatsData>({ followerCount: 0, followingCount: 0 })
-  const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalTab, setModalTab] = useState<'followers' | 'following'>('followers')
+  const [stats, setStats] = useState<FollowStatsData>({
+    followerCount: 0,
+    followingCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<"followers" | "following">(
+    "followers",
+  );
 
   const fetchStats = useCallback(async () => {
-    if (!userId) return
+    if (!userId) return;
 
     try {
-      setLoading(true)
-      console.log('フォロー統計取得開始:', userId)
-      
-      const data = await fetcher<FollowStatsData>(`/api/connections/stats?userId=${userId}`, {}, { requireAuth: false })
-      console.log('フォロー統計取得成功:', data)
-      setStats(data)
+      setLoading(true);
+      console.log("フォロー統計取得開始:", userId);
+
+      const data = await fetcher<FollowStatsData>(
+        `/api/connections/stats?userId=${userId}`,
+        {},
+        { requireAuth: false },
+      );
+      console.log("フォロー統計取得成功:", data);
+      setStats(data);
     } catch (error) {
-      console.error('フォロー統計取得エラー:', error)
-      console.error('エラー詳細:', {
+      console.error("フォロー統計取得エラー:", error);
+      console.error("エラー詳細:", {
         userId,
         errorMessage: error instanceof Error ? error.message : String(error),
-        errorStack: error instanceof Error ? error.stack : undefined
-      })
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
       // エラー時はデフォルト値を設定
-      setStats({ followerCount: 0, followingCount: 0 })
+      setStats({ followerCount: 0, followingCount: 0 });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [userId])
+  }, [userId]);
 
   useEffect(() => {
-    fetchStats()
-  }, [userId, fetchStats])
+    fetchStats();
+  }, [userId, fetchStats]);
 
   // 30秒ごとに統計を更新（軽量化）
   useEffect(() => {
-    const interval = setInterval(fetchStats, 30000)
-    return () => clearInterval(interval)
-  }, [fetchStats])
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, [fetchStats]);
 
   if (loading) {
     return (
@@ -66,38 +75,42 @@ export function FollowStats({ userId }: FollowStatsProps) {
           <div className="h-3 bg-gray-200 rounded w-12"></div>
         </div>
       </div>
-    )
+    );
   }
 
-  const openModal = (tab: 'followers' | 'following', e: React.MouseEvent) => {
-    e.stopPropagation()
-    setModalTab(tab)
-    setModalOpen(true)
-  }
+  const openModal = (tab: "followers" | "following", e: React.MouseEvent) => {
+    e.stopPropagation();
+    setModalTab(tab);
+    setModalOpen(true);
+  };
 
   return (
     <>
       <div className="flex gap-6 text-sm">
         {/* フォロワー数 */}
         <button
-          onClick={(e) => openModal('followers', e)}
+          onClick={(e) => openModal("followers", e)}
           className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
         >
           <Users className="w-4 h-4 text-gray-500" />
           <div>
-            <div className="font-semibold text-gray-900">{stats.followerCount}</div>
+            <div className="font-semibold text-gray-900">
+              {stats.followerCount}
+            </div>
             <div className="text-xs text-gray-600">フォロワー</div>
           </div>
         </button>
 
         {/* フォロー中数 */}
         <button
-          onClick={(e) => openModal('following', e)}
+          onClick={(e) => openModal("following", e)}
           className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
         >
           <UserCheck className="w-4 h-4 text-gray-500" />
           <div>
-            <div className="font-semibold text-gray-900">{stats.followingCount}</div>
+            <div className="font-semibold text-gray-900">
+              {stats.followingCount}
+            </div>
             <div className="text-xs text-gray-600">フォロー中</div>
           </div>
         </button>
@@ -111,5 +124,5 @@ export function FollowStats({ userId }: FollowStatsProps) {
         initialTab={modalTab}
       />
     </>
-  )
-} 
+  );
+}

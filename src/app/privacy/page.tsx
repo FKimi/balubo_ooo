@@ -1,10 +1,11 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
+import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: 'プライバシーポリシー | balubo',
-  description: 'balubo（バルボ）のプライバシーポリシーページです。個人情報の取り扱いについてご確認ください。',
-}
+  title: "プライバシーポリシー | balubo",
+  description:
+    "balubo（バルボ）のプライバシーポリシーページです。個人情報の取り扱いについてご確認ください。",
+};
 
 export default function PrivacyPolicyPage() {
   return (
@@ -78,9 +79,15 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc space-y-1 pl-5">
               <li>ユーザー本人の同意がある場合</li>
               <li>法令に基づく場合</li>
-              <li>人の生命・身体・財産の保護のために必要で、本人の同意を得ることが難しい場合</li>
-              <li>公衆衛生の向上・児童の健全育成推進のために必要で、本人の同意を得ることが難しい場合</li>
-              <li>国の機関等が法令の定める事務を遂行する際に協力する必要がある場合</li>
+              <li>
+                人の生命・身体・財産の保護のために必要で、本人の同意を得ることが難しい場合
+              </li>
+              <li>
+                公衆衛生の向上・児童の健全育成推進のために必要で、本人の同意を得ることが難しい場合
+              </li>
+              <li>
+                国の機関等が法令の定める事務を遂行する際に協力する必要がある場合
+              </li>
               <li>合併・事業譲渡等に伴い事業を継承する場合</li>
             </ul>
           </div>
@@ -95,15 +102,20 @@ export default function PrivacyPolicyPage() {
 
           {/* 5. 第三者サービスとの連携 */}
           <div>
-            <h3 className="mb-2 text-xl font-semibold">5. 第三者サービスとの連携</h3>
+            <h3 className="mb-2 text-xl font-semibold">
+              5. 第三者サービスとの連携
+            </h3>
             <p>
-              当サービスは、Google 認証など第三者サービスと連携する場合があります。これらサービスの利用に際しては、各サービス提供者のプライバシーポリシーも併せてご確認ください。
+              当サービスは、Google
+              認証など第三者サービスと連携する場合があります。これらサービスの利用に際しては、各サービス提供者のプライバシーポリシーも併せてご確認ください。
             </p>
           </div>
 
           {/* 6. 情報の保管とセキュリティ */}
           <div>
-            <h3 className="mb-2 text-xl font-semibold">6. 情報の保管とセキュリティ</h3>
+            <h3 className="mb-2 text-xl font-semibold">
+              6. 情報の保管とセキュリティ
+            </h3>
             <p>
               当サービスは、個人情報への不正アクセス、紛失、破壊、改ざんおよび漏えいを防止するため、合理的な安全対策を講じます。
             </p>
@@ -113,13 +125,16 @@ export default function PrivacyPolicyPage() {
           <div>
             <h3 className="mb-2 text-xl font-semibold">7. ユーザーの権利</h3>
             <p>
-              ユーザーは、自己の個人情報について、開示・訂正・削除・利用停止を求める権利を有します。具体的な手続きは「10. お問い合わせ」をご参照ください。
+              ユーザーは、自己の個人情報について、開示・訂正・削除・利用停止を求める権利を有します。具体的な手続きは「10.
+              お問い合わせ」をご参照ください。
             </p>
           </div>
 
           {/* 8. プライバシーポリシーの変更 */}
           <div>
-            <h3 className="mb-2 text-xl font-semibold">8. プライバシーポリシーの変更</h3>
+            <h3 className="mb-2 text-xl font-semibold">
+              8. プライバシーポリシーの変更
+            </h3>
             <p>
               当サービスは、必要に応じて本ポリシーを変更します。重要な変更がある場合、当サービス上でお知らせします。
             </p>
@@ -151,5 +166,5 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

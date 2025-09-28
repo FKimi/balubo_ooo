@@ -1,18 +1,20 @@
-import { WorkCard } from '@/features/work/components/WorkCard'
-import type { WorkData } from '@/features/work/types'
+import { WorkCard } from "@/features/work/components/WorkCard";
+import type { WorkData } from "@/features/work/types";
 
 interface PublicFeaturedWorksSectionProps {
-  works: WorkData[]
+  works: WorkData[];
 }
 
-export function PublicFeaturedWorksSection({ works }: PublicFeaturedWorksSectionProps) {
+export function PublicFeaturedWorksSection({
+  works,
+}: PublicFeaturedWorksSectionProps) {
   // 代表作を取得（featured_orderでソート）
   const featuredWorks = works
-    .filter(work => work.is_featured)
-    .sort((a, b) => (a.featured_order || 0) - (b.featured_order || 0))
+    .filter((work) => work.is_featured)
+    .sort((a, b) => (a.featured_order || 0) - (b.featured_order || 0));
 
   if (featuredWorks.length === 0) {
-    return null // 代表作がない場合は何も表示しない
+    return null; // 代表作がない場合は何も表示しない
   }
 
   return (
@@ -31,12 +33,16 @@ export function PublicFeaturedWorksSection({ works }: PublicFeaturedWorksSection
           <div key={work.id} className="relative">
             {/* ランキングバッジ */}
             <div className="absolute top-3 left-3 z-10">
-              <div className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${index===0?'bg-gradient-to-r from-yellow-400 to-orange-500':index===1?'bg-gradient-to-r from-gray-300 to-gray-500':index===2?'bg-gradient-to-r from-amber-400 to-orange-600':'bg-blue-500'}`}>#{index+1} 代表作</div>
+              <div
+                className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${index === 0 ? "bg-gradient-to-r from-yellow-400 to-orange-500" : index === 1 ? "bg-gradient-to-r from-gray-300 to-gray-500" : index === 2 ? "bg-gradient-to-r from-amber-400 to-orange-600" : "bg-blue-500"}`}
+              >
+                #{index + 1} 代表作
+              </div>
             </div>
-            <WorkCard work={work as WorkData} onDelete={()=>{}} isFeatured />
+            <WorkCard work={work as WorkData} onDelete={() => {}} isFeatured />
           </div>
         ))}
       </div>
     </div>
-  )
-} 
+  );
+}

@@ -1,251 +1,296 @@
-'use client'
+"use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
-import { useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Header, MobileBottomNavigation } from '@/components/layout/header'
-import { useWorkStatistics } from '@/features/work/hooks/useWorkStatistics'
-import { WorksSection } from '@/features/report/components/WorksSection'
-import { ActivitySection } from '@/features/report/components/ActivitySection'
-import { exportToPDF, exportScreenshotToPDF, exportComprehensiveReportToPDF } from '@/utils/pdfExport'
-import { supabase } from '@/lib/supabase'
-import type { WorkData } from '@/features/work/types'
+import { useState, useEffect, Suspense } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Header, MobileBottomNavigation } from "@/components/layout/header";
+import { useWorkStatistics } from "@/features/work/hooks/useWorkStatistics";
+import { WorksSection } from "@/features/report/components/WorksSection";
+import { ActivitySection } from "@/features/report/components/ActivitySection";
+import {
+  exportToPDF,
+  exportScreenshotToPDF,
+  exportComprehensiveReportToPDF,
+} from "@/utils/pdfExport";
+import { supabase } from "@/lib/supabase";
+import type { WorkData } from "@/features/work/types";
 // import type { InputData } from '@/types/input' // inputs 機能は廃止
-import { Card, CardContent } from '@/components/ui/card'
-import { calculateMonthlyProgress, generateTimeline } from '@/utils/activityStats'
-import AdvancedMetricsGrid from '@/features/report/components/AdvancedMetricsGrid'
-import { EmptyState } from '@/components/common'
-import { calculateCombinedTopTags } from '@/features/profile/lib/profileUtils'
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  calculateMonthlyProgress,
+  generateTimeline,
+} from "@/utils/activityStats";
+import AdvancedMetricsGrid from "@/features/report/components/AdvancedMetricsGrid";
+import { EmptyState } from "@/components/common";
+import { calculateCombinedTopTags } from "@/features/profile/lib/profileUtils";
 
 function ReportContent() {
-  const { user } = useAuth()
-  const searchParams = useSearchParams()
-  const targetUserId = searchParams.get('userId') // URLパラメータからuserIdを取得
-  const [activeSection, setActiveSection] = useState<string>('outputs')
-  const [works, setWorks] = useState<WorkData[]>([])
-  const [inputs, setInputs] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [_isExporting, setIsExporting] = useState(false)
-  const [profile, setProfile] = useState<any>(null)
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const targetUserId = searchParams.get("userId"); // URLパラメータからuserIdを取得
+  const [activeSection, setActiveSection] = useState<string>("outputs");
+  const [works, setWorks] = useState<WorkData[]>([]);
+  const [inputs, setInputs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [_isExporting, setIsExporting] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
   // eslint-disable-next-line unused-imports/no-unused-vars
-  const [_showDetailedCards, setShowDetailedCards] = useState(false)
+  const [_showDetailedCards, setShowDetailedCards] = useState(false);
 
   // 各作品のAI分析結果から創造性、専門性、影響力を抽出
   const generateComprehensiveAnalysis = () => {
     const analysisData = {
-      creativity: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] },
-      expertise: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] },
-      impact: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] },
-      technology: { scores: [] as number[], insights: [] as string[], topWorks: [] as any[] }
-    }
+      creativity: {
+        scores: [] as number[],
+        insights: [] as string[],
+        topWorks: [] as any[],
+      },
+      expertise: {
+        scores: [] as number[],
+        insights: [] as string[],
+        topWorks: [] as any[],
+      },
+      impact: {
+        scores: [] as number[],
+        insights: [] as string[],
+        topWorks: [] as any[],
+      },
+      technology: {
+        scores: [] as number[],
+        insights: [] as string[],
+        topWorks: [] as any[],
+      },
+    };
 
     // 各作品のAI分析結果から評価スコアを抽出
-    works.forEach(work => {
+    works.forEach((work) => {
       if (work.ai_analysis_result) {
-        const analysis = typeof work.ai_analysis_result === 'string' 
-          ? JSON.parse(work.ai_analysis_result) 
-          : work.ai_analysis_result
+        const analysis =
+          typeof work.ai_analysis_result === "string"
+            ? JSON.parse(work.ai_analysis_result)
+            : work.ai_analysis_result;
 
         // 新しい評価スコア（evaluation.scores）を優先使用
         if (analysis.evaluation?.scores) {
-          const scores = analysis.evaluation.scores
+          const scores = analysis.evaluation.scores;
 
           // 技術力スコア
           if (scores.technology?.score) {
-            analysisData.technology.scores.push(scores.technology.score)
+            analysisData.technology.scores.push(scores.technology.score);
             analysisData.technology.topWorks.push({
               title: work.title,
               score: scores.technology.score,
               reason: scores.technology.reason,
-              highlights: [scores.technology.reason]
-            })
+              highlights: [scores.technology.reason],
+            });
           }
 
           // 専門性スコア
           if (scores.expertise?.score) {
-            analysisData.expertise.scores.push(scores.expertise.score)
+            analysisData.expertise.scores.push(scores.expertise.score);
             analysisData.expertise.topWorks.push({
               title: work.title,
               score: scores.expertise.score,
               reason: scores.expertise.reason,
-              highlights: [scores.expertise.reason]
-            })
+              highlights: [scores.expertise.reason],
+            });
           }
 
           // 創造性スコア
           if (scores.creativity?.score) {
-            analysisData.creativity.scores.push(scores.creativity.score)
+            analysisData.creativity.scores.push(scores.creativity.score);
             analysisData.creativity.topWorks.push({
               title: work.title,
               score: scores.creativity.score,
               reason: scores.creativity.reason,
-              highlights: [scores.creativity.reason]
-            })
+              highlights: [scores.creativity.reason],
+            });
           }
 
           // 影響力スコア
           if (scores.impact?.score) {
-            analysisData.impact.scores.push(scores.impact.score)
+            analysisData.impact.scores.push(scores.impact.score);
             analysisData.impact.topWorks.push({
               title: work.title,
               score: scores.impact.score,
               reason: scores.impact.reason,
-              highlights: [scores.impact.reason]
-            })
+              highlights: [scores.impact.reason],
+            });
           }
         }
         // フォールバック：旧形式の場合は従来の計算を使用
         else if (analysis.strengths) {
           // 創造性分析
-          if (analysis.strengths.creativity && analysis.strengths.creativity.length > 0) {
-            analysisData.creativity.insights.push(...analysis.strengths.creativity)
+          if (
+            analysis.strengths.creativity &&
+            analysis.strengths.creativity.length > 0
+          ) {
+            analysisData.creativity.insights.push(
+              ...analysis.strengths.creativity,
+            );
             analysisData.creativity.topWorks.push({
               title: work.title,
               score: 0, // スコアは使用しない
-              highlights: analysis.strengths.creativity.slice(0, 2)
-            })
+              highlights: analysis.strengths.creativity.slice(0, 2),
+            });
           }
 
           // 専門性分析
-          if (analysis.strengths.expertise && analysis.strengths.expertise.length > 0) {
-            analysisData.expertise.insights.push(...analysis.strengths.expertise)
+          if (
+            analysis.strengths.expertise &&
+            analysis.strengths.expertise.length > 0
+          ) {
+            analysisData.expertise.insights.push(
+              ...analysis.strengths.expertise,
+            );
             analysisData.expertise.topWorks.push({
               title: work.title,
               score: 0, // スコアは使用しない
-              highlights: analysis.strengths.expertise.slice(0, 2)
-            })
+              highlights: analysis.strengths.expertise.slice(0, 2),
+            });
           }
 
           // 影響力分析
-          if (analysis.strengths.impact && analysis.strengths.impact.length > 0) {
-            analysisData.impact.insights.push(...analysis.strengths.impact)
+          if (
+            analysis.strengths.impact &&
+            analysis.strengths.impact.length > 0
+          ) {
+            analysisData.impact.insights.push(...analysis.strengths.impact);
             analysisData.impact.topWorks.push({
               title: work.title,
               score: 0, // スコアは使用しない
-              highlights: analysis.strengths.impact.slice(0, 2)
-            })
+              highlights: analysis.strengths.impact.slice(0, 2),
+            });
           }
         }
 
         // evaluation.scores が存在しない場合のみ detailedMetrics を使用
         if (!analysis.evaluation?.scores && analysis.detailedMetrics) {
-          const dm = analysis.detailedMetrics as any
+          const dm = analysis.detailedMetrics as any;
 
           // 技術力
           if (dm.technology?.score) {
-            analysisData.technology.scores.push(dm.technology.score)
+            analysisData.technology.scores.push(dm.technology.score);
             analysisData.technology.topWorks.push({
               title: work.title,
               score: dm.technology.score,
               reason: dm.technology.headline || dm.technology.goodHighlight,
-              highlights: [dm.technology.goodHighlight].filter(Boolean)
-            })
+              highlights: [dm.technology.goodHighlight].filter(Boolean),
+            });
           }
 
           // 専門性
           if (dm.expertise?.score) {
-            analysisData.expertise.scores.push(dm.expertise.score)
+            analysisData.expertise.scores.push(dm.expertise.score);
             analysisData.expertise.topWorks.push({
               title: work.title,
               score: dm.expertise.score,
               reason: dm.expertise.headline || dm.expertise.goodHighlight,
-              highlights: [dm.expertise.goodHighlight].filter(Boolean)
-            })
+              highlights: [dm.expertise.goodHighlight].filter(Boolean),
+            });
           }
 
           // 創造性
           if (dm.creativity?.score) {
-            analysisData.creativity.scores.push(dm.creativity.score)
+            analysisData.creativity.scores.push(dm.creativity.score);
             analysisData.creativity.topWorks.push({
               title: work.title,
               score: dm.creativity.score,
               reason: dm.creativity.headline || dm.creativity.goodHighlight,
-              highlights: [dm.creativity.goodHighlight].filter(Boolean)
-            })
+              highlights: [dm.creativity.goodHighlight].filter(Boolean),
+            });
           }
 
           // 影響力
           if (dm.impact?.score) {
-            analysisData.impact.scores.push(dm.impact.score)
+            analysisData.impact.scores.push(dm.impact.score);
             analysisData.impact.topWorks.push({
               title: work.title,
               score: dm.impact.score,
               reason: dm.impact.headline || dm.impact.goodHighlight,
-              highlights: [dm.impact.goodHighlight].filter(Boolean)
-            })
+              highlights: [dm.impact.goodHighlight].filter(Boolean),
+            });
           }
         }
       }
-    })
+    });
 
     // 各分野の総合スコアと統計を計算
-    const processAnalysisData = (data: typeof analysisData.creativity, fieldName: string) => {
-      const uniqueInsights = [...new Set(data.insights)].slice(0, 10)
+    const processAnalysisData = (
+      data: typeof analysisData.creativity,
+      fieldName: string,
+    ) => {
+      const uniqueInsights = [...new Set(data.insights)].slice(0, 10);
       const topWorksRanked = data.topWorks
         .sort((a, b) => b.score - a.score)
-        .slice(0, 5)
+        .slice(0, 5);
 
-      const avgScore = data.scores.length > 0 ? Math.round(data.scores.reduce((a, b) => a + b, 0) / data.scores.length) : 0
+      const avgScore =
+        data.scores.length > 0
+          ? Math.round(
+              data.scores.reduce((a, b) => a + b, 0) / data.scores.length,
+            )
+          : 0;
 
       return {
         averageScore: avgScore,
-        scoreLevel: { level: '', color: '', bgColor: '', description: '' }, // レベルも使用しない
+        scoreLevel: { level: "", color: "", bgColor: "", description: "" }, // レベルも使用しない
         totalInsights: uniqueInsights.length,
         insights: uniqueInsights,
         topWorks: topWorksRanked,
         trend: 0, // トレンドも使用しない
-        fieldName
-      }
-    }
+        fieldName,
+      };
+    };
 
     return {
-      creativity: processAnalysisData(analysisData.creativity, '創造性'),
-      expertise: processAnalysisData(analysisData.expertise, '専門性'),
-      impact: processAnalysisData(analysisData.impact, '影響力'),
-      technology: processAnalysisData(analysisData.technology, '技術力'),
+      creativity: processAnalysisData(analysisData.creativity, "創造性"),
+      expertise: processAnalysisData(analysisData.expertise, "専門性"),
+      impact: processAnalysisData(analysisData.impact, "影響力"),
+      technology: processAnalysisData(analysisData.technology, "技術力"),
       overall: {
         totalWorks: works.length,
-        analyzedWorks: works.filter(w => w.ai_analysis_result).length,
-        comprehensiveScore: 0 // スコアは使用しない
-      }
-    }
-  }
+        analyzedWorks: works.filter((w) => w.ai_analysis_result).length,
+        comprehensiveScore: 0, // スコアは使用しない
+      },
+    };
+  };
 
   // 作品統計を計算
-  const workStats = useWorkStatistics(works)
-  const hasInputs = false
-  const comprehensiveAnalysis = generateComprehensiveAnalysis()
+  const workStats = useWorkStatistics(works);
+  const hasInputs = false;
+  const comprehensiveAnalysis = generateComprehensiveAnalysis();
 
   // タブの定義
   const tabs = [
     {
-      id: 'outputs',
-      label: 'アウトプット',
-      icon: '🎨',
-      disabled: works.length === 0
+      id: "outputs",
+      label: "アウトプット",
+      icon: "🎨",
+      disabled: works.length === 0,
     },
     {
-      id: 'inputs',
-      label: 'インプット',
-      icon: '📚',
-      disabled: !hasInputs
+      id: "inputs",
+      label: "インプット",
+      icon: "📚",
+      disabled: !hasInputs,
     },
     {
-      id: 'activity',
-      label: 'アクティビティ',
-      icon: '📈',
-      disabled: false
+      id: "activity",
+      label: "アクティビティ",
+      icon: "📈",
+      disabled: false,
     },
     {
-      id: 'analysis',
-      label: '総合分析',
-      icon: '🔍',
-      disabled: works.filter(w => w.ai_analysis_result).length === 0
-    }
-  ]
-  
+      id: "analysis",
+      label: "総合分析",
+      icon: "🔍",
+      disabled: works.filter((w) => w.ai_analysis_result).length === 0,
+    },
+  ];
+
   // デバッグ用：統計を確認
   // console.log('レポートページ統計:', {
   //   works: works.length,
@@ -260,289 +305,347 @@ function ReportContent() {
   // 認証ヘッダーを取得するヘルパー関数
   const getAuthHeaders = async (): Promise<Record<string, string>> => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error || !session?.access_token) {
-        console.error('認証セッション取得エラー:', error)
+        console.error("認証セッション取得エラー:", error);
         return {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        };
       }
-      
+
       return {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      };
     } catch (error) {
-      console.error('認証トークン取得エラー:', error)
+      console.error("認証トークン取得エラー:", error);
       return {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      };
     }
-  }
+  };
 
   // プロフィール情報の取得
   const fetchProfile = async () => {
     try {
-      const headers = await getAuthHeaders()
-      const response = await fetch('/api/profile', { headers })
+      const headers = await getAuthHeaders();
+      const response = await fetch("/api/profile", { headers });
       if (response.ok) {
-        const profileData = await response.json()
-        setProfile(profileData)
+        const profileData = await response.json();
+        setProfile(profileData);
       }
     } catch (error) {
-      console.error('プロフィール取得エラー:', error)
+      console.error("プロフィール取得エラー:", error);
     }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       // targetUserIdが指定されている場合は公開プロフィールデータを取得
       if (targetUserId) {
         try {
-          setLoading(true)
-          setError(null)
+          setLoading(true);
+          setError(null);
 
-          const response = await fetch(`/api/public-profile?userId=${targetUserId}`)
-          
+          const response = await fetch(
+            `/api/public-profile?userId=${targetUserId}`,
+          );
+
           if (!response.ok) {
-            throw new Error('公開プロフィールデータの取得に失敗しました')
+            throw new Error("公開プロフィールデータの取得に失敗しました");
           }
 
-          const data = await response.json()
-          setProfile(data.profile)
-          setWorks(data.works || [])
-          setInputs(data.inputs || [])
-
+          const data = await response.json();
+          setProfile(data.profile);
+          setWorks(data.works || []);
+          setInputs(data.inputs || []);
         } catch (error) {
-          console.error('公開プロフィールデータ取得エラー:', error)
-          setError(error instanceof Error ? error.message : '公開プロフィールデータの取得に失敗しました')
+          console.error("公開プロフィールデータ取得エラー:", error);
+          setError(
+            error instanceof Error
+              ? error.message
+              : "公開プロフィールデータの取得に失敗しました",
+          );
         } finally {
-          setLoading(false)
+          setLoading(false);
         }
-        return
+        return;
       }
 
       // 通常の認証ユーザー向けデータ取得
-      if (!user) return
+      if (!user) return;
 
       try {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
 
         // プロフィール情報を取得
-        await fetchProfile()
+        await fetchProfile();
 
         // 認証ヘッダーを取得
-        const headers = await getAuthHeaders()
+        const headers = await getAuthHeaders();
 
         // 作品データのみ取得（インプット機能は廃止）
-        const worksResponse = await fetch('/api/works', { headers })
+        const worksResponse = await fetch("/api/works", { headers });
 
         if (!worksResponse.ok) {
-          throw new Error('作品データの取得に失敗しました')
+          throw new Error("作品データの取得に失敗しました");
         }
 
-        const worksData = await worksResponse.json()
+        const worksData = await worksResponse.json();
         // APIレスポンスの構造に応じて配列を抽出
-        const worksArray = Array.isArray(worksData) ? worksData : (worksData?.works || [])
-        setWorks(worksArray)
+        const worksArray = Array.isArray(worksData)
+          ? worksData
+          : worksData?.works || [];
+        setWorks(worksArray);
 
-        setInputs([])
-
+        setInputs([]);
       } catch (error) {
-        console.error('データ取得エラー:', error)
-        setError(error instanceof Error ? error.message : 'データの取得に失敗しました')
+        console.error("データ取得エラー:", error);
+        setError(
+          error instanceof Error ? error.message : "データの取得に失敗しました",
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, targetUserId])
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, targetUserId]);
 
   // 包括的なレポートデータを準備する関数
   const prepareComprehensiveReportData = () => {
     // エキスパートレベル判定
     const getExpertLevel = () => {
       if (works.length >= 10 && workStats.totalWordCount >= 50000) {
-        return 'エキスパート'
+        return "エキスパート";
       } else if (works.length >= 5 && workStats.totalWordCount >= 20000) {
-        return 'プロフェッショナル'
+        return "プロフェッショナル";
       } else if (works.length >= 3 && workStats.totalWordCount >= 5000) {
-        return '経験者'
+        return "経験者";
       } else {
-        return '新進クリエイター'
+        return "新進クリエイター";
       }
-    }
+    };
 
     // 品質スコア計算
     const calculateQualityScore = () => {
-      const worksWithContent = works.filter(work => work.description && work.description.length > 50)
-      const contentQualityRate = works.length > 0 ? (worksWithContent.length / works.length) * 100 : 0
-      
-      const inputsWithNotes = inputs.filter(input => input.notes && input.notes.length > 20)
-      const inputQualityRate = inputs.length > 0 ? (inputsWithNotes.length / inputs.length) * 100 : 0
+      const worksWithContent = works.filter(
+        (work) => work.description && work.description.length > 50,
+      );
+      const contentQualityRate =
+        works.length > 0 ? (worksWithContent.length / works.length) * 100 : 0;
 
-      const uniqueRoles = new Set()
-      works.forEach(work => {
+      const inputsWithNotes = inputs.filter(
+        (input) => input.notes && input.notes.length > 20,
+      );
+      const inputQualityRate =
+        inputs.length > 0 ? (inputsWithNotes.length / inputs.length) * 100 : 0;
+
+      const uniqueRoles = new Set();
+      works.forEach((work) => {
         if (work.roles && Array.isArray(work.roles)) {
-          work.roles.forEach(role => uniqueRoles.add(role))
+          work.roles.forEach((role) => uniqueRoles.add(role));
         }
-      })
+      });
 
       // 100点満点で計算
-      const contentScore = Math.min((contentQualityRate / 100) * 30, 30)
-      const inputScore = Math.min((inputQualityRate / 100) * 20, 20)
-      const roleScore = Math.min((uniqueRoles.size / 10) * 25, 25)
-      const worksScore = Math.min((works.length / 20) * 25, 25)
+      const contentScore = Math.min((contentQualityRate / 100) * 30, 30);
+      const inputScore = Math.min((inputQualityRate / 100) * 20, 20);
+      const roleScore = Math.min((uniqueRoles.size / 10) * 25, 25);
+      const worksScore = Math.min((works.length / 20) * 25, 25);
 
-      return Math.round(contentScore + inputScore + roleScore + worksScore)
-    }
+      return Math.round(contentScore + inputScore + roleScore + worksScore);
+    };
 
     // タグ分布
     const getTagDistribution = () => {
-      const tagCount: { [key: string]: number } = {}
-      works.forEach(work => {
+      const tagCount: { [key: string]: number } = {};
+      works.forEach((work) => {
         if (work.tags && Array.isArray(work.tags)) {
-          work.tags.forEach(tag => {
-            tagCount[tag] = (tagCount[tag] || 0) + 1
-          })
+          work.tags.forEach((tag) => {
+            tagCount[tag] = (tagCount[tag] || 0) + 1;
+          });
         }
-      })
-      return tagCount
-    }
+      });
+      return tagCount;
+    };
 
     // ジャンル分布
     const getGenreDistribution = () => {
-      const genreCount: { [key: string]: number } = {}
-      inputs.forEach(input => {
+      const genreCount: { [key: string]: number } = {};
+      inputs.forEach((input) => {
         if (input.genres && Array.isArray(input.genres)) {
           input.genres.forEach((genre: string) => {
-            genreCount[genre] = (genreCount[genre] || 0) + 1
-          })
+            genreCount[genre] = (genreCount[genre] || 0) + 1;
+          });
         }
-      })
-      return genreCount
-    }
+      });
+      return genreCount;
+    };
 
-    const favoriteInputs = inputs.filter(input => input.favorite)
-    const favoriteRate = inputs.length > 0 ? (favoriteInputs.length / inputs.length) * 100 : 0
+    const favoriteInputs = inputs.filter((input) => input.favorite);
+    const favoriteRate =
+      inputs.length > 0 ? (favoriteInputs.length / inputs.length) * 100 : 0;
 
-    const tagDistribution = getTagDistribution()
-    const genreDistribution = getGenreDistribution()
+    const tagDistribution = getTagDistribution();
+    const genreDistribution = getGenreDistribution();
     const topTags = Object.entries(tagDistribution)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 8)
-      .map(([tag]) => tag)
+      .map(([tag]) => tag);
 
     const topGenres = Object.entries(genreDistribution)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 6)
-      .map(([genre]) => genre)
+      .map(([genre]) => genre);
 
     return {
       profile: {
-        displayName: profile?.display_name || user?.user_metadata?.display_name || 'ユーザー',
+        displayName:
+          profile?.display_name ||
+          user?.user_metadata?.display_name ||
+          "ユーザー",
         bio: profile?.bio,
         skills: profile?.skills || [],
         location: profile?.location,
-        website: profile?.website
+        website: profile?.website,
       },
       overview: {
         expertLevel: getExpertLevel(),
         qualityScore: calculateQualityScore(),
         totalWorks: works.length,
         totalWordCount: workStats.totalWordCount,
-        avgWordCount: works.length > 0 ? Math.round(workStats.totalWordCount / works.length) : 0,
-        contentQualityRate: works.length > 0 ? (works.filter(w => w.description && w.description.length > 50).length / works.length) * 100 : 0,
+        avgWordCount:
+          works.length > 0
+            ? Math.round(workStats.totalWordCount / works.length)
+            : 0,
+        contentQualityRate:
+          works.length > 0
+            ? (works.filter((w) => w.description && w.description.length > 50)
+                .length /
+                works.length) *
+              100
+            : 0,
         favoriteRate,
         avgInputRating: favoriteRate,
-        availableRoles: new Set(works.flatMap(w => w.roles || [])).size,
+        availableRoles: new Set(works.flatMap((w) => w.roles || [])).size,
         strengths: [
           `実績豊富（${works.length}作品の制作経験）`,
           `学習意欲旺盛（${inputs.length}件のインプット記録）`,
-          favoriteRate > 20 ? '厳選したコンテンツ（お気に入り率20%以上）' : '幅広いコンテンツ摂取',
-          workStats.totalWordCount > 20000 ? '豊富な文章力（2万文字以上の執筆）' : '継続的な創作活動',
-          topTags.length > 5 ? '多様なスキルセット' : '専門分野への集中'
-        ]
+          favoriteRate > 20
+            ? "厳選したコンテンツ（お気に入り率20%以上）"
+            : "幅広いコンテンツ摂取",
+          workStats.totalWordCount > 20000
+            ? "豊富な文章力（2万文字以上の執筆）"
+            : "継続的な創作活動",
+          topTags.length > 5 ? "多様なスキルセット" : "専門分野への集中",
+        ],
       },
       worksAnalysis: {
         works: works.slice(0, 12),
         genreDistribution: {},
         tagDistribution,
-        monthlyProgress: calculateMonthlyProgress(works, inputs).map(m => ({ month: m.month, count: m.works })),
+        monthlyProgress: calculateMonthlyProgress(works, inputs).map((m) => ({
+          month: m.month,
+          count: m.works,
+        })),
         qualityMetrics: {
-          avgWordCount: works.length > 0 ? Math.round(workStats.totalWordCount / works.length) : 0,
-          completionRate: works.length > 0 ? (works.filter(w => w.description && w.description.length > 20).length / works.length) * 100 : 0,
-          tagVariety: topTags.length
-        }
+          avgWordCount:
+            works.length > 0
+              ? Math.round(workStats.totalWordCount / works.length)
+              : 0,
+          completionRate:
+            works.length > 0
+              ? (works.filter((w) => w.description && w.description.length > 20)
+                  .length /
+                  works.length) *
+                100
+              : 0,
+          tagVariety: topTags.length,
+        },
       },
       inputsAnalysis: {
         inputs: inputs.slice(0, 10),
         genrePreferences: genreDistribution,
         ratingDistribution: {},
-        monthlyInputs: calculateMonthlyProgress(works, inputs).map(m => ({ month: m.month, count: m.inputs })),
+        monthlyInputs: calculateMonthlyProgress(works, inputs).map((m) => ({
+          month: m.month,
+          count: m.inputs,
+        })),
         learningInsights: {
           totalInputs: inputs.length,
           favoriteRate,
           avgRating: favoriteRate,
-          topGenres
-        }
+          topGenres,
+        },
       },
       growthInsights: {
         timeline: generateTimeline(works, inputs),
         productivityTrends: calculateMonthlyProgress(works, inputs),
-        skillEvolution: topTags.slice(0, 8).map(tag => ({
+        skillEvolution: topTags.slice(0, 8).map((tag) => ({
           skill: tag,
           frequency: tagDistribution[tag] || 0,
-          trend: 'stable' as const
-        }))
+          trend: "stable" as const,
+        })),
       },
-      comprehensiveAnalysis: generateComprehensiveAnalysis()
-    }
-  }
+      comprehensiveAnalysis: generateComprehensiveAnalysis(),
+    };
+  };
 
   // PDF出力機能
   // eslint-disable-next-line unused-imports/no-unused-vars
-  const handleExportPDF = async (type: 'structured' | 'screenshot' | 'comprehensive' = 'comprehensive') => {
+  const handleExportPDF = async (
+    type: "structured" | "screenshot" | "comprehensive" = "comprehensive",
+  ) => {
     try {
-      setIsExporting(true)
+      setIsExporting(true);
 
-      if (type === 'comprehensive') {
+      if (type === "comprehensive") {
         // 包括的なレポートPDF出力（4セクション統合）
-        const comprehensiveData = prepareComprehensiveReportData()
-        await exportComprehensiveReportToPDF(comprehensiveData)
-      } else if (type === 'structured') {
+        const comprehensiveData = prepareComprehensiveReportData();
+        await exportComprehensiveReportToPDF(comprehensiveData);
+      } else if (type === "structured") {
         // 従来の構造化されたPDF出力
-        const topTags = () => calculateCombinedTopTags(works, inputs).slice(0, 8).map(([tag]) => tag)
+        const topTags = () =>
+          calculateCombinedTopTags(works, inputs)
+            .slice(0, 8)
+            .map(([tag]) => tag);
 
         const topGenres = () => {
-          const genreCount: { [key: string]: number } = {}
+          const genreCount: { [key: string]: number } = {};
           inputs.forEach((input: any) => {
             if (input.genres && Array.isArray(input.genres)) {
               input.genres.forEach((genre: string) => {
-                genreCount[genre] = (genreCount[genre] || 0) + 1
-              })
+                genreCount[genre] = (genreCount[genre] || 0) + 1;
+              });
             }
-          })
+          });
           return Object.entries(genreCount)
             .sort(([, a], [, b]) => (b as number) - (a as number))
             .slice(0, 6)
-            .map(([genre]) => genre)
-        }
+            .map(([genre]) => genre);
+        };
 
-        const favoriteInputs = inputs.filter(input => input.favorite)
-        const favoriteRate = inputs.length > 0 ? (favoriteInputs.length / inputs.length) * 100 : 0
+        const favoriteInputs = inputs.filter((input) => input.favorite);
+        const favoriteRate =
+          inputs.length > 0 ? (favoriteInputs.length / inputs.length) * 100 : 0;
 
         const exportData = {
           profile: {
-            displayName: profile?.display_name || user?.user_metadata?.display_name || 'ユーザー',
+            displayName:
+              profile?.display_name ||
+              user?.user_metadata?.display_name ||
+              "ユーザー",
             bio: profile?.bio,
             skills: profile?.skills || [],
             location: profile?.location,
-            website: profile?.website
+            website: profile?.website,
           },
           works: works.slice(0, 10), // 最新10件
           inputs,
@@ -552,23 +655,22 @@ function ReportContent() {
             favoriteRate,
             avgRating: favoriteRate,
             topGenres: topGenres(),
-            topTags: topTags()
-          }
-        }
+            topTags: topTags(),
+          },
+        };
 
-        await exportToPDF(exportData)
+        await exportToPDF(exportData);
       } else {
         // スクリーンショット型PDF出力
-        await exportScreenshotToPDF('report-content')
+        await exportScreenshotToPDF("report-content");
       }
-
     } catch (error) {
-      console.error('PDF出力エラー:', error)
-      alert(error instanceof Error ? error.message : 'PDF出力に失敗しました')
+      console.error("PDF出力エラー:", error);
+      alert(error instanceof Error ? error.message : "PDF出力に失敗しました");
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   // 総合分析セクションをレンダリング
   const renderComprehensiveAnalysisSection = () => {
@@ -576,20 +678,25 @@ function ReportContent() {
       return (
         <Card>
           <CardContent className="p-8 text-center text-gray-500">
-            <EmptyState title="データがありません" message="作品またはインプットを追加すると、総合分析レポートが生成されます" />
+            <EmptyState
+              title="データがありません"
+              message="作品またはインプットを追加すると、総合分析レポートが生成されます"
+            />
           </CardContent>
         </Card>
-      )
+      );
     }
 
     // タグを統合集計
-    const topTags = calculateCombinedTopTags(works, [])
+    const topTags = calculateCombinedTopTags(works, []);
 
     // 傾向文生成
     const tendencySentences = () => {
-      if (topTags.length === 0) return ['データ不足のため傾向を特定できません']
-      return topTags.slice(0, 5).map(([tag]) => `「${tag}」に強い関心・専門性が見られます`)
-    }
+      if (topTags.length === 0) return ["データ不足のため傾向を特定できません"];
+      return topTags
+        .slice(0, 5)
+        .map(([tag]) => `「${tag}」に強い関心・専門性が見られます`);
+    };
 
     return (
       <Card>
@@ -601,9 +708,13 @@ function ReportContent() {
             </div>
             <div className="col-span-2 text-sm text-indigo-800">
               <p className="mb-1 font-semibold text-gray-900">総合スコア</p>
-              <p className="text-3xl font-bold text-indigo-700 mb-2">{comprehensiveAnalysis.overall.comprehensiveScore}</p>
+              <p className="text-3xl font-bold text-indigo-700 mb-2">
+                {comprehensiveAnalysis.overall.comprehensiveScore}
+              </p>
               <p>
-                分析対象作品 {comprehensiveAnalysis.overall.analyzedWorks} 件 / 全{comprehensiveAnalysis.overall.totalWorks} 件の平均スコアです。
+                分析対象作品 {comprehensiveAnalysis.overall.analyzedWorks} 件 /
+                全{comprehensiveAnalysis.overall.totalWorks}{" "}
+                件の平均スコアです。
               </p>
             </div>
           </div>
@@ -614,9 +725,24 @@ function ReportContent() {
           {/* 傾向 */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9c.828 0 1.5.895 1.5 2s-.672 2-1.5 2-1.5-.895-1.5-2 .672-2 1.5-2zM5 9c.828 0 1.5.895 1.5 2S5.828 13 5 13s-1.5-.895-1.5-2S4.172 9 5 9z" />
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9c.828 0 1.5.895 1.5 2s-.672 2-1.5 2-1.5-.895-1.5-2 .672-2 1.5-2zM5 9c.828 0 1.5.895 1.5 2S5.828 13 5 13s-1.5-.895-1.5-2S4.172 9 5 9z"
+                />
               </svg>
               クリエイターの傾向
             </h3>
@@ -631,9 +757,14 @@ function ReportContent() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Learning Points */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">学びポイント</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                学びポイント
+              </h3>
               <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                {['論理展開のテンプレート化で再現性を確保', '一次情報へのアクセスで記事価値を高める'].map((p, i) => (
+                {[
+                  "論理展開のテンプレート化で再現性を確保",
+                  "一次情報へのアクセスで記事価値を高める",
+                ].map((p, i) => (
                   <li key={i}>{p}</li>
                 ))}
               </ul>
@@ -641,9 +772,14 @@ function ReportContent() {
 
             {/* Client Appeal */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">クライアント訴求力</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                クライアント訴求力
+              </h3>
               <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
-                {['読者エンゲージメント平均120%向上の実績', '専門外の読者にも理解される翻訳力'].map((p, i) => (
+                {[
+                  "読者エンゲージメント平均120%向上の実績",
+                  "専門外の読者にも理解される翻訳力",
+                ].map((p, i) => (
                   <li key={i}>{p}</li>
                 ))}
               </ul>
@@ -654,14 +790,27 @@ function ReportContent() {
           {topTags.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18" />
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3v18h18"
+                  />
                 </svg>
                 頻出タグ Top10
               </h3>
               <div className="flex flex-wrap gap-2">
                 {topTags.map(([name, count]) => (
-                  <span key={name} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  <span
+                    key={name}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                  >
                     #{name}
                     <span className="ml-1 text-xs text-gray-600">{count}</span>
                   </span>
@@ -671,8 +820,8 @@ function ReportContent() {
           )}
         </CardContent>
       </Card>
-    )
-  }
+    );
+  };
 
   // 認証チェック（他のユーザーのレポートを見る場合は認証不要）
   if (!user && !targetUserId) {
@@ -681,13 +830,17 @@ function ReportContent() {
         <Header />
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">ログインが必要です</h2>
-            <p className="text-gray-500">レポート機能を利用するにはログインしてください。</p>
+            <h2 className="text-xl font-semibold text-gray-700 mb-2">
+              ログインが必要です
+            </h2>
+            <p className="text-gray-500">
+              レポート機能を利用するにはログインしてください。
+            </p>
           </div>
         </div>
         <MobileBottomNavigation />
       </div>
-    )
+    );
   }
 
   // ローディング状態
@@ -703,7 +856,7 @@ function ReportContent() {
         </div>
         <MobileBottomNavigation />
       </div>
-    )
+    );
   }
 
   // エラー状態
@@ -713,20 +866,22 @@ function ReportContent() {
         <Header />
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">エラーが発生しました</h2>
+            <h2 className="text-xl font-semibold text-red-600 mb-2">
+              エラーが発生しました
+            </h2>
             <p className="text-gray-500 mb-4">{error}</p>
             <Button onClick={() => window.location.reload()}>再読み込み</Button>
           </div>
         </div>
         <MobileBottomNavigation />
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-base-light-gray">
       <Header />
-      
+
       <main className="pb-16 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* ヘッダー */}
@@ -734,13 +889,14 @@ function ReportContent() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {targetUserId ? `${profile?.display_name || 'クリエイター'}の活動レポート` : '活動レポート'}
+                  {targetUserId
+                    ? `${profile?.display_name || "クリエイター"}の活動レポート`
+                    : "活動レポート"}
                 </h1>
                 <p className="text-gray-600 mt-1">
                   作品制作とインプットデータを基にした詳細分析
                 </p>
               </div>
-
             </div>
           </div>
 
@@ -756,15 +912,17 @@ function ReportContent() {
                     disabled={section.disabled}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       activeSection === section.id
-                        ? 'bg-white text-gray-900 shadow-sm'
+                        ? "bg-white text-gray-900 shadow-sm"
                         : section.disabled
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm"
                     }`}
                   >
                     <span>{section.icon}</span>
                     <span className="hidden md:inline">{section.label}</span>
-                    {section.disabled && <span className="text-xs">(データなし)</span>}
+                    {section.disabled && (
+                      <span className="text-xs">(データなし)</span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -778,7 +936,11 @@ function ReportContent() {
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 shadow-sm focus:border-accent-dark-blue focus:ring-1 focus:ring-accent-dark-blue"
               >
                 {tabs.map((section) => (
-                  <option key={section.id} value={section.id} disabled={section.disabled}>
+                  <option
+                    key={section.id}
+                    value={section.id}
+                    disabled={section.disabled}
+                  >
                     {section.label}
                   </option>
                 ))}
@@ -788,35 +950,42 @@ function ReportContent() {
 
           {/* メインコンテンツ */}
           <div id="report-content" className="space-y-6">
-            {activeSection === 'outputs' && <WorksSection works={works} workStats={workStats} analysis={comprehensiveAnalysis} />}
-            {activeSection === 'activity' && (
+            {activeSection === "outputs" && (
+              <WorksSection
+                works={works}
+                workStats={workStats}
+                analysis={comprehensiveAnalysis}
+              />
+            )}
+            {activeSection === "activity" && (
               <ActivitySection works={works} inputs={inputs} />
             )}
-            {activeSection === 'analysis' && renderComprehensiveAnalysisSection()}
+            {activeSection === "analysis" &&
+              renderComprehensiveAnalysisSection()}
           </div>
-
-
         </div>
       </main>
 
       <MobileBottomNavigation />
     </div>
-  )
+  );
 }
 
 export default function ReportPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-base-light-gray">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue mx-auto mb-4"></div>
-            <p className="text-gray-600">レポートを読み込み中...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-base-light-gray">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue mx-auto mb-4"></div>
+              <p className="text-gray-600">レポートを読み込み中...</p>
+            </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ReportContent />
     </Suspense>
-  )
-} 
+  );
+}

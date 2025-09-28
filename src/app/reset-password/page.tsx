@@ -1,76 +1,84 @@
-'use client'
+"use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/lib/supabase";
 
 function ResetPasswordForm() {
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-  
-  const router = useRouter()
-  const _searchParams = useSearchParams()
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const router = useRouter();
+  const _searchParams = useSearchParams();
 
   useEffect(() => {
     // URLからアクセストークンを確認
-    const hashParams = new URLSearchParams(window.location.hash.substring(1))
-    const accessToken = hashParams.get('access_token')
-    const type = hashParams.get('type')
-    
-    if (!accessToken || type !== 'recovery') {
-      setError('無効なパスワードリセットリンクです')
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get("access_token");
+    const type = hashParams.get("type");
+
+    if (!accessToken || type !== "recovery") {
+      setError("無効なパスワードリセットリンクです");
     }
-  }, [])
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!password || !confirmPassword) {
-      setError('すべての項目を入力してください')
-      return
+      setError("すべての項目を入力してください");
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError('パスワードが一致しません')
-      return
+      setError("パスワードが一致しません");
+      return;
     }
 
     if (password.length < 6) {
-      setError('パスワードは6文字以上で入力してください')
-      return
+      setError("パスワードは6文字以上で入力してください");
+      return;
     }
 
-    setIsLoading(true)
-    setError('')
-    setMessage('')
+    setIsLoading(true);
+    setError("");
+    setMessage("");
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
-      })
+        password: password,
+      });
 
       if (error) {
-        setError('パスワードの更新に失敗しました: ' + error.message)
+        setError("パスワードの更新に失敗しました: " + error.message);
       } else {
-        setMessage('パスワードが正常に更新されました。ログインページに移動しています...')
+        setMessage(
+          "パスワードが正常に更新されました。ログインページに移動しています...",
+        );
         setTimeout(() => {
-          router.push('/login?message=password_reset_success')
-        }, 2000)
+          router.push("/login?message=password_reset_success");
+        }, 2000);
       }
     } catch (error) {
-      setError('予期しないエラーが発生しました')
+      setError("予期しないエラーが発生しました");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-base-light-gray flex items-center justify-center px-4">
@@ -80,7 +88,9 @@ function ResetPasswordForm() {
           <Link href="/">
             <h1 className="text-3xl font-bold text-accent-dark-blue">balubo</h1>
           </Link>
-          <p className="text-text-secondary mt-2">クリエイターのためのAI分析型ポートフォリオ</p>
+          <p className="text-text-secondary mt-2">
+            クリエイターのためのAI分析型ポートフォリオ
+          </p>
         </div>
 
         {/* パスワードリセットフォーム */}
@@ -133,18 +143,21 @@ function ResetPasswordForm() {
                 />
               </div>
 
-              <Button 
+              <Button
                 type="submit"
                 className="w-full bg-accent-dark-blue hover:bg-primary-blue"
                 disabled={isLoading}
               >
-                {isLoading ? '更新中...' : 'パスワードを更新'}
+                {isLoading ? "更新中..." : "パスワードを更新"}
               </Button>
             </form>
 
             {/* ログインに戻るリンク */}
             <div className="mt-6 text-center">
-              <Link href="/login" className="text-sm text-accent-dark-blue hover:underline">
+              <Link
+                href="/login"
+                className="text-sm text-accent-dark-blue hover:underline"
+              >
                 ← ログインページに戻る
               </Link>
             </div>
@@ -152,20 +165,22 @@ function ResetPasswordForm() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-base-light-gray flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue mx-auto"></div>
-          <p className="mt-2 text-text-secondary">読み込み中...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-base-light-gray flex items-center justify-center px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-dark-blue mx-auto"></div>
+            <p className="mt-2 text-text-secondary">読み込み中...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
-  )
-} 
+  );
+}

@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { Suspense } from 'react'
-import { Header } from '@/components/layout/header'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import NewWorkForm from './NewWorkForm'
+import { Suspense } from "react";
+import { Header } from "@/components/layout/header";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import NewWorkForm from "./NewWorkForm";
 
 export default function NewWorkPage() {
   return (
@@ -15,5 +15,5 @@ export default function NewWorkPage() {
         </Suspense>
       </div>
     </ProtectedRoute>
-  )
-} 
+  );
+}

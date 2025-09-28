@@ -1,198 +1,272 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { Header } from '@/components/layout/header'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { useState } from "react";
+import Link from "next/link";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 interface Creator {
-  id: string
-  displayName: string
-  bio: string
-  professions: string[]
-  skills: string[]
-  experienceYears: string
-  location: string
-  avatarUrl?: string
-  portfolioVisibility: 'public' | 'connections_only' | 'private'
-  connectionStatus?: 'none' | 'pending' | 'connected'
+  id: string;
+  displayName: string;
+  bio: string;
+  professions: string[];
+  skills: string[];
+  experienceYears: string;
+  location: string;
+  avatarUrl?: string;
+  portfolioVisibility: "public" | "connections_only" | "private";
+  connectionStatus?: "none" | "pending" | "connected";
 }
 
 export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedProfessions, setSelectedProfessions] = useState<string[]>([])
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
-  const [selectedLocation, setSelectedLocation] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchResults, setSearchResults] = useState<Creator[]>([])
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<Creator[]>([]);
 
   // サンプルデータ（実際はSupabaseから取得）
   const sampleCreators: Creator[] = [
     {
-      id: '1',
-      displayName: '田中 太郎',
-      bio: 'UI/UXデザイナーとして5年の経験があります。ユーザー中心設計を重視し、使いやすいインターフェースの設計を得意としています。',
-      professions: ['UI/UXデザイナー', 'Webデザイナー'],
-      skills: ['Figma', 'Adobe XD', 'Sketch', 'HTML/CSS'],
-      experienceYears: '3-5年',
-      location: '東京都',
-      portfolioVisibility: 'public',
-      connectionStatus: 'none'
+      id: "1",
+      displayName: "田中 太郎",
+      bio: "UI/UXデザイナーとして5年の経験があります。ユーザー中心設計を重視し、使いやすいインターフェースの設計を得意としています。",
+      professions: ["UI/UXデザイナー", "Webデザイナー"],
+      skills: ["Figma", "Adobe XD", "Sketch", "HTML/CSS"],
+      experienceYears: "3-5年",
+      location: "東京都",
+      portfolioVisibility: "public",
+      connectionStatus: "none",
     },
     {
-      id: '2',
-      displayName: '佐藤 花子',
-      bio: 'フロントエンドエンジニアとして、React/Next.jsを使った開発を専門としています。デザインシステムの構築も得意です。',
-      professions: ['フロントエンドエンジニア'],
-      skills: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'],
-      experienceYears: '3-5年',
-      location: '大阪府',
-      portfolioVisibility: 'public',
-      connectionStatus: 'connected'
+      id: "2",
+      displayName: "佐藤 花子",
+      bio: "フロントエンドエンジニアとして、React/Next.jsを使った開発を専門としています。デザインシステムの構築も得意です。",
+      professions: ["フロントエンドエンジニア"],
+      skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+      experienceYears: "3-5年",
+      location: "大阪府",
+      portfolioVisibility: "public",
+      connectionStatus: "connected",
     },
     {
-      id: '3',
-      displayName: '山田 次郎',
-      bio: 'ライター・編集者として10年以上の経験があります。テクノロジー分野の記事執筆を中心に活動しています。',
-      professions: ['ライター', '編集者'],
-      skills: ['SEO', 'WordPress', 'Google Analytics'],
-      experienceYears: '10年以上',
-      location: '神奈川県',
-      portfolioVisibility: 'public',
-      connectionStatus: 'pending'
-    }
-  ]
+      id: "3",
+      displayName: "山田 次郎",
+      bio: "ライター・編集者として10年以上の経験があります。テクノロジー分野の記事執筆を中心に活動しています。",
+      professions: ["ライター", "編集者"],
+      skills: ["SEO", "WordPress", "Google Analytics"],
+      experienceYears: "10年以上",
+      location: "神奈川県",
+      portfolioVisibility: "public",
+      connectionStatus: "pending",
+    },
+  ];
 
   const professionOptions = [
-    'UI/UXデザイナー', 'グラフィックデザイナー', 'Webデザイナー', 'フロントエンドエンジニア',
-    'バックエンドエンジニア', 'フルスタックエンジニア', 'ライター', '編集者', 'コピーライター',
-    'イラストレーター', 'フォトグラファー', '動画編集者', 'マーケター', 'プロダクトマネージャー'
-  ]
+    "UI/UXデザイナー",
+    "グラフィックデザイナー",
+    "Webデザイナー",
+    "フロントエンドエンジニア",
+    "バックエンドエンジニア",
+    "フルスタックエンジニア",
+    "ライター",
+    "編集者",
+    "コピーライター",
+    "イラストレーター",
+    "フォトグラファー",
+    "動画編集者",
+    "マーケター",
+    "プロダクトマネージャー",
+  ];
 
   const skillOptions = [
-    'Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator', 'InDesign',
-    'HTML/CSS', 'JavaScript', 'TypeScript', 'React', 'Vue.js', 'Angular',
-    'Node.js', 'Python', 'PHP', 'WordPress', 'Shopify', 'SEO', 'Google Analytics'
-  ]
+    "Figma",
+    "Adobe XD",
+    "Sketch",
+    "Photoshop",
+    "Illustrator",
+    "InDesign",
+    "HTML/CSS",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Vue.js",
+    "Angular",
+    "Node.js",
+    "Python",
+    "PHP",
+    "WordPress",
+    "Shopify",
+    "SEO",
+    "Google Analytics",
+  ];
 
   const locationOptions = [
-    '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-    '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-    '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-    '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-    '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-    '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-    '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
-  ]
+    "北海道",
+    "青森県",
+    "岩手県",
+    "宮城県",
+    "秋田県",
+    "山形県",
+    "福島県",
+    "茨城県",
+    "栃木県",
+    "群馬県",
+    "埼玉県",
+    "千葉県",
+    "東京都",
+    "神奈川県",
+    "新潟県",
+    "富山県",
+    "石川県",
+    "福井県",
+    "山梨県",
+    "長野県",
+    "岐阜県",
+    "静岡県",
+    "愛知県",
+    "三重県",
+    "滋賀県",
+    "京都府",
+    "大阪府",
+    "兵庫県",
+    "奈良県",
+    "和歌山県",
+    "鳥取県",
+    "島根県",
+    "岡山県",
+    "広島県",
+    "山口県",
+    "徳島県",
+    "香川県",
+    "愛媛県",
+    "高知県",
+    "福岡県",
+    "佐賀県",
+    "長崎県",
+    "熊本県",
+    "大分県",
+    "宮崎県",
+    "鹿児島県",
+    "沖縄県",
+  ];
 
   const handleSearch = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       // TODO: 実際の検索API呼び出し
       // 現在はサンプルデータをフィルタリング
-      let results = sampleCreators
+      let results = sampleCreators;
 
       if (searchQuery) {
-        results = results.filter(creator =>
-          creator.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          creator.bio.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+        results = results.filter(
+          (creator) =>
+            creator.displayName
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            creator.bio.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
       }
 
       if (selectedProfessions.length > 0) {
-        results = results.filter(creator =>
-          creator.professions.some(profession => selectedProfessions.includes(profession))
-        )
+        results = results.filter((creator) =>
+          creator.professions.some((profession) =>
+            selectedProfessions.includes(profession),
+          ),
+        );
       }
 
       if (selectedSkills.length > 0) {
-        results = results.filter(creator =>
-          creator.skills.some(skill => selectedSkills.includes(skill))
-        )
+        results = results.filter((creator) =>
+          creator.skills.some((skill) => selectedSkills.includes(skill)),
+        );
       }
 
       if (selectedLocation) {
-        results = results.filter(creator => creator.location === selectedLocation)
+        results = results.filter(
+          (creator) => creator.location === selectedLocation,
+        );
       }
 
-      setSearchResults(results)
+      setSearchResults(results);
     } catch (error) {
-      console.error('Search error:', error)
+      console.error("Search error:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const toggleProfession = (profession: string) => {
-    setSelectedProfessions(prev =>
+    setSelectedProfessions((prev) =>
       prev.includes(profession)
-        ? prev.filter(p => p !== profession)
-        : [...prev, profession]
-    )
-  }
+        ? prev.filter((p) => p !== profession)
+        : [...prev, profession],
+    );
+  };
 
   const toggleSkill = (skill: string) => {
-    setSelectedSkills(prev =>
-      prev.includes(skill)
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
-    )
-  }
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
+    );
+  };
 
   const handleConnectionRequest = async (creatorId: string) => {
     try {
       // TODO: つながり申請API呼び出し
-      console.log('Connection request sent to:', creatorId)
-      
+      console.log("Connection request sent to:", creatorId);
+
       // 結果を更新
-      setSearchResults(prev =>
-        prev.map(creator =>
+      setSearchResults((prev) =>
+        prev.map((creator) =>
           creator.id === creatorId
-            ? { ...creator, connectionStatus: 'pending' }
-            : creator
-        )
-      )
+            ? { ...creator, connectionStatus: "pending" }
+            : creator,
+        ),
+      );
     } catch (error) {
-      console.error('Connection request error:', error)
+      console.error("Connection request error:", error);
     }
-  }
+  };
 
   const getConnectionButtonText = (status?: string) => {
     switch (status) {
-      case 'connected':
-        return 'つながり済み'
-      case 'pending':
-        return '申請中'
+      case "connected":
+        return "つながり済み";
+      case "pending":
+        return "申請中";
       default:
-        return 'つながりを申請'
+        return "つながりを申請";
     }
-  }
+  };
 
   const getConnectionButtonVariant = (status?: string) => {
     switch (status) {
-      case 'connected':
-        return 'outline' as const
-      case 'pending':
-        return 'outline' as const
+      case "connected":
+        return "outline" as const;
+      case "pending":
+        return "outline" as const;
       default:
-        return 'default' as const
+        return "default" as const;
     }
-  }
+  };
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-base-light-gray">
         <Header />
-        
+
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             {/* ページヘッダー */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-text-primary mb-2">クリエイター検索</h1>
+              <h1 className="text-3xl font-bold text-text-primary mb-2">
+                クリエイター検索
+              </h1>
               <p className="text-text-secondary">
                 あなたと一緒に働きたいクリエイターを見つけましょう
               </p>
@@ -222,7 +296,10 @@ export default function SearchPage() {
                       <Label>職種</Label>
                       <div className="max-h-40 overflow-y-auto space-y-2">
                         {professionOptions.map((profession) => (
-                          <div key={profession} className="flex items-center space-x-2">
+                          <div
+                            key={profession}
+                            className="flex items-center space-x-2"
+                          >
                             <input
                               type="checkbox"
                               id={`profession-${profession}`}
@@ -246,7 +323,10 @@ export default function SearchPage() {
                       <Label>スキル</Label>
                       <div className="max-h-40 overflow-y-auto space-y-2">
                         {skillOptions.map((skill) => (
-                          <div key={skill} className="flex items-center space-x-2">
+                          <div
+                            key={skill}
+                            className="flex items-center space-x-2"
+                          >
                             <input
                               type="checkbox"
                               id={`skill-${skill}`}
@@ -289,18 +369,18 @@ export default function SearchPage() {
                       className="w-full bg-accent-dark-blue hover:bg-primary-blue"
                       disabled={isLoading}
                     >
-                      {isLoading ? '検索中...' : '検索'}
+                      {isLoading ? "検索中..." : "検索"}
                     </Button>
 
                     {/* フィルタークリア */}
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setSearchQuery('')
-                        setSelectedProfessions([])
-                        setSelectedSkills([])
-                        setSelectedLocation('')
-                        setSearchResults([])
+                        setSearchQuery("");
+                        setSelectedProfessions([]);
+                        setSelectedSkills([]);
+                        setSelectedLocation("");
+                        setSearchResults([]);
                       }}
                       className="w-full"
                     >
@@ -316,8 +396,18 @@ export default function SearchPage() {
                   <Card>
                     <CardContent className="py-12 text-center">
                       <div className="text-text-tertiary mb-4">
-                        <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <svg
+                          className="w-16 h-16 mx-auto mb-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                          />
                         </svg>
                       </div>
                       <h3 className="text-lg font-medium text-text-primary mb-2">
@@ -338,7 +428,10 @@ export default function SearchPage() {
 
                     <div className="grid gap-6">
                       {searchResults.map((creator) => (
-                        <Card key={creator.id} className="hover:shadow-md transition-shadow">
+                        <Card
+                          key={creator.id}
+                          className="hover:shadow-md transition-shadow"
+                        >
                           <CardContent className="p-6">
                             <div className="flex items-start space-x-4">
                               {/* アバター */}
@@ -356,17 +449,30 @@ export default function SearchPage() {
                                       {creator.displayName}
                                     </h3>
                                     <p className="text-text-secondary text-sm">
-                                      {creator.location} • {creator.experienceYears}
+                                      {creator.location} •{" "}
+                                      {creator.experienceYears}
                                     </p>
                                   </div>
                                   <Button
-                                    variant={getConnectionButtonVariant(creator.connectionStatus)}
+                                    variant={getConnectionButtonVariant(
+                                      creator.connectionStatus,
+                                    )}
                                     size="sm"
-                                    onClick={() => handleConnectionRequest(creator.id)}
-                                    disabled={creator.connectionStatus !== 'none'}
-                                    className={creator.connectionStatus === 'none' ? 'bg-accent-dark-blue hover:bg-primary-blue' : ''}
+                                    onClick={() =>
+                                      handleConnectionRequest(creator.id)
+                                    }
+                                    disabled={
+                                      creator.connectionStatus !== "none"
+                                    }
+                                    className={
+                                      creator.connectionStatus === "none"
+                                        ? "bg-accent-dark-blue hover:bg-primary-blue"
+                                        : ""
+                                    }
                                   >
-                                    {getConnectionButtonText(creator.connectionStatus)}
+                                    {getConnectionButtonText(
+                                      creator.connectionStatus,
+                                    )}
                                   </Button>
                                 </div>
 
@@ -426,5 +532,5 @@ export default function SearchPage() {
         </main>
       </div>
     </ProtectedRoute>
-  )
-} 
+  );
+}

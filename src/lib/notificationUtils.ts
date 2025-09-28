@@ -1,22 +1,28 @@
-import { supabase } from './supabase'
+import { supabase } from "./supabase";
 
-export type NotificationType = 
-  | 'connection_request'
-  | 'connection_approved'
-  | 'connection_declined'
-  | 'new_review'
-  | 'new_like'
-  | 'new_comment'
-  | 'work_featured'
+export type NotificationType =
+  | "connection_request"
+  | "connection_approved"
+  | "connection_declined"
+  | "new_review"
+  | "new_like"
+  | "new_comment"
+  | "work_featured";
 
-export type RelatedEntityType = 'user' | 'work' | 'review' | 'comment' | 'like' | null
+export type RelatedEntityType =
+  | "user"
+  | "work"
+  | "review"
+  | "comment"
+  | "like"
+  | null;
 
 export interface CreateNotificationParams {
-  userId: string
-  type: NotificationType
-  message: string
-  relatedEntityId?: string | null
-  relatedEntityType?: RelatedEntityType | null
+  userId: string;
+  type: NotificationType;
+  message: string;
+  relatedEntityId?: string | null;
+  relatedEntityType?: RelatedEntityType | null;
 }
 
 /**
@@ -27,30 +33,30 @@ export async function createNotification({
   type,
   message,
   relatedEntityId,
-  relatedEntityType
+  relatedEntityType,
 }: CreateNotificationParams): Promise<string | null> {
   try {
     const { data, error } = await supabase
-      .from('notifications')
+      .from("notifications")
       .insert({
         user_id: userId,
         type,
         message,
         related_entity_id: relatedEntityId,
-        related_entity_type: relatedEntityType
+        related_entity_type: relatedEntityType,
       })
-      .select('id')
-      .single()
+      .select("id")
+      .single();
 
     if (error) {
-      console.error('通知作成エラー:', error)
-      return null
+      console.error("通知作成エラー:", error);
+      return null;
     }
 
-    return data.id
+    return data.id;
   } catch (error) {
-    console.error('通知作成エラー:', error)
-    return null
+    console.error("通知作成エラー:", error);
+    return null;
   }
 }
 
@@ -60,15 +66,15 @@ export async function createNotification({
 export async function createConnectionRequestNotification(
   requesterId: string,
   requesteeId: string,
-  requesterName: string
+  requesterName: string,
 ): Promise<string | null> {
   return createNotification({
     userId: requesteeId,
-    type: 'connection_request',
+    type: "connection_request",
     message: `${requesterName}さんからつながり申請が届きました`,
     relatedEntityId: requesterId,
-    relatedEntityType: 'user'
-  })
+    relatedEntityType: "user",
+  });
 }
 
 /**
@@ -77,15 +83,15 @@ export async function createConnectionRequestNotification(
 export async function createConnectionApprovedNotification(
   requesteeId: string,
   requesterId: string,
-  requesteeName: string
+  requesteeName: string,
 ): Promise<string | null> {
   return createNotification({
     userId: requesterId,
-    type: 'connection_approved',
+    type: "connection_approved",
     message: `${requesteeName}さんがあなたのつながり申請を承認しました`,
     relatedEntityId: requesteeId,
-    relatedEntityType: 'user'
-  })
+    relatedEntityType: "user",
+  });
 }
 
 /**
@@ -94,15 +100,15 @@ export async function createConnectionApprovedNotification(
 export async function createConnectionDeclinedNotification(
   requesteeId: string,
   requesterId: string,
-  requesteeName: string
+  requesteeName: string,
 ): Promise<string | null> {
   return createNotification({
     userId: requesterId,
-    type: 'connection_declined',
+    type: "connection_declined",
     message: `${requesteeName}さんがあなたのつながり申請を拒否しました`,
     relatedEntityId: requesteeId,
-    relatedEntityType: 'user'
-  })
+    relatedEntityType: "user",
+  });
 }
 
 /**
@@ -113,15 +119,15 @@ export async function createReviewNotification(
   revieweeId: string,
   workId: string,
   reviewerName: string,
-  workTitle: string
+  workTitle: string,
 ): Promise<string | null> {
   return createNotification({
     userId: revieweeId,
-    type: 'new_review',
+    type: "new_review",
     message: `${reviewerName}さんが「${workTitle}」にレビューを投稿しました`,
     relatedEntityId: workId,
-    relatedEntityType: 'work'
-  })
+    relatedEntityType: "work",
+  });
 }
 
 /**
@@ -132,20 +138,20 @@ export async function createLikeNotification(
   workOwnerId: string,
   workId: string,
   likerName: string,
-  workTitle: string
+  workTitle: string,
 ): Promise<string | null> {
   // 自分自身の作品へのいいねは通知しない
   if (likerId === workOwnerId) {
-    return null
+    return null;
   }
 
   return createNotification({
     userId: workOwnerId,
-    type: 'new_like',
+    type: "new_like",
     message: `${likerName}さんが「${workTitle}」にいいねしました`,
     relatedEntityId: workId,
-    relatedEntityType: 'work'
-  })
+    relatedEntityType: "work",
+  });
 }
 
 /**
@@ -156,39 +162,39 @@ export async function createCommentNotification(
   workOwnerId: string,
   workId: string,
   commenterName: string,
-  workTitle: string
+  workTitle: string,
 ): Promise<string | null> {
   // 自分自身の作品へのコメントは通知しない
   if (commenterId === workOwnerId) {
-    return null
+    return null;
   }
 
   return createNotification({
     userId: workOwnerId,
-    type: 'new_comment',
+    type: "new_comment",
     message: `${commenterName}さんが「${workTitle}」にコメントしました`,
     relatedEntityId: workId,
-    relatedEntityType: 'work'
-  })
-} 
+    relatedEntityType: "work",
+  });
+}
 
 /**
  * 通知タイプに応じたアイコン名を返す
  */
 export function getNotificationIconName(type: string): string {
   switch (type) {
-    case 'connection_request':
-    case 'connection_approved':
-    case 'connection_declined':
-      return 'Users'
-    case 'new_like':
-      return 'Heart'
-    case 'new_comment':
-      return 'MessageSquare'
-    case 'new_review':
-      return 'User'
+    case "connection_request":
+    case "connection_approved":
+    case "connection_declined":
+      return "Users";
+    case "new_like":
+      return "Heart";
+    case "new_comment":
+      return "MessageSquare";
+    case "new_review":
+      return "User";
     default:
-      return 'User'
+      return "User";
   }
 }
 
@@ -197,19 +203,19 @@ export function getNotificationIconName(type: string): string {
  */
 export function getNotificationColor(type: string): string {
   switch (type) {
-    case 'connection_request':
-      return 'text-blue-600 bg-blue-50 border-blue-200'
-    case 'connection_approved':
-      return 'text-green-600 bg-green-50 border-green-200'
-    case 'connection_declined':
-      return 'text-red-600 bg-red-50 border-red-200'
-    case 'new_like':
-      return 'text-red-600 bg-red-50 border-red-200'
-    case 'new_comment':
-      return 'text-blue-600 bg-blue-50 border-blue-200'
-    case 'new_review':
-      return 'text-purple-600 bg-purple-50 border-purple-200'
+    case "connection_request":
+      return "text-blue-600 bg-blue-50 border-blue-200";
+    case "connection_approved":
+      return "text-green-600 bg-green-50 border-green-200";
+    case "connection_declined":
+      return "text-red-600 bg-red-50 border-red-200";
+    case "new_like":
+      return "text-red-600 bg-red-50 border-red-200";
+    case "new_comment":
+      return "text-blue-600 bg-blue-50 border-blue-200";
+    case "new_review":
+      return "text-purple-600 bg-purple-50 border-purple-200";
     default:
-      return 'text-gray-600 bg-gray-50 border-gray-200'
+      return "text-gray-600 bg-gray-50 border-gray-200";
   }
-} 
+}

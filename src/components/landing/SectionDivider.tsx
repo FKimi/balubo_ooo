@@ -1,15 +1,15 @@
-import React from 'react'
+import React from "react";
 
 interface SectionDividerProps {
   /**
    * Tailwind color utility class to apply to the wave fill, e.g. 'text-white', 'text-slate-50'.
    * The class is applied to the parent <svg> via `className`, and the SVG path uses `fill="currentColor"`.
    */
-  colorClass?: string
+  colorClass?: string;
   /** Flip the wave vertically to inverse the direction (use when previous section is light and next is dark, or vice-versa). */
-  flip?: boolean
+  flip?: boolean;
   /** Height of the divider in Tailwind height units (e.g. 'h-16'). */
-  heightClass?: string
+  heightClass?: string;
 }
 
 /**
@@ -18,14 +18,16 @@ interface SectionDividerProps {
  * 単なる余白 div の代替として使用し、LP セクション間のメリハリを高める。
  */
 export default function SectionDivider({
-  colorClass = 'text-white',
+  colorClass = "text-white",
   flip = false,
-  heightClass = 'h-16',
+  heightClass = "h-16",
 }: SectionDividerProps) {
   return (
-    <div className={`relative w-full overflow-hidden leading-none ${heightClass}`}>
+    <div
+      className={`relative w-full overflow-hidden leading-none ${heightClass}`}
+    >
       <svg
-        className={`absolute inset-0 w-full ${flip ? 'rotate-180' : ''} ${colorClass}`}
+        className={`absolute inset-0 w-full ${flip ? "rotate-180" : ""} ${colorClass}`}
         viewBox="0 0 1440 100"
         preserveAspectRatio="none"
       >
@@ -36,5 +38,5 @@ export default function SectionDivider({
         />
       </svg>
     </div>
-  )
-} 
+  );
+}

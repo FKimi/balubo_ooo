@@ -1,15 +1,19 @@
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { WorkCard } from './WorkCard'
-import { WorkData } from '@/features/work/types'
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { WorkCard } from "./WorkCard";
+import { WorkData } from "@/features/work/types";
 
 interface SortableWorkCardProps {
-  work: WorkData
-  onDelete: (_workId: string) => void
-  isDraggable: boolean
+  work: WorkData;
+  onDelete: (_workId: string) => void;
+  isDraggable: boolean;
 }
 
-export function SortableWorkCard({ work, onDelete, isDraggable }: SortableWorkCardProps) {
+export function SortableWorkCard({
+  work,
+  onDelete,
+  isDraggable,
+}: SortableWorkCardProps) {
   const {
     attributes,
     listeners,
@@ -17,16 +21,16 @@ export function SortableWorkCard({ work, onDelete, isDraggable }: SortableWorkCa
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: work.id })
+  } = useSortable({ id: work.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  }
+  };
 
   if (!isDraggable) {
-    return <WorkCard work={work} onDelete={onDelete} isDraggable={false} />
+    return <WorkCard work={work} onDelete={onDelete} isDraggable={false} />;
   }
 
   return (
@@ -39,5 +43,5 @@ export function SortableWorkCard({ work, onDelete, isDraggable }: SortableWorkCa
     >
       <WorkCard work={work} onDelete={onDelete} isDraggable={true} />
     </div>
-  )
-} 
+  );
+}

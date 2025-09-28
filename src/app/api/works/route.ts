@@ -1,89 +1,97 @@
-import { NextRequest } from 'next/server'
-import { DatabaseClient } from '@/lib/database'
-import { withAuth } from '@/lib/api-utils'
-import fs from 'fs'
-import path from 'path'
+import { NextRequest } from "next/server";
+import { DatabaseClient } from "@/lib/database";
+import { withAuth } from "@/lib/api-utils";
+import fs from "fs";
+import path from "path";
 
 // 作品データの型定義
-
 
 // GET: 作品一覧を取得
 export async function GET(request: NextRequest) {
   return withAuth(request, async (_userId, token) => {
-    const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId')
+    const searchParams = request.nextUrl.searchParams;
+    const userId = searchParams.get("userId");
 
     if (!userId) {
-      throw new Error('ユーザーIDが指定されていません')
+      throw new Error("ユーザーIDが指定されていません");
     }
-    
-    console.log('作品一覧取得APIが呼び出されました、ユーザーID:', userId)
+
+    console.log("作品一覧取得APIが呼び出されました、ユーザーID:", userId);
 
     // DatabaseClientを使用して作品一覧を取得（認証トークン付き）
-    const works = await DatabaseClient.getWorks(userId, token)
+    const works = await DatabaseClient.getWorks(userId, token);
 
     return {
       works,
-      message: '作品一覧を取得しました'
-    }
-  })
+      message: "作品一覧を取得しました",
+    };
+  });
 }
 
 // POST: 新しい作品を保存
 export async function POST(request: NextRequest) {
   return withAuth(request, async (userId, token) => {
-    console.log('作品保存APIが呼び出されました、ユーザーID:', userId)
+    console.log("作品保存APIが呼び出されました、ユーザーID:", userId);
 
     // リクエストボディの解析
-    const workData = await request.json()
-    console.log('受信した作品データ:', Object.keys(workData))
+    const workData = await request.json();
+    console.log("受信した作品データ:", Object.keys(workData));
 
     // バリデーション
-    if (!workData.title || workData.title.trim() === '') {
-      throw new Error('タイトルは必須です')
+    if (!workData.title || workData.title.trim() === "") {
+      throw new Error("タイトルは必須です");
     }
 
     // production_dateの形式変換（YYYY-MM → YYYY-MM-01）
-    let productionDate = null
+    let productionDate = null;
     if (workData.productionDate && workData.productionDate.trim()) {
       if (workData.productionDate.match(/^\d{4}-\d{2}$/)) {
-        productionDate = `${workData.productionDate}-01`
-        console.log('production_date変換:', workData.productionDate, '→', productionDate)
+        productionDate = `${workData.productionDate}-01`;
+        console.log(
+          "production_date変換:",
+          workData.productionDate,
+          "→",
+          productionDate,
+        );
       } else if (workData.productionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        productionDate = workData.productionDate
-        console.log('production_date（変換不要）:', productionDate)
+        productionDate = workData.productionDate;
+        console.log("production_date（変換不要）:", productionDate);
       } else {
-        console.warn('不正なproduction_date形式:', workData.productionDate)
-        productionDate = null
+        console.warn("不正なproduction_date形式:", workData.productionDate);
+        productionDate = null;
       }
     }
-    
-    // DatabaseClient 経由で保存
-    const savedWork = await DatabaseClient.saveWork(userId, {
-      ...workData,
-      productionDate
-    }, token)
 
-    console.log('作品保存成功:', savedWork.id)
+    // DatabaseClient 経由で保存
+    const savedWork = await DatabaseClient.saveWork(
+      userId,
+      {
+        ...workData,
+        productionDate,
+      },
+      token,
+    );
+
+    console.log("作品保存成功:", savedWork.id);
 
     // ローカルファイルにもバックアップ保存
     try {
-      const worksDir = path.join(process.cwd(), 'data', 'works')
+      const worksDir = path.join(process.cwd(), "data", "works");
       if (!fs.existsSync(worksDir)) {
-        fs.mkdirSync(worksDir, { recursive: true })
+        fs.mkdirSync(worksDir, { recursive: true });
       }
-      
-      const workFile = path.join(worksDir, `${savedWork.id}.json`)
-      fs.writeFileSync(workFile, JSON.stringify(savedWork, null, 2))
-      console.log('作品をローカルファイルにも保存しました:', workFile)
+
+      const workFile = path.join(worksDir, `${savedWork.id}.json`);
+      fs.writeFileSync(workFile, JSON.stringify(savedWork, null, 2));
+      console.log("作品をローカルファイルにも保存しました:", workFile);
     } catch (fileError) {
-      console.warn('ローカルファイル保存エラー:', fileError)
+      console.warn("ローカルファイル保存エラー:", fileError);
     }
 
     return {
       success: true,
       work: savedWork,
-      message: '作品を保存しました'
-    }
-  })
-} 
+      message: "作品を保存しました",
+    };
+  });
+}

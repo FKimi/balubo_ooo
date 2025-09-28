@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Search, Filter, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { Search, Filter, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface SearchFiltersProps {
-  searchQuery: string
-  onSearchChange: (_query: string) => void
-  filterType: 'all' | 'work'
-  onFilterTypeChange: (_type: 'all' | 'work') => void
-  filterTag: string
-  onFilterTagChange: (_tag: string) => void
-  popularTags: string[]
-  onApplyFilters: () => void
-  onClearFilters: () => void
+  searchQuery: string;
+  onSearchChange: (_query: string) => void;
+  filterType: "all" | "work";
+  onFilterTypeChange: (_type: "all" | "work") => void;
+  filterTag: string;
+  onFilterTagChange: (_tag: string) => void;
+  popularTags: string[];
+  onApplyFilters: () => void;
+  onClearFilters: () => void;
 }
 
 export function SearchFilters({
@@ -27,14 +27,14 @@ export function SearchFilters({
   onApplyFilters,
   onClearFilters,
 }: SearchFiltersProps) {
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onApplyFilters()
-  }
+    e.preventDefault();
+    onApplyFilters();
+  };
 
-  const hasActiveFilters = _searchQuery || _filterType !== 'all' || _filterTag
+  const hasActiveFilters = _searchQuery || _filterType !== "all" || _filterTag;
 
   return (
     <div className="bg-white border-b border-gray-200 sticky top-[73px] z-20">
@@ -53,7 +53,7 @@ export function SearchFilters({
           </div>
           <Button
             type="button"
-            variant={showFilters ? 'default' : 'outline'}
+            variant={showFilters ? "default" : "outline"}
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
             className="rounded-full px-4 flex items-center gap-2"
@@ -89,13 +89,13 @@ export function SearchFilters({
               </label>
               <div className="flex gap-2">
                 {[
-                  { key: 'all', label: 'すべて' },
-                  { key: 'work', label: '作品' },
+                  { key: "all", label: "すべて" },
+                  { key: "work", label: "作品" },
                 ].map((type) => (
                   <Button
                     key={type.key}
                     type="button"
-                    variant={_filterType === type.key ? 'default' : 'outline'}
+                    variant={_filterType === type.key ? "default" : "outline"}
                     size="sm"
                     onClick={() => onFilterTypeChange(type.key as any)}
                     className="rounded-full text-xs px-3 py-1"
@@ -117,9 +117,11 @@ export function SearchFilters({
                     <Button
                       key={tag}
                       type="button"
-                      variant={_filterTag === tag ? 'default' : 'outline'}
+                      variant={_filterTag === tag ? "default" : "outline"}
                       size="sm"
-                      onClick={() => onFilterTagChange(_filterTag === tag ? '' : tag)}
+                      onClick={() =>
+                        onFilterTagChange(_filterTag === tag ? "" : tag)
+                      }
                       className="rounded-full text-xs px-3 py-1"
                     >
                       #{tag}
@@ -157,8 +159,8 @@ export function SearchFilters({
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  onClearFilters()
-                  setShowFilters(false)
+                  onClearFilters();
+                  setShowFilters(false);
                 }}
                 className="rounded-full"
                 size="sm"
@@ -170,5 +172,5 @@ export function SearchFilters({
         </div>
       )}
     </div>
-  )
+  );
 }

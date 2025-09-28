@@ -1,54 +1,63 @@
-import { NextResponse } from 'next/server'
-import { 
-  callGeminiAPI, 
-  parseAnalysisResult, 
-  handleAnalysisError, 
+import { NextResponse } from "next/server";
+import {
+  callGeminiAPI,
+  parseAnalysisResult,
+  handleAnalysisError,
   processFileInfo,
   processImageFiles,
   processToolsInfo,
-  AnalysisRequest
-} from '../utils/ai-analyzer'
+  AnalysisRequest,
+} from "../utils/ai-analyzer";
 
 // デザイン特化のサマリー生成関数 - 削除済み
 
 export async function POST(body: any) {
   try {
-    const { 
-      description, 
-      title, 
-      url, 
+    const {
+      description,
+      title,
+      url,
       fullContent,
       productionNotes,
       uploadedFiles,
       fileCount,
       designTools,
-      imageFiles
-    }: AnalysisRequest = body
+      imageFiles,
+    }: AnalysisRequest = body;
 
     // デザイン作品の場合、ファイルがアップロードされていれば分析可能
-    const hasContent = description || title || url || fullContent || (uploadedFiles && uploadedFiles.length > 0) || (imageFiles && imageFiles.length > 0)
-    
+    const hasContent =
+      description ||
+      title ||
+      url ||
+      fullContent ||
+      (uploadedFiles && uploadedFiles.length > 0) ||
+      (imageFiles && imageFiles.length > 0);
+
     if (!hasContent) {
       return NextResponse.json(
-        { error: '分析するデザイン作品が必要です。説明文、タイトル、URL、またはファイルのいずれかを入力してください。' },
-        { status: 400 }
-      )
+        {
+          error:
+            "分析するデザイン作品が必要です。説明文、タイトル、URL、またはファイルのいずれかを入力してください。",
+        },
+        { status: 400 },
+      );
     }
 
     // ファイル情報の処理
-    const fileInfoText = processFileInfo(uploadedFiles, fileCount)
-    const toolsInfoText = processToolsInfo(designTools)
-    const imageContentText = processImageFiles(imageFiles)
+    const fileInfoText = processFileInfo(uploadedFiles, fileCount);
+    const toolsInfoText = processToolsInfo(designTools);
+    const imageContentText = processImageFiles(imageFiles);
 
     // デザイン専用の高精度分析プロンプト（トークン数削減版）
     const designAnalysisPrompt = `
 あなたは経験豊富なデザイナー・デザイン専門家です。以下のデザイン作品を分析し、具体的なタグを10個以上生成してください。
 
-作品タイトル: ${title || '未設定'}
-作品URL: ${url || '未設定'}
-作品説明: ${description || '未設定'}
-${productionNotes ? `制作メモ: ${productionNotes.substring(0, 500)}${productionNotes.length > 500 ? '...(省略)' : ''}` : ''}
-${fullContent ? `詳細説明: ${fullContent.substring(0, 1000)}${fullContent.length > 1000 ? '...(省略)' : ''}` : ''}
+作品タイトル: ${title || "未設定"}
+作品URL: ${url || "未設定"}
+作品説明: ${description || "未設定"}
+${productionNotes ? `制作メモ: ${productionNotes.substring(0, 500)}${productionNotes.length > 500 ? "...(省略)" : ""}` : ""}
+${fullContent ? `詳細説明: ${fullContent.substring(0, 1000)}${fullContent.length > 1000 ? "...(省略)" : ""}` : ""}
 ${fileInfoText}
 ${toolsInfoText}
 ${imageContentText}
@@ -189,38 +198,49 @@ ${imageContentText}
 7. カテゴリは「ウェブデザイン」「モバイルアプリ」「グラフィックデザイン」「記事・ライティング」「写真・映像」「その他」から選択
 8. 強みはcreativity、expertise、impactの3観点から分析
 9. 日本語で回答、JSONフォーマットのみ
-`
+`;
 
     // AI分析を実行
-    console.log('=== デザイン分析開始 ===')
-    console.log('プロンプト長:', designAnalysisPrompt.length)
-    console.log('プロンプト（最初の500文字）:', designAnalysisPrompt.substring(0, 500))
-    console.log('========================')
-    
-    const generatedText = await callGeminiAPI(designAnalysisPrompt, 0.3, 4096)
-    console.log('=== デザイン分析完了 ===')
-    console.log('生成されたテキスト長:', generatedText.length)
-    console.log('生成されたテキスト（最初の500文字）:', generatedText.substring(0, 500))
-    console.log('========================')
-    
-    const analysisResult = parseAnalysisResult(generatedText)
+    console.log("=== デザイン分析開始 ===");
+    console.log("プロンプト長:", designAnalysisPrompt.length);
+    console.log(
+      "プロンプト（最初の500文字）:",
+      designAnalysisPrompt.substring(0, 500),
+    );
+    console.log("========================");
+
+    const generatedText = await callGeminiAPI(designAnalysisPrompt, 0.3, 4096);
+    console.log("=== デザイン分析完了 ===");
+    console.log("生成されたテキスト長:", generatedText.length);
+    console.log(
+      "生成されたテキスト（最初の500文字）:",
+      generatedText.substring(0, 500),
+    );
+    console.log("========================");
+
+    const analysisResult = parseAnalysisResult(generatedText);
 
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      contentType: 'デザイン',
-      analysisType: 'design_specialized_analysis',
-      rawResponse: generatedText
-    })
-
+      contentType: "デザイン",
+      analysisType: "design_specialized_analysis",
+      rawResponse: generatedText,
+    });
   } catch (error) {
-    console.error('=== デザイン分析APIエラー ===')
-    console.error('エラー:', error)
-    console.error('エラー型:', typeof error)
-    console.error('エラーメッセージ:', error instanceof Error ? error.message : 'Unknown error')
-    console.error('エラースタック:', error instanceof Error ? error.stack : 'No stack trace')
-    console.error('==========================')
-    
-    return handleAnalysisError(error)
+    console.error("=== デザイン分析APIエラー ===");
+    console.error("エラー:", error);
+    console.error("エラー型:", typeof error);
+    console.error(
+      "エラーメッセージ:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
+    console.error(
+      "エラースタック:",
+      error instanceof Error ? error.stack : "No stack trace",
+    );
+    console.error("==========================");
+
+    return handleAnalysisError(error);
   }
-} 
+}

@@ -1,39 +1,39 @@
-import { NextResponse } from 'next/server'
-import { 
-  callGeminiAPI, 
-  parseAnalysisResult, 
-  handleAnalysisError, 
-  AnalysisRequest
-} from '../utils/ai-analyzer'
+import { NextResponse } from "next/server";
+import {
+  callGeminiAPI,
+  parseAnalysisResult,
+  handleAnalysisError,
+  AnalysisRequest,
+} from "../utils/ai-analyzer";
 
 // 文章特化のサマリー生成関数 - 削除済み
 
 export async function POST(body: any) {
   try {
-    const { 
-      description, 
-      title, 
-      url, 
+    const {
+      description,
+      title,
+      url,
       fullContent,
-      productionNotes
-    }: AnalysisRequest = body
+      productionNotes,
+    }: AnalysisRequest = body;
 
     if (!description && !title && !url && !fullContent) {
       return NextResponse.json(
-        { error: '分析する記事コンテンツが必要です' },
-        { status: 400 }
-      )
+        { error: "分析する記事コンテンツが必要です" },
+        { status: 400 },
+      );
     }
 
     // ビジネス特化の高精度分析プロンプト
     const articleAnalysisPrompt = `
 あなたはビジネスマーケティング・コンテンツ戦略の専門家です。以下の記事作品を、ビジネスコンテンツの観点から詳細に分析し、プロクリエイターの専門性を可視化する具体的なタグを10個以上生成してください。
 
-記事タイトル: ${title || '未設定'}
-記事URL: ${url || '未設定'}
-記事説明・概要: ${description || '未設定'}
-${productionNotes ? `制作メモ・目的・背景: ${productionNotes}` : ''}
-${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.length > 3000 ? '...(本文が長いため一部省略)' : ''}` : ''}
+記事タイトル: ${title || "未設定"}
+記事URL: ${url || "未設定"}
+記事説明・概要: ${description || "未設定"}
+${productionNotes ? `制作メモ・目的・背景: ${productionNotes}` : ""}
+${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.length > 3000 ? "...(本文が長いため一部省略)" : ""}` : ""}
 
 ## ビジネス特化分析観点
 
@@ -239,21 +239,20 @@ ${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.le
 - 各観点で2-4個の強みを挙げ、具体的で実証的な内容にしてください
 - 日本語で回答してください
 - JSONフォーマット以外の文字は含めないでください
-`
+`;
 
     // AI分析を実行
-    const generatedText = await callGeminiAPI(articleAnalysisPrompt, 0.3, 4096)
-    const analysisResult = parseAnalysisResult(generatedText)
+    const generatedText = await callGeminiAPI(articleAnalysisPrompt, 0.3, 4096);
+    const analysisResult = parseAnalysisResult(generatedText);
 
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
-      contentType: '記事・ライティング',
-      analysisType: 'article_specialized_analysis',
-      rawResponse: generatedText
-    })
-
+      contentType: "記事・ライティング",
+      analysisType: "article_specialized_analysis",
+      rawResponse: generatedText,
+    });
   } catch (error) {
-    return handleAnalysisError(error)
+    return handleAnalysisError(error);
   }
-} 
+}

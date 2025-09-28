@@ -1,12 +1,13 @@
-import { Metadata } from 'next'
-import { generateDefaultOGPMetadata } from '@/lib/ogp-utils'
+import { Metadata } from "next";
+import { generateDefaultOGPMetadata } from "@/lib/ogp-utils";
 
 export const metadata: Metadata = generateDefaultOGPMetadata({
-  title: 'OGPテストページ - balubo',
-  description: 'SNS投稿時の画像表示をテストするためのページです。',
-  url: 'https://www.balubo.jp/og-test',
-  imageUrl: '/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default'
-})
+  title: "OGPテストページ - balubo",
+  description: "SNS投稿時の画像表示をテストするためのページです。",
+  url: "https://www.balubo.jp/og-test",
+  imageUrl:
+    "/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default",
+});
 
 export default function OGTestPage() {
   return (
@@ -16,7 +17,7 @@ export default function OGTestPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
             OGPテストページ
           </h1>
-          
+
           <div className="space-y-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-blue-900 mb-4">
@@ -25,19 +26,27 @@ export default function OGTestPage() {
               <p className="text-blue-800 mb-4">
                 このページはSNS投稿時にOGP画像が正しく表示されるかをテストするためのページです。
               </p>
-              
+
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white rounded-lg p-4 border">
-                  <h3 className="font-semibold text-gray-900 mb-2">🔗 テスト用URL</h3>
-                  <p className="text-sm text-gray-600 mb-2">以下のURLをSNSで共有してテストしてください：</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    🔗 テスト用URL
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    以下のURLをSNSで共有してテストしてください：
+                  </p>
                   <code className="bg-gray-100 p-2 rounded text-sm block break-all">
                     https://www.balubo.jp/og-test
                   </code>
                 </div>
-                
+
                 <div className="bg-white rounded-lg p-4 border">
-                  <h3 className="font-semibold text-gray-900 mb-2">🖼️ OGP画像URL</h3>
-                  <p className="text-sm text-gray-600 mb-2">生成されるOGP画像：</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    🖼️ OGP画像URL
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    生成されるOGP画像：
+                  </p>
                   <code className="bg-gray-100 p-2 rounded text-sm block break-all">
                     /api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default
                   </code>
@@ -51,23 +60,53 @@ export default function OGTestPage() {
               </h2>
               <div className="space-y-3">
                 <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Twitter/X</h3>
+                  <h3 className="font-semibold text-green-800 mb-2">
+                    Twitter/X
+                  </h3>
                   <p className="text-green-700 text-sm">
-                    Twitter Card Validator: <a href="https://cards-dev.twitter.com/validator" target="_blank" rel="noopener noreferrer" className="underline">https://cards-dev.twitter.com/validator</a>
+                    Twitter Card Validator:{" "}
+                    <a
+                      href="https://cards-dev.twitter.com/validator"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      https://cards-dev.twitter.com/validator
+                    </a>
                   </p>
                 </div>
-                
+
                 <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Facebook</h3>
+                  <h3 className="font-semibold text-green-800 mb-2">
+                    Facebook
+                  </h3>
                   <p className="text-green-700 text-sm">
-                    Facebook Sharing Debugger: <a href="https://developers.facebook.com/tools/debug/" target="_blank" rel="noopener noreferrer" className="underline">https://developers.facebook.com/tools/debug/</a>
+                    Facebook Sharing Debugger:{" "}
+                    <a
+                      href="https://developers.facebook.com/tools/debug/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      https://developers.facebook.com/tools/debug/
+                    </a>
                   </p>
                 </div>
-                
+
                 <div>
-                  <h3 className="font-semibold text-green-800 mb-2">LinkedIn</h3>
+                  <h3 className="font-semibold text-green-800 mb-2">
+                    LinkedIn
+                  </h3>
                   <p className="text-green-700 text-sm">
-                    LinkedIn Post Inspector: <a href="https://www.linkedin.com/post-inspector/" target="_blank" rel="noopener noreferrer" className="underline">https://www.linkedin.com/post-inspector/</a>
+                    LinkedIn Post Inspector:{" "}
+                    <a
+                      href="https://www.linkedin.com/post-inspector/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      https://www.linkedin.com/post-inspector/
+                    </a>
                   </p>
                 </div>
               </div>
@@ -79,7 +118,9 @@ export default function OGTestPage() {
               </h2>
               <div className="space-y-3 text-yellow-800">
                 <div>
-                  <h3 className="font-semibold mb-2">画像が表示されない場合：</h3>
+                  <h3 className="font-semibold mb-2">
+                    画像が表示されない場合：
+                  </h3>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>OGP画像のURLが正しく設定されているか確認</li>
                     <li>画像のサイズが1200×630ピクセルになっているか確認</li>
@@ -87,12 +128,16 @@ export default function OGTestPage() {
                     <li>SNSのキャッシュをクリアして再試行</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <h3 className="font-semibold mb-2">キャッシュクリア方法：</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>Facebook: Sharing Debuggerで「Scrape Again」をクリック</li>
-                    <li>Twitter: Card Validatorで「Validate & Fetch」をクリック</li>
+                    <li>
+                      Facebook: Sharing Debuggerで「Scrape Again」をクリック
+                    </li>
+                    <li>
+                      Twitter: Card Validatorで「Validate & Fetch」をクリック
+                    </li>
                     <li>LinkedIn: Post Inspectorで「Inspect」をクリック</li>
                   </ul>
                 </div>
@@ -105,21 +150,40 @@ export default function OGTestPage() {
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold text-purple-800 mb-2">メタデータ</h3>
+                  <h3 className="font-semibold text-purple-800 mb-2">
+                    メタデータ
+                  </h3>
                   <ul className="text-sm text-purple-700 space-y-1">
-                    <li><strong>タイトル:</strong> OGPテストページ - balubo</li>
-                    <li><strong>説明:</strong> SNS投稿時の画像表示をテストするためのページです。</li>
-                    <li><strong>URL:</strong> https://www.balubo.jp/og-test</li>
-                    <li><strong>画像サイズ:</strong> 1200×630px</li>
+                    <li>
+                      <strong>タイトル:</strong> OGPテストページ - balubo
+                    </li>
+                    <li>
+                      <strong>説明:</strong>{" "}
+                      SNS投稿時の画像表示をテストするためのページです。
+                    </li>
+                    <li>
+                      <strong>URL:</strong> https://www.balubo.jp/og-test
+                    </li>
+                    <li>
+                      <strong>画像サイズ:</strong> 1200×630px
+                    </li>
                   </ul>
                 </div>
-                
+
                 <div>
-                  <h3 className="font-semibold text-purple-800 mb-2">Twitter Card</h3>
+                  <h3 className="font-semibold text-purple-800 mb-2">
+                    Twitter Card
+                  </h3>
                   <ul className="text-sm text-purple-700 space-y-1">
-                    <li><strong>カードタイプ:</strong> summary_large_image</li>
-                    <li><strong>サイト:</strong> @AiBalubo56518</li>
-                    <li><strong>作成者:</strong> @AiBalubo56518</li>
+                    <li>
+                      <strong>カードタイプ:</strong> summary_large_image
+                    </li>
+                    <li>
+                      <strong>サイト:</strong> @AiBalubo56518
+                    </li>
+                    <li>
+                      <strong>作成者:</strong> @AiBalubo56518
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -128,5 +192,5 @@ export default function OGTestPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

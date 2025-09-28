@@ -1,2 +1,2 @@
-export { ProfileAvatar } from './ProfileAvatar'
-export { EmptyState } from './EmptyState'
+export { ProfileAvatar } from "./ProfileAvatar";
+export { EmptyState } from "./EmptyState";

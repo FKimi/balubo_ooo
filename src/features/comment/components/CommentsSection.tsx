@@ -1,127 +1,133 @@
-'use client'
+"use client";
 
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { Send, MessageCircle, User } from 'lucide-react'
-import { getSupabaseBrowserClient } from '@/lib/supabase'
-import { fetcher } from '@/utils/fetcher'
-import { EmptyState } from '@/components/common'
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { Send, MessageCircle, User } from "lucide-react";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
+import { fetcher } from "@/utils/fetcher";
+import { EmptyState } from "@/components/common";
 
 interface Comment {
-  id: string
-  content: string
-  created_at: string
+  id: string;
+  content: string;
+  created_at: string;
   user: {
-    id: string
-    display_name: string
-    avatar_image_url?: string
-  }
+    id: string;
+    display_name: string;
+    avatar_image_url?: string;
+  };
 }
 
 interface CommentsSectionProps {
-  workId: string
+  workId: string;
 }
 
 export default function CommentsSection({ workId }: CommentsSectionProps) {
-  const [comments, setComments] = useState<Comment[]>([])
-  const [commentCount, setCommentCount] = useState(0)
-  const [newComment, setNewComment] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
+  const [newComment, setNewComment] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const supabase = getSupabaseBrowserClient()
+  const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
     const checkAuthAndFetchComments = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         // 認証状態を確認
-        const { data: { session } } = await supabase.auth.getSession()
-        setIsAuthenticated(!!session?.access_token)
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session?.access_token);
 
         // コメント一覧を取得
         try {
-          const data = await fetcher<{ comments: Comment[]; count: number }>(`/api/comments?workId=${workId}`)
-          setComments(data.comments || [])
-          setCommentCount(data.count || 0)
+          const data = await fetcher<{ comments: Comment[]; count: number }>(
+            `/api/comments?workId=${workId}`,
+          );
+          setComments(data.comments || []);
+          setCommentCount(data.count || 0);
         } catch (err) {
-          console.error('コメント取得エラー:', err)
-          setComments([])
-          setCommentCount(0)
+          console.error("コメント取得エラー:", err);
+          setComments([]);
+          setCommentCount(0);
         }
       } catch (error) {
-        console.error('コメント取得エラー:', error)
-        setComments([])
-        setCommentCount(0)
+        console.error("コメント取得エラー:", error);
+        setComments([]);
+        setCommentCount(0);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     if (workId) {
-      checkAuthAndFetchComments()
+      checkAuthAndFetchComments();
     }
-  }, [workId])
+  }, [workId]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!isAuthenticated) {
-      alert('コメントするにはログインが必要です')
-      return
+      alert("コメントするにはログインが必要です");
+      return;
     }
 
-    if (!newComment.trim() || isSubmitting) return
+    if (!newComment.trim() || isSubmitting) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const authToken = session?.access_token
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const authToken = session?.access_token;
 
       if (!authToken) {
-        alert('認証エラーが発生しました')
-        return
+        alert("認証エラーが発生しました");
+        return;
       }
 
       try {
-        const data = await fetcher<{ comment: Comment }>( '/api/comments', {
-          method: 'POST',
+        const data = await fetcher<{ comment: Comment }>("/api/comments", {
+          method: "POST",
           body: JSON.stringify({
             workId,
             content: newComment.trim(),
-            targetType: 'work',
+            targetType: "work",
           }),
-        })
+        });
         // 新しいコメントを先頭に追加
-        setComments(prev => [data.comment, ...prev])
-        setCommentCount(prev => prev + 1)
-        setNewComment('')
+        setComments((prev) => [data.comment, ...prev]);
+        setCommentCount((prev) => prev + 1);
+        setNewComment("");
       } catch (err: any) {
-        alert(err.message || 'コメントの投稿に失敗しました')
+        alert(err.message || "コメントの投稿に失敗しました");
       }
     } catch (error) {
-      console.error('コメント投稿エラー:', error)
-      alert('エラーが発生しました')
+      console.error("コメント投稿エラー:", error);
+      alert("エラーが発生しました");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInMs = now.getTime() - date.getTime()
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
-    const diffInDays = Math.floor(diffInHours / 24)
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInHours < 1) return '今'
-    if (diffInHours < 24) return `${diffInHours}時間前`
-    if (diffInDays < 7) return `${diffInDays}日前`
-    return date.toLocaleDateString('ja-JP')
-  }
+    if (diffInHours < 1) return "今";
+    if (diffInHours < 24) return `${diffInHours}時間前`;
+    if (diffInDays < 7) return `${diffInDays}日前`;
+    return date.toLocaleDateString("ja-JP");
+  };
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg border">
@@ -150,12 +156,12 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
               disabled={!newComment.trim() || isSubmitting}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                 newComment.trim() && !isSubmitting
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
             >
               <Send className="h-4 w-4" />
-              {isSubmitting ? '投稿中...' : '投稿'}
+              {isSubmitting ? "投稿中..." : "投稿"}
             </button>
           </div>
         </form>
@@ -186,12 +192,12 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
                 <div className="flex-shrink-0">
                   {comment.user.avatar_image_url ? (
                     <Image
-                       src={comment.user.avatar_image_url}
-                       alt={comment.user.display_name}
-                       width={32}
-                       height={32}
-                       className="rounded-full object-cover"
-                     />
+                      src={comment.user.avatar_image_url}
+                      alt={comment.user.display_name}
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
+                    />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                       <User className="h-4 w-4 text-white" />
@@ -226,5 +232,5 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
         </EmptyState>
       )}
     </div>
-  )
-} 
+  );
+}

@@ -1,10 +1,11 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
+import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: '利用規約 | balubo',
-  description: 'balubo（バルボ）の利用規約ページです。サービスをご利用の前に必ずお読みください。',
-}
+  title: "利用規約 | balubo",
+  description:
+    "balubo（バルボ）の利用規約ページです。サービスをご利用の前に必ずお読みください。",
+};
 
 export default function TermsPage() {
   return (
@@ -12,9 +13,7 @@ export default function TermsPage() {
       <div className="container mx-auto max-w-4xl space-y-10 text-slate-800">
         {/* ページタイトル */}
         <h1 className="text-4xl font-bold md:text-5xl">利用規約</h1>
-        <p className="text-sm text-slate-600">
-          最終更新日: 2025年4月30日
-        </p>
+        <p className="text-sm text-slate-600">最終更新日: 2025年4月30日</p>
 
         {/* 序文 */}
         <section className="space-y-4 leading-relaxed">
@@ -22,7 +21,6 @@ export default function TermsPage() {
             本規約（以下「本規約」といいます。）は、balubo（以下「当サービス」といいます。）を運営するbalubo&nbsp;運営チーム（以下「当社」といいます。）が提供するウェブサイト及び関連サービスの利用条件を定めるものです。ユーザーの皆さま（以下「ユーザー」といいます。）は、本規約に従って当サービスをご利用いただきます。
           </p>
         </section>
-        
 
         {/* 目次 */}
         <section className="space-y-2">
@@ -78,7 +76,9 @@ export default function TermsPage() {
             <ul className="list-disc space-y-1 pl-5">
               <li>法令または公序良俗に違反する行為</li>
               <li>犯罪行為または犯罪行為に結びつく行為</li>
-              <li>当社、他のユーザー、または第三者の権利や利益を侵害する行為</li>
+              <li>
+                当社、他のユーザー、または第三者の権利や利益を侵害する行為
+              </li>
               <li>サービスの運営を妨害する行為</li>
               <li>不正アクセスを試みる行為</li>
               <li>その他、当社が不適切と判断する行為</li>
@@ -86,7 +86,9 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h3 className="mb-2 text-xl font-semibold">6. サービスの提供の停止等</h3>
+            <h3 className="mb-2 text-xl font-semibold">
+              6. サービスの提供の停止等
+            </h3>
             <p>
               当社は、システム保守、本サービスのアップデート、天災地変等の不可抗力、その他当社が必要と判断した場合には、ユーザーに事前に通知することなく当サービスの全部または一部の提供を停止または中断することがあります。
             </p>
@@ -100,7 +102,9 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h3 className="mb-2 text-xl font-semibold">8. 保証の否認および免責</h3>
+            <h3 className="mb-2 text-xl font-semibold">
+              8. 保証の否認および免責
+            </h3>
             <p>
               当社は、当サービスがユーザーの特定の目的に適合すること、期待する機能・商品的価値・正確性・有用性を有すること、及び不具合が生じないことについて一切保証いたしません。また、当サービスの利用により生じた一切の損害について、当社に故意または重過失がある場合を除き、当社は責任を負わないものとします。
             </p>
@@ -136,5 +140,5 @@ export default function TermsPage() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

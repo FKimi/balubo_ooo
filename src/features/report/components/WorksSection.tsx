@@ -1,85 +1,100 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { WorkData } from '@/features/work/types'
-import { calculateTopTags } from '@/features/profile/lib/profileUtils'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { WorkData } from "@/features/work/types";
+import { calculateTopTags } from "@/features/profile/lib/profileUtils";
 
 interface AIFieldSummary {
-  averageScore: number
-  insights: string[]
+  averageScore: number;
+  insights: string[];
   scoreLevel: {
-    level: string
-    color: string
-    bgColor: string
-    description: string
-  }
-  topWorks: Array<{ title: string; score: number; reason?: string }>
+    level: string;
+    color: string;
+    bgColor: string;
+    description: string;
+  };
+  topWorks: Array<{ title: string; score: number; reason?: string }>;
 }
 
 interface ComprehensiveAnalysis {
-  technology: AIFieldSummary
-  creativity: AIFieldSummary
-  expertise: AIFieldSummary
-  impact: AIFieldSummary
+  technology: AIFieldSummary;
+  creativity: AIFieldSummary;
+  expertise: AIFieldSummary;
+  impact: AIFieldSummary;
 }
 
 interface WorksSectionProps {
-  works: WorkData[]
-  workStats: any
-  analysis?: ComprehensiveAnalysis
+  works: WorkData[];
+  workStats: any;
+  analysis?: ComprehensiveAnalysis;
 }
 
-export function WorksSection({ works, workStats, analysis }: WorksSectionProps) {
+export function WorksSection({
+  works,
+  workStats,
+  analysis,
+}: WorksSectionProps) {
   // タグ分析（トップ3のみ）
-  const tagAnalysis = () => calculateTopTags(works).slice(0, 3)
+  const tagAnalysis = () => calculateTopTags(works).slice(0, 3);
 
   // カテゴリ分析（トップ3のみ）
   const categoryAnalysis = () => {
-    const categoryCount: { [key: string]: number } = {}
-    works.forEach(work => {
+    const categoryCount: { [key: string]: number } = {};
+    works.forEach((work) => {
       if (work.categories && Array.isArray(work.categories)) {
-        work.categories.forEach(category => {
-          categoryCount[category] = (categoryCount[category] || 0) + 1
-        })
+        work.categories.forEach((category) => {
+          categoryCount[category] = (categoryCount[category] || 0) + 1;
+        });
       }
-    })
+    });
     return Object.entries(categoryCount)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 3)
-  }
+      .slice(0, 3);
+  };
 
   // コンテンツタイプ分析（トップ3のみ）
   const contentTypeAnalysis = () => {
-    const typeCount: { [key: string]: number } = {}
-    works.forEach(work => {
-      const type = work.content_type || 'その他'
-      typeCount[type] = (typeCount[type] || 0) + 1
-    })
+    const typeCount: { [key: string]: number } = {};
+    works.forEach((work) => {
+      const type = work.content_type || "その他";
+      typeCount[type] = (typeCount[type] || 0) + 1;
+    });
     return Object.entries(typeCount)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 3)
-  }
+      .slice(0, 3);
+  };
 
-  const categories = categoryAnalysis()
-  const tags = tagAnalysis()
-  const contentTypes = contentTypeAnalysis()
+  const categories = categoryAnalysis();
+  const tags = tagAnalysis();
+  const contentTypes = contentTypeAnalysis();
 
   // 記事作品の統計
-  const articleWorks = works.filter(work => work.content_type === 'article')
-  const totalWordCount = articleWorks.reduce((sum, work) => sum + (work.article_word_count || 0), 0)
+  const articleWorks = works.filter((work) => work.content_type === "article");
+  const totalWordCount = articleWorks.reduce(
+    (sum, work) => sum + (work.article_word_count || 0),
+    0,
+  );
 
   // 役割分布（トップ3のみ）
-  const topRoles = workStats.roleDistribution.slice(0, 3)
+  const topRoles = workStats.roleDistribution.slice(0, 3);
 
-  
-
-  const renderFieldCard = (title: string, gradient: string, field: AIFieldSummary, _colorPrefix: string) => {
-    const topInsight = field.topWorks?.[0]?.reason || field.insights?.[0] || "分析結果がありません";
+  const renderFieldCard = (
+    title: string,
+    gradient: string,
+    field: AIFieldSummary,
+    _colorPrefix: string,
+  ) => {
+    const topInsight =
+      field.topWorks?.[0]?.reason ||
+      field.insights?.[0] ||
+      "分析結果がありません";
 
     return (
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
         <div className={`px-6 py-4 ${gradient}`}>
           <h3 className="text-xl font-bold text-white">{title}</h3>
           {field.averageScore > 0 && (
-            <p className="text-sm text-white opacity-80 mt-1">Avg {field.averageScore} / 100</p>
+            <p className="text-sm text-white opacity-80 mt-1">
+              Avg {field.averageScore} / 100
+            </p>
           )}
         </div>
         <div className="p-6 flex-grow flex flex-col justify-center">
@@ -88,20 +103,44 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
           </p>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderEvaluationGrid = () => {
-    if (!analysis) return null
+    if (!analysis) return null;
     return (
       <div className="grid gap-6 md:grid-cols-4 mb-10">
-        {analysis.technology.averageScore > 0 && renderFieldCard('技術力', 'bg-gradient-to-r from-gray-500 to-gray-600', analysis.technology, 'gray')}
-        {analysis.creativity.averageScore > 0 && renderFieldCard('創造性', 'bg-gradient-to-r from-purple-500 to-purple-600', analysis.creativity, 'purple')}
-        {analysis.expertise.averageScore > 0 && renderFieldCard('専門性', 'bg-gradient-to-r from-blue-500 to-blue-600', analysis.expertise, 'blue')}
-        {analysis.impact.averageScore > 0 && renderFieldCard('影響力', 'bg-gradient-to-r from-orange-500 to-orange-600', analysis.impact, 'orange')}
+        {analysis.technology.averageScore > 0 &&
+          renderFieldCard(
+            "技術力",
+            "bg-gradient-to-r from-gray-500 to-gray-600",
+            analysis.technology,
+            "gray",
+          )}
+        {analysis.creativity.averageScore > 0 &&
+          renderFieldCard(
+            "創造性",
+            "bg-gradient-to-r from-purple-500 to-purple-600",
+            analysis.creativity,
+            "purple",
+          )}
+        {analysis.expertise.averageScore > 0 &&
+          renderFieldCard(
+            "専門性",
+            "bg-gradient-to-r from-blue-500 to-blue-600",
+            analysis.expertise,
+            "blue",
+          )}
+        {analysis.impact.averageScore > 0 &&
+          renderFieldCard(
+            "影響力",
+            "bg-gradient-to-r from-orange-500 to-orange-600",
+            analysis.impact,
+            "orange",
+          )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -122,13 +161,15 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
             <div className="flex items-center gap-3">
               <span className="text-blue-600 font-bold">•</span>
               <span className="text-gray-700">
-                総文字数<strong>{totalWordCount.toLocaleString()}文字</strong>を執筆
+                総文字数<strong>{totalWordCount.toLocaleString()}文字</strong>
+                を執筆
               </span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-blue-600 font-bold">•</span>
               <span className="text-gray-700">
-                <strong>{workStats.roleDistribution.length}種類</strong>の役割を担当
+                <strong>{workStats.roleDistribution.length}種類</strong>
+                の役割を担当
               </span>
             </div>
           </div>
@@ -155,7 +196,9 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm">役割が設定された作品がありません</div>
+              <div className="text-gray-500 text-sm">
+                役割が設定された作品がありません
+              </div>
             )}
           </CardContent>
         </Card>
@@ -178,7 +221,9 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm">コンテンツタイプが設定されていません</div>
+              <div className="text-gray-500 text-sm">
+                コンテンツタイプが設定されていません
+              </div>
             )}
           </CardContent>
         </Card>
@@ -201,7 +246,9 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm">カテゴリが設定された作品がありません</div>
+              <div className="text-gray-500 text-sm">
+                カテゴリが設定された作品がありません
+              </div>
             )}
           </CardContent>
         </Card>
@@ -224,11 +271,13 @@ export function WorksSection({ works, workStats, analysis }: WorksSectionProps) 
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 text-sm">タグが設定された作品がありません</div>
+              <div className="text-gray-500 text-sm">
+                タグが設定された作品がありません
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
     </div>
-  )
-} 
+  );
+}

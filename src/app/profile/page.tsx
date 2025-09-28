@@ -1,37 +1,43 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { ProfileData, CareerItem } from '@/features/profile/types'
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  Suspense,
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ProfileData, CareerItem } from "@/features/profile/types";
 // import type { InputData, InputAnalysis } from '@/types/input'
-import { ProfileHeader } from '@/features/profile/components/ProfileHeader'
-import { ProfileTabs } from '@/features/profile/components/ProfileTabs'
-import { ProfileModals } from '@/features/profile/components/ProfileModals'
-import { analyzeStrengthsFromWorks } from '@/features/profile/lib/profileUtils'
+import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
+import { ProfileTabs } from "@/features/profile/components/ProfileTabs";
+import { ProfileModals } from "@/features/profile/components/ProfileModals";
+import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
 
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
-  displayName: '',
-  title: '',
-  bio: '',
-  introduction: '',
+  displayName: "",
+  title: "",
+  bio: "",
+  introduction: "",
   professions: [],
   skills: [],
-  location: '',
-  websiteUrl: '',
-  portfolioVisibility: 'public',
-  backgroundImageUrl: '',
-  avatarImageUrl: '',
-  desiredRate: '',
-  jobChangeIntention: 'not_considering',
-  sideJobIntention: 'not_considering',
-  projectRecruitmentStatus: 'not_recruiting',
-  workingHours: '',
-  career: []
-}
+  location: "",
+  websiteUrl: "",
+  portfolioVisibility: "public",
+  backgroundImageUrl: "",
+  avatarImageUrl: "",
+  desiredRate: "",
+  jobChangeIntention: "not_considering",
+  sideJobIntention: "not_considering",
+  projectRecruitmentStatus: "not_recruiting",
+  workingHours: "",
+  career: [],
+};
 
 function ProfileLoadingFallback() {
   return (
@@ -41,68 +47,70 @@ function ProfileLoadingFallback() {
         <p className="text-gray-600">プロフィールを読み込んでいます...</p>
       </div>
     </div>
-  )
+  );
 }
 
 function ProfileContent() {
-  const { user } = useAuth()
-  const _router = useRouter()
-  const searchParams = useSearchParams()
-  const [profileData, setProfileData] = useState<ProfileData | null>(null)
-  const [activeTab, setActiveTab] = useState<'profile' | 'works' | 'details'>('works')
+  const { user } = useAuth();
+  const _router = useRouter();
+  const searchParams = useSearchParams();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [activeTab, setActiveTab] = useState<"profile" | "works" | "details">(
+    "works",
+  );
   const [_tabsInfo, setTabsInfo] = useState<{
     tabs: Array<{
-      key: string
-      label: string
-      icon?: React.ReactNode
-      count?: number
-    }>
-    activeTab: string
-    onTabChange: (_tab: string) => void
-  } | null>(null)
-  
+      key: string;
+      label: string;
+      icon?: React.ReactNode;
+      count?: number;
+    }>;
+    activeTab: string;
+    onTabChange: (_tab: string) => void;
+  } | null>(null);
+
   // スキル管理用のstate
-  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false)
-  const [newSkill, setNewSkill] = useState('')
-  const [isUpdatingSkills, setIsUpdatingSkills] = useState(false)
-  const [skillError, setSkillError] = useState<string | null>(null)
-  
+  const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
+  const [newSkill, setNewSkill] = useState("");
+  const [isUpdatingSkills, setIsUpdatingSkills] = useState(false);
+  const [skillError, setSkillError] = useState<string | null>(null);
+
   // 自己紹介管理用のstate
-  const [isIntroductionModalOpen, setIsIntroductionModalOpen] = useState(false)
-  const [currentIntroduction, setCurrentIntroduction] = useState('')
-  const [isUpdatingIntroduction, setIsUpdatingIntroduction] = useState(false)
+  const [isIntroductionModalOpen, setIsIntroductionModalOpen] = useState(false);
+  const [currentIntroduction, setCurrentIntroduction] = useState("");
+  const [isUpdatingIntroduction, setIsUpdatingIntroduction] = useState(false);
 
   // 自己紹介モーダルが開かれた時に現在の内容を設定
   useEffect(() => {
     if (isIntroductionModalOpen && profileData?.introduction) {
-      setCurrentIntroduction(profileData.introduction)
+      setCurrentIntroduction(profileData.introduction);
     } else if (isIntroductionModalOpen) {
-      setCurrentIntroduction('')
+      setCurrentIntroduction("");
     }
-  }, [isIntroductionModalOpen, profileData?.introduction])
-  
+  }, [isIntroductionModalOpen, profileData?.introduction]);
+
   // キャリア管理用のstate
-  const [isCareerModalOpen, setIsCareerModalOpen] = useState(false)
+  const [isCareerModalOpen, setIsCareerModalOpen] = useState(false);
   const [newCareer, setNewCareer] = useState<Partial<CareerItem>>({
-    company: '',
-    position: '',
-    department: '',
-    startDate: '',
-    endDate: '',
-    description: '',
-    isCurrent: false
-  })
-  
+    company: "",
+    position: "",
+    department: "",
+    startDate: "",
+    endDate: "",
+    description: "",
+    isCurrent: false,
+  });
+
   // キャリア編集・削除用のstate
-  const [isEditCareerModalOpen, setIsEditCareerModalOpen] = useState(false)
-  const [editingCareer, setEditingCareer] = useState<CareerItem | null>(null)
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
-  const [deletingCareerId, setDeletingCareerId] = useState<string | null>(null)
-  const [isUpdatingCareer, setIsUpdatingCareer] = useState(false)
-  
-  const [savedWorks, setSavedWorks] = useState<any[]>([])
-  const [_isLoadingWorks, setIsLoadingWorks] = useState(false)
-  
+  const [isEditCareerModalOpen, setIsEditCareerModalOpen] = useState(false);
+  const [editingCareer, setEditingCareer] = useState<CareerItem | null>(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deletingCareerId, setDeletingCareerId] = useState<string | null>(null);
+  const [isUpdatingCareer, setIsUpdatingCareer] = useState(false);
+
+  const [savedWorks, setSavedWorks] = useState<any[]>([]);
+  const [_isLoadingWorks, setIsLoadingWorks] = useState(false);
+
   // インプット関連のstate（一時的に未使用）
   // const [_inputs, _setInputs] = useState<InputData[]>([])
   // const [_inputAnalysis, _setInputAnalysis] = useState<InputAnalysis | null>(null)
@@ -110,453 +118,507 @@ function ProfileContent() {
 
   // クエリパラメータからタブを設定
   useEffect(() => {
-    const tabParam = searchParams.get('tab')
-    if (tabParam && ['profile', 'works', 'details'].includes(tabParam)) {
-      setActiveTab(tabParam as 'profile' | 'works' | 'details')
+    const tabParam = searchParams.get("tab");
+    if (tabParam && ["profile", "works", "details"].includes(tabParam)) {
+      setActiveTab(tabParam as "profile" | "works" | "details");
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   // 作品削除
-  const deleteWork = useCallback(async (workId: string) => {
-    if (!user?.id) return
+  const deleteWork = useCallback(
+    async (workId: string) => {
+      if (!user?.id) return;
 
-    try {
-      // Supabaseからアクセストークンを取得
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
+      try {
+        // Supabaseからアクセストークンを取得
+        const { supabase } = await import("@/lib/supabase");
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      const response = await fetch(`/api/works/${workId}`, {
-        method: 'DELETE',
-        headers,
-        body: JSON.stringify({ userId: user.id })
-      })
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
 
-      if (!response.ok) {
-        throw new Error('作品削除エラー')
-      }
+        if (session?.access_token) {
+          headers["Authorization"] = `Bearer ${session.access_token}`;
+        }
 
-      // 削除成功後、作品一覧を再取得
-      const worksResponse = await fetch(`/api/works`, { headers })
-      if (worksResponse.ok) {
-        const worksData = await worksResponse.json()
-        const sortedWorks = (worksData.works || []).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        setSavedWorks(sortedWorks)
+        const response = await fetch(`/api/works/${workId}`, {
+          method: "DELETE",
+          headers,
+          body: JSON.stringify({ userId: user.id }),
+        });
+
+        if (!response.ok) {
+          throw new Error("作品削除エラー");
+        }
+
+        // 削除成功後、作品一覧を再取得
+        const worksResponse = await fetch(`/api/works`, { headers });
+        if (worksResponse.ok) {
+          const worksData = await worksResponse.json();
+          const sortedWorks = (worksData.works || []).sort(
+            (a: any, b: any) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          );
+          setSavedWorks(sortedWorks);
+        }
+      } catch (error) {
+        console.error("作品削除エラー:", error);
       }
-    } catch (error) {
-      console.error('作品削除エラー:', error)
-    }
-  }, [user?.id])
+    },
+    [user?.id],
+  );
 
   // 初期データ読み込み
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id) return;
 
     const loadAllData = async () => {
       // ローディング状態を設定
-      setIsLoadingWorks(true)
-      
+      setIsLoadingWorks(true);
+
       try {
         // プロフィールデータの取得
-        const { supabase } = await import('@/lib/supabase')
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
-        console.log('[Profile] getSession結果:', { sessionExists: !!session, accessTokenExists: !!session?.access_token, accessToken: session?.access_token, sessionError: sessionError?.message })
+        const { supabase } = await import("@/lib/supabase");
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
+        console.log("[Profile] getSession結果:", {
+          sessionExists: !!session,
+          accessTokenExists: !!session?.access_token,
+          accessToken: session?.access_token,
+          sessionError: sessionError?.message,
+        });
 
         if (sessionError || !session?.access_token) {
-          console.error('[Profile] セッションまたはアクセストークンがありません。APIリクエストをスキップします。', sessionError?.message || '不明なエラー')
-          setProfileData(completeDefaultProfileData)
-          setSavedWorks([])
-          setIsLoadingWorks(false)
-          return
+          console.error(
+            "[Profile] セッションまたはアクセストークンがありません。APIリクエストをスキップします。",
+            sessionError?.message || "不明なエラー",
+          );
+          setProfileData(completeDefaultProfileData);
+          setSavedWorks([]);
+          setIsLoadingWorks(false);
+          return;
         }
 
         const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        };
 
         // 並列でデータを取得
-        console.log('[Profile] データ取得開始', { userId: user.id, hasToken: !!session?.access_token })
+        console.log("[Profile] データ取得開始", {
+          userId: user.id,
+          hasToken: !!session?.access_token,
+        });
         const [profileResponse, worksResponse] = await Promise.all([
           fetch(`/api/profile`, { headers }),
-          fetch(`/api/works?userId=${user.id}`, { headers })
-        ])
+          fetch(`/api/works?userId=${user.id}`, { headers }),
+        ]);
 
-        console.log('[Profile] API レスポンス状況:', {
+        console.log("[Profile] API レスポンス状況:", {
           profile: profileResponse.status,
-          works: worksResponse.status
-        })
+          works: worksResponse.status,
+        });
 
         // プロフィールデータの処理
         if (profileResponse.ok) {
-          const profileJson = await profileResponse.json()
+          const profileJson = await profileResponse.json();
           if (profileJson.data) {
-            const profileData = profileJson.data
+            const profileData = profileJson.data;
             const convertedProfile = {
               ...completeDefaultProfileData,
-              displayName: profileData.display_name || profileData.displayName || '',
-              title: profileData.title || '',
-              bio: profileData.bio || '',
-              introduction: profileData.introduction || '',
+              displayName:
+                profileData.display_name || profileData.displayName || "",
+              title: profileData.title || "",
+              bio: profileData.bio || "",
+              introduction: profileData.introduction || "",
               professions: profileData.professions || [],
               skills: profileData.skills || [],
-              location: profileData.location || '',
-              websiteUrl: profileData.website_url || profileData.websiteUrl || '',
-              slug: profileData.slug || '',
-              portfolioVisibility: profileData.portfolio_visibility || profileData.portfolioVisibility || 'public',
-              backgroundImageUrl: profileData.background_image_url || profileData.backgroundImageUrl || '',
-              avatarImageUrl: profileData.avatar_image_url || profileData.avatarImageUrl || '',
-              desiredRate: profileData.desired_rate || profileData.desiredRate || '',
-              jobChangeIntention: profileData.job_change_intention || profileData.jobChangeIntention || 'not_considering',
-              sideJobIntention: profileData.side_job_intention || profileData.sideJobIntention || 'not_considering',
-              projectRecruitmentStatus: profileData.project_recruitment_status || profileData.projectRecruitmentStatus || 'not_recruiting',
-              workingHours: profileData.working_hours || profileData.workingHours || '',
-              career: profileData.career || []
-            }
-            setProfileData(convertedProfile)
+              location: profileData.location || "",
+              websiteUrl:
+                profileData.website_url || profileData.websiteUrl || "",
+              slug: profileData.slug || "",
+              portfolioVisibility:
+                profileData.portfolio_visibility ||
+                profileData.portfolioVisibility ||
+                "public",
+              backgroundImageUrl:
+                profileData.background_image_url ||
+                profileData.backgroundImageUrl ||
+                "",
+              avatarImageUrl:
+                profileData.avatar_image_url ||
+                profileData.avatarImageUrl ||
+                "",
+              desiredRate:
+                profileData.desired_rate || profileData.desiredRate || "",
+              jobChangeIntention:
+                profileData.job_change_intention ||
+                profileData.jobChangeIntention ||
+                "not_considering",
+              sideJobIntention:
+                profileData.side_job_intention ||
+                profileData.sideJobIntention ||
+                "not_considering",
+              projectRecruitmentStatus:
+                profileData.project_recruitment_status ||
+                profileData.projectRecruitmentStatus ||
+                "not_recruiting",
+              workingHours:
+                profileData.working_hours || profileData.workingHours || "",
+              career: profileData.career || [],
+            };
+            setProfileData(convertedProfile);
           } else {
-            setProfileData(completeDefaultProfileData)
+            setProfileData(completeDefaultProfileData);
           }
         } else {
-          setProfileData(completeDefaultProfileData)
+          setProfileData(completeDefaultProfileData);
         }
 
         // 作品データの処理
         if (worksResponse.ok) {
-          const worksData = await worksResponse.json()
-          console.log('[Profile] 作品データ取得成功:', worksData)
+          const worksData = await worksResponse.json();
+          console.log("[Profile] 作品データ取得成功:", worksData);
           const sortedWorks = (worksData.works || []).sort((a: any, b: any) => {
-            const dateA = new Date(a.created_at).getTime()
-            const dateB = new Date(b.created_at).getTime()
-            return dateB - dateA
-          })
-          setSavedWorks(sortedWorks)
+            const dateA = new Date(a.created_at).getTime();
+            const dateB = new Date(b.created_at).getTime();
+            return dateB - dateA;
+          });
+          setSavedWorks(sortedWorks);
         } else {
-          const errorText = await worksResponse.text()
-          console.error('[Profile] 作品データ取得失敗:', worksResponse.status, errorText)
-          setSavedWorks([])
+          const errorText = await worksResponse.text();
+          console.error(
+            "[Profile] 作品データ取得失敗:",
+            worksResponse.status,
+            errorText,
+          );
+          setSavedWorks([]);
         }
-
-
-
       } catch (error) {
-        console.error('データ読み込みエラー:', error)
-        setProfileData(completeDefaultProfileData)
-        setSavedWorks([])
+        console.error("データ読み込みエラー:", error);
+        setProfileData(completeDefaultProfileData);
+        setSavedWorks([]);
       } finally {
-        setIsLoadingWorks(false)
+        setIsLoadingWorks(false);
       }
-    }
+    };
 
-    loadAllData()
-  }, [user?.id])
+    loadAllData();
+  }, [user?.id]);
 
   // タブ変更時のURL更新
   useEffect(() => {
-    const url = new URL(window.location.href)
-    url.searchParams.set('tab', activeTab)
-    window.history.replaceState({}, '', url.toString())
-  }, [activeTab])
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", activeTab);
+    window.history.replaceState({}, "", url.toString());
+  }, [activeTab]);
 
   // スキル追加
   const handleAddSkill = async () => {
-    if (!newSkill.trim() || !profileData) return
+    if (!newSkill.trim() || !profileData) return;
 
     try {
-      setIsUpdatingSkills(true)
-      setSkillError(null)
-      
-      const updatedSkills = [...profileData.skills, newSkill.trim()]
-      const updatedProfile = { ...profileData, skills: updatedSkills }
-      
-      await saveSkillsToDatabase(updatedProfile)
-      setProfileData(updatedProfile)
-      setNewSkill('')
-      setIsSkillModalOpen(false)
-      
+      setIsUpdatingSkills(true);
+      setSkillError(null);
+
+      const updatedSkills = [...profileData.skills, newSkill.trim()];
+      const updatedProfile = { ...profileData, skills: updatedSkills };
+
+      await saveSkillsToDatabase(updatedProfile);
+      setProfileData(updatedProfile);
+      setNewSkill("");
+      setIsSkillModalOpen(false);
+
       // 成功メッセージを表示（オプション）
-      console.log('スキルを追加しました')
+      console.log("スキルを追加しました");
     } catch (error) {
-      console.error('スキル追加エラー:', error)
-      setSkillError('スキルの追加に失敗しました。もう一度お試しください。')
+      console.error("スキル追加エラー:", error);
+      setSkillError("スキルの追加に失敗しました。もう一度お試しください。");
     } finally {
-      setIsUpdatingSkills(false)
+      setIsUpdatingSkills(false);
     }
-  }
+  };
 
   // スキル削除
   const handleRemoveSkill = async (index: number) => {
-    if (!profileData) return
+    if (!profileData) return;
 
     try {
-      setIsUpdatingSkills(true)
-      setSkillError(null)
-      
-      const updatedSkills = profileData.skills.filter((_, i) => i !== index)
-      const updatedProfile = { ...profileData, skills: updatedSkills }
-      
-      await saveSkillsToDatabase(updatedProfile)
-      setProfileData(updatedProfile)
-      
+      setIsUpdatingSkills(true);
+      setSkillError(null);
+
+      const updatedSkills = profileData.skills.filter((_, i) => i !== index);
+      const updatedProfile = { ...profileData, skills: updatedSkills };
+
+      await saveSkillsToDatabase(updatedProfile);
+      setProfileData(updatedProfile);
+
       // 成功メッセージを表示（オプション）
-      console.log('スキルを削除しました')
+      console.log("スキルを削除しました");
     } catch (error) {
-      console.error('スキル削除エラー:', error)
-      setSkillError('スキルの削除に失敗しました。もう一度お試しください。')
+      console.error("スキル削除エラー:", error);
+      setSkillError("スキルの削除に失敗しました。もう一度お試しください。");
     } finally {
-      setIsUpdatingSkills(false)
+      setIsUpdatingSkills(false);
     }
-  }
+  };
 
   // スキルをデータベースに保存
   const saveSkillsToDatabase = async (updatedProfile: ProfileData) => {
-    if (!user) throw new Error('認証が必要です')
+    if (!user) throw new Error("認証が必要です");
 
-    const { supabase } = await import('@/lib/supabase')
-    const { data: { session } } = await supabase.auth.getSession()
-    
+    const { supabase } = await import("@/lib/supabase");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-    
+      "Content-Type": "application/json",
+    };
+
     if (session?.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`
+      headers["Authorization"] = `Bearer ${session.access_token}`;
     }
 
-    const response = await fetch('/api/profile', {
-      method: 'PUT',
+    const response = await fetch("/api/profile", {
+      method: "PUT",
       headers,
       body: JSON.stringify({
         userId: user.id,
-        skills: updatedProfile.skills
-      })
-    })
+        skills: updatedProfile.skills,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error('スキルの保存に失敗しました')
+      throw new Error("スキルの保存に失敗しました");
     }
-  }
+  };
 
   // キャリア追加
   const handleAddCareer = async () => {
-    if (!newCareer.company || !newCareer.position || !profileData) return
+    if (!newCareer.company || !newCareer.position || !profileData) return;
 
     try {
-      setIsUpdatingCareer(true)
-      
+      setIsUpdatingCareer(true);
+
       const careerItem: CareerItem = {
         id: Date.now().toString(),
-        company: newCareer.company || '',
-        position: newCareer.position || '',
-        department: newCareer.department || '',
-        startDate: newCareer.startDate || '',
-        endDate: newCareer.isCurrent ? '' : (newCareer.endDate || ''),
-        description: newCareer.description || '',
-        isCurrent: newCareer.isCurrent || false
-      }
-      
-      const updatedCareer = [...profileData.career, careerItem]
-      const updatedProfile = { ...profileData, career: updatedCareer }
-      
-      await saveCareerToDatabase(updatedProfile)
-      setProfileData(updatedProfile)
+        company: newCareer.company || "",
+        position: newCareer.position || "",
+        department: newCareer.department || "",
+        startDate: newCareer.startDate || "",
+        endDate: newCareer.isCurrent ? "" : newCareer.endDate || "",
+        description: newCareer.description || "",
+        isCurrent: newCareer.isCurrent || false,
+      };
+
+      const updatedCareer = [...profileData.career, careerItem];
+      const updatedProfile = { ...profileData, career: updatedCareer };
+
+      await saveCareerToDatabase(updatedProfile);
+      setProfileData(updatedProfile);
       setNewCareer({
-        company: '',
-        position: '',
-        department: '',
-        startDate: '',
-        endDate: '',
-        description: '',
-        isCurrent: false
-      })
-      setIsCareerModalOpen(false)
-      
+        company: "",
+        position: "",
+        department: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+        isCurrent: false,
+      });
+      setIsCareerModalOpen(false);
+
       // 成功メッセージを表示（オプション）
-      console.log('キャリア情報を追加しました')
+      console.log("キャリア情報を追加しました");
     } catch (error) {
-      console.error('キャリア追加エラー:', error)
-      alert('キャリア情報の追加に失敗しました。もう一度お試しください。')
+      console.error("キャリア追加エラー:", error);
+      alert("キャリア情報の追加に失敗しました。もう一度お試しください。");
     } finally {
-      setIsUpdatingCareer(false)
+      setIsUpdatingCareer(false);
     }
-  }
+  };
 
   // キャリア編集
   const handleEditCareer = (careerItem: CareerItem) => {
-    setEditingCareer(careerItem)
-    setIsEditCareerModalOpen(true)
-  }
+    setEditingCareer(careerItem);
+    setIsEditCareerModalOpen(true);
+  };
 
   // キャリア更新
   const handleUpdateCareer = async () => {
-    if (!editingCareer || !profileData) return
+    if (!editingCareer || !profileData) return;
 
     try {
-      setIsUpdatingCareer(true)
-      
-      const updatedCareer = profileData.career.map(item =>
-        item.id === editingCareer.id ? editingCareer : item
-      )
-      const updatedProfile = { ...profileData, career: updatedCareer }
-      
-      await saveCareerToDatabase(updatedProfile)
-      setProfileData(updatedProfile)
-      setEditingCareer(null)
-      setIsEditCareerModalOpen(false)
-      
+      setIsUpdatingCareer(true);
+
+      const updatedCareer = profileData.career.map((item) =>
+        item.id === editingCareer.id ? editingCareer : item,
+      );
+      const updatedProfile = { ...profileData, career: updatedCareer };
+
+      await saveCareerToDatabase(updatedProfile);
+      setProfileData(updatedProfile);
+      setEditingCareer(null);
+      setIsEditCareerModalOpen(false);
+
       // 成功メッセージを表示（オプション）
-      console.log('キャリア情報を更新しました')
+      console.log("キャリア情報を更新しました");
     } catch (error) {
-      console.error('キャリア更新エラー:', error)
-      alert('キャリア情報の更新に失敗しました。もう一度お試しください。')
+      console.error("キャリア更新エラー:", error);
+      alert("キャリア情報の更新に失敗しました。もう一度お試しください。");
     } finally {
-      setIsUpdatingCareer(false)
+      setIsUpdatingCareer(false);
     }
-  }
+  };
 
   // キャリア削除確認
   const handleDeleteCareerConfirm = (careerId: string) => {
-    setDeletingCareerId(careerId)
-    setIsDeleteConfirmOpen(true)
-  }
+    setDeletingCareerId(careerId);
+    setIsDeleteConfirmOpen(true);
+  };
 
   // キャリア削除
   const handleDeleteCareer = async () => {
-    if (!deletingCareerId || !profileData) return
+    if (!deletingCareerId || !profileData) return;
 
     try {
-      setIsUpdatingCareer(true)
-      
-      const updatedCareer = profileData.career.filter(item => item.id !== deletingCareerId)
-      const updatedProfile = { ...profileData, career: updatedCareer }
-      
-      await saveCareerToDatabase(updatedProfile)
-      setProfileData(updatedProfile)
-      setDeletingCareerId(null)
-      setIsDeleteConfirmOpen(false)
-      
+      setIsUpdatingCareer(true);
+
+      const updatedCareer = profileData.career.filter(
+        (item) => item.id !== deletingCareerId,
+      );
+      const updatedProfile = { ...profileData, career: updatedCareer };
+
+      await saveCareerToDatabase(updatedProfile);
+      setProfileData(updatedProfile);
+      setDeletingCareerId(null);
+      setIsDeleteConfirmOpen(false);
+
       // 成功メッセージを表示（オプション）
-      console.log('キャリア情報を削除しました')
+      console.log("キャリア情報を削除しました");
     } catch (error) {
-      console.error('キャリア削除エラー:', error)
-      alert('キャリア情報の削除に失敗しました。もう一度お試しください。')
+      console.error("キャリア削除エラー:", error);
+      alert("キャリア情報の削除に失敗しました。もう一度お試しください。");
     } finally {
-      setIsUpdatingCareer(false)
+      setIsUpdatingCareer(false);
     }
-  }
+  };
 
   // キャリアをデータベースに保存
   const saveCareerToDatabase = async (updatedProfile: ProfileData) => {
-    if (!user) throw new Error('認証が必要です')
+    if (!user) throw new Error("認証が必要です");
 
-    const { supabase } = await import('@/lib/supabase')
-    const { data: { session } } = await supabase.auth.getSession()
-    
+    const { supabase } = await import("@/lib/supabase");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-    
+      "Content-Type": "application/json",
+    };
+
     if (session?.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`
+      headers["Authorization"] = `Bearer ${session.access_token}`;
     }
 
-    const response = await fetch('/api/profile', {
-      method: 'PUT',
+    const response = await fetch("/api/profile", {
+      method: "PUT",
       headers,
       body: JSON.stringify({
         userId: user.id,
-        career: updatedProfile.career
-      })
-    })
+        career: updatedProfile.career,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error('キャリア情報の保存に失敗しました')
+      throw new Error("キャリア情報の保存に失敗しました");
     }
-  }
+  };
 
   // 自己紹介更新
   const handleUpdateIntroduction = async (introduction: string) => {
-    if (!profileData) return
+    if (!profileData) return;
 
     try {
-      setIsUpdatingIntroduction(true)
-      
-      const updatedProfile = { ...profileData, introduction }
-      
-      await saveIntroductionToDatabase(updatedProfile)
-      setProfileData(updatedProfile)
-      setIsIntroductionModalOpen(false)
-      
+      setIsUpdatingIntroduction(true);
+
+      const updatedProfile = { ...profileData, introduction };
+
+      await saveIntroductionToDatabase(updatedProfile);
+      setProfileData(updatedProfile);
+      setIsIntroductionModalOpen(false);
+
       // 成功メッセージを表示（オプション）
-      console.log('自己紹介を更新しました')
+      console.log("自己紹介を更新しました");
     } catch (error) {
-      console.error('自己紹介更新エラー:', error)
-      alert('自己紹介の更新に失敗しました。もう一度お試しください。')
+      console.error("自己紹介更新エラー:", error);
+      alert("自己紹介の更新に失敗しました。もう一度お試しください。");
     } finally {
-      setIsUpdatingIntroduction(false)
+      setIsUpdatingIntroduction(false);
     }
-  }
+  };
 
   // 自己紹介をデータベースに保存
   const saveIntroductionToDatabase = async (updatedProfile: ProfileData) => {
-    if (!user) throw new Error('認証が必要です')
+    if (!user) throw new Error("認証が必要です");
 
-    const { supabase } = await import('@/lib/supabase')
-    const { data: { session } } = await supabase.auth.getSession()
-    
+    const { supabase } = await import("@/lib/supabase");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-    
+      "Content-Type": "application/json",
+    };
+
     if (session?.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`
+      headers["Authorization"] = `Bearer ${session.access_token}`;
     }
 
-    const response = await fetch('/api/profile', {
-      method: 'PUT',
+    const response = await fetch("/api/profile", {
+      method: "PUT",
       headers,
       body: JSON.stringify({
         userId: user.id,
-        introduction: updatedProfile.introduction
-      })
-    })
+        introduction: updatedProfile.introduction,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error('自己紹介の保存に失敗しました')
+      throw new Error("自己紹介の保存に失敗しました");
     }
-  }
+  };
 
   // プロフィール情報から表示用データを取得
-  const displayName = profileData?.displayName || 'ユーザー'
-  const title = profileData?.title || ''
-  const bio = profileData?.bio || ''
-  const location = profileData?.location || ''
-  const websiteUrl = profileData?.websiteUrl || ''
-  const skills = profileData?.skills || []
-  const career = profileData?.career || []
-  const hasCustomBackground = !!(profileData?.backgroundImageUrl)
-  const backgroundImageUrl = profileData?.backgroundImageUrl || ''
-  const hasCustomAvatar = !!(profileData?.avatarImageUrl)
-  const avatarImageUrl = profileData?.avatarImageUrl || ''
-  
-  const slug = profileData?.slug || ''
-  const isProfileEmpty = !bio && skills.length === 0 && career.length === 0
+  const displayName = profileData?.displayName || "ユーザー";
+  const title = profileData?.title || "";
+  const bio = profileData?.bio || "";
+  const location = profileData?.location || "";
+  const websiteUrl = profileData?.websiteUrl || "";
+  const skills = profileData?.skills || [];
+  const career = profileData?.career || [];
+  const hasCustomBackground = !!profileData?.backgroundImageUrl;
+  const backgroundImageUrl = profileData?.backgroundImageUrl || "";
+  const hasCustomAvatar = !!profileData?.avatarImageUrl;
+  const avatarImageUrl = profileData?.avatarImageUrl || "";
+
+  const slug = profileData?.slug || "";
+  const isProfileEmpty = !bio && skills.length === 0 && career.length === 0;
 
   // --- AI分析 強み集計 (詳細分析) ---
   const strengthsAnalysis = useMemo(() => {
-    return analyzeStrengthsFromWorks(savedWorks)
-  }, [savedWorks])
+    return analyzeStrengthsFromWorks(savedWorks);
+  }, [savedWorks]);
 
   if (!profileData) {
-    return <ProfileLoadingFallback />
+    return <ProfileLoadingFallback />;
   }
 
   return (
@@ -565,46 +627,45 @@ function ProfileContent() {
         <div className="w-full">
           {/* プロフィールヘッダー */}
           <div className="mb-0">
-          <ProfileHeader
-            displayName={displayName}
-            title={title}
-            bio={bio}
-            location={location}
-            websiteUrl={websiteUrl}
-            backgroundImageUrl={backgroundImageUrl}
-            avatarImageUrl={avatarImageUrl}
-            isProfileEmpty={isProfileEmpty}
-            hasCustomBackground={hasCustomBackground}
-            hasCustomAvatar={hasCustomAvatar}
-            userId={user?.id}
-            slug={slug}
-            portfolioVisibility={profileData?.portfolioVisibility}
-          />
+            <ProfileHeader
+              displayName={displayName}
+              title={title}
+              bio={bio}
+              location={location}
+              websiteUrl={websiteUrl}
+              backgroundImageUrl={backgroundImageUrl}
+              avatarImageUrl={avatarImageUrl}
+              isProfileEmpty={isProfileEmpty}
+              hasCustomBackground={hasCustomBackground}
+              hasCustomAvatar={hasCustomAvatar}
+              userId={user?.id}
+              slug={slug}
+              portfolioVisibility={profileData?.portfolioVisibility}
+            />
           </div>
 
           {/* タブコンテンツ - ヘッダーと直接つなげる */}
           <div className="-mt-4">
             <ProfileTabs
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            profileData={profileData}
-            savedWorks={savedWorks}
-            setSavedWorks={setSavedWorks}
-
-            deleteWork={deleteWork}
-            onAddSkill={() => setIsSkillModalOpen(true)}
-            onRemoveSkill={handleRemoveSkill}
-            setIsSkillModalOpen={setIsSkillModalOpen}
-            onEditCareer={handleEditCareer}
-            onDeleteCareerConfirm={handleDeleteCareerConfirm}
-            setIsCareerModalOpen={setIsCareerModalOpen}
-            onUpdateIntroduction={handleUpdateIntroduction}
-            setIsIntroductionModalOpen={setIsIntroductionModalOpen}
-            strengthsAnalysis={strengthsAnalysis}
-            getTabsInfo={setTabsInfo}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              profileData={profileData}
+              savedWorks={savedWorks}
+              setSavedWorks={setSavedWorks}
+              deleteWork={deleteWork}
+              onAddSkill={() => setIsSkillModalOpen(true)}
+              onRemoveSkill={handleRemoveSkill}
+              setIsSkillModalOpen={setIsSkillModalOpen}
+              onEditCareer={handleEditCareer}
+              onDeleteCareerConfirm={handleDeleteCareerConfirm}
+              setIsCareerModalOpen={setIsCareerModalOpen}
+              onUpdateIntroduction={handleUpdateIntroduction}
+              setIsIntroductionModalOpen={setIsIntroductionModalOpen}
+              strengthsAnalysis={strengthsAnalysis}
+              getTabsInfo={setTabsInfo}
             />
           </div>
-           
+
           {/* モーダル群 */}
           <ProfileModals
             isSkillModalOpen={isSkillModalOpen}
@@ -641,7 +702,7 @@ function ProfileContent() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
 export default function ProfilePage() {
@@ -653,5 +714,5 @@ export default function ProfilePage() {
         </Suspense>
       </AuthenticatedLayout>
     </ProtectedRoute>
-  )
+  );
 }

@@ -8,6 +8,8 @@
 //
 // This removes the need for `any` and keeps route files strongly-typed while
 // remaining flexible to different param names.
-export interface RouteContext<Params extends Record<string, string> = Record<string, string>> {
-  params: Params
+export interface RouteContext<
+  Params extends Record<string, string> = Record<string, string>,
+> {
+  params: Params;
 }

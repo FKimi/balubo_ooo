@@ -5,7 +5,36 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  // パフォーマンス最適化: 使用していないCSSを削減
+  safelist: [
+    // 動的に生成されるクラス
+    'animate-pulse',
+    'animate-spin',
+    'animate-bounce',
+    // よく使用される色
+    'bg-blue-500',
+    'bg-blue-600',
+    'text-blue-500',
+    'text-blue-600',
+    'border-blue-500',
+    'border-blue-600',
+  ],
+  // 未使用のCSSを削除
+  purge: {
+    enabled: process.env.NODE_ENV === 'production',
+    content: [
+      "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    ],
+    options: {
+      safelist: [
+        'animate-pulse',
+        'animate-spin',
+        'animate-bounce',
+      ],
+    },
+  },
   theme: {
     extend: {
       fontFamily: {

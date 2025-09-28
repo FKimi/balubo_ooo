@@ -1,5 +1,8 @@
-"use client"
+"use client";
 
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-export const TagBarChart = dynamic(() => import('./charts/TagBarChartInternal'), { ssr: false }) 
+export const TagBarChart = dynamic(
+  () => import("./charts/TagBarChartInternal"),
+  { ssr: false },
+);

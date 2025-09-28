@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server'
-import { 
-  callGeminiAPI, 
+import { NextResponse } from "next/server";
+import {
+  callGeminiAPI,
   parseAnalysisResult,
-  handleAnalysisError, 
+  handleAnalysisError,
   processFileInfo,
   processImageFiles,
-  AnalysisRequest
-} from '../utils/ai-analyzer'
+  AnalysisRequest,
+} from "../utils/ai-analyzer";
 
 export async function POST(body: any) {
   try {
@@ -18,45 +18,51 @@ export async function POST(body: any) {
       productionNotes,
       uploadedFiles,
       fileCount,
-      imageFiles
-    }: AnalysisRequest = body
+      imageFiles,
+    }: AnalysisRequest = body;
 
-    const hasContent = description || title || url || 
-                      (uploadedFiles && uploadedFiles.length > 0) || 
-                      (imageFiles && imageFiles.length > 0)
-    
+    const hasContent =
+      description ||
+      title ||
+      url ||
+      (uploadedFiles && uploadedFiles.length > 0) ||
+      (imageFiles && imageFiles.length > 0);
+
     if (!hasContent) {
       return NextResponse.json(
-        { error: '分析する写真がありません' }, 
-        { status: 400 }
-      )
+        { error: "分析する写真がありません" },
+        { status: 400 },
+      );
     }
 
-    const fileInfo = processFileInfo(uploadedFiles, fileCount)
+    const fileInfo = processFileInfo(uploadedFiles, fileCount);
     // Vision API 用の画像パーツ
-    let visionImages: {mimeType: string, data: string}[] = []
+    let visionImages: { mimeType: string; data: string }[] = [];
     if (imageFiles && imageFiles.length > 0) {
       visionImages = imageFiles
-        .filter((file: any) => file.data && file.data.startsWith('data:'))
+        .filter((file: any) => file.data && file.data.startsWith("data:"))
         .map((file: any) => {
-          const base64Full = file.data.split(',')[1] || file.data
-          const base64 = base64Full.length > 1000000 ? base64Full.slice(0,1000000) : base64Full // 1MB 以上ならカット
+          const base64Full = file.data.split(",")[1] || file.data;
+          const base64 =
+            base64Full.length > 1000000
+              ? base64Full.slice(0, 1000000)
+              : base64Full; // 1MB 以上ならカット
           return {
-            mimeType: file.type || 'image/jpeg',
-            data: base64
-          }
-        })
+            mimeType: file.type || "image/jpeg",
+            data: base64,
+          };
+        });
     }
 
-    const imageContent = processImageFiles(imageFiles)
+    const imageContent = processImageFiles(imageFiles);
 
     // アップデートされた写真特化プロンプト
     const prompt = `あなたは国際的に活躍するプロフォトグラファー兼写真評論家です。以下の写真作品を専門的な観点から詳細に分析し、主要被写体（犬・人物・建築物など）が何かを明確に特定したうえで、具体的で実用的なタグを生成してください。
 
 ## 作品情報
-- タイトル: ${title || '未設定'}
-- 説明: ${description || '未設定'}
-${productionNotes ? `- 制作メモ: ${productionNotes}` : ''}
+- タイトル: ${title || "未設定"}
+- 説明: ${description || "未設定"}
+${productionNotes ? `- 制作メモ: ${productionNotes}` : ""}
 ${fileInfo}
 ${imageContent}
 
@@ -144,32 +150,36 @@ ${imageContent}
   }
 }
 
-上記のJSON形式で、写真作品の魅力と特徴を具体的に言語化してください。`
+上記のJSON形式で、写真作品の魅力と特徴を具体的に言語化してください。`;
 
-    const generated = await callGeminiAPI(prompt, 0.3, 4096, visionImages)
-    const analysisResult = parseAnalysisResult(generated)
+    const generated = await callGeminiAPI(prompt, 0.3, 4096, visionImages);
+    const analysisResult = parseAnalysisResult(generated);
 
     const dm = analysisResult.detailedMetrics;
     const evalSummaries = {
       summaries: {
-        overall: dm?.overall?.headline || '総合的な評価の生成に失敗しました。',
-        technology: dm?.technology?.goodHighlight || '具体的な技術的ポイントの分析に失敗しました。',
-        expertise: dm?.expertise?.goodHighlight || '専門性に関する分析に失敗しました。',
-        creativity: dm?.creativity?.goodHighlight || '創造性に関する分析に失敗しました。',
-        impact: dm?.impact?.goodHighlight || '影響力に関する分析に失敗しました。'
-      }
-    }
+        overall: dm?.overall?.headline || "総合的な評価の生成に失敗しました。",
+        technology:
+          dm?.technology?.goodHighlight ||
+          "具体的な技術的ポイントの分析に失敗しました。",
+        expertise:
+          dm?.expertise?.goodHighlight || "専門性に関する分析に失敗しました。",
+        creativity:
+          dm?.creativity?.goodHighlight || "創造性に関する分析に失敗しました。",
+        impact:
+          dm?.impact?.goodHighlight || "影響力に関する分析に失敗しました。",
+      },
+    };
 
     return NextResponse.json({
       success: true,
       analysis: analysisResult,
       evaluation: evalSummaries,
-      contentType: '写真',
-      analysisType: 'photo_specialized_analysis_v2',
-      rawResponse: generated
-    })
-
+      contentType: "写真",
+      analysisType: "photo_specialized_analysis_v2",
+      rawResponse: generated,
+    });
   } catch (err) {
-    return handleAnalysisError(err)
+    return handleAnalysisError(err);
   }
 }

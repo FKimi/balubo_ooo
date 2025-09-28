@@ -1,1 +1,1 @@
-export { RecommendedUsers } from './components/RecommendedUsers'
+export { RecommendedUsers } from "./components/RecommendedUsers";

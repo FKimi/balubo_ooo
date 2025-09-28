@@ -1,96 +1,99 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { 
-  Share, 
+import { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Share,
   ExternalLink,
   User,
   Heart,
   MessageCircle,
-  Eye
-} from 'lucide-react'
+  Eye,
+} from "lucide-react";
 
 interface WorkCardProps {
   work: {
-    id: string
-    type: 'work'
-    title: string
-    description?: string
-    external_url?: string
-    tags?: string[]
-    roles?: string[]
-    banner_image_url?: string
-    created_at: string
+    id: string;
+    type: "work";
+    title: string;
+    description?: string;
+    external_url?: string;
+    tags?: string[];
+    roles?: string[];
+    banner_image_url?: string;
+    created_at: string;
     user: {
-      id: string
-      display_name: string
-      avatar_image_url?: string
-    }
-    likes_count?: number
-    comments_count?: number
-    user_has_liked?: boolean
-  }
-  currentUser?: any
-  isAuthenticated: boolean
-  onLike: (_workId: string, _workType: 'work') => void
-  onShare: (_work: any) => void
-  onOpenComments: (_workId: string) => void
+      id: string;
+      display_name: string;
+      avatar_image_url?: string;
+    };
+    likes_count?: number;
+    comments_count?: number;
+    user_has_liked?: boolean;
+  };
+  currentUser?: any;
+  isAuthenticated: boolean;
+  onLike: (_workId: string, _workType: "work") => void;
+  onShare: (_work: any) => void;
+  onOpenComments: (_workId: string) => void;
 }
 
-export function WorkCard({ 
-  work: _work, 
-  currentUser, 
-  isAuthenticated: _isAuthenticated, 
-  onLike, 
-  onShare, 
-  onOpenComments 
+export function WorkCard({
+  work: _work,
+  currentUser,
+  isAuthenticated: _isAuthenticated,
+  onLike,
+  onShare,
+  onOpenComments,
 }: WorkCardProps) {
-  const router = useRouter()
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [imageError, setImageError] = useState(false)
+  const router = useRouter();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleUserClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (currentUser && _work.user.id === currentUser.id) {
-      router.push('/profile')
+      router.push("/profile");
     } else {
-      router.push(`/share/profile/${_work.user.id}`)
+      router.push(`/share/profile/${_work.user.id}`);
     }
-  }
+  };
 
   const handleWorkClick = () => {
-    router.push(`/works/${_work.id}`)
-  }
+    router.push(`/works/${_work.id}`);
+  };
 
   const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInMs = now.getTime() - date.getTime()
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
-    const diffInDays = Math.floor(diffInHours / 24)
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInHours < 1) return '今'
-    if (diffInHours < 24) return `${diffInHours}時間前`
-    if (diffInDays < 7) return `${diffInDays}日前`
-    return date.toLocaleDateString('ja-JP')
-  }
+    if (diffInHours < 1) return "今";
+    if (diffInHours < 24) return `${diffInHours}時間前`;
+    if (diffInDays < 7) return `${diffInDays}日前`;
+    return date.toLocaleDateString("ja-JP");
+  };
 
   return (
-    <div 
+    <div
       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
       onClick={handleWorkClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleWorkClick() } }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleWorkClick();
+        }
+      }}
       aria-label={`${_work.title} の詳細を開く`}
     >
       {/* 作品画像 */}
-      <div 
-        className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden"
-      >
+      <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
         {_work.banner_image_url && !imageError ? (
           <>
             <Image
@@ -98,7 +101,7 @@ export function WorkCard({
               alt={_work.title}
               fill
               className={`object-cover transition-all duration-500 group-hover:scale-105 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
+                imageLoaded ? "opacity-100" : "opacity-0"
               }`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
@@ -128,8 +131,8 @@ export function WorkCard({
                 size="icon"
                 className="bg-white bg-opacity-90 hover:bg-white rounded-full shadow-lg"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  onShare(_work)
+                  e.stopPropagation();
+                  onShare(_work);
                 }}
               >
                 <Share className="h-4 w-4 text-gray-700" />
@@ -140,8 +143,8 @@ export function WorkCard({
                   size="icon"
                   className="bg-white bg-opacity-90 hover:bg-white rounded-full shadow-lg"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    window.open(_work.external_url, '_blank')
+                    e.stopPropagation();
+                    window.open(_work.external_url, "_blank");
                   }}
                 >
                   <ExternalLink className="h-4 w-4 text-gray-700" />
@@ -188,7 +191,7 @@ export function WorkCard({
       {/* カード下部の情報 */}
       <div className="p-4">
         {/* 作品タイトル */}
-        <h3 
+        <h3
           className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
           onClick={handleWorkClick}
         >
@@ -219,7 +222,7 @@ export function WorkCard({
         {/* ユーザー情報と統計 */}
         <div className="flex items-center justify-between">
           {/* ユーザー情報 */}
-          <div 
+          <div
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleUserClick}
           >
@@ -252,16 +255,18 @@ export function WorkCard({
               variant="ghost"
               size="sm"
               className={`p-1 transition-colors ${
-                _work.user_has_liked 
-                  ? 'text-red-500 hover:text-red-600' 
-                  : 'text-gray-400 hover:text-red-500'
+                _work.user_has_liked
+                  ? "text-red-500 hover:text-red-600"
+                  : "text-gray-400 hover:text-red-500"
               }`}
               onClick={(e) => {
-                e.stopPropagation()
-                onLike(_work.id, _work.type)
+                e.stopPropagation();
+                onLike(_work.id, _work.type);
               }}
             >
-              <Heart className={`h-4 w-4 ${_work.user_has_liked ? 'fill-current' : ''}`} />
+              <Heart
+                className={`h-4 w-4 ${_work.user_has_liked ? "fill-current" : ""}`}
+              />
               <span className="ml-1 text-xs">{_work.likes_count || 0}</span>
             </Button>
 
@@ -270,8 +275,8 @@ export function WorkCard({
               size="sm"
               className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
               onClick={(e) => {
-                e.stopPropagation()
-                onOpenComments(_work.id)
+                e.stopPropagation();
+                onOpenComments(_work.id);
               }}
             >
               <MessageCircle className="h-4 w-4" />
@@ -281,5 +286,5 @@ export function WorkCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

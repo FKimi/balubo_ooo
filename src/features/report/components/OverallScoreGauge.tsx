@@ -1,5 +1,8 @@
-"use client"
+"use client";
 
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-export const OverallScoreGauge = dynamic(() => import('./charts/OverallScoreGaugeInternal'), { ssr: false }) 
+export const OverallScoreGauge = dynamic(
+  () => import("./charts/OverallScoreGaugeInternal"),
+  { ssr: false },
+);

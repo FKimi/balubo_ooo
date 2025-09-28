@@ -1,149 +1,156 @@
-import { Metadata } from 'next'
-import WorkDetailClient from './WorkDetailClient'
-import { createClient } from '@supabase/supabase-js'
-import { 
-  generateWorkOGPMetadata, 
+import { Metadata } from "next";
+import WorkDetailClient from "./WorkDetailClient";
+import { createClient } from "@supabase/supabase-js";
+import {
+  generateWorkOGPMetadata,
   generateErrorOGPMetadata,
-  type WorkData 
-} from '@/lib/ogp-utils'
+  type WorkData,
+} from "@/lib/ogp-utils";
 
 type WorkError = {
-  type: 'not_found' | 'invalid_id' | 'database_error' | 'unknown'
-  message: string
-  details?: any
-}
+  type: "not_found" | "invalid_id" | "database_error" | "unknown";
+  message: string;
+  details?: any;
+};
 
 // 作品データを取得する関数
-async function getWork(id: string): Promise<{ work: WorkData | null; error: WorkError | null }> {
+async function getWork(
+  id: string,
+): Promise<{ work: WorkData | null; error: WorkError | null }> {
   try {
     // IDの形式を検証
-    if (!id || typeof id !== 'string' || id.length === 0) {
+    if (!id || typeof id !== "string" || id.length === 0) {
       return {
         work: null,
         error: {
-          type: 'invalid_id',
-          message: '無効な作品IDです',
-          details: { id }
-        }
-      }
+          type: "invalid_id",
+          message: "無効な作品IDです",
+          details: { id },
+        },
+      };
     }
 
     // Service Role Keyを使用してRLSをバイパス
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('Supabase環境変数が設定されていません')
+      console.error("Supabase環境変数が設定されていません");
       return {
         work: null,
         error: {
-          type: 'database_error',
-          message: 'データベース設定エラーが発生しました',
-          details: { id }
-        }
-      }
+          type: "database_error",
+          message: "データベース設定エラーが発生しました",
+          details: { id },
+        },
+      };
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
-    })
+        persistSession: false,
+      },
+    });
 
     // Supabaseからデータを取得
     const { data: work, error } = await supabase
-      .from('works')
-      .select('*')
-      .eq('id', id)
-      .single()
+      .from("works")
+      .select("*")
+      .eq("id", id)
+      .single();
 
     // エラーハンドリング
     if (error) {
-      if (error.code === 'PGRST116') {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`作品が見つかりません: ID = ${id}`)
+      if (error.code === "PGRST116") {
+        if (process.env.NODE_ENV === "development") {
+          console.log(`作品が見つかりません: ID = ${id}`);
         }
         return {
           work: null,
           error: {
-            type: 'not_found',
-            message: '指定された作品が見つかりません',
-            details: { id }
-          }
-        }
+            type: "not_found",
+            message: "指定された作品が見つかりません",
+            details: { id },
+          },
+        };
       }
-      
-      const errorType = 'database_error'
-      const errorMessage = 'データベースエラーが発生しました'
-      
-      console.error('作品取得エラー:', {
+
+      const errorType = "database_error";
+      const errorMessage = "データベースエラーが発生しました";
+
+      console.error("作品取得エラー:", {
         id,
         type: errorType,
         message: errorMessage,
-        details: error
-      })
+        details: error,
+      });
 
       return {
         work: null,
         error: {
           type: errorType,
           message: errorMessage,
-          details: error
-        }
-      }
+          details: error,
+        },
+      };
     }
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`作品取得成功: ID = ${id}, タイトル = ${work.title}`)
-    }
-    return { work, error: null }
 
+    if (process.env.NODE_ENV === "development") {
+      console.log(`作品取得成功: ID = ${id}, タイトル = ${work.title}`);
+    }
+    return { work, error: null };
   } catch (error) {
-    console.error('予期しないエラー:', {
+    console.error("予期しないエラー:", {
       id,
-      error
-    })
+      error,
+    });
 
     return {
       work: null,
       error: {
-        type: 'unknown',
-        message: '予期しないエラーが発生しました',
-        details: error
-      }
-    }
+        type: "unknown",
+        message: "予期しないエラーが発生しました",
+        details: error,
+      },
+    };
   }
 }
 
 // メタデータ生成関数
-export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
-): Promise<Metadata> {
-  const { id } = await params
-  const { work } = await getWork(id)
-  
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { work } = await getWork(id);
+
   if (!work) {
     return generateErrorOGPMetadata({
-      title: '作品が見つかりません',
-      description: '指定された作品が見つかりませんでした。'
-    })
+      title: "作品が見つかりません",
+      description: "指定された作品が見つかりませんでした。",
+    });
   }
 
   return generateWorkOGPMetadata({
     title: work.title,
-    description: work.description || 'クリエイターの作品をチェックしよう',
+    description: work.description || "クリエイターの作品をチェックしよう",
     workId: work.id,
     tags: work.tags || [],
     roles: work.roles || [],
     publishedTime: work.created_at,
     modifiedTime: work.updated_at || work.created_at,
-  })
+  });
 }
 
-export default async function WorkDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const { error } = await getWork(id)
+export default async function WorkDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const { error } = await getWork(id);
 
   if (error) {
     return (
@@ -153,9 +160,7 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ id:
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
               エラーが発生しました
             </h1>
-            <p className="text-gray-600 mb-8">
-              {error.message}
-            </p>
+            <p className="text-gray-600 mb-8">{error.message}</p>
             <a
               href="/works"
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -165,8 +170,8 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  return <WorkDetailClient workId={id} />
-} 
+  return <WorkDetailClient workId={id} />;
+}

@@ -1,25 +1,26 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import type { NewsItem } from '@/data/news'
+import { useEffect, useState } from "react";
+import type { NewsItem } from "@/data/news";
 
 const newsItems: NewsItem[] = [
   {
-    id: '1',
-    title: 'balubo ベータ版をリリースしました',
-    description: 'クリエイター向けポートフォリオシステムのベータ版をリリースしました',
-    date: new Date().toISOString().split('T')[0]!,
-    category: 'リリース',
-    link: '#'
-  }
-]
+    id: "1",
+    title: "balubo ベータ版をリリースしました",
+    description:
+      "クリエイター向けポートフォリオシステムのベータ版をリリースしました",
+    date: new Date().toISOString().split("T")[0]!,
+    category: "リリース",
+    link: "#",
+  },
+];
 
 export function NewsTicker() {
   // 一時的にニュースセクションを非表示にする
-  const isNewsSectionHidden = true // この値をfalseに変更すると表示されます
-  
-  const [isPaused] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const isNewsSectionHidden = true; // この値をfalseに変更すると表示されます
+
+  const [isPaused] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // 自動的にニュースを切り替え
   useEffect(() => {
@@ -38,25 +39,25 @@ export function NewsTicker() {
     return () => {
       clearInterval(intervalId); // 設定したタイマーを停止する
     };
-  }, [isPaused])
+  }, [isPaused]);
 
-  const currentNews = newsItems[currentIndex] || newsItems[0]
+  const currentNews = newsItems[currentIndex] || newsItems[0];
 
   // ニュースセクションが非表示設定の場合は何も表示しない
   if (isNewsSectionHidden) {
-    return null
+    return null;
   }
 
   // ニュース項目がない場合は何も表示しない
   if (!currentNews) {
-    return null
+    return null;
   }
 
   return (
     <div className="relative">
       {/* 上部の区切り線 */}
       <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-      
+
       {/* メインのニュースティッカー */}
       <div className="relative bg-gradient-to-r from-blue-50/80 via-indigo-50/60 to-blue-50/80 border-y border-blue-100/50 py-3 overflow-hidden shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,8 +65,16 @@ export function NewsTicker() {
             {/* アイコン付きNews バッジ */}
             <div className="flex items-center mr-4 flex-shrink-0">
               <div className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-lg">
-                <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                <svg
+                  className="w-3 h-3 mr-1.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 NEWS
               </div>
@@ -85,16 +94,16 @@ export function NewsTicker() {
                       {currentNews.title}
                     </span>
                   </div>
-                  
+
                   {/* 日付とカテゴリ */}
                   <div className="flex items-center space-x-2">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
                       {currentNews.category}
                     </span>
                     <span className="text-slate-600 text-xs font-medium">
-                      {new Date(currentNews.date).toLocaleDateString('ja-JP', {
-                        month: 'short',
-                        day: 'numeric'
+                      {new Date(currentNews.date).toLocaleDateString("ja-JP", {
+                        month: "short",
+                        day: "numeric",
                       })}
                     </span>
                   </div>
@@ -104,9 +113,18 @@ export function NewsTicker() {
 
             {/* 右側の装飾要素 */}
             <div className="flex items-center ml-4 space-x-1">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full opacity-70 animate-bounce" style={{animationDelay: '0s'}} />
-              <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full opacity-80 animate-bounce" style={{animationDelay: '0.1s'}} />
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}} />
+              <div
+                className="w-1.5 h-1.5 bg-blue-500 rounded-full opacity-70 animate-bounce"
+                style={{ animationDelay: "0s" }}
+              />
+              <div
+                className="w-1.5 h-1.5 bg-indigo-500 rounded-full opacity-80 animate-bounce"
+                style={{ animationDelay: "0.1s" }}
+              />
+              <div
+                className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              />
             </div>
           </div>
         </div>
@@ -126,52 +144,82 @@ export function NewsTicker() {
 
         <style jsx>{`
           @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-50%); opacity: 0; }
-            50% { opacity: 0.4; }
-            100% { transform: translateX(100%) translateY(-50%); opacity: 0; }
+            0% {
+              transform: translateX(-100%) translateY(-50%);
+              opacity: 0;
+            }
+            50% {
+              opacity: 0.4;
+            }
+            100% {
+              transform: translateX(100%) translateY(-50%);
+              opacity: 0;
+            }
           }
-          
+
           @keyframes shine-reverse {
-            0% { transform: translateX(100%) translateY(-50%); opacity: 0; }
-            50% { opacity: 0.4; }
-            100% { transform: translateX(-100%) translateY(-50%); opacity: 0; }
+            0% {
+              transform: translateX(100%) translateY(-50%);
+              opacity: 0;
+            }
+            50% {
+              opacity: 0.4;
+            }
+            100% {
+              transform: translateX(-100%) translateY(-50%);
+              opacity: 0;
+            }
           }
-          
+
           @keyframes float {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.5); opacity: 0.6; }
+            0%,
+            100% {
+              transform: scale(1);
+              opacity: 0.3;
+            }
+            50% {
+              transform: scale(1.5);
+              opacity: 0.6;
+            }
           }
-          
+
           @keyframes float-delayed {
-            0%, 100% { transform: scale(1); opacity: 0.2; }
-            50% { transform: scale(1.3); opacity: 0.5; }
+            0%,
+            100% {
+              transform: scale(1);
+              opacity: 0.2;
+            }
+            50% {
+              transform: scale(1.3);
+              opacity: 0.5;
+            }
           }
-          
+
           .animate-shine {
             animation: shine 4s ease-in-out infinite;
           }
-          
+
           .animate-shine-reverse {
             animation: shine-reverse 4s ease-in-out infinite;
             animation-delay: 2s;
           }
-          
+
           .animate-float {
             animation: float 3s ease-in-out infinite;
           }
-          
+
           .animate-float-delayed {
             animation: float-delayed 3s ease-in-out infinite;
             animation-delay: 1.5s;
           }
         `}</style>
       </div>
-      
+
       {/* 下部の区切り線 */}
       <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-      
+
       {/* 追加の余白 */}
       <div className="h-6 bg-white" />
     </div>
-  )
+  );
 }

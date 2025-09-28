@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# サイトマップの場所
+Sitemap: https://www.balubo.jp/sitemap.xml
+
+# 特定のパスをクロールから除外（必要に応じて）
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /auth/
+Disallow: /settings/
+Disallow: /notifications/
+Disallow: /report/
+
+# 検索エンジン向けの追加情報
+Crawl-delay: 1

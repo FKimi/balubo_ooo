@@ -1,155 +1,176 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from 'react'
-import { Header } from '@/components/layout/header'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { useAuth } from '@/contexts/AuthContext'
-import { fetcher } from '@/utils/fetcher'
-import { Users, Heart, MessageSquare, User, CheckCheck, Trash2 } from 'lucide-react'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { getNotificationIconName, getNotificationColor } from '@/lib/notificationUtils'
+import { useState, useEffect, useCallback } from "react";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetcher } from "@/utils/fetcher";
+import {
+  Users,
+  Heart,
+  MessageSquare,
+  User,
+  CheckCheck,
+  Trash2,
+} from "lucide-react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import {
+  getNotificationIconName,
+  getNotificationColor,
+} from "@/lib/notificationUtils";
 
 interface Notification {
-  id: string
-  type: string
-  message: string
-  is_read: boolean
-  created_at: string
-  related_entity_id?: string
-  related_entity_type?: string
+  id: string;
+  type: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  related_entity_id?: string;
+  related_entity_type?: string;
 }
 
 interface NotificationData {
-  notifications: Notification[]
-  unreadCount: number
+  notifications: Notification[];
+  unreadCount: number;
   pagination: {
-    page: number
-    limit: number
-    hasMore: boolean
-  }
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  };
 }
 
 export default function NotificationsPage() {
-  const { user } = useAuth()
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [hasMore, setHasMore] = useState(false)
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   // 通知データを取得
-  const fetchNotifications = useCallback(async (page = 1) => {
-    if (!user) return
+  const fetchNotifications = useCallback(
+    async (page = 1) => {
+      if (!user) return;
 
-    try {
-      setIsLoading(true)
-      const data: NotificationData = await fetcher(`/api/notifications?page=${page}&limit=20`)
-      
-      if (page === 1) {
-        setNotifications(data.notifications)
-      } else {
-        setNotifications(prev => [...prev, ...data.notifications])
+      try {
+        setIsLoading(true);
+        const data: NotificationData = await fetcher(
+          `/api/notifications?page=${page}&limit=20`,
+        );
+
+        if (page === 1) {
+          setNotifications(data.notifications);
+        } else {
+          setNotifications((prev) => [...prev, ...data.notifications]);
+        }
+
+        setUnreadCount(data.unreadCount);
+        setHasMore(data.pagination.hasMore);
+        setCurrentPage(page);
+      } catch (error) {
+        console.error("通知取得エラー:", error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setUnreadCount(data.unreadCount)
-      setHasMore(data.pagination.hasMore)
-      setCurrentPage(page)
-    } catch (error) {
-      console.error('通知取得エラー:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [user])
+    },
+    [user],
+  );
 
   // 通知を既読にマーク
   const markAsRead = async (notificationIds: string[]) => {
-    if (!user) return
+    if (!user) return;
 
     try {
-      await fetcher('/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ notificationIds })
-      })
-      
+      await fetcher("/api/notifications", {
+        method: "PATCH",
+        body: JSON.stringify({ notificationIds }),
+      });
+
       // ローカル状態を更新
-      setNotifications(prev => 
-        prev.map(notification => 
-          notificationIds.includes(notification.id) 
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notificationIds.includes(notification.id)
             ? { ...notification, is_read: true }
-            : notification
-        )
-      )
-      setUnreadCount(prev => Math.max(0, prev - notificationIds.length))
+            : notification,
+        ),
+      );
+      setUnreadCount((prev) => Math.max(0, prev - notificationIds.length));
     } catch (error) {
-      console.error('既読マークエラー:', error)
+      console.error("既読マークエラー:", error);
     }
-  }
+  };
 
   // すべての通知を既読にマーク
   const markAllAsRead = async () => {
-    if (!user) return
+    if (!user) return;
 
     try {
-      await fetcher('/api/notifications', {
-        method: 'PATCH',
-        body: JSON.stringify({ markAllAsRead: true })
-      })
-      
+      await fetcher("/api/notifications", {
+        method: "PATCH",
+        body: JSON.stringify({ markAllAsRead: true }),
+      });
+
       // ローカル状態を更新
-      setNotifications(prev => 
-        prev.map(notification => ({ ...notification, is_read: true }))
-      )
-      setUnreadCount(0)
+      setNotifications((prev) =>
+        prev.map((notification) => ({ ...notification, is_read: true })),
+      );
+      setUnreadCount(0);
     } catch (error) {
-      console.error('全既読マークエラー:', error)
+      console.error("全既読マークエラー:", error);
     }
-  }
+  };
 
   // 通知を削除（実装予定）
   const deleteNotification = async (notificationId: string) => {
     // TODO: 削除APIを実装
-    console.log('通知削除:', notificationId)
-  }
+    console.log("通知削除:", notificationId);
+  };
 
   // 通知タイプに応じたアイコンを取得
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
-      markAsRead([notification.id])
+      markAsRead([notification.id]);
     }
-    
+
     // 関連エンティティに応じた遷移
-    if (notification.related_entity_type === 'user' && notification.related_entity_id) {
-      window.open(`/share/profile/${notification.related_entity_id}`, '_blank')
-    } else if (notification.related_entity_type === 'work' && notification.related_entity_id) {
-      window.open(`/works/${notification.related_entity_id}`, '_blank')
+    if (
+      notification.related_entity_type === "user" &&
+      notification.related_entity_id
+    ) {
+      window.open(`/share/profile/${notification.related_entity_id}`, "_blank");
+    } else if (
+      notification.related_entity_type === "work" &&
+      notification.related_entity_id
+    ) {
+      window.open(`/works/${notification.related_entity_id}`, "_blank");
     }
-  }
+  };
 
   // 日時をフォーマット
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('ja-JP', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+    const date = new Date(dateString);
+    return date.toLocaleString("ja-JP", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   // 初回読み込み
   useEffect(() => {
     if (user) {
-      fetchNotifications(1)
+      fetchNotifications(1);
     }
-  }, [user, fetchNotifications])
+  }, [user, fetchNotifications]);
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <Header />
-        
+
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* ページヘッダー */}
           <div className="mb-8">
@@ -201,33 +222,39 @@ export default function NotificationsPage() {
               </Card>
             ) : (
               notifications.map((notification) => (
-                <Card 
+                <Card
                   key={notification.id}
                   className={`transition-all duration-200 hover:shadow-md ${
-                    !notification.is_read ? 'ring-2 ring-blue-200 bg-blue-50/30' : ''
+                    !notification.is_read
+                      ? "ring-2 ring-blue-200 bg-blue-50/30"
+                      : ""
                   }`}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       {/* アイコン */}
-                      <div className={`flex-shrink-0 p-3 rounded-lg border ${getNotificationColor(notification.type)}`}>
+                      <div
+                        className={`flex-shrink-0 p-3 rounded-lg border ${getNotificationColor(notification.type)}`}
+                      >
                         {(() => {
-                          const iconName = getNotificationIconName(notification.type)
+                          const iconName = getNotificationIconName(
+                            notification.type,
+                          );
                           switch (iconName) {
-                            case 'Users':
-                              return <Users className="w-5 h-5" />
-                            case 'Heart':
-                              return <Heart className="w-5 h-5" />
-                            case 'MessageSquare':
-                              return <MessageSquare className="w-5 h-5" />
-                            case 'User':
-                              return <User className="w-5 h-5" />
+                            case "Users":
+                              return <Users className="w-5 h-5" />;
+                            case "Heart":
+                              return <Heart className="w-5 h-5" />;
+                            case "MessageSquare":
+                              return <MessageSquare className="w-5 h-5" />;
+                            case "User":
+                              return <User className="w-5 h-5" />;
                             default:
-                              return <User className="w-5 h-5" />
+                              return <User className="w-5 h-5" />;
                           }
                         })()}
                       </div>
-                      
+
                       {/* コンテンツ */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4">
@@ -239,7 +266,7 @@ export default function NotificationsPage() {
                               {formatDate(notification.created_at)}
                             </p>
                           </div>
-                          
+
                           {/* アクションボタン */}
                           <div className="flex items-center gap-2">
                             {!notification.is_read && (
@@ -255,14 +282,16 @@ export default function NotificationsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => deleteNotification(notification.id)}
+                              onClick={() =>
+                                deleteNotification(notification.id)
+                              }
                               className="text-slate-400 hover:text-red-600"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
-                        
+
                         {/* クリック可能なエリア */}
                         <button
                           onClick={() => handleNotificationClick(notification)}
@@ -286,12 +315,12 @@ export default function NotificationsPage() {
                 variant="outline"
                 disabled={isLoading}
               >
-                {isLoading ? '読み込み中...' : 'さらに読み込む'}
+                {isLoading ? "読み込み中..." : "さらに読み込む"}
               </Button>
             </div>
           )}
         </div>
       </div>
     </ProtectedRoute>
-  )
-} 
+  );
+}

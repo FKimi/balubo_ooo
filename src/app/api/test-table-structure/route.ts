@@ -1,98 +1,99 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 // 動的レンダリングを強制
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl) {
-  throw new Error('NEXT_PUBLIC_SUPABASE_URL environment variable is required')
+  throw new Error("NEXT_PUBLIC_SUPABASE_URL environment variable is required");
 }
 
 if (!supabaseServiceKey) {
-  throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is required')
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is required");
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { persistSession: false }
-})
+  auth: { persistSession: false },
+});
 
 export async function GET(_request: NextRequest) {
   try {
-    console.log('テーブル構造確認開始')
-    
+    console.log("テーブル構造確認開始");
+
     const results: any = {
       timestamp: new Date().toISOString(),
-      tables: {}
-    }
+      tables: {},
+    };
 
     // 1. likesテーブルの構造確認（空のSELECTでカラム情報を取得）
     try {
       const { data: _likesData, error: likesError } = await supabase
-        .from('likes')
-        .select('*')
-        .limit(0)  // データは取得せず、構造のみ確認
+        .from("likes")
+        .select("*")
+        .limit(0); // データは取得せず、構造のみ確認
 
       results.tables.likes = {
         accessible: !likesError,
         error: likesError?.message,
         errorCode: likesError?.code,
-        errorDetails: likesError?.details
-      }
+        errorDetails: likesError?.details,
+      };
 
       // エラーがある場合は詳細情報を含める
       if (likesError) {
         results.tables.likes.debugInfo = {
           hint: likesError.hint,
           code: likesError.code,
-          message: likesError.message
-        }
+          message: likesError.message,
+        };
       }
     } catch (e) {
       results.tables.likes = {
         accessible: false,
         error: e instanceof Error ? e.message : String(e),
-        type: 'exception'
-      }
+        type: "exception",
+      };
     }
 
     // 2. commentsテーブルの構造確認
     try {
       const { data: _commentsData, error: commentsError } = await supabase
-        .from('comments')
-        .select('*')
-        .limit(0)
+        .from("comments")
+        .select("*")
+        .limit(0);
 
       results.tables.comments = {
         accessible: !commentsError,
         error: commentsError?.message,
-        errorCode: commentsError?.code
-      }
+        errorCode: commentsError?.code,
+      };
     } catch (e) {
       results.tables.comments = {
         accessible: false,
         error: e instanceof Error ? e.message : String(e),
-        type: 'exception'
-      }
+        type: "exception",
+      };
     }
 
     // 3. 既存のlikesデータサンプル取得（テーブルが存在する場合）
     if (results.tables.likes.accessible) {
       try {
         const { data: sampleLikes, error: sampleError } = await supabase
-          .from('likes')
-          .select('*')
-          .limit(1)
+          .from("likes")
+          .select("*")
+          .limit(1);
 
         if (!sampleError && sampleLikes && sampleLikes.length > 0) {
-          results.tables.likes.sampleData = sampleLikes[0]
-          results.tables.likes.availableColumns = Object.keys(sampleLikes[0])
+          results.tables.likes.sampleData = sampleLikes[0];
+          results.tables.likes.availableColumns = Object.keys(sampleLikes[0]);
         }
       } catch (e) {
-        results.tables.likes.sampleError = e instanceof Error ? e.message : String(e)
+        results.tables.likes.sampleError =
+          e instanceof Error ? e.message : String(e);
       }
     }
 
@@ -100,30 +101,32 @@ export async function GET(_request: NextRequest) {
     try {
       // information_schemaから列情報を取得
       const { data: columnInfo, error: columnError } = await supabase
-        .rpc('get_table_columns', { table_name: 'likes' })
-        .select()
+        .rpc("get_table_columns", { table_name: "likes" })
+        .select();
 
       if (!columnError && columnInfo) {
-        results.tables.likes.schemaInfo = columnInfo
+        results.tables.likes.schemaInfo = columnInfo;
       } else {
-        results.tables.likes.schemaQueryError = columnError?.message
+        results.tables.likes.schemaQueryError = columnError?.message;
       }
     } catch (e) {
       // RPCが存在しない場合は無視
-      results.tables.likes.schemaQueryNote = 'RPC function not available'
+      results.tables.likes.schemaQueryNote = "RPC function not available";
     }
 
     return NextResponse.json({
       success: true,
       results,
-      message: 'テーブル構造診断完了'
-    })
-
+      message: "テーブル構造診断完了",
+    });
   } catch (error) {
-    console.error('テーブル構造診断エラー:', error)
-    return NextResponse.json({
-      error: 'テーブル構造診断に失敗しました',
-      details: error instanceof Error ? error.message : '不明なエラー'
-    }, { status: 500 })
+    console.error("テーブル構造診断エラー:", error);
+    return NextResponse.json(
+      {
+        error: "テーブル構造診断に失敗しました",
+        details: error instanceof Error ? error.message : "不明なエラー",
+      },
+      { status: 500 },
+    );
   }
-} 
+}

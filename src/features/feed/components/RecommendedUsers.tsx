@@ -1,114 +1,125 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import Image from 'next/image'
-import { fetcher } from '@/utils/fetcher'
-import { useRouter } from 'next/navigation'
-import { User, UserPlus } from 'lucide-react'
-import FollowButton from '@/features/follow/components/FollowButton'
+import { useState, useEffect, useCallback, useMemo } from "react";
+import Image from "next/image";
+import { fetcher } from "@/utils/fetcher";
+import { useRouter } from "next/navigation";
+import { User, UserPlus } from "lucide-react";
+import FollowButton from "@/features/follow/components/FollowButton";
 
 interface RecommendedUser {
-  id: string
-  display_name: string
-  bio: string
-  avatar_image_url?: string
-  professions: string[]
+  id: string;
+  display_name: string;
+  bio: string;
+  avatar_image_url?: string;
+  professions: string[];
 }
 
 interface RecommendedUsersProps {
-  currentUserId?: string
-  isAuthenticated: boolean
+  currentUserId?: string;
+  isAuthenticated: boolean;
 }
 
-export function RecommendedUsers({ currentUserId, isAuthenticated }: RecommendedUsersProps) {
-  const [users, setUsers] = useState<RecommendedUser[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+export function RecommendedUsers({
+  currentUserId,
+  isAuthenticated,
+}: RecommendedUsersProps) {
+  const [users, setUsers] = useState<RecommendedUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   // useCallbackでコールバック関数をメモ化
-  const handleUserClick = useCallback((userId: string) => {
-    router.push(`/share/profile/${userId}`)
-  }, [router])
-
-  
+  const handleUserClick = useCallback(
+    (userId: string) => {
+      router.push(`/share/profile/${userId}`);
+    },
+    [router],
+  );
 
   // メモ化された検索パラメータ
-  const _searchParams = useMemo(() => ({
-    currentUserId,
-    isAuthenticated
-  }), [currentUserId, isAuthenticated])
+  const _searchParams = useMemo(
+    () => ({
+      currentUserId,
+      isAuthenticated,
+    }),
+    [currentUserId, isAuthenticated],
+  );
 
   useEffect(() => {
-    let isMounted = true
-    let timeoutId: NodeJS.Timeout
-    
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     // 短時間での重複実行を防ぐ
-    const lastFetch = sessionStorage.getItem('lastRecommendedUsersFetch')
-    const now = Date.now()
-    if (lastFetch && (now - parseInt(lastFetch)) < 30000) { // 30秒以内は実行しない
-      setLoading(false)
-      return
+    const lastFetch = sessionStorage.getItem("lastRecommendedUsersFetch");
+    const now = Date.now();
+    if (lastFetch && now - parseInt(lastFetch) < 30000) {
+      // 30秒以内は実行しない
+      setLoading(false);
+      return;
     }
 
     const fetchRecommendedUsers = async () => {
       try {
-        setError(null)
-        
+        setError(null);
+
         // API呼び出しにタイムアウトを設定
-        const controller = new AbortController()
+        const controller = new AbortController();
         timeoutId = setTimeout(() => {
-          controller.abort()
-        }, 8000) // 8秒でタイムアウト
+          controller.abort();
+        }, 8000); // 8秒でタイムアウト
 
         const data = await fetcher<{ users: RecommendedUser[] }>(
-          '/api/users/recommended?limit=3',
-          { signal: controller.signal }
-        )
+          "/api/users/recommended?limit=3",
+          { signal: controller.signal },
+        );
 
-        setUsers(data.users || [])
+        setUsers(data.users || []);
         // 成功時に最後の取得時刻を保存
-        sessionStorage.setItem('lastRecommendedUsersFetch', Date.now().toString())
+        sessionStorage.setItem(
+          "lastRecommendedUsersFetch",
+          Date.now().toString(),
+        );
       } catch (error) {
-        if (!isMounted) return
+        if (!isMounted) return;
 
         if (error instanceof Error) {
-          if (error.name === 'AbortError') {
-            console.error('おすすめユーザー取得タイムアウト')
-            setError('読み込みに時間がかかっています')
+          if (error.name === "AbortError") {
+            console.error("おすすめユーザー取得タイムアウト");
+            setError("読み込みに時間がかかっています");
           } else {
-            console.error('おすすめユーザー取得エラー:', error)
-            setError('ユーザー情報の取得に失敗しました')
+            console.error("おすすめユーザー取得エラー:", error);
+            setError("ユーザー情報の取得に失敗しました");
           }
         } else {
-          console.error('予期しないエラー:', error)
-          setError('予期しないエラーが発生しました')
+          console.error("予期しないエラー:", error);
+          setError("予期しないエラーが発生しました");
         }
         // エラー時はユーザーを空配列に設定
-        setUsers([])
+        setUsers([]);
       } finally {
         if (timeoutId) {
-          clearTimeout(timeoutId)
+          clearTimeout(timeoutId);
         }
         if (isMounted) {
-          setLoading(false)
+          setLoading(false);
         }
       }
-    }
+    };
 
-    fetchRecommendedUsers()
+    fetchRecommendedUsers();
 
     // クリーンアップ関数
     return () => {
-      isMounted = false
+      isMounted = false;
       if (timeoutId) {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
       }
-    }
-  }, [isAuthenticated, currentUserId]) // 具体的なプロパティのみ依存配列に設定
+    };
+  }, [isAuthenticated, currentUserId]); // 具体的なプロパティのみ依存配列に設定
 
   // メモ化されたユーザーリスト
-  const memoizedUsers = useMemo(() => users, [users])
+  const memoizedUsers = useMemo(() => users, [users]);
 
   if (loading) {
     return (
@@ -130,7 +141,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -142,7 +153,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
         </div>
         <div className="text-center py-4">
           <p className="text-sm text-gray-500 mb-3">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
           >
@@ -150,7 +161,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (memoizedUsers.length === 0) {
@@ -166,7 +177,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -175,12 +186,12 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
         <UserPlus className="w-5 h-5 text-gray-600" />
         <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
       </div>
-      
+
       <div className="space-y-3">
         {memoizedUsers.map((user) => (
           <div key={user.id} className="flex items-start gap-3">
             {/* アバター */}
-            <div 
+            <div
               className="cursor-pointer"
               onClick={() => handleUserClick(user.id)}
             >
@@ -201,7 +212,7 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
 
             {/* ユーザー情報 */}
             <div className="flex-1 min-w-0">
-              <div 
+              <div
                 className="cursor-pointer"
                 onClick={() => handleUserClick(user.id)}
               >
@@ -215,7 +226,9 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
                 )}
                 {user.bio && (
                   <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                    {user.bio.length > 60 ? `${user.bio.substring(0, 60)}...` : user.bio}
+                    {user.bio.length > 60
+                      ? `${user.bio.substring(0, 60)}...`
+                      : user.bio}
                   </p>
                 )}
               </div>
@@ -223,21 +236,18 @@ export function RecommendedUsers({ currentUserId, isAuthenticated }: Recommended
 
             {/* フォローボタン */}
             <div className="flex-shrink-0">
-              <FollowButton 
-                targetUserId={user.id}
-                compact={true}
-              />
+              <FollowButton targetUserId={user.id} compact={true} />
             </div>
           </div>
         ))}
       </div>
 
-      <button 
+      <button
         className="w-full mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
-        onClick={() => router.push('/explore')}
+        onClick={() => router.push("/explore")}
       >
         Show more
       </button>
     </div>
-  )
-} 
+  );
+}
