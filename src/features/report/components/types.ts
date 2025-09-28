@@ -7,6 +7,9 @@ export interface ReportData {
   performanceMetrics: PerformanceMetricsData;
   clientIndustryBreakdown: IndustryData[];
   featuredWorks: FeaturedWorkData[];
+  achievements?: AchievementsData;
+  careerNarrative?: CareerNarrativeData;
+  recommendations?: RecommendationsData;
 }
 
 export interface AISummaryData {
@@ -55,6 +58,24 @@ export interface FeaturedWorkData {
   likes: number;
   tags: string[];
   publishedAt: string;
+}
+
+// 追加: 新機能用のデータ型
+export interface AchievementsData {
+  skills: string[];
+}
+
+export interface CareerNarrativeData {
+  archetype: string; // 例: 翻訳者/問題解決者/世界観構築者
+  storyline: string; // 物語テキスト
+  turningPoints: Array<{ date: string; title: string; description: string }>;
+}
+
+export interface RecommendationsData {
+  positioning: string; // 立ち位置の要約
+  profileVariants: Array<{ title: string; tagline: string; summary: string }>; // 肩書/紹介文案
+  nextProjects: Array<{ title: string; desc: string }>; // 提案プロジェクト
+  keywords: string[]; // 推奨キーワード
 }
 
 // APIレスポンス用の型

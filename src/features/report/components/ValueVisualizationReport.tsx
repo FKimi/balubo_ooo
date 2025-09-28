@@ -10,6 +10,7 @@ import { KeywordCloud } from "./KeywordCloud";
 import { ClientIndustryBreakdown } from "./ClientIndustryBreakdown";
 import { FeaturedWorks } from "./FeaturedWorks";
 import { SuggestedEngagements } from "./SuggestedEngagements";
+import { CareerNarrativeSection } from "./CareerNarrativeSection";
 // HighlightChipsはヘッダー統合により不使用
 import type { WorkData } from "@/features/work/types";
 import type { ReportData } from "./types";
@@ -424,6 +425,7 @@ export function ValueVisualizationReport({
 
       {/* メトリクスは別ページと重複するため非表示 */}
 
+      {/* Part 1: あなたの実績のサマリー（既存再構成） */}
       {/* 3) 専門領域の可視化（キーワード + 業界比率） */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border-gray-200 bg-white">
@@ -457,6 +459,11 @@ export function ValueVisualizationReport({
       {/* 5) 代表作 */}
       <FeaturedWorks works={reportData.featuredWorks || []} />
 
+      {/* Part 2: キャリアの物語 */}
+      {reportData.careerNarrative && (
+        <CareerNarrativeSection narrative={reportData.careerNarrative} />
+      )}
+
       {/* 6) 提案できる業務 */}
       <SuggestedEngagements
         strengths={reportData.aiSummary?.coreCompetencies || []}
@@ -464,6 +471,66 @@ export function ValueVisualizationReport({
           (i: any) => i.industry,
         )}
       />
+
+      {/* Part 3: 提言（軽量） */}
+      {reportData.recommendations && (
+        <Card className="border-gray-200 bg-white">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold text-gray-900">
+              価値最大化の提言
+            </CardTitle>
+            <p className="text-sm text-gray-600">ポジショニングと次の一手</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg border border-gray-200 p-4 bg-gray-50">
+              <div className="text-xs text-gray-500 mb-1">ポジショニング</div>
+              <div className="text-sm text-gray-900">{reportData.recommendations.positioning}</div>
+            </div>
+
+            {reportData.recommendations.profileVariants?.length > 0 && (
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-gray-900">プロフィール文案</div>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {reportData.recommendations.profileVariants.slice(0, 3).map((v, idx) => (
+                    <div key={idx} className="border border-gray-200 rounded-lg p-3">
+                      <div className="text-sm font-semibold text-gray-900">{v.title}</div>
+                      <div className="text-xs text-gray-600">{v.tagline}</div>
+                      <div className="text-sm text-gray-700 mt-2">{v.summary}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {reportData.recommendations.nextProjects?.length > 0 && (
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-gray-900">次に狙うべきプロジェクト</div>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {reportData.recommendations.nextProjects.slice(0, 3).map((p, idx) => (
+                    <div key={idx} className="border border-gray-200 rounded-lg p-3">
+                      <div className="text-sm font-semibold text-gray-900">{p.title}</div>
+                      <div className="text-sm text-gray-700">{p.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {reportData.recommendations.keywords?.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-gray-900">アピールすべきキーワード</div>
+                <div className="flex flex-wrap gap-2">
+                  {reportData.recommendations.keywords.slice(0, 10).map((k, idx) => (
+                    <span key={idx} className="px-2 py-1 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-700">
+                      {k}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* アクションボタン */}
       <div className="flex flex-col items-center gap-2 pt-4 print:hidden">

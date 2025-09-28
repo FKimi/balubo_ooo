@@ -8,6 +8,9 @@ import type {
   PerformanceMetricsData,
   IndustryData,
   FeaturedWorkData,
+  AchievementsData,
+  CareerNarrativeData,
+  RecommendationsData,
 } from "@/features/report/components/types";
 
 export async function POST(
@@ -74,6 +77,32 @@ export async function POST(
       generateIndustryBreakdown(works);
     const featuredWorks: FeaturedWorkData[] = generateFeaturedWorks(works);
 
+    // 追加: 新機能用の軽量生成（ヒューリスティック）
+    const achievements: AchievementsData = {
+      skills: Array.from(
+        new Set(
+          works.flatMap((w: any) =>
+            (w.tags || []).concat(
+              ((w.ai_analysis_result?.tags as string[] | undefined) || []),
+            ),
+          ),
+        ),
+      )
+        .filter(Boolean)
+        .slice(0, 20),
+    };
+
+    const careerNarrative: CareerNarrativeData = generateCareerNarrative(
+      works,
+      profile,
+    );
+
+    const recommendations: RecommendationsData = generateRecommendations(
+      achievements,
+      careerNarrative,
+      clientIndustryBreakdown,
+    );
+
     // 経験年数を注入（profiles.experience_years優先）
     const experienceYears: number | undefined =
       typeof profile?.experience_years === "number"
@@ -90,6 +119,9 @@ export async function POST(
       },
       clientIndustryBreakdown,
       featuredWorks,
+      achievements,
+      careerNarrative,
+      recommendations,
     };
 
     return NextResponse.json({
@@ -422,4 +454,89 @@ function generateFeaturedWorks(works: any[]): FeaturedWorkData[] {
     tags: w.tags || [],
     publishedAt: w.created_at || new Date().toISOString(),
   }));
+}
+
+// 軽量なナラティブ生成
+function generateCareerNarrative(
+  works: any[],
+  profile?: any,
+): CareerNarrativeData {
+  const first = works
+    .map((w) => new Date(w.created_at || 0).getTime())
+    .filter((t) => isFinite(t))
+    .sort((a, b) => a - b)[0];
+  const last = works
+    .map((w) => new Date(w.created_at || 0).getTime())
+    .filter((t) => isFinite(t))
+    .sort((a, b) => b - a)[0];
+
+  // タグ頻度で主人公タイプを推定
+  const tagCounts: Record<string, number> = {};
+  works.forEach((w: any) => (w.tags || []).forEach((t: string) => {
+    const k = String(t).toLowerCase();
+    tagCounts[k] = (tagCounts[k] || 0) + 1;
+  }));
+  const top = Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "";
+  const archetype = top.includes("翻訳") || top.includes("UX")
+    ? "翻訳者"
+    : top.includes("解決") || top.includes("課題")
+    ? "問題解決者"
+    : "世界観構築者";
+
+  const name = profile?.display_name || profile?.full_name || "クリエイター";
+  const storyline = `${name}のキャリアは、${new Date(first || Date.now()).getFullYear()}年から${new Date(last || Date.now()).getFullYear()}年にかけて、${archetype}としての役割を強めてきました。作品群は一貫して、複雑なテーマを誰にでも届く構造へ翻訳する志向を示しています。`;
+
+  const turningPoints = [
+    {
+      date: first ? new Date(first).toISOString().slice(0, 10) : "",
+      title: "初期の転機",
+      description: "新領域への挑戦により、基礎となるスキルセットを獲得。",
+    },
+    {
+      date: last ? new Date(last).toISOString().slice(0, 10) : "",
+      title: "直近の進化",
+      description: "専門領域の深掘りと再現性の高いプロセス設計を確立。",
+    },
+  ];
+
+  return { archetype, storyline, turningPoints };
+}
+
+function generateRecommendations(
+  achievements: AchievementsData,
+  narrative: CareerNarrativeData,
+  industries: IndustryData[],
+): RecommendationsData {
+  const mainIndustry = industries
+    .slice()
+    .sort((a, b) => (b.percentage || 0) - (a.percentage || 0))[0]?.industry;
+  const positioning = `${narrative.archetype} × ${mainIndustry || "B2B"} の専門家。`;
+
+  const profileVariants = [
+    {
+      title: `${narrative.archetype}／コンテンツストラテジスト`,
+      tagline: "一次情報と構造化で意思決定に寄与",
+      summary: "取材起点の一次情報を、再現性ある編集プロセスで成果に変換。",
+    },
+    {
+      title: `${narrative.archetype}／UXライティング`,
+      tagline: "複雑な概念を誰もが使える言葉に",
+      summary: "専門領域の知を、プロダクト/記事/LPに落とし込む。",
+    },
+    {
+      title: `${narrative.archetype}／B2Bナラティブ設計`,
+      tagline: "事例とデータで語るブランドづくり",
+      summary: "事例横展開フォーマットで、営業・採用にも効く資産化。",
+    },
+  ];
+
+  const nextProjects = [
+    { title: "ホワイトペーパー制作", desc: "一次情報ベースで意思決定者に届く資料設計。" },
+    { title: "事例体系化プロジェクト", desc: "取材〜原稿〜再利用設計まで横展開に耐える基盤構築。" },
+    { title: "UXライティング支援", desc: "専門概念の翻訳と導線の最適化で体験向上。" },
+  ];
+
+  const keywords = achievements.skills.slice(0, 10);
+
+  return { positioning, profileVariants, nextProjects, keywords };
 }
