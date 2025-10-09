@@ -91,7 +91,7 @@ export default function CreatorPainSection() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-          {problems.map((problem, idx) => (
+          {problems.map((problem) => (
             <div
               key={problem.title}
               className="relative border-2 border-gray-200 bg-white rounded-2xl p-8 hover:border-[#0A66C2] hover:shadow-xl transition-all duration-500"

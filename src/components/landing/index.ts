@@ -2,7 +2,7 @@
 export { default as HeroSection } from "./HeroSection";
 export { default as CreatorPainSection } from "./CreatorPainSection";
 export { default as WhyBaluboSection } from "./WhyBaluboSection";
-export { default as FeaturesSection } from "./MidCTA";
+export { default as FeaturesSection } from "./FeaturesSection";
 export { default as MidCallToAction } from "./MidCallToAction";
 export { default as VoicesSection } from "./VoicesSection";
 export { default as FinalCTASection } from "./FinalCTASection";

@@ -121,7 +121,7 @@ export default function RecommendedSection() {
 
         {/* ペルソナカード */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2 max-w-6xl mx-auto">
-          {personas.map((persona, idx) => (
+          {personas.map((persona) => (
             <div
               key={persona.title}
               className={`relative bg-white border-2 ${persona.borderColor} rounded-2xl p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500`}

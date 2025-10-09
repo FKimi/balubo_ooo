@@ -81,7 +81,7 @@ export default function FeaturesSection() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-          {analysisMetrics.map((metric, idx) => (
+          {analysisMetrics.map((metric) => (
             <div
               key={metric.title}
               className="relative bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-[#0A66C2] hover:shadow-2xl transition-all duration-500"
