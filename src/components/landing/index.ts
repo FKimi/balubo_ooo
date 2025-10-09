@@ -1,7 +1,9 @@
-export { default as ElementsSection } from "./ElementsSection";
+// 実際に使用しているコンポーネントのみをエクスポート
 export { default as HeroSection } from "./HeroSection";
-export { default as HighlightsSection } from "./HighlightsSection";
-export { default as PainPointsSection } from "./PainPointsSection";
-export { default as StepsSection } from "./StepsSection";
+export { default as CreatorPainSection } from "./CreatorPainSection";
+export { default as WhyBaluboSection } from "./WhyBaluboSection";
+export { default as FeaturesSection } from "./MidCTA";
+export { default as MidCallToAction } from "./MidCallToAction";
 export { default as VoicesSection } from "./VoicesSection";
 export { default as FinalCTASection } from "./FinalCTASection";
+export { default as SectionDivider } from "./SectionDivider";

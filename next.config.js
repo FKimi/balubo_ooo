@@ -1,25 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['recharts'],
-  
-  // 実験的機能を一時的に無効化
-  experimental: {
-    optimizePackageImports: [
-      '@heroicons/react', 
-      'lucide-react', 
-      '@radix-ui/react-dialog', 
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-alert-dialog',
-      '@radix-ui/react-label',
-      '@radix-ui/react-progress',
-      '@radix-ui/react-slot',
-      'framer-motion',
-      'react-hook-form',
-      'react-markdown',
-      'recharts'
-    ],
-  },
   
   // 画像最適化設定
   images: {
@@ -101,35 +82,45 @@ const nextConfig = {
   
   // ヘッダー設定（シンプル化）
   async headers() {
+    const isProd = process.env.NODE_ENV === 'production';
+
+    const securityHeaders = {
+      source: '/(.*)',
+      headers: [
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'X-XSS-Protection', value: '1; mode=block' },
+      ],
+    };
+
+    if (isProd) {
+      return [
+        securityHeaders,
+        {
+          source: '/_next/static/css/(.*)',
+          headers: [
+            { key: 'Content-Type', value: 'text/css' },
+            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          ],
+        },
+        {
+          // 本番のみ長期キャッシュ
+          source: '/_next/static/(.*).js',
+          headers: [
+            { key: 'Content-Type', value: 'text/javascript; charset=utf-8' },
+            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          ],
+        },
+      ]
+    }
+
+    // 開発時はJS/CSSをキャッシュさせない（stale防止）
     return [
+      securityHeaders,
       {
-        source: '/(.*)',
+        source: '/_next/static/(.*)',
         headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
-      },
-      {
-        source: '/_next/static/css/(.*)',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'text/css',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
+          { key: 'Cache-Control', value: 'no-store' },
         ],
       },
     ]

@@ -42,9 +42,22 @@ const getErrorMessage = (error: unknown): string => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // 初期状態を true に変更
+  const [loading, setLoading] = useState(true); // 初期状態をtrueに変更（SSRとクライアントの一貫性）
+  const [mounted, setMounted] = useState(false);
+
+  // クライアントサイドでマウントされたことを追跡
+  useEffect(() => {
+    setMounted(true);
+    // マウント後は即座にloadingをfalseにして、認証チェックを開始
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
+    // クライアントサイドでマウントされるまで認証チェックを行わない
+    if (!mounted) {
+      return;
+    }
+
     // ガード節：Supabaseが設定されていない場合は早期return
     if (
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -58,7 +71,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 初期認証状態の確認
     const getInitialUser = async () => {
-      setLoading(true);
       console.log("[AuthContext] 初期ユーザー取得開始");
 
       try {
@@ -167,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return undefined;
     }
-  }, []);
+  }, [mounted]);
 
   const signUp = async (
     email: string,

@@ -12,9 +12,16 @@ import { Variants } from "framer-motion";
 
 export function useScrollAnimation(threshold = 0.1) {
   const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry && entry.isIntersecting) {
@@ -34,9 +41,9 @@ export function useScrollAnimation(threshold = 0.1) {
         observer.unobserve(ref.current);
       }
     };
-  }, [threshold]);
+  }, [threshold, mounted]);
 
-  return { ref, isVisible };
+  return { ref, isVisible: mounted ? isVisible : true };
 }
 
 // Framer Motionを使った汎用的なスクロールアニメーションフック
@@ -86,8 +93,15 @@ export function useFramerMotionAnimation() {
 // スクロール進行度フック
 export function useScrollProgress() {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     const handleScroll = () => {
       const totalHeight =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -97,7 +111,7 @@ export function useScrollProgress() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mounted]);
 
   return scrollProgress;
 }

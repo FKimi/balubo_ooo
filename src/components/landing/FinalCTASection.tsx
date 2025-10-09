@@ -1,40 +1,21 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-const features = [
+const trustFeatures = [
   {
     icon: (
       <svg
-        className="h-5 w-5 text-indigo-500"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
+        className="h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
       >
         <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    ),
-    text: "完全無料",
-  },
-  {
-    icon: (
-      <svg
-        className="h-5 w-5 text-indigo-500"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          fillRule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+          clipRule="evenodd"
         />
       </svg>
     ),
@@ -43,96 +24,143 @@ const features = [
   {
     icon: (
       <svg
-        className="h-5 w-5 text-indigo-500"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
+        className="h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
       >
         <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M13 10V3L4 14h7v7l9-11h-7z"
+          fillRule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+          clipRule="evenodd"
         />
       </svg>
     ),
-    text: "すぐにAI分析開始",
+    text: "クレジットカード不要",
+  },
+  {
+    icon: (
+      <svg
+        className="h-5 w-5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fillRule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+          clipRule="evenodd"
+        />
+      </svg>
+    ),
+    text: "いつでも退会可能",
   },
 ];
 
 export default function FinalCTASection() {
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const router = useRouter();
+
   return (
-    <section className="relative overflow-hidden bg-slate-50 py-20 px-4 sm:py-24">
-      <div className="container relative z-10 mx-auto max-w-4xl">
-        {/* メッセージセクション削除済み */}
-
-        {/* 区切り */}
-        <div className="flex justify-center py-16 md:py-10">
-          <div className="h-px w-32 bg-gradient-to-r from-transparent via-slate-300 to-transparent"></div>
-        </div>
-
+    <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white py-24 px-4 sm:py-32">
+      <div className="container relative z-10 mx-auto max-w-5xl">
         {/* CTA部分 */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl leading-tight mb-8">
             その専門知識は、
             <br />
-            <span className="text-indigo-600">
-              高く評価されるべき資産です。
-            </span>
+            <span className="text-[#0A66C2]">高く評価されるべき資産です。</span>
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            baluboで、あなたの専門性を正しく、高く、伝えませんか？
-            <br className="hidden sm:block" />
-            新しい評価、新しい仕事、新しいキャリアが、あなたを待っています。
-          </p>
+          
+          <div className="mx-auto max-w-3xl space-y-6 mb-12">
+            <p className="text-xl md:text-2xl leading-relaxed text-gray-800 font-medium">
+              <span className="text-[#0A66C2] font-bold">balubo</span>で、あなたの専門性を正しく、高く、伝えませんか？
+            </p>
+            <p className="text-lg md:text-xl leading-relaxed text-gray-700">
+              新しい評価、新しい仕事、新しいキャリアが、あなたを待っています。
+            </p>
+          </div>
 
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button
-              asChild
-              size="lg"
-              className="w-full max-w-xs transform-gpu rounded-lg bg-indigo-600 px-8 py-4 text-lg font-medium text-white shadow-lg transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl sm:w-auto"
-            >
-              <Link href="/register">
-                今すぐ無料で「専門性」を証明する
-                <svg
-                  className="ml-2 h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
+          <div className="mx-auto max-w-3xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 md:p-10 mb-12">
+            <p className="text-3xl md:text-4xl text-gray-900 font-bold leading-tight mb-6">
+              今すぐ無料で<span className="text-[#0A66C2]">「専門性」</span>を証明する
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-base text-gray-700">
+              <span className="flex items-center">
+                <svg className="w-5 h-5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-              </Link>
+                完全無料
+              </span>
+              <span className="flex items-center">
+                <svg className="w-5 h-5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                1分で登録完了
+              </span>
+              <span className="flex items-center">
+                <svg className="w-5 h-5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                すぐにAI分析開始
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center mb-8">
+            <Button
+              size="lg"
+              className="w-full max-w-md rounded-lg bg-gradient-to-r from-[#0A66C2] to-[#004182] px-12 py-6 text-xl font-bold text-white transition-all duration-200 hover:shadow-2xl hover:scale-105 sm:w-auto disabled:opacity-60"
+              disabled={isRedirecting}
+              onClick={() => {
+                setIsRedirecting(true);
+                router.push("/register");
+              }}
+            >
+              {isRedirecting ? (
+                "読み込み中…"
+              ) : (
+                <span className="inline-flex items-center">
+                  無料で「専門性」を証明する
+                  <svg
+                    className="ml-2 h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </span>
+              )}
             </Button>
           </div>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-x-8 gap-y-4">
-            {features.map((feature) => (
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-gray-600">
+            {trustFeatures.map((feature) => (
               <div key={feature.text} className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-white">
                   {feature.icon}
                 </div>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="font-medium">
                   {feature.text}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="mt-16">
-            <div className="rounded-lg border border-slate-200 bg-white p-8 shadow-lg">
-              <p className="text-lg italic text-slate-600">
-                &ldquo;あなたの本当の価値を、世界はまだ知らない&rdquo;
+          {/* 最終メッセージ */}
+          <div className="mt-16 pt-8 border-t border-gray-200">
+            <blockquote className="text-center">
+              <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">
+                &quot;あなたの本当の価値を、世界はまだ知らない&quot;
               </p>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="text-xl md:text-2xl text-gray-700">
                 — 今日から、それを変えてみませんか？
               </p>
-            </div>
+            </blockquote>
           </div>
         </div>
       </div>

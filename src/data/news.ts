@@ -80,29 +80,29 @@ export const newsData: NewsItem[] = [
 // カテゴリーごとのスタイル設定
 export const categoryStyles = {
   アップデート: {
-    badge: "bg-blue-100 text-blue-800",
+    badge: "bg-slate-100 text-slate-800",
     icon: "🔄",
-    color: "blue",
+    color: "slate",
   },
   お知らせ: {
-    badge: "bg-green-100 text-green-800",
+    badge: "bg-slate-100 text-slate-800",
     icon: "📢",
-    color: "green",
+    color: "slate",
   },
   新機能: {
-    badge: "bg-purple-100 text-purple-800",
+    badge: "bg-slate-100 text-slate-800",
     icon: "✨",
-    color: "purple",
+    color: "slate",
   },
   メンテナンス: {
-    badge: "bg-yellow-100 text-yellow-800",
+    badge: "bg-slate-100 text-slate-800",
     icon: "🔧",
-    color: "yellow",
+    color: "slate",
   },
   リリース: {
-    badge: "bg-red-100 text-red-800",
+    badge: "bg-slate-100 text-slate-800",
     icon: "🚀",
-    color: "red",
+    color: "slate",
   },
 };
 

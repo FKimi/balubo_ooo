@@ -5,77 +5,138 @@ import React from "react";
 interface Voice {
   name: string;
   role: string;
+  avatarBg: string;
+  avatarText: string;
+  quantitativeResult?: string;
+  emotionalChange?: string;
   comment: string;
-  avatarInitial: string;
 }
 
 const voices: Voice[] = [
   {
     name: "田中 美咲",
     role: "BtoBコンテンツマーケター",
+    avatarBg: "from-blue-500 to-indigo-600",
+    avatarText: "田",
+    quantitativeResult: "",
+    emotionalChange: "",
     comment:
       "これまで感覚的に伝えていた自分の強みが、「SaaS業界への解像度」といった客観的なデータで可視化されて驚きました。クライアントへの提案でも説得力が格段に上がり、専門家として認識され、単価アップにも繋がっています。",
-    avatarInitial: "田",
   },
   {
     name: "佐藤 健太",
     role: "DXコンサルタント",
+    avatarBg: "from-green-500 to-emerald-600",
+    avatarText: "佐",
+    quantitativeResult: "",
+    emotionalChange: "",
     comment:
       "AIによる制作物分析で、自分では気づかなかった得意分野が明らかになりました。今では特化した領域での案件依頼が増え、より充実した仕事ができています。",
-    avatarInitial: "佐",
   },
   {
     name: "山田 雅子",
     role: "専門領域ライター",
+    avatarBg: "from-purple-500 to-pink-600",
+    avatarText: "山",
+    quantitativeResult: "",
+    emotionalChange: "",
     comment:
       "ポートフォリオ作成にかかる時間が大幅に短縮され、制作活動に集中できるように。AI分析の結果も実感とマッチしていて、信頼して活用しています。",
-    avatarInitial: "山",
   },
 ];
 
 export default function VoicesSection() {
+
   return (
     <section
       id="voices"
-      className="relative overflow-hidden bg-gray-50 py-20 px-4 md:py-28"
+      className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-24 px-4 md:py-32"
     >
-      <div className="container relative z-10 mx-auto max-w-5xl">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl">
-            先行ユーザーからの期待の声
+      <div className="container relative z-10 mx-auto max-w-7xl">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight tracking-tight">
+            すでに、
+            <span className="text-[#0A66C2]">多くのプロ</span>が、
+            <br />
+            新たなキャリアを歩み始めています。
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            すでに多くの方々から、baluboが提供する新しい価値にご期待いただいています。
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            具体的な成果と、働き方の変化
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 md:mt-20 lg:grid-cols-3">
+        <div className="mt-20 grid gap-8 md:mt-24 lg:grid-cols-3">
           {voices.map((voice) => (
-            <div
+            <article
               key={voice.name}
-              className="relative flex flex-col rounded-lg border border-gray-200 bg-white p-8 shadow-md transition-all duration-300 hover:shadow-lg"
+              className="relative flex flex-col rounded-2xl border-2 border-gray-200 bg-white p-8 hover:border-[#0A66C2] hover:shadow-2xl transition-all duration-500"
+              aria-label={`${voice.name}さんの事例`}
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-lg" />
-              <div className="flex-grow">
-                <p className="relative text-base leading-relaxed text-gray-600">
-                  <span className="absolute -left-3 -top-3 text-7xl font-bold text-gray-300 opacity-30">
-                    &quot;
-                  </span>
-                  <span className="relative">{voice.comment}</span>
-                </p>
-              </div>
-              <div className="mt-6 flex items-center pt-6 border-t border-gray-200">
-                <div className="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white text-xl font-bold">
-                  {voice.avatarInitial}
+              <div>
+                {/* コメント */}
+                <div className="flex-grow mb-6">
+                  <p className="text-base leading-relaxed text-gray-700">
+                    <span className="text-4xl font-bold text-gray-200 opacity-50">&quot;</span>
+                    {voice.comment}
+                  </p>
                 </div>
-                <div>
-                  <div className="font-semibold text-gray-900">
-                    {voice.name}
+
+                {/* プロフィール */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                  <div className="flex items-center">
+                    <div className={`mr-3 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${voice.avatarBg} text-white text-base font-bold shadow-md`}>
+                      {voice.avatarText}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <div className="font-bold text-gray-900 text-base">
+                          {voice.name}
+                        </div>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          認証済
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600">{voice.role}</div>
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">{voice.role}</div>
+                  
+                  {/* 専門性スコア表示 */}
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-[#0A66C2]">
+                      {voice.name === "田中 美咲" && "92%"}
+                      {voice.name === "佐藤 健太" && "88%"}
+                      {voice.name === "山田 雅子" && "85%"}
+                    </div>
+                    <div className="text-xs text-gray-500">専門性スコア</div>
+                  </div>
+                </div>
+                
+                {/* 専門性バー */}
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">
+                      {voice.name === "田中 美咲" && "SaaS業界への解像度"}
+                      {voice.name === "佐藤 健太" && "DX領域の専門性"}
+                      {voice.name === "山田 雅子" && "コンテンツ制作力"}
+                    </span>
+                    <span className="font-medium text-gray-900">
+                      {voice.name === "田中 美咲" && "95%"}
+                      {voice.name === "佐藤 健太" && "90%"}
+                      {voice.name === "山田 雅子" && "87%"}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full">
+                    <div 
+                      className="h-1.5 bg-gradient-to-r from-[#0A66C2] to-[#004182] rounded-full transition-all duration-1000 ease-out"
+                      style={{
+                        width: voice.name === "田中 美咲" ? "95%" : 
+                               voice.name === "佐藤 健太" ? "90%" : "87%"
+                      }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

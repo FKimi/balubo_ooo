@@ -15,10 +15,10 @@ module.exports = {
         'base-light-gray': '#F8F9FA',
         'ui-background-gray': '#F1F3F5',
 
-        // Primary colors - baluboブランドカラー
-        'primary-light-blue': '#42A5F5', // 洗練された青
-        'primary-blue': '#1976D2',     // baluboブランドカラー
-        'accent-dark-blue': '#1565C0', // 濃い青
+        // Primary colors - LinkedInスタイルカラー
+        'linkedin-blue': '#0A66C2',    // LinkedIn公式カラー
+        'linkedin-blue-light': '#0073B1', // LinkedInライトブルー
+        'linkedin-blue-dark': '#004182',  // LinkedInダークブルー
 
         // Text colors - より洗練されたグレー
         'text-primary': '#1F2937',     // より濃いグレー
@@ -38,18 +38,19 @@ module.exports = {
         // shadcn/ui compatible colors - 洗練されたバージョン
         border: '#E5E7EB',
         input: '#E5E7EB',
-        ring: '#1976D2',
+        ring: '#0A66C2',
         background: '#FFFFFF',
         foreground: '#1F2937',
         primary: {
-          DEFAULT: '#1976D2',
+          DEFAULT: '#0A66C2',
           foreground: '#FFFFFF',
           50: '#EFF6FF',
           100: '#DBEAFE',
-          500: '#3B82F6',
-          600: '#2563EB',
-          700: '#1D4ED8',
-          900: '#1E3A8A',
+          500: '#0A66C2',
+          600: '#004182',
+          700: '#004182',
+          800: '#004182',
+          900: '#004182',
         },
         secondary: {
           DEFAULT: '#F9FAFB',
@@ -118,6 +119,7 @@ module.exports = {
         // 洗練されたアニメーション
         'fade-in': 'fadeIn 0.6s ease-out',
         'slide-up': 'slideUp 0.6s ease-out',
+        'slide-up-bottom': 'slideUpBottom 0.4s ease-out',
         'slide-in-right': 'slideInRight 0.6s ease-out',
         'scale-in': 'scaleIn 0.4s ease-out',
         'pulse-elegant': 'pulseElegant 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -130,6 +132,10 @@ module.exports = {
         },
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUpBottom: {
+          '0%': { opacity: '0', transform: 'translateY(100%)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideInRight: {
