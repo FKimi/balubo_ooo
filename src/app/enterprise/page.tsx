@@ -17,6 +17,7 @@ export default function EnterpriseLandingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   // 任意アンケート項目（全て任意）
   const [industry, setIndustry] = useState("");
@@ -765,61 +766,61 @@ export default function EnterpriseLandingPage() {
                 <p className="text-lg text-gray-600">お気軽にお問い合わせください</p>
               </div>
               <div className="space-y-6">
-                <details className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <summary className="cursor-pointer p-6 md:p-8 flex items-center justify-between font-bold text-lg text-gray-900 hover:text-[#0A66C2] transition-colors">
-                    <span>baluboの利用料金はどのくらいですか？</span>
-                    <svg className="w-6 h-6 flex-shrink-0 text-[#0A66C2] transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 md:px-8 pb-6 md:pb-8 text-gray-700 leading-relaxed">
-                    現在、料金プランを調整中です。ウェイトリスト登録いただいた方には、正式リリース前に先行案内と特別料金をご案内いたします。一般的なクラウドソーシングサービスよりも、コストパフォーマンスの高いプランをご用意する予定です。
+                {[
+                  {
+                    question: "baluboの利用料金はどのくらいですか？",
+                    answer: "現在、料金プランを調整中です。ウェイトリスト登録いただいた方には、正式リリース前に先行案内と特別料金をご案内いたします。一般的なクラウドソーシングサービスよりも、コストパフォーマンスの高いプランをご用意する予定です。"
+                  },
+                  {
+                    question: "どんな業界・業種に対応していますか？",
+                    answer: "BtoB SaaS、IT、コンサルティング、金融、製造業、ヘルスケアなど、幅広い業界に対応しています。特にBtoB企業のコンテンツマーケティング、オウンドメディア運営、ホワイトペーパー制作などで高い実績があります。"
+                  },
+                  {
+                    question: "マッチング後のサポートはありますか？",
+                    answer: "はい、プロジェクト開始から完了まで、専任のカスタマーサクセスチームがサポートいたします。進捗管理、品質チェック、トラブル対応など、安心してご利用いただけます。"
+                  },
+                  {
+                    question: "無料トライアルはありますか？",
+                    answer: "ウェイトリスト登録いただいた企業様には、限定的な無料トライアル期間をご用意する予定です。実際にAIマッチングの精度と、クリエイターの品質を体験いただけます。"
+                  },
+                  {
+                    question: "契約期間の縛りはありますか？",
+                    answer: "プランによって異なりますが、基本的に長期契約の縛りはございません。プロジェクト単位でのご利用も可能です。柔軟なプランをご用意していますので、お気軽にご相談ください。"
+                  }
+                ].map((faq, index) => (
+                  <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-[#0A66C2]">
+                    <button
+                      className="w-full p-6 md:p-8 flex items-center justify-between text-left font-bold text-lg text-gray-900 hover:text-[#0A66C2] hover:bg-gray-50 transition-colors"
+                      onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                      aria-expanded={openFaqIndex === index}
+                      aria-controls={`faq-answer-${index}`}
+                    >
+                      <span>{faq.question}</span>
+                      <svg
+                        className={`w-6 h-6 flex-shrink-0 text-[#0A66C2] transition-transform duration-300 ${
+                          openFaqIndex === index ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div
+                      id={`faq-answer-${index}`}
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        openFaqIndex === index ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <div className="px-6 md:px-8 pb-6 md:pb-8">
+                        <p className="text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-[#0A66C2]">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </details>
-                <details className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <summary className="cursor-pointer p-6 md:p-8 flex items-center justify-between font-bold text-lg text-gray-900 hover:text-[#0A66C2] transition-colors">
-                    <span>どんな業界・業種に対応していますか？</span>
-                    <svg className="w-6 h-6 flex-shrink-0 text-[#0A66C2] transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 md:px-8 pb-6 md:pb-8 text-gray-700 leading-relaxed">
-                    BtoB SaaS、IT、コンサルティング、金融、製造業、ヘルスケアなど、幅広い業界に対応しています。特にBtoB企業のコンテンツマーケティング、オウンドメディア運営、ホワイトペーパー制作などで高い実績があります。
-                  </div>
-                </details>
-                <details className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <summary className="cursor-pointer p-6 md:p-8 flex items-center justify-between font-bold text-lg text-gray-900 hover:text-[#0A66C2] transition-colors">
-                    <span>マッチング後のサポートはありますか？</span>
-                    <svg className="w-6 h-6 flex-shrink-0 text-[#0A66C2] transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 md:px-8 pb-6 md:pb-8 text-gray-700 leading-relaxed">
-                    はい、プロジェクト開始から完了まで、専任のカスタマーサクセスチームがサポートいたします。進捗管理、品質チェック、トラブル対応など、安心してご利用いただけます。
-                  </div>
-                </details>
-                <details className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <summary className="cursor-pointer p-6 md:p-8 flex items-center justify-between font-bold text-lg text-gray-900 hover:text-[#0A66C2] transition-colors">
-                    <span>無料トライアルはありますか？</span>
-                    <svg className="w-6 h-6 flex-shrink-0 text-[#0A66C2] transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 md:px-8 pb-6 md:pb-8 text-gray-700 leading-relaxed">
-                    ウェイトリスト登録いただいた企業様には、限定的な無料トライアル期間をご用意する予定です。実際にAIマッチングの精度と、クリエイターの品質を体験いただけます。
-                  </div>
-                </details>
-                <details className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <summary className="cursor-pointer p-6 md:p-8 flex items-center justify-between font-bold text-lg text-gray-900 hover:text-[#0A66C2] transition-colors">
-                    <span>契約期間の縛りはありますか？</span>
-                    <svg className="w-6 h-6 flex-shrink-0 text-[#0A66C2] transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 md:px-8 pb-6 md:pb-8 text-gray-700 leading-relaxed">
-                    プランによって異なりますが、基本的に長期契約の縛りはございません。プロジェクト単位でのご利用も可能です。柔軟なプランをご用意していますので、お気軽にご相談ください。
-                  </div>
-                </details>
+                ))}
               </div>
               <div className="mt-12 text-center">
                 <p className="text-gray-600 mb-4">その他のご質問がある場合は</p>

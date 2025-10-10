@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * 「こんな人におすすめ」セクション
@@ -99,6 +100,7 @@ const personas: RecommendedPersona[] = [
 ];
 
 export default function RecommendedSection() {
+  const router = useRouter();
 
   return (
     <section
@@ -186,10 +188,8 @@ export default function RecommendedSection() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <span className="text-sm text-gray-600">まずは無料で</span>
               <button
-                onClick={() => {
-                  document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200"
+                onClick={() => router.push("/register")}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 専門性スコアを見る（無料・3分）
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
