@@ -201,4 +201,4 @@ subscription.unsubscribe()
 ### デプロイエラー
 - 環境変数が正しく設定されているか確認
 - TypeScriptエラーがないか確認
-- 必要な依存関係がインストールされているか確認 
+- 必要な依存関係がインストールされているか確認 # Force redeploy Fri Oct 10 11:55:22 JST 2025
