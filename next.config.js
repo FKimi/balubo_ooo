@@ -96,18 +96,11 @@ const nextConfig = {
     if (isProd) {
       return [
         securityHeaders,
+        // _next 配下の Content-Type はプラットフォーム既定に任せる
+        // ここでは長期キャッシュのみを広く指定
         {
-          source: '/_next/static/css/(.*)',
+          source: '/_next/static/(.*)',
           headers: [
-            { key: 'Content-Type', value: 'text/css' },
-            { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          ],
-        },
-        {
-          // 本番のみ長期キャッシュ
-          source: '/_next/static/(.*).js',
-          headers: [
-            { key: 'Content-Type', value: 'text/javascript; charset=utf-8' },
             { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
           ],
         },
