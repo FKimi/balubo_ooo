@@ -7,39 +7,16 @@
   "outputDirectory": ".next",
   "regions": ["hnd1"],
   "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    },
-    {
-      "source": "/_next/static/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
+    { "source": "/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "X-Frame-Options", "value": "DENY" },
+      { "key": "X-XSS-Protection", "value": "1; mode=block" }
+    ]},
+    { "source": "/_next/static/(.*)", "headers": [
+      { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+    ]}
   ],
   "redirects": [
-    {
-      "source": "https://balubo.jp/(.*)",
-      "destination": "https://www.balubo.jp/$1",
-      "permanent": true
-    },
     {
       "source": "/",
       "has": [{ "type": "host", "value": "balubo.jp" }],
@@ -54,4 +31,3 @@
     }
   ]
 }
-
