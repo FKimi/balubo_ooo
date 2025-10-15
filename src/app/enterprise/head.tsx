@@ -2,8 +2,8 @@ export default function Head() {
   const title = "balubo for Enterprise | AIが3分で最適なプロクリエイターとマッチング";
   const description =
     "BtoB企業向けの専門性マッチングプラットフォーム。AIがクリエイターの専門性を可視化し、最短3分で事業を深く理解したプロを発見。採用工数70%削減、満足度95%。ウェイトリスト登録で先行案内・限定特典を受け取る。";
-  const url = "https://balubo.app/enterprise";
-  const ogImage = "https://balubo.app/og-image.svg";
+  const url = "https://www.balubo.jp/enterprise";
+  const ogImage = "https://www.balubo.jp/og-image.svg";
   const keywords = "クリエイター マッチング, BtoB マーケティング, コンテンツ制作, AIマッチング, 専門性分析, フリーランス, ライター 採用, クリエイター 探し, マッチングプラットフォーム";
   
   return (
