@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 export default function MidCallToAction() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
-
   return (
     <section className="relative bg-gradient-to-r from-[#0A66C2] to-[#004182] py-16 px-4">
       <div className="container mx-auto max-w-4xl text-center">
