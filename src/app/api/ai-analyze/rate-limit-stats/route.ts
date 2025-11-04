@@ -13,8 +13,9 @@ export async function GET(_request: NextRequest) {
         timestamp: new Date().toISOString(),
         geminiPlan: "Tier 1 (無料枠 + 課金設定)",
         rateLimits: {
-          "gemini-1.5-flash": "15 RPM (1分間に15リクエスト)",
-          "gemini-1.5-pro": "2 RPM (1分間に2リクエスト)",
+          "gemini-2.0-flash-lite": "15 RPM (1分間に15リクエスト)",
+          "gemini-1.5-flash": "15 RPM (1分間に15リクエスト) - 非推奨",
+          "gemini-1.5-pro": "2 RPM (1分間に2リクエスト) - 非推奨",
         },
         tips: [
           "レート制限エラーが発生した場合、自動的にリトライ処理が実行されます",

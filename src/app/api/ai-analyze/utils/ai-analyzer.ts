@@ -312,13 +312,10 @@ async function callGeminiAPISingle(
   maxTokens: number = 4096,
   images: GeminiImage[] = [],
 ) {
-  // v1beta では gemini-pro が利用できなくなったため、
-  // 画像付き → gemini-1.5-flash、テキストのみ → gemini-1.5-pro を使用
-  // 将来的に v1 (GA) へ移行する際はエンドポイントを変更すること
-
-  // 画像がある場合は Vision 対応モデル、それ以外は 1.5 Pro を使用
-  const model = images.length > 0 ? "gemini-1.5-flash" : "gemini-1.5-pro";
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  // Gemini 1.5シリーズが終了したため、Gemini 2.0 Flash-Lite を使用
+  // gemini-2.0-flash-lite はテキストと画像の両方に対応しており、1.5 Flashと同等の速度とコストでより高い性能を実現
+  const model = "gemini-2.0-flash-lite";
+  const endpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent`;
   const currentApiKey = getCurrentApiKey();
   const urlWithKey = `${endpoint}?key=${currentApiKey}`;
 

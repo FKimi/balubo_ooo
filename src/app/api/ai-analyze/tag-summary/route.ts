@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent";
 const CACHE_VERSION = "v5";
 
 // Service Role Key を使用した Supabase クライアント

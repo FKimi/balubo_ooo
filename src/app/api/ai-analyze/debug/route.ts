@@ -16,7 +16,7 @@ export async function GET() {
     },
     apiConfig: {
       geminiUrl:
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent",
       availableEndpoints: [
         "/api/ai-analyze",
         "/api/ai-analyze/article",
