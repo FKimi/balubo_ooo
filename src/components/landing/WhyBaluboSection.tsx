@@ -10,9 +10,9 @@ const solutions = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
       </svg>
     ),
-    title: "URL入力だけで楽々制作物登録",
+    title: "URL入力だけで楽々記事登録",
     description:
-      "WebサイトやBehance、noteなどのURLを入力するだけで、AIが自動的に制作物のタイトル、説明文、画像を抽出。一から入力する手間を省いて、簡単にポートフォリオに登録できます。",
+      "WebサイトやnoteなどのURLを入力するだけで、AIが自動で記事情報を抽出。手間なくポートフォリオが完成します。",
   },
   {
     icon: (
@@ -22,7 +22,7 @@ const solutions = [
     ),
     title: "AIがあなたの「価値」を言語化",
     description:
-      "制作物をAIが深く分析し、「SaaS業界のビジネスモデルへの深い理解」「複雑な情報を整理し、本質を突く構成力」など、あなたのビジネス貢献度や思考プロセスまで踏み込んで、専門性を具体的な言葉で表現します。",
+      "AIが記事を深く分析し、「SaaS業界のビジネスモデルへの深い理解」「複雑な情報の整理力」など、あなたの思考プロセスまで踏み込んで専門性を可視化します。",
   },
   {
     icon: (
@@ -32,7 +32,7 @@ const solutions = [
     ),
     title: "価値がわかるクライアントと出会える",
     description:
-      "AIが分析したあなたのスキルデータを基に、専門性を求めるクライアントとの高精度なマッチングを実現。不毛な価格競争から脱却し、あなたの価値を正当に評価してくれるクライアントと繋がれます。",
+      "（※マッチング機能は開発中です）分析データを基に、専門性を求めるクライアントと高精度でマッチング。不毛な価格競争から脱却し、あなたの価値を正当に評価するクライアントと繋がります。",
   },
 ];
 
@@ -45,18 +45,30 @@ export default function WhyBaluboSection() {
           {/* メインメッセージ */}
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-              その課題、<span className="text-[#0A66C2]">balubo</span>が解決します
+              その課題、<span className="text-[#0A66C2]">balubo</span>が
+              <br />
+              「AIの客観性」で解決します。
             </h2>
+            <p className="text-xl md:text-2xl text-gray-900 font-bold mb-4 leading-relaxed">
+              AIがあなたの「第三者の目」となり、
+              <br />
+              記事に隠された「真の価値」を分析・言語化。
+            </p>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              AIがあなたの「第三者の目」となり、実績に隠された価値を客観的に分析・言語化
+              baluboは、あなたの実績を「AI分析レポート」へと変換します。
               <br />
-              あなたの専門性を、誰にでも伝わる「証明書」へと変換します。
-              <br />
-              これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明します。
+              これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明し、誰にでも伝わる「専門性の証明書」を作成します。
             </p>
           </div>
 
           {/* 3つのソリューション */}
+          <div className="mb-12 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
+              あなたの「専門性」が、
+              <br />
+              このように可視化されます
+            </h3>
+          </div>
           <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto mb-16">
             {solutions.map((solution) => (
               <div
@@ -72,7 +84,9 @@ export default function WhyBaluboSection() {
 
                 {/* タイトル */}
                 <h3 className="mb-4 text-xl font-bold text-gray-900 leading-tight">
-                  {solution.title}
+                  {solution.title === "URL入力だけで楽々記事登録" && "1. URL入力だけで記事を登録"}
+                  {solution.title === "AIがあなたの「価値」を言語化" && "2. AIがあなたの「価値」を言語化"}
+                  {solution.title === "価値がわかるクライアントと出会える" && "3. 価値がわかるクライアントと出会える"}
                 </h3>
 
                 {/* 説明 */}
@@ -97,7 +111,7 @@ export default function WhyBaluboSection() {
             <div className="relative rounded-2xl border border-gray-200 bg-white shadow-2xl overflow-hidden">
               <Image 
                 src="/balubo_analysis.png" 
-                alt="balubo AI専門性分析画面のイメージ" 
+                alt="balubo AIライター・編集者専門性分析画面のイメージ" 
                 width={800}
                 height={600}
                 className="w-full h-auto"

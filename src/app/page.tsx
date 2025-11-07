@@ -166,7 +166,7 @@ export default function HomePage() {
               asChild
               className="rounded-lg bg-[#0A66C2] text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#004182]"
             >
-              <Link href="/register">無料で「AI分析レポート」を見てみる</Link>
+              <Link href="/register">無料で「専門性スコア」を見る</Link>
             </Button>
           </nav>
         </div>

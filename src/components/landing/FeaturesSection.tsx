@@ -12,7 +12,7 @@ const analysisMetrics = [
     ),
     title: "業界への解像度",
     subtitle: "Industry Expertise",
-    description: "クライアントの業界特有の課題、商習慣、言語をどれだけ深く理解しているかを分析。専門用語や文脈から、あなたの業界知識レベルを証明します。",
+    description: "クライアントの業界特有の課題や言語をどれだけ深く理解しているか。専門用語や文脈から、あなたの「業界知識レベル」を証明します。",
   },
   {
     icon: (
@@ -22,7 +22,7 @@ const analysisMetrics = [
     ),
     title: "課題解決力",
     subtitle: "Problem Solving",
-    description: "制作物が「誰の、どんな課題を、どのように解決したか」を分析。あなたの思考プロセスと、ビジネス課題への貢献度を可視化します。",
+    description: "記事が「誰の、どんな課題を、どう解決したか」を分析。あなたの「思考プロセス」と「ビジネス貢献度」を可視化します。",
   },
   {
     icon: (
@@ -30,9 +30,9 @@ const analysisMetrics = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
       </svg>
     ),
-    title: "専門性",
+    title: "専門品質",
     subtitle: "Quality & Skill",
-    description: "専門知識の正確性や技術的熟練度を評価し、制作物の完成度を客観的に測定。プロフェッショナルとしての品質の高さを証明します。",
+    description: "情報の正確性、論理構成、読みやすさなど、プロライターとしての「記事の完成度」を客観的に測定します。",
   },
   {
     icon: (
@@ -42,7 +42,7 @@ const analysisMetrics = [
     ),
     title: "実績インパクト",
     subtitle: "Performance",
-    description: "制作物がもたらした具体的な成果（CVR改善、リード獲得数など）を分析。あなたの仕事がビジネスに与えた影響力を定量的に示します。",
+    description: "記事がもたらした具体的な成果（CVR改善、リード獲得数など）を分析。あなたの仕事がビジネスに与えた「影響力」を定量的に示します。",
   },
 ];
 
@@ -53,10 +53,10 @@ export default function FeaturesSection() {
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-            専門性を<span className="text-[#0A66C2]">多角的に分析・証明</span>
+            baluboが証明する<span className="text-[#0A66C2]">「4つの価値」</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            baluboは、従来の指標では測れなかった「ビジネス貢献度」を可視化します。
+            従来の指標では測れなかった「ビジネス貢献度」を可視化します。
           </p>
           
           {/* 小さなサービス画面プレビュー */}
@@ -65,7 +65,7 @@ export default function FeaturesSection() {
               <div className="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
                 <Image 
                   src="/balubo_profile.png" 
-                  alt="baluboプロフィール画面のイメージ" 
+                  alt="baluboライター・編集者プロフィール画面のイメージ" 
                   width={400}
                   height={300}
                   className="w-full h-auto opacity-90"
@@ -115,7 +115,7 @@ export default function FeaturesSection() {
                   <span className="text-sm font-bold text-[#0A66C2]">
                     {metric.title === "業界への解像度" && "95%"}
                     {metric.title === "課題解決力" && "88%"}
-                    {metric.title === "専門性" && "91%"}
+                    {metric.title === "専門品質" && "91%"}
                     {metric.title === "実績インパクト" && "87%"}
                   </span>
                 </div>
@@ -125,13 +125,39 @@ export default function FeaturesSection() {
                     style={{
                       width: metric.title === "業界への解像度" ? "95%" :
                              metric.title === "課題解決力" ? "88%" :
-                             metric.title === "専門性" ? "91%" : "87%"
+                             metric.title === "専門品質" ? "91%" : "87%"
                     }}
                   ></div>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* CTAセクション */}
+        <div className="mt-16 text-center">
+          <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 md:p-10 max-w-4xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              あなたも、専門性を証明しませんか？
+            </h3>
+            <p className="text-lg text-gray-700 mb-6">
+              baluboがあなたの専門性を客観的に分析し、クライアントに伝わる「証明書」を作成します。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a
+                href="/register"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                まずは無料で「専門性スコア」を見る
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
+            <p className="text-sm text-gray-600 mt-4">
+              登録無料・3分で完了
+            </p>
+          </div>
         </div>
       </div>
     </section>

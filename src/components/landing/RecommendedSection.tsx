@@ -30,11 +30,11 @@ interface RecommendedPersona {
 
 const personas: RecommendedPersona[] = [
   {
-    title: "フリーランス・個人事業主のクリエイター",
+    title: "フリーランス・個人事業主のライター・編集者",
     description: "独立して数年、実績は積んできたものの、価格競争から抜け出せずにいる",
     painPoints: [
       "単価交渉で「相場はこのくらい」と言われる",
-      "ポートフォリオを見ても「何ができる人か」が伝わらない",
+      "記事を見ても「何ができるライターか」が伝わらない",
       "継続的な案件獲得に苦労している"
     ],
     icon: (
@@ -47,11 +47,11 @@ const personas: RecommendedPersona[] = [
     borderColor: "border-blue-200"
   },
   {
-    title: "企業で働くクリエイティブ職の方",
+    title: "企業で働くライター・編集者",
     description: "社内での評価は高いが、転職や副業で自分の価値を証明したい",
     painPoints: [
       "「社内では評価されているが、外部では分からない」",
-      "転職活動で「具体的に何ができるか」を説明できない",
+      "転職活動で「具体的にどんな記事が書けるか」を説明できない",
       "副業案件で単価を上げたいが根拠を示せない"
     ],
     icon: (
@@ -64,12 +64,12 @@ const personas: RecommendedPersona[] = [
     borderColor: "border-green-200"
   },
   {
-    title: "新卒・未経験からクリエイターを目指す方",
+    title: "新卒・未経験からライター・編集者を目指す方",
     description: "スキルは身につけてきたが、実績が少なく自信を持って営業できない",
     painPoints: [
       "「実績が少ない」と言われて案件を獲得できない",
       "自分の強みがどこにあるのか分からない",
-      "ポートフォリオでは差別化できない"
+      "記事サンプルでは差別化できない"
     ],
     icon: (
       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -81,11 +81,11 @@ const personas: RecommendedPersona[] = [
     borderColor: "border-purple-200"
   },
   {
-    title: "クリエイティブチームのリーダー・マネージャー",
+    title: "コンテンツチームのリーダー・マネージャー",
     description: "チームメンバーの専門性を可視化し、適切な案件配分をしたい",
     painPoints: [
       "メンバーの得意分野が把握できていない",
-      "案件に最適な人材を選定するのが難しい",
+      "案件に最適なライターを選定するのが難しい",
       "メンバーの成長領域が分からない"
     ],
     icon: (
@@ -111,8 +111,8 @@ export default function RecommendedSection() {
         {/* セクションヘッダー */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-            こんな人に
-            <span className="text-[#0A66C2]">おすすめ</span>
+            このようなプロフェッショナルに
+            <span className="text-[#0A66C2]">最適です</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             baluboは、あなたの専門性を客観的に証明し、

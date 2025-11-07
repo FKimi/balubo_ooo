@@ -18,7 +18,7 @@ export default function MidCallToAction() {
           <p className="text-base md:text-lg text-blue-100 leading-relaxed max-w-3xl mx-auto">
             証明する、繋がる、成長する。baluboは単なるツールではありません。
             <br />
-            あなたの専門性を正当に評価されるパートナーです。
+            プロのライター・編集者の専門性を正当に評価されるパートナーです。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">

@@ -119,7 +119,7 @@ export default function FinalCTASection() {
                 "読み込み中…"
               ) : (
                 <span className="inline-flex items-center">
-                  無料で「専門性」を証明する
+                  今すぐ無料で「専門性スコア」を見る
                   <svg
                     className="ml-2 h-5 w-5"
                     fill="none"
@@ -157,8 +157,11 @@ export default function FinalCTASection() {
               <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">
                 &quot;あなたの本当の価値を、世界はまだ知らない&quot;
               </p>
-              <p className="text-xl md:text-2xl text-gray-700">
+              <p className="text-xl md:text-2xl text-gray-700 mb-4">
                 — 今日から、それを変えてみませんか？
+              </p>
+              <p className="text-xl md:text-2xl text-[#0A66C2] font-bold">
+                専門性を伝えるなら、balubo
               </p>
             </blockquote>
           </div>

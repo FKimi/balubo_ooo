@@ -19,25 +19,20 @@ export default function HeroSection() {
             <div className="space-y-8 md:space-y-12 text-center lg:text-left">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
                 <span className="block leading-[1.05]">
-                  無料で<span className="text-[#0A66C2]">「価値」</span>を可視化
+                  その専門性、
+                  <br />
+                  証明できますか？
                 </span>
               </h1>
 
               <div className="mx-auto max-w-2xl space-y-6 lg:mx-0">
-                <p className="text-2xl md:text-3xl text-gray-900 leading-relaxed font-bold">
-                  その専門性、証明できますか？
+                <p className="text-xl md:text-2xl text-gray-900 leading-relaxed font-bold">
+                  AIがあなたの「書いた記事」を分析し、
+                  <br />
+                  言語化できなかった「本当の価値」を客観的に証明。
                 </p>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-                  <span className="text-[#0A66C2] font-semibold">balubo</span>は、BtoB領域で活躍するプロクリエイターのためのAIポートフォリオプラットフォームです。
-                </p>
-                <p className="text-base text-gray-700 leading-relaxed">
-                  あなたの制作実績を登録するだけで、AIがその背景にある「業界への解像度」や「課題解決力」を分析・可視化。これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明します。
-                </p>
-                <p className="text-base text-gray-700 leading-relaxed">
-                  専門性を正しく伝え、その価値を理解するクライアントと出会う。baluboは、プロクリエイターと発注者のミスマッチを解消し、日本のビジネスをさらに前進させます。
-                </p>
-                <p className="text-sm text-gray-500 italic mt-4">
-                  ※マッチング機能は開発中です
+                  balubo（バルボ）は、ビジネスコンテンツに強いプロのライター・編集者のためのAIポートフォリオプラットフォームです。
                 </p>
               </div>
 
@@ -50,21 +45,9 @@ export default function HeroSection() {
                     </svg>
                     <span className="text-sm font-medium text-gray-700">ライター・編集者</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
-                    <svg className="w-4 h-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-700">デザイナー</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
-                    <svg className="w-4 h-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-700">カメラマン</span>
-                  </div>
                 </div>
                 <p className="text-center lg:text-left text-sm text-gray-600 font-medium">
-                  BtoBで戦う、すべてのクリエイターへ
+                  ビジネスコンテンツで戦う、プロのライター・編集者へ
                 </p>
               </div>
 
@@ -95,7 +78,7 @@ export default function HeroSection() {
                       "読み込み中…"
                     ) : (
                       <span className="inline-flex items-center">
-                        無料であなたの「価値」を可視化する
+                        今すぐ無料で「専門性スコア」を見る
                         <svg
                           className="ml-2 h-4 w-4"
                           fill="none"
@@ -122,28 +105,20 @@ export default function HeroSection() {
                     <Link href="/login">ログイン</Link>
                   </Button>
                 </div>
+                {/* CTA補足 */}
+                <div className="flex justify-center lg:justify-start">
+                  <p className="text-sm text-gray-600 font-medium">
+                    （β版・完全無料）
+                  </p>
+                </div>
                 {/* 信頼性表示の強化 */}
                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start items-center">
                   <p className="flex items-center text-sm text-gray-700 font-medium">
                     <svg className="mr-2 h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-label="確認済み" role="img">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    多くのプロフェッショナルが、すでに価値証明を始めています
+                    多くのプロライター・編集者が、すでに価値証明を始めています
                   </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start text-sm text-gray-600">
-                  <span className="flex items-center">
-                    <svg className="mr-1.5 h-4 w-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    登録無料
-                  </span>
-                  <span className="flex items-center">
-                    <svg className="mr-1.5 h-4 w-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    1分で完了
-                  </span>
                 </div>
               </div>
             </div>
@@ -156,7 +131,7 @@ export default function HeroSection() {
                   <div className="relative">
                     <Image 
                       src="/balubo_profile.png" 
-                      alt="baluboクリエイタープロフィール画面のイメージ" 
+                      alt="baluboライター・編集者プロフィール画面のイメージ" 
                       width={600}
                       height={400}
                       className="w-full h-auto rounded-2xl"

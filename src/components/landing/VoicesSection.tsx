@@ -7,6 +7,7 @@ interface Voice {
   role: string;
   avatarBg: string;
   avatarText: string;
+  catchCopy: string;
   quantitativeResult?: string;
   emotionalChange?: string;
   comment: string;
@@ -15,9 +16,10 @@ interface Voice {
 const voices: Voice[] = [
   {
     name: "田中 美咲",
-    role: "BtoBコンテンツマーケター",
+    role: "ビジネスコンテンツライター",
     avatarBg: "from-blue-500 to-indigo-600",
     avatarText: "田",
+    catchCopy: "感覚的だった強みが「データ」になり、単価UPに繋がりました",
     quantitativeResult: "",
     emotionalChange: "",
     comment:
@@ -25,19 +27,21 @@ const voices: Voice[] = [
   },
   {
     name: "佐藤 健太",
-    role: "DXコンサルタント",
+    role: "ビジネスマーケティングライター",
     avatarBg: "from-green-500 to-emerald-600",
     avatarText: "佐",
+    catchCopy: "AI分析で「得意分野」が明確になり、専門領域の依頼が増えました",
     quantitativeResult: "",
     emotionalChange: "",
     comment:
-      "AIによる制作物分析で、自分では気づかなかった得意分野が明らかになりました。今では特化した領域での案件依頼が増え、より充実した仕事ができています。",
+      "AIによる記事分析で、自分では気づかなかった得意分野が明らかになりました。今では特化した領域での案件依頼が増え、より充実した仕事ができています。",
   },
   {
     name: "山田 雅子",
-    role: "専門領域ライター",
+    role: "専門領域ライター・編集者",
     avatarBg: "from-purple-500 to-pink-600",
     avatarText: "山",
+    catchCopy: "ポートフォリオ作成の時間が激減。AI分析も信頼できます",
     quantitativeResult: "",
     emotionalChange: "",
     comment:
@@ -55,10 +59,9 @@ export default function VoicesSection() {
       <div className="container relative z-10 mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight tracking-tight">
-            すでに、
-            <span className="text-[#0A66C2]">多くのプロ</span>が、
+            すでに多くのプロが、
             <br />
-            新たなキャリアを歩み始めています。
+            baluboで<span className="text-[#0A66C2]">「価値の証明」</span>を始めています。
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             具体的な成果と、働き方の変化
@@ -73,6 +76,12 @@ export default function VoicesSection() {
               aria-label={`${voice.name}さんの事例`}
             >
               <div>
+                {/* キャッチコピー */}
+                <div className="mb-4">
+                  <p className="text-lg font-bold text-gray-900 leading-tight">
+                    &quot;{voice.catchCopy}&quot;
+                  </p>
+                </div>
                 {/* コメント */}
                 <div className="flex-grow mb-6">
                   <p className="text-base leading-relaxed text-gray-700">
@@ -96,7 +105,7 @@ export default function VoicesSection() {
                           認証済
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600">{voice.role}</div>
+                      <div className="text-sm text-gray-600">{voice.name} 様（{voice.role}）</div>
                     </div>
                   </div>
                   
@@ -116,7 +125,7 @@ export default function VoicesSection() {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-gray-600">
                       {voice.name === "田中 美咲" && "SaaS業界への解像度"}
-                      {voice.name === "佐藤 健太" && "DX領域の専門性"}
+                      {voice.name === "佐藤 健太" && "ビジネスマーケティング領域の専門性"}
                       {voice.name === "山田 雅子" && "コンテンツ制作力"}
                     </span>
                     <span className="font-medium text-gray-900">

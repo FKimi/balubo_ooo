@@ -22,9 +22,9 @@ const problems = [
         <path d="M2 12l10 5 10-5"/>
       </svg>
     ),
-    title: "制作実績の背景にある価値まで伝えるのが難しい",
+    title: "「記事」だけでは、プロセスが伝わらない",
     description:
-      "完成した制作物を見せるだけでは、その裏にある業界知識や、課題解決までの思考プロセスが伝わらない。",
+      "完成記事を見せるだけでは、その裏にある業界知識、膨大なリサーチ、課題解決の思考プロセスが伝わらない。「これなら5,000円だ」と、かけた時間や労力を無視されてしまう。",
   },
   {
     icon: (
@@ -45,9 +45,9 @@ const problems = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
       </svg>
     ),
-    title: "自分の専門性が、客観的に伝わらない",
+    title: "「専門性」を、客観的に示せない",
     description:
-      "自分の強みや得意領域を説明しようとしても、主観的なアピールになってしまい、相手に納得感を与えられない。",
+      "「SaaS業界に強い」という強みは、単価を決める重要な価値のはず。しかし、それを客観的に示す術がなく、「同じような記事が書ける人」として扱われてしまう。",
   },
   {
     icon: (
@@ -66,9 +66,9 @@ const problems = [
         <path d="M12 6v6l4 2"/>
       </svg>
     ),
-    title: "専門性の価値が伝わらず、価格競争に陥りがち",
+    title: "結果、「文字単価」でしか語れない",
     description:
-      "スキルの本質的な価値が理解されず、「同じようなことができる人」として扱われ、適正な評価や報酬を得られない。",
+      "あなたの価値は「文字数」でしか測られなくなり、不毛な価格競争に巻き込まれていく。スキルを磨くほど、その価値を伝えるのが難しくなるという、残酷な現実。",
   },
 ];
 
@@ -79,14 +79,14 @@ export default function CreatorPainSection() {
       <div className="container mx-auto max-w-7xl relative">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight tracking-tight">
-            <span className="text-[#0A66C2]">&quot;専門家&quot;</span>である、あなたの悩み
+            あなたの「本当の価値」、
+            <br />
+            正しく伝わっていますか？
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             深い知見と高いスキルを持つプロフェッショナルだからこそ、直面する壁があります。
             <br />
-            BtoB領域で活躍するプロクリエイターが抱える専門性の可視化と価値の伝達の課題。
-            <br />
-            あなたも同じような経験はありませんか？
+            あなたも同じ経験はありませんか？
           </p>
         </div>
 
