@@ -27,3 +27,21 @@ export function takeTop<T>(
   return [...array].sort(compareFn).slice(0, count);
 }
 
+/**
+ * 配列が空でないかチェック
+ * @param array チェックする配列
+ * @returns 配列が存在し、かつ空でない場合true
+ */
+export function isNotEmptyArray<T>(array: T[] | null | undefined): boolean {
+  return Array.isArray(array) && array.length > 0;
+}
+
+/**
+ * 配列の長さを安全に取得
+ * @param array 対象の配列
+ * @returns 配列の長さ（配列が存在しない場合は0）
+ */
+export function getArrayLength<T>(array: T[] | null | undefined): number {
+  return Array.isArray(array) ? array.length : 0;
+}
+
