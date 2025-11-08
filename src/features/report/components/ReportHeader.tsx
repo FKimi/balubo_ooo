@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface ReportHeaderProps {
@@ -92,9 +93,11 @@ export function ReportHeader({
           {/* アバター */}
           <div className="flex-shrink-0">
             {profile?.avatar_url ? (
-              <img
+              <Image
                 src={profile.avatar_url}
                 alt={displayName}
+                width={96}
+                height={96}
                 className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border border-gray-200"
               />
             ) : showName ? (

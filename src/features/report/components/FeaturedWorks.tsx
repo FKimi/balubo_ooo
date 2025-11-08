@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import type { FeaturedWorkData } from "./types";
 
@@ -32,11 +33,13 @@ export function FeaturedWorks({ works }: FeaturedWorksProps) {
             <CardContent className="p-0">
               {/* サムネイル */}
               {work.thumbnailUrl && (
-                <div className="aspect-video bg-gray-100 overflow-hidden">
-                  <img
+                <div className="aspect-video bg-gray-100 overflow-hidden relative">
+                  <Image
                     src={work.thumbnailUrl}
                     alt={work.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
               )}

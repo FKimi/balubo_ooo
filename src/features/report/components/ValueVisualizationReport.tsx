@@ -308,6 +308,7 @@ export function ValueVisualizationReport({
     if (!MANUAL_ONLY) {
       generateReport();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [works, userId]);
 
   if (works.length === 0) {
