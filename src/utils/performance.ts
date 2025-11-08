@@ -113,6 +113,22 @@ export class PerformanceWorker {
 }
 
 /**
+ * Performance APIのメモリ情報の型定義
+ */
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+/**
+ * Performance APIの拡張型
+ */
+interface PerformanceWithMemory extends Performance {
+  memory?: PerformanceMemory;
+}
+
+/**
  * メモリ使用量を監視するユーティリティ
  */
 export function getMemoryUsage(): {
@@ -121,7 +137,8 @@ export function getMemoryUsage(): {
   jsHeapSizeLimit: number;
 } | null {
   if ("memory" in performance) {
-    const memory = (performance as any).memory;
+    const memory = (performance as PerformanceWithMemory).memory;
+    if (!memory) return null;
     return {
       usedJSHeapSize: memory.usedJSHeapSize,
       totalJSHeapSize: memory.totalJSHeapSize,

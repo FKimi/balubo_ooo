@@ -15,12 +15,22 @@ const supabaseAuth = createClient(
 );
 
 /**
+ * Supabaseエラーの型定義
+ */
+interface SupabaseError {
+  code?: string;
+  message?: string;
+  details?: string;
+  hint?: string;
+}
+
+/**
  * API共通エラーレスポンス
  */
 export function createErrorResponse(
   error: string,
   status = 500,
-  details?: any,
+  details?: unknown,
 ) {
   return NextResponse.json(
     {
@@ -35,7 +45,7 @@ export function createErrorResponse(
 /**
  * API共通成功レスポンス
  */
-export function createSuccessResponse(data: any, status = 200) {
+export function createSuccessResponse<T>(data: T, status = 200) {
   return NextResponse.json(data, { status });
 }
 
@@ -173,36 +183,38 @@ export async function extractId(context: {
 /**
  * Supabaseエラーを人間が読みやすい形式に変換
  */
-export function formatSupabaseError(error: any): string {
+export function formatSupabaseError(error: unknown): string {
   if (!error) return "不明なエラー";
 
+  const supabaseError = error as SupabaseError;
+
   // RLSポリシーエラー
-  if (error.code === "42501") {
+  if (supabaseError.code === "42501") {
     return "アクセス権限がありません";
   }
 
   // 見つからないエラー
-  if (error.code === "PGRST116") {
+  if (supabaseError.code === "PGRST116") {
     return "データが見つかりません";
   }
 
   // 重複エラー
-  if (error.code === "23505") {
+  if (supabaseError.code === "23505") {
     return "データが既に存在します";
   }
 
   // 制約違反
-  if (error.code === "23514") {
+  if (supabaseError.code === "23514") {
     return "データの形式が正しくありません";
   }
 
-  return error.message || "データベースエラーが発生しました";
+  return supabaseError.message || "データベースエラーが発生しました";
 }
 
 /**
  * データベース操作の結果を統一的に処理
  */
-export function processDbResult<T>(data: T | null, error: any): T {
+export function processDbResult<T>(data: T | null, error: unknown): T {
   if (error) {
     throw new Error(formatSupabaseError(error));
   }
@@ -215,13 +227,15 @@ export function processDbResult<T>(data: T | null, error: any): T {
 /**
  * 配列データの結果を処理
  */
-export function processDbArrayResult(data: any[] | null, error: any) {
+export function processDbArrayResult<T>(data: T[] | null, error: unknown): T[] {
   if (error) {
-    if (error.code === "PGRST116") {
+    const supabaseError = error as SupabaseError;
+    if (supabaseError.code === "PGRST116") {
       return []; // 結果がない場合は空配列を返す
     }
     console.error("Database Error:", error);
-    throw new Error(`データベースエラー: ${error.message}`);
+    const errorMessage = supabaseError.message || "不明なエラー";
+    throw new Error(`データベースエラー: ${errorMessage}`);
   }
   return data || [];
 }

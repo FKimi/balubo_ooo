@@ -10,7 +10,7 @@ export interface ApiResponse<T = unknown> {
   message?: string;
   data?: T;
   profile?: T;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -110,7 +110,7 @@ export const api = {
   },
 
   // POST リクエスト
-  post: <T = unknown>(url: string, data?: any): Promise<T> => {
+  post: <T = unknown>(url: string, data?: unknown): Promise<T> => {
     return fetcher<T>(url, {
       method: "POST",
       body: JSON.stringify(data),
@@ -118,7 +118,7 @@ export const api = {
   },
 
   // PUT リクエスト
-  put: <T = unknown>(url: string, data?: any): Promise<T> => {
+  put: <T = unknown>(url: string, data?: unknown): Promise<T> => {
     return fetcher<T>(url, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -133,7 +133,7 @@ export const api = {
   },
 
   // PATCH リクエスト
-  patch: <T = unknown>(url: string, data?: any): Promise<T> => {
+  patch: <T = unknown>(url: string, data?: unknown): Promise<T> => {
     return fetcher<T>(url, {
       method: "PATCH",
       body: JSON.stringify(data),
