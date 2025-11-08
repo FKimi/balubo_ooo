@@ -42,7 +42,7 @@ function DraggableWorkCard({
   onDelete,
 }: {
   work: WorkData;
-  onDelete: (workId: string) => void;
+  onDelete: (_workId: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({

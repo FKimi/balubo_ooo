@@ -3,7 +3,7 @@ import { fetcher } from "@/utils/fetcher";
 import type { WorkData, WorkCategory } from "@/features/work/types";
 
 export function useWorkCategories(
-  _savedWorks: WorkData[],
+  savedWorks: WorkData[],
   setSavedWorks: (works: WorkData[]) => void,
 ) {
   const [categories, setCategories] = useState<WorkCategory[]>([]);
@@ -52,6 +52,7 @@ export function useWorkCategories(
     });
 
     setCategories(categorizedWorks);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedWorks]);
 
   // 新しいカテゴリを追加

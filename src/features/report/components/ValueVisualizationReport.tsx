@@ -120,6 +120,8 @@ export function ValueVisualizationReport({
       window.localStorage.removeItem(getCacheKey(fp));
     } catch {}
   };
+  // clearCache は将来の使用のために保持
+  void clearCache;
 
   const formatDateTime = (ts?: number) => {
     if (!ts) return "";
