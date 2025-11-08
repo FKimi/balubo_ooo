@@ -1,24 +1,13 @@
 "use client";
 
 import type { PerformanceMetricsData } from "./types";
-import { NUMBER_FORMAT } from "@/utils/constants";
+import { formatNumber } from "@/utils/stringUtils";
 
 interface PerformanceMetricsProps {
   metrics: PerformanceMetricsData;
 }
 
 export function PerformanceMetrics({ metrics }: PerformanceMetricsProps) {
-  const formatNumber = (num: number | undefined) => {
-    if (num === undefined || num === null || isNaN(num)) {
-      return "0";
-    }
-    if (num >= NUMBER_FORMAT.MILLION) {
-      return `${(num / NUMBER_FORMAT.MILLION).toFixed(1)}M`;
-    } else if (num >= NUMBER_FORMAT.THOUSAND) {
-      return `${(num / NUMBER_FORMAT.THOUSAND).toFixed(1)}K`;
-    }
-    return num.toString();
-  };
 
   const metricsData = [
     {

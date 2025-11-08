@@ -80,3 +80,37 @@ export function truncateSimple(
   return text.substring(0, maxLength - suffix.length) + suffix;
 }
 
+/**
+ * 数値を読みやすい形式にフォーマット（K, M表記）
+ * @param num フォーマットする数値
+ * @returns フォーマットされた文字列
+ */
+export function formatNumber(num: number | undefined | null): string {
+  if (num === undefined || num === null || isNaN(num)) {
+    return "0";
+  }
+  
+  // 循環参照を避けるため、定数を直接使用
+  const MILLION = 1000000;
+  const THOUSAND = 1000;
+  
+  if (num >= MILLION) {
+    return `${(num / MILLION).toFixed(1)}M`;
+  } else if (num >= THOUSAND) {
+    return `${(num / THOUSAND).toFixed(1)}K`;
+  }
+  return num.toString();
+}
+
+/**
+ * 数値をカンマ区切りでフォーマット
+ * @param num フォーマットする数値
+ * @returns カンマ区切りの文字列
+ */
+export function formatNumberWithCommas(num: number | undefined | null): string {
+  if (num === undefined || num === null || isNaN(num)) {
+    return "0";
+  }
+  return num.toLocaleString();
+}
+

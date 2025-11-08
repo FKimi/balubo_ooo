@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { WorkData } from "@/features/work/types";
 import { calculateTopTags } from "@/features/profile/lib/profileUtils";
+import { takeFirst } from "@/utils/arrayUtils";
 
 interface AIFieldSummary {
   averageScore: number;
@@ -33,7 +34,7 @@ export function WorksSection({
   analysis,
 }: WorksSectionProps) {
   // タグ分析（トップ3のみ）
-  const tagAnalysis = () => calculateTopTags(works).slice(0, 3);
+  const tagAnalysis = () => takeFirst(calculateTopTags(works), 3);
 
   // カテゴリ分析（トップ3のみ）
   const categoryAnalysis = () => {
@@ -45,9 +46,10 @@ export function WorksSection({
         });
       }
     });
-    return Object.entries(categoryCount)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3);
+    return takeFirst(
+      Object.entries(categoryCount).sort(([, a], [, b]) => b - a),
+      3,
+    );
   };
 
   // コンテンツタイプ分析（トップ3のみ）
@@ -57,9 +59,10 @@ export function WorksSection({
       const type = work.content_type || "その他";
       typeCount[type] = (typeCount[type] || 0) + 1;
     });
-    return Object.entries(typeCount)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 3);
+    return takeFirst(
+      Object.entries(typeCount).sort(([, a], [, b]) => b - a),
+      3,
+    );
   };
 
   const categories = categoryAnalysis();
@@ -74,7 +77,7 @@ export function WorksSection({
   );
 
   // 役割分布（トップ3のみ）
-  const topRoles = workStats.roleDistribution.slice(0, 3);
+  const topRoles = takeFirst(workStats.roleDistribution, 3);
 
   const renderFieldCard = (
     title: string,
