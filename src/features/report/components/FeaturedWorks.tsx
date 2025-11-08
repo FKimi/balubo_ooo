@@ -8,13 +8,6 @@ interface FeaturedWorksProps {
 }
 
 export function FeaturedWorks({ works }: FeaturedWorksProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "long",
-    });
-  };
-
   if (works.length === 0) {
     return (
       <div className="text-center py-8">
@@ -31,7 +24,7 @@ export function FeaturedWorks({ works }: FeaturedWorksProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {works.map((work, index) => (
+        {works.map((work) => (
           <Card
             key={work.id}
             className="border-gray-200 bg-white hover:shadow-md transition-shadow rounded-xl overflow-hidden"

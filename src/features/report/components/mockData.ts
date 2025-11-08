@@ -2,7 +2,7 @@ import type { ReportData, MockReportConfig } from "./types";
 
 // モックデータ生成関数
 export function generateMockReportData(config: MockReportConfig): ReportData {
-  const { userId, worksCount = 10 } = config;
+  const { userId: _userId, worksCount = 10 } = config;
 
   return {
     aiSummary: {

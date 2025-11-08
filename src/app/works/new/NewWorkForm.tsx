@@ -49,11 +49,10 @@ interface WorkFormProps {
   };
   mode?: "create" | "edit";
   workId?: string; // 編集モード時の作品ID
-  // eslint-disable-next-line unused-imports/no-unused-vars
   onSubmit?: (
-    formData: any,
-    analysisResult: any,
-    previewData: any,
+    _formData: any,
+    _analysisResult: any,
+    _previewData: any,
   ) => Promise<void>;
 }
 

@@ -113,10 +113,10 @@ export function ValueVisualizationReport({
     } catch {}
   };
 
-  const clearCache = (fingerprint?: string) => {
+  const clearCache = (_fingerprint?: string) => {
     if (typeof window === "undefined") return;
     try {
-      const fp = fingerprint || computeFingerprint(works);
+      const fp = _fingerprint || computeFingerprint(works);
       window.localStorage.removeItem(getCacheKey(fp));
     } catch {}
   };
@@ -381,7 +381,7 @@ export function ValueVisualizationReport({
               </Button>
               <p className="text-xs text-gray-500">
                 {(() => {
-                  const { isPro, window: win, cap } = getPlanInfo();
+                  const { isPro } = getPlanInfo();
                   const next = getNextAvailableAt();
                   const label = isPro ? "有料: 1日1回" : "無料: 月1回";
                   return next
@@ -578,7 +578,7 @@ export function ValueVisualizationReport({
       {/* プラン/上限情報 */}
       <div className="text-center text-xs text-gray-500 print:hidden">
         {(() => {
-          const { isPro, window: win, cap } = getPlanInfo();
+          const { isPro, cap } = getPlanInfo();
           const next = getNextAvailableAt();
           const label = isPro ? "有料: 1日1回" : "無料: 月1回";
           let remaining: number | undefined;

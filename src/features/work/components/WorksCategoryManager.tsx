@@ -26,18 +26,14 @@ interface WorksCategoryManagerProps {
   savedWorks: WorkData[];
   categories: Category[];
   addCategory: () => string; // 新しく作成されたカテゴリのIDを返す
-  // eslint-disable-next-line unused-imports/no-unused-vars
   updateCategory: (
-    categoryId: string,
-    newName: string,
-    newColor: string,
+    _categoryId: string,
+    _newName: string,
+    _newColor: string,
   ) => void;
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  deleteCategory: (categoryId: string) => void;
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  deleteWork: (workId: string) => void;
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  updateWorkCategory: (workId: string, categoryId: string) => void;
+  deleteCategory: (_categoryId: string) => void;
+  deleteWork: (_workId: string) => void;
+  updateWorkCategory: (_workId: string, _categoryId: string) => void;
 }
 
 // eslint-disable-next-line unused-imports/no-unused-vars

@@ -44,7 +44,7 @@ export function ClientIndustryBreakdown({
       その他: "#6b7280",
     };
 
-    industryData.forEach((industry, index) => {
+    industryData.forEach((industry, _index) => {
       const sliceAngle = (industry.percentage / 100) * 2 * Math.PI;
 
       // スライスを描画
