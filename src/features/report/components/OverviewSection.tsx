@@ -512,7 +512,7 @@ export function OverviewSection({
                     Object.values(comprehensiveAnalysis).forEach(
                       (analysis: any) => {
                         if (analysis.insights) {
-                          takeFirst(analysis.insights, 2).forEach(
+                          takeFirst(analysis.insights as string[], 2).forEach(
                             (insight: string) => allStrengths.add(insight),
                           );
                         }
