@@ -12,6 +12,7 @@ import {
   MessageCircle,
   Eye,
 } from "lucide-react";
+import { takeFirst } from "@/utils/arrayUtils";
 
 interface WorkCardProps {
   work: {
@@ -170,7 +171,7 @@ export function WorkCard({
         {_work.tags && _work.tags.length > 0 && (
           <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
             <div className="flex flex-wrap gap-1">
-              {_work.tags.slice(0, 2).map((tag, index) => (
+              {takeFirst(_work.tags, 2).map((tag, index) => (
                 <span
                   key={index}
                   className="bg-white bg-opacity-90 text-gray-700 text-xs px-2 py-1 rounded-full"
@@ -208,7 +209,7 @@ export function WorkCard({
         {/* 役割 */}
         {_work.roles && _work.roles.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {_work.roles.slice(0, 3).map((role, index) => (
+            {takeFirst(_work.roles, 3).map((role, index) => (
               <span
                 key={index}
                 className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full font-medium"

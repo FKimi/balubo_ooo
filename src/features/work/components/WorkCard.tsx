@@ -4,6 +4,7 @@ import type { WorkData } from "@/features/work/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, Heart, MessageCircle, Calendar } from "lucide-react";
 import { formatDateToYearMonth } from "@/utils/dateFormat";
+import { takeFirst } from "@/utils/arrayUtils";
 
 interface WorkCardProps {
   work: WorkData;
@@ -78,7 +79,7 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
               {/* タグ */}
               {work.tags && work.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {work.tags.slice(0, 3).map((tag, index) => (
+                  {takeFirst(work.tags, 3).map((tag, index) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-[#1e3a8a]/10 text-[#1e3a8a] rounded-full text-xs font-medium"

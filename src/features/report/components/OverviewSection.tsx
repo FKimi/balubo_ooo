@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { WorkData } from "@/features/work/types";
+import { takeFirst } from "@/utils/arrayUtils";
 
 interface OverviewSectionProps {
   works: WorkData[];
@@ -334,16 +335,16 @@ export function OverviewSection({
                 主な役割（トップ3）
               </h4>
               <div className="flex flex-wrap gap-2">
-                {workStats.roleDistribution
-                  .slice(0, 3)
-                  .map((role: any, _index: number) => (
+                {takeFirst(workStats.roleDistribution, 3).map(
+                  (role: any, _index: number) => (
                     <span
                       key={role.role}
                       className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"
                     >
                       {role.role} ({role.count}件)
                     </span>
-                  ))}
+                  ),
+                )}
               </div>
             </div>
           )}
@@ -511,17 +512,14 @@ export function OverviewSection({
                     Object.values(comprehensiveAnalysis).forEach(
                       (analysis: any) => {
                         if (analysis.insights) {
-                          analysis.insights
-                            .slice(0, 2)
-                            .forEach((insight: string) =>
-                              allStrengths.add(insight),
-                            );
+                          takeFirst(analysis.insights, 2).forEach(
+                            (insight: string) => allStrengths.add(insight),
+                          );
                         }
                       },
                     );
-                    return Array.from(allStrengths)
-                      .slice(0, 4)
-                      .map((strength: any, i: number) => (
+                    return takeFirst(Array.from(allStrengths), 4).map(
+                      (strength: any, i: number) => (
                         <div
                           key={i}
                           className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400"
@@ -662,7 +660,7 @@ export function OverviewSection({
                       });
                     }
 
-                    return suggestions.slice(0, 3).map((suggestion, i) => (
+                    return takeFirst(suggestions, 3).map((suggestion, i) => (
                       <div
                         key={i}
                         className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400"
@@ -700,7 +698,7 @@ export function OverviewSection({
                   注目作品
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {works.slice(0, 2).map((work, i) => (
+                  {takeFirst(works, 2).map((work, i) => (
                     <div
                       key={i}
                       className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 border border-gray-200"
@@ -710,9 +708,8 @@ export function OverviewSection({
                       </h5>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {work.roles &&
-                          work.roles
-                            .slice(0, 2)
-                            .map((role: string, j: number) => (
+                          takeFirst(work.roles, 2).map(
+                            (role: string, j: number) => (
                               <span
                                 key={j}
                                 className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
