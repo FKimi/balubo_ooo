@@ -1,62 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { AIAnalysisResult } from "@/features/work/types";
 import { Textarea } from "@/components/ui/textarea";
 
 interface BtoBAnalysisSectionProps {
   aiAnalysis: AIAnalysisResult;
-  onUpdate?: (updatedAnalysis: Partial<AIAnalysisResult>) => void;
+  onUpdate?: (_updatedAnalysis: Partial<AIAnalysisResult>) => void;
   editable?: boolean; // 編集可能かどうか（デフォルト: true）
-}
-
-// 業界と専門性を抽出する関数
-function extractIndustryAndExpertise(aiAnalysis: AIAnalysisResult) {
-  const industry: string[] = [];
-  const expertise: string[] = [];
-
-  // 業界はtagClassification.genreから抽出（2〜4つ）
-  if (aiAnalysis.tagClassification?.genre && aiAnalysis.tagClassification.genre.length > 0) {
-    industry.push(...aiAnalysis.tagClassification.genre.slice(0, 4));
-  }
-
-  // 専門性はtagsやtagClassificationから抽出
-  // 業界以外の専門性タグを抽出
-  const allTags = aiAnalysis.tags || [];
-  const genreTags = new Set(aiAnalysis.tagClassification?.genre || []);
-  
-  // 業界タグ以外で専門性を示すタグを抽出
-  allTags.forEach((tag) => {
-    if (!genreTags.has(tag) && expertise.length < 5) {
-      // 専門性を示すキーワードを優先的に抽出
-      const expertiseKeywords = [
-        "エンジニア", "リーダー", "DX", "変革", "マネジメント", "戦略",
-        "マーケティング", "プロダクト", "データ", "AI", "テック",
-        "キャリア", "組織", "ビジネス", "コンサル", "アドバイザー"
-      ];
-      
-      if (expertiseKeywords.some(keyword => tag.includes(keyword)) || expertise.length < 3) {
-        expertise.push(tag);
-      }
-    }
-  });
-
-  // tagClassificationからも専門性を抽出
-  if (aiAnalysis.tagClassification) {
-    const technique = aiAnalysis.tagClassification.technique || [];
-    const purpose = aiAnalysis.tagClassification.purpose || [];
-    
-    [...technique, ...purpose].forEach((tag) => {
-      if (!genreTags.has(tag) && !expertise.includes(tag) && expertise.length < 5) {
-        expertise.push(tag);
-      }
-    });
-  }
-
-  return {
-    industry: industry.slice(0, 4), // 業界は2〜4つ表示（最大4つまで）
-    expertise: expertise.slice(0, 4), // 専門性は最大4つまで
-  };
 }
 
 export function BtoBAnalysisSection({ aiAnalysis, onUpdate, editable = true }: BtoBAnalysisSectionProps) {
@@ -67,11 +18,6 @@ export function BtoBAnalysisSection({ aiAnalysis, onUpdate, editable = true }: B
   });
 
   const contentAnalysis = aiAnalysis?.contentAnalysis;
-
-  // 業界と専門性を抽出
-  const { industry, expertise } = useMemo(() => {
-    return extractIndustryAndExpertise(aiAnalysis);
-  }, [aiAnalysis]);
 
   // 初期値を設定
   useEffect(() => {

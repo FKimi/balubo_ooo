@@ -235,7 +235,6 @@ export function EnhancedAnalysisProgress({
           {analysisSteps.map((step, index) => {
             const isActive = index === currentStep;
             const isCompleted = index < currentStep;
-            const isPending = index > currentStep;
 
             return (
               <div
