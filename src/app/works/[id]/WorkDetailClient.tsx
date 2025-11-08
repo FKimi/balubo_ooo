@@ -659,11 +659,11 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                         {(() => {
                           const allTags = aiAnalysis.tags || [];
                           const genreTags = new Set(aiAnalysis.tagClassification?.genre || []);
-                          const expertiseTags = allTags.filter(tag => !genreTags.has(tag)).slice(0, 4);
+                          const expertiseTags = allTags.filter((tag: string) => !genreTags.has(tag)).slice(0, 4);
                           const techniqueTags = aiAnalysis.tagClassification?.technique || [];
                           const purposeTags = aiAnalysis.tagClassification?.purpose || [];
                           const combinedExpertise = [...expertiseTags, ...techniqueTags, ...purposeTags]
-                            .filter((tag, idx, arr) => arr.indexOf(tag) === idx)
+                            .filter((tag: string, idx: number, arr: string[]) => arr.indexOf(tag) === idx)
                             .slice(0, 4);
 
                           return combinedExpertise.length > 0 ? (
