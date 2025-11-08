@@ -143,6 +143,39 @@ export interface AnalysisResult {
   };
   learningPoints: string[];
   clientAppeal: string[];
+  // 写真分析用の詳細メトリクス（オプショナル）
+  detailedMetrics?: {
+    technology?: {
+      score?: number;
+      headline?: string;
+      goodHighlight?: string;
+      nextTip?: string;
+    };
+    expertise?: {
+      score?: number;
+      headline?: string;
+      goodHighlight?: string;
+      nextTip?: string;
+    };
+    creativity?: {
+      score?: number;
+      headline?: string;
+      goodHighlight?: string;
+      nextTip?: string;
+    };
+    impact?: {
+      score?: number;
+      headline?: string;
+      goodHighlight?: string;
+      nextTip?: string;
+    };
+    overall?: {
+      score?: number;
+      headline?: string;
+      goodHighlight?: string;
+      nextTip?: string;
+    };
+  };
 }
 
 interface GeminiImage {
