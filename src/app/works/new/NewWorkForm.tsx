@@ -12,6 +12,7 @@ import { EnhancedAnalysisProgress } from "@/components/works/EnhancedAnalysisPro
 import { BtoBAnalysisSection } from "@/components/works/BtoBAnalysisSection";
 import { ArrowLeft, Sparkles, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { truncateText } from "@/utils/stringUtils";
 
 interface LinkPreviewData {
   title: string;
