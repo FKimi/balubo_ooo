@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AIAnalysisStrengths } from "@/features/profile/components/AIAnalysisStrengths";
 import { useMemo } from "react";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
+import { getArrayLength } from "@/utils/arrayUtils";
 
 interface PublicProfileData {
   profile: any;
@@ -28,8 +29,8 @@ export function PublicProfileContent({
   console.log("PublicProfileContent: データ受信", {
     hasData: !!data,
     hasProfile: !!data?.profile,
-    worksCount: data?.works?.length || 0,
-    inputsCount: data?.inputs?.length || 0,
+    worksCount: getArrayLength(data?.works),
+    inputsCount: getArrayLength(data?.inputs),
     rawData: data,
     userId,
   });
@@ -49,8 +50,8 @@ export function PublicProfileContent({
     bio: profile?.bio,
     skills: profile?.skills,
     career: profile?.career,
-    worksLength: works?.length || 0,
-    inputsLength: inputs?.length || 0,
+    worksLength: getArrayLength(works),
+    inputsLength: getArrayLength(inputs),
     worksData: works,
     inputsData: inputs,
   });
@@ -72,7 +73,7 @@ export function PublicProfileContent({
     skills,
     career,
     professions,
-    finalWorksCount: works?.length || 0,
+    finalWorksCount: getArrayLength(works),
   });
 
   // 画像の存在チェック

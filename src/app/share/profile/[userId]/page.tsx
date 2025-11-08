@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { PublicProfileContent } from "./public-profile-content";
 import Link from "next/link";
+import { getArrayLength, isNotEmptyArray, takeFirst } from "@/utils/arrayUtils";
 
 async function getPublicProfile(userId: string) {
   console.log("公開プロフィール取得開始:", userId);
@@ -157,8 +158,8 @@ async function getPublicProfile(userId: string) {
     }
 
     console.log("作品取得結果:", {
-      worksCount: works?.length || 0,
-      works: works?.slice(0, 2), // 最初の2件のみログ出力
+      worksCount: getArrayLength(works),
+      works: takeFirst(works || [], 2), // 最初の2件のみログ出力
       hasError: !!worksError,
       errorType: worksError ? typeof worksError : "なし",
       worksType: works ? typeof works : "null/undefined",
@@ -166,7 +167,7 @@ async function getPublicProfile(userId: string) {
     });
 
     // 作品データが取得できたか確認
-    if (works && Array.isArray(works) && works.length > 0) {
+    if (isNotEmptyArray(works)) {
       console.log(
         "作品データ取得成功:",
         works.length + "件の作品が見つかりました",
@@ -190,7 +191,7 @@ async function getPublicProfile(userId: string) {
 
     const result = {
       profileExists: true,
-      worksCount: works?.length || 0,
+      worksCount: getArrayLength(works),
       profile,
       works: works || [],
       inputs: _inputs,

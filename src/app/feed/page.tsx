@@ -20,7 +20,7 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { WorkCard } from "@/components/feed/WorkCard";
 import { DiscoverySection } from "@/components/feed/DiscoverySection";
 import { formatTimeAgo } from "@/utils/dateFormat";
-import { takeFirst } from "@/utils/arrayUtils";
+import { takeFirst, getArrayLength } from "@/utils/arrayUtils";
 
 // Supabaseクライアントをコンポーネント外で初期化
 // `getSupabaseBrowserClient` はクッキーに保存されたセッションを自動で参照します
@@ -164,7 +164,7 @@ function FeedPageContent() {
 
         const processingTime = Date.now() - startTime;
         console.log("フィード画面: データ取得成功", {
-          items: feedData.items?.length || 0,
+          items: getArrayLength(feedData.items),
           append,
           processingTime: `${processingTime}ms`,
         });

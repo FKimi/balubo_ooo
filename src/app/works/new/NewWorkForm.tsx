@@ -13,6 +13,7 @@ import { BtoBAnalysisSection } from "@/components/works/BtoBAnalysisSection";
 import { ArrowLeft, Sparkles, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { truncateText } from "@/utils/stringUtils";
+import { getArrayLength } from "@/utils/arrayUtils";
 
 interface LinkPreviewData {
   title: string;
@@ -1295,13 +1296,17 @@ ${errorDetailSection}
               analysis_metadata: {
                 analysis_date: new Date().toISOString(),
                 analysis_version: "v1.0",
-                creativity_score:
-                  analysisResult.strengths?.creativity?.length || 0,
-                expertise_score:
-                  analysisResult.strengths?.expertise?.length || 0,
-                impact_score: analysisResult.strengths?.impact?.length || 0,
-                total_tags: analysisResult.tags?.length || 0,
-                total_keywords: analysisResult.keywords?.length || 0,
+                creativity_score: getArrayLength(
+                  analysisResult.strengths?.creativity,
+                ),
+                expertise_score: getArrayLength(
+                  analysisResult.strengths?.expertise,
+                ),
+                impact_score: getArrayLength(
+                  analysisResult.strengths?.impact,
+                ),
+                total_tags: getArrayLength(analysisResult.tags),
+                total_keywords: getArrayLength(analysisResult.keywords),
               },
             }
           : null,

@@ -7,6 +7,7 @@ import {
   calculateInputTopTags,
   calculateGenreDistribution,
 } from "@/features/profile/lib/profileUtils";
+import { isNotEmptyArray, getArrayLength } from "@/utils/arrayUtils";
 // import { InputData } from '@/types/input'
 
 async function getPublicProfileBySlug(slug: string) {
@@ -111,7 +112,7 @@ async function getPublicProfileBySlug(slug: string) {
 
   // インプット分析を計算
   let inputAnalysis = null;
-  if (inputs && inputs.length > 0) {
+  if (isNotEmptyArray(inputs)) {
     console.log(
       "[slug] インプット分析を計算中...",
       "インプット数:",
@@ -176,8 +177,8 @@ async function getPublicProfileBySlug(slug: string) {
 
   return {
     profileExists: true,
-    worksCount: works?.length || 0,
-    inputsCount: inputs?.length || 0,
+    worksCount: getArrayLength(works),
+    inputsCount: getArrayLength(inputs),
     profile,
     works: works || [],
     inputs: inputs || [],
