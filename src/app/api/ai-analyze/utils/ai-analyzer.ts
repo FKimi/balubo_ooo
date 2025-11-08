@@ -361,7 +361,7 @@ async function callGeminiAPISingle(
 
     // エラーメッセージの適切な処理
     let errorMessage = `HTTP ${response.status}`;
-    let errorDetails: any = {
+    const errorDetails: any = {
       status: response.status,
       statusText: response.statusText,
       apiKey: currentApiKey.substring(0, 10) + "...",

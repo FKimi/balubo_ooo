@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { generateShareModalData, shareToTwitter } from "@/utils/socialShare";
+import { generateShareModalData } from "@/utils/socialShare";
 import type { WorkData } from "@/features/work/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
