@@ -5,3 +5,4 @@ export * from "./dateFormat";
 export * from "./validation";
 export * from "./errorUtils";
 export * from "./constants";
+export * from "./stringUtils";

@@ -2370,47 +2370,6 @@ ${errorDetailSection}
                 <div className="space-y-6">
                   {/* 作品のすごさを一言で解説する吹き出し */}
                   {(() => {
-                    // テキストを自然な区切りで切り詰める関数（日本語の助詞や句読点で区切る）
-                    const truncateText = (text: string, maxLength: number): string => {
-                      if (text.length <= maxLength) return text;
-                      
-                      // まず最大長で切り取る
-                      const truncated = text.substring(0, maxLength);
-                      
-                      // 句点（。）で区切れる場合は、その位置で切る
-                      const lastPeriod = truncated.lastIndexOf('。');
-                      if (lastPeriod > maxLength * 0.6) {
-                        return truncated.substring(0, lastPeriod + 1);
-                      }
-                      
-                      // 読点（、）で区切れる場合は、その位置で切る
-                      const lastComma = truncated.lastIndexOf('、');
-                      if (lastComma > maxLength * 0.6) {
-                        return truncated.substring(0, lastComma);
-                      }
-                      
-                      // 日本語の助詞で区切る（自然な区切り）
-                      const particles = ['は', 'が', 'を', 'に', 'で', 'と', 'から', 'まで', 'より', 'の', 'も', 'へ'];
-                      for (const particle of particles) {
-                        const lastParticle = truncated.lastIndexOf(particle);
-                        if (lastParticle > maxLength * 0.6 && lastParticle < maxLength - 1) {
-                          // 助詞の後で切る（助詞を含める）
-                          return truncated.substring(0, lastParticle + particle.length);
-                        }
-                      }
-                      
-                      // スペースで区切れる場合は、その位置で切る
-                      const lastSpace = truncated.lastIndexOf(' ');
-                      if (lastSpace > maxLength * 0.6) {
-                        return truncated.substring(0, lastSpace);
-                      }
-                      
-                      // それでも切れない場合は、少し短めに切る（単語の途中を避ける）
-                      // 最後の数文字を削除して、より自然な長さにする
-                      const safeLength = Math.max(maxLength - 5, maxLength * 0.85);
-                      return text.substring(0, Math.floor(safeLength));
-                    };
-
                     // AI分析結果から作品の魅力を分析し、クリエイターの自己肯定感とモチベーションを高めるコメントを生成
                     const generateHighlightComment = () => {
                       const strengths = analysisResult.strengths;
