@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetcher } from "@/utils/fetcher";
 import type { WorkData, WorkCategory } from "@/features/work/types";
+import { CATEGORY_COLORS } from "@/utils/constants";
 
 export function useWorkCategories(
   savedWorks: WorkData[],
@@ -27,7 +28,7 @@ export function useWorkCategories(
             const newCategory: WorkCategory = {
               id: `category_${categoryName.replace(/\s+/g, "_").toLowerCase()}`,
               name: categoryName,
-              color: "#F59E0B",
+              color: CATEGORY_COLORS.DEFAULT,
               works: [work],
             };
             categorizedWorks.push(newCategory);
@@ -42,7 +43,7 @@ export function useWorkCategories(
           uncategorized = {
             id: "uncategorized",
             name: "未分類",
-            color: "#6B7280",
+            color: CATEGORY_COLORS.UNCATEGORIZED,
             works: [],
           };
           categorizedWorks.push(uncategorized);
@@ -62,7 +63,7 @@ export function useWorkCategories(
     const newCategory: WorkCategory = {
       id: newCategoryId,
       name: `カテゴリ${categoryNumber}`,
-      color: "#6366F1",
+      color: CATEGORY_COLORS.ADD_NEW,
       works: [],
     };
     setCategories([...categories, newCategory]);

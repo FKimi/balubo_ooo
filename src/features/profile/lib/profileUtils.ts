@@ -1,4 +1,5 @@
 import type { WorkData, WorkCategory } from "@/features/work/types";
+import { CATEGORY_COLORS } from "@/utils/constants";
 
 /**
  * 作品データからよく使用するタグを計算する
@@ -419,7 +420,7 @@ export function groupWorksByCategory(works: WorkData[]): WorkCategory[] {
           const newCategory: WorkCategory = {
             id: `category_${categoryName.replace(/\s+/g, "_").toLowerCase()}`,
             name: categoryName,
-            color: "#F59E0B",
+            color: CATEGORY_COLORS.DEFAULT,
             works: [work],
           };
           categorizedWorks.push(newCategory);
@@ -433,7 +434,7 @@ export function groupWorksByCategory(works: WorkData[]): WorkCategory[] {
         uncategorized = {
           id: "uncategorized",
           name: "未分類",
-          color: "#6B7280",
+          color: CATEGORY_COLORS.UNCATEGORIZED,
           works: [],
         };
         categorizedWorks.push(uncategorized);

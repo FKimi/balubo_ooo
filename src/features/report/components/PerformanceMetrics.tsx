@@ -1,6 +1,7 @@
 "use client";
 
 import type { PerformanceMetricsData } from "./types";
+import { NUMBER_FORMAT } from "@/utils/constants";
 
 interface PerformanceMetricsProps {
   metrics: PerformanceMetricsData;
@@ -11,10 +12,10 @@ export function PerformanceMetrics({ metrics }: PerformanceMetricsProps) {
     if (num === undefined || num === null || isNaN(num)) {
       return "0";
     }
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
+    if (num >= NUMBER_FORMAT.MILLION) {
+      return `${(num / NUMBER_FORMAT.MILLION).toFixed(1)}M`;
+    } else if (num >= NUMBER_FORMAT.THOUSAND) {
+      return `${(num / NUMBER_FORMAT.THOUSAND).toFixed(1)}K`;
     }
     return num.toString();
   };
