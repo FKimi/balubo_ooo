@@ -116,6 +116,7 @@ function NewWorkForm({
   const [savedWorkData, setSavedWorkData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("description");
   const [userDisplayName, setUserDisplayName] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // 定義済みの役割（コンテンツタイプ別）
   const getPredefinedRoles = (type: string) => {
@@ -872,7 +873,13 @@ function NewWorkForm({
         }
 
         console.log("最終エラーメッセージ:", errorMessage);
-        throw new Error(errorMessage);
+        
+        // エラー詳細を保持したエラーオブジェクトを作成
+        const errorObj: any = new Error(errorMessage);
+        errorObj.status = response.status;
+        errorObj.errorDetails = result.errorDetails || null;
+        errorObj.isRateLimit = result.isRateLimit || false;
+        throw errorObj;
       }
 
       if (result.success && result.analysis) {
@@ -1019,54 +1026,109 @@ function NewWorkForm({
         }
       }
 
-      // レート制限・クオータ超過のときは丁寧なメッセージに差し替え
+      // エラーの詳細情報をログに出力（デバッグ用）
+      console.error("=== エラー詳細情報 ===");
+      console.error("エラーメッセージ:", errorMessage);
+      console.error("エラーオブジェクト全体:", error);
+      if (error && typeof error === "object") {
+        const errorObj = error as any;
+        console.error("エラーステータス:", errorObj.status);
+        console.error("エラーコード:", errorObj.code);
+        console.error("isRateLimit:", errorObj.isRateLimit);
+        console.error("エラーオブジェクトの全プロパティ:", Object.keys(errorObj));
+      }
+      console.error("====================");
+
+      // レート制限・クオータ超過の判定
       const msgLower = (errorMessage || "").toLowerCase();
+      const errorObj = error as any;
+      const statusCode = errorObj?.status;
       const isRateLimit =
+        statusCode === 429 ||
         errorMessage.includes("上限に達しています") ||
         msgLower.includes("rate limit") ||
+        msgLower.includes("quota exceeded") ||
         msgLower.includes("quota") ||
-        msgLower.includes("429");
+        msgLower.includes("429") ||
+        errorObj?.isRateLimit === true ||
+        errorObj?.code === "RATE_LIMIT";
+
+      // 実際のエラーレスポンスを確認
+      let actualErrorMessage = errorMessage;
+      let errorDetails: any = null;
+      if (error && typeof error === "object") {
+        const err = error as any;
+        // APIから返された実際のエラーメッセージを確認
+        if (err.errorDetails) {
+          errorDetails = err.errorDetails;
+          actualErrorMessage = err.errorDetails.errorMessage || errorMessage;
+        } else if (err.response?.data?.error?.message) {
+          actualErrorMessage = err.response.data.error.message;
+        } else if (err.response?.data?.error) {
+          actualErrorMessage = JSON.stringify(err.response.data.error);
+        }
+      }
+
+      console.log("=== エラー判定結果 ===");
+      console.log("ステータスコード:", statusCode);
+      console.log("isRateLimit:", isRateLimit);
+      console.log("実際のエラーメッセージ:", actualErrorMessage);
+      console.log("====================");
+
+      // エラー詳細メッセージの構築
+      let errorDetailSection = `ステータスコード: ${statusCode || "不明"}\nエラーメッセージ: ${actualErrorMessage}`;
+      
+      if (errorDetails) {
+        errorDetailSection += `\n\n【APIエラー詳細】`;
+        if (errorDetails.status) {
+          errorDetailSection += `\n• HTTPステータス: ${errorDetails.status} ${errorDetails.statusText || ""}`;
+        }
+        if (errorDetails.errorCode) {
+          errorDetailSection += `\n• エラーコード: ${errorDetails.errorCode}`;
+        }
+        if (errorDetails.apiKey) {
+          errorDetailSection += `\n• 使用中のAPIキー: ${errorDetails.apiKey}`;
+        }
+        if (errorDetails.fullErrorData) {
+          errorDetailSection += `\n• エラーデータ: ${JSON.stringify(errorDetails.fullErrorData, null, 2)}`;
+        }
+      }
 
       const finalMessage = isRateLimit
-        ? "現在AI分析の上限に達しています。数分〜10分ほど待ってから再度お試しください。継続するにはGeminiのプラン/課金設定もご確認ください。"
-        : errorMessage;
+        ? `現在AI分析の上限に達しています。
 
-      console.log("表示するエラーメッセージ:", finalMessage);
-
-      // レート制限の場合はより詳細な情報を表示
-      if (isRateLimit) {
-        const detailedMessage = `🚨 AI分析の上限に達しています
-
-現在、Google Cloud Platformの無料トライアル終了により、AI分析の利用制限に達しています。
-
-【根本原因】
-• Google Cloud Platformの無料トライアルが終了（2025年10月9日までにアップグレード必要）
-• OAuth トークン付与レートの制限（1日10,000件）
-• Gemini APIの無料枠制限
+【エラー詳細】
+${errorDetailSection}
 
 【対処方法】
 • 数分〜10分ほど待ってから再度お試しください
-• Google Cloud Platformの有料プランにアップグレード
-• Gemini APIの有料プランにアップグレード
-• OAuth トークン付与レートの上限増加申請
+• Google Cloud Platformの課金設定を確認してください
+• Gemini APIの利用状況を確認してください
+• 複数のAPIキーが設定されている場合は、自動的に切り替わります
 
 【代替手段】
 • 手動でタグを追加することも可能です
-• 作品の保存は通常通り行えます
+• 作品の保存は通常通り行えます`
+        : `AI分析に失敗しました。
 
-しばらくお待ちいただくか、手動での入力をお試しください。`;
+【エラー詳細】
+${errorDetailSection}
 
-        // レート制限情報を状態に保存
+【対処方法】
+• しばらく時間を置いてから再度お試しください
+• 作品情報が正しく入力されているか確認してください
+• 問題が続く場合は、手動でタグを追加することも可能です`;
+
+      // レート制限情報を状態に保存
+      if (isRateLimit) {
         setRateLimitInfo({
           isActive: true,
           message: "AI分析の上限に達しています。しばらくお待ちください。",
           retryAfter: 30, // 30秒後に再試行可能
         });
-
-        alert(detailedMessage);
-      } else {
-        alert(finalMessage);
       }
+
+      alert(finalMessage);
     } finally {
       setIsAnalyzing(false);
       // レート制限の場合はクールダウン時間を延長
@@ -1084,11 +1146,17 @@ function NewWorkForm({
 
     if (onSubmit) {
       // 親から保存処理が渡された場合（編集モードなど）
-      await onSubmit(formData, analysisResult, previewData);
+      setIsSaving(true);
+      try {
+        await onSubmit(formData, analysisResult, previewData);
+      } finally {
+        setIsSaving(false);
+      }
       return;
     }
 
     // 追加（insert）処理（従来通り）
+    setIsSaving(true);
     try {
       // ファイルアップロード処理
       const fileUrls: string[] = [];
@@ -1279,6 +1347,7 @@ function NewWorkForm({
       if (error) {
         console.error("Database error:", error);
         alert("作品の保存に失敗しました");
+        setIsSaving(false);
         return;
       }
 
@@ -1294,28 +1363,29 @@ function NewWorkForm({
       console.error("Work save error:", error);
       alert("作品の保存に失敗しました");
     } finally {
+      setIsSaving(false);
       setIsAnalyzing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* ヘッダー */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 -ml-2"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               戻る
             </Button>
           </div>
 
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-slate-900 mb-3 tracking-tight">
               {contentType === "article"
                 ? "記事作品を追加"
                 : contentType === "design"
@@ -1330,7 +1400,7 @@ function NewWorkForm({
                           ? "イベント作品を追加"
                           : "作品を追加"}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
               {contentType === "article"
                 ? "あなたの記事・ライティング作品をポートフォリオに追加しましょう"
                 : contentType === "design"
@@ -1348,97 +1418,115 @@ function NewWorkForm({
           </div>
 
           {/* オンボーディング説明文 */}
-          <div className="mt-6 mb-4 max-w-2xl mx-auto text-center">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-6 py-4 text-blue-900 text-base leading-relaxed">
-              <p className="mb-2">
-                <span className="font-bold">
-                  {contentType === "article"
-                    ? "URLを入力するだけで、作品概要などの情報は自動で取得されます。"
-                    : contentType === "design"
-                      ? "URLを入力するだけで、デザイン作品の情報は自動で取得されます。"
-                      : contentType === "photo"
-                        ? "URLを入力するだけで、写真作品の情報は自動で取得されます。"
-                        : contentType === "video"
-                          ? "URLを入力するだけで、動画作品の情報は自動で取得されます。"
-                          : contentType === "podcast"
-                            ? "URLを入力するだけで、ポッドキャスト作品の情報は自動で取得されます。"
-                            : contentType === "event"
-                              ? "URLを入力するだけで、イベント作品の情報は自動で取得されます。"
-                              : "URLを入力するだけで、作品概要などの情報は自動で取得されます。"}
-                </span>
-                <br />
-                {contentType === "article"
-                  ? "そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。"
-                  : contentType === "design"
-                    ? "そのまま保存してもOKですし、AI分析でデザインの魅力を可視化するのもおすすめです。"
-                    : contentType === "photo"
-                      ? "そのまま保存してもOKですし、AI分析で写真の魅力を可視化するのもおすすめです。"
-                      : contentType === "video"
-                        ? "そのまま保存してもOKですし、AI分析で動画の魅力を可視化するのもおすすめです。"
-                        : contentType === "podcast"
-                          ? "そのまま保存してもOKですし、AI分析でポッドキャストの魅力を可視化するのもおすすめです。"
-                          : contentType === "event"
-                            ? "そのまま保存してもOKですし、AI分析でイベントの魅力を可視化するのもおすすめです。"
-                            : "そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。"}
-              </p>
-              <p className="mb-0 text-blue-700 text-sm">
-                {contentType === "article"
-                  ? "制作メモや記事本文の入力は"
-                  : contentType === "design"
-                    ? "制作メモやデザイン詳細の入力は"
-                    : contentType === "photo"
-                      ? "制作メモや写真詳細の入力は"
-                      : contentType === "video"
-                        ? "制作メモや動画詳細の入力は"
-                        : contentType === "podcast"
-                          ? "制作メモやポッドキャスト詳細の入力は"
-                          : contentType === "event"
-                            ? "制作メモやイベント詳細の入力は"
-                            : "制作メモや作品詳細の入力は"}
-                <strong>完全に任意</strong>です。
-                <br />
-                「もっと詳しく残したい」「AI分析を深めたい」ときだけ、気軽にご活用ください。
-              </p>
+          <div className="mt-8 mb-6 max-w-3xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl px-8 py-6 text-slate-700 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="text-base leading-relaxed">
+                    <span className="font-semibold text-slate-900">
+                      {contentType === "article"
+                        ? "URLを入力するだけで、作品概要などの情報は自動で取得されます。"
+                        : contentType === "design"
+                          ? "URLを入力するだけで、デザイン作品の情報は自動で取得されます。"
+                          : contentType === "photo"
+                            ? "URLを入力するだけで、写真作品の情報は自動で取得されます。"
+                            : contentType === "video"
+                              ? "URLを入力するだけで、動画作品の情報は自動で取得されます。"
+                              : contentType === "podcast"
+                                ? "URLを入力するだけで、ポッドキャスト作品の情報は自動で取得されます。"
+                                : contentType === "event"
+                                  ? "URLを入力するだけで、イベント作品の情報は自動で取得されます。"
+                                  : "URLを入力するだけで、作品概要などの情報は自動で取得されます。"}
+                    </span>
+                    <br />
+                    {contentType === "article"
+                      ? "そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。"
+                      : contentType === "design"
+                        ? "そのまま保存してもOKですし、AI分析でデザインの魅力を可視化するのもおすすめです。"
+                        : contentType === "photo"
+                          ? "そのまま保存してもOKですし、AI分析で写真の魅力を可視化するのもおすすめです。"
+                          : contentType === "video"
+                            ? "そのまま保存してもOKですし、AI分析で動画の魅力を可視化するのもおすすめです。"
+                            : contentType === "podcast"
+                              ? "そのまま保存してもOKですし、AI分析でポッドキャストの魅力を可視化するのもおすすめです。"
+                              : contentType === "event"
+                                ? "そのまま保存してもOKですし、AI分析でイベントの魅力を可視化するのもおすすめです。"
+                                : "そのまま保存してもOKですし、AI分析で作品の魅力を可視化するのもおすすめです。"}
+                  </p>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {contentType === "article"
+                      ? "制作メモや記事本文の入力は"
+                      : contentType === "design"
+                        ? "制作メモやデザイン詳細の入力は"
+                        : contentType === "photo"
+                          ? "制作メモや写真詳細の入力は"
+                          : contentType === "video"
+                            ? "制作メモや動画詳細の入力は"
+                            : contentType === "podcast"
+                              ? "制作メモやポッドキャスト詳細の入力は"
+                              : contentType === "event"
+                                ? "制作メモやイベント詳細の入力は"
+                                : "制作メモや作品詳細の入力は"}
+                    <strong className="text-slate-900">完全に任意</strong>です。
+                    <br />
+                    「もっと詳しく残したい」「AI分析を深めたい」ときだけ、気軽にご活用ください。
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* メインコンテンツエリア */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
           {/* 左カラム: URL入力とプレビュー */}
           <div className="space-y-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {contentType === "article"
-                  ? "記事のURL"
-                  : contentType === "design"
-                    ? "デザインのURL"
-                    : contentType === "photo"
-                      ? "写真のURL"
-                      : contentType === "video"
-                        ? "動画のURL"
-                        : contentType === "podcast"
-                          ? "ポッドキャストのURL"
-                          : contentType === "event"
-                            ? "イベントのURL"
-                            : "作品のURL"}
-              </h2>
-              <p className="text-gray-600 text-sm mb-4">
-                💡{" "}
-                {contentType === "article"
-                  ? "記事のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
-                  : contentType === "design"
-                    ? "デザインのURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
-                    : contentType === "photo"
-                      ? "写真のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
-                      : contentType === "video"
-                        ? "動画のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
-                        : contentType === "podcast"
-                          ? "ポッドキャストのURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
-                          : contentType === "event"
-                            ? "イベントのURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
-                            : "作品のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"}
-              </p>
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {contentType === "article"
+                      ? "記事のURL"
+                      : contentType === "design"
+                        ? "デザインのURL"
+                        : contentType === "photo"
+                          ? "写真のURL"
+                          : contentType === "video"
+                            ? "動画のURL"
+                            : contentType === "podcast"
+                              ? "ポッドキャストのURL"
+                              : contentType === "event"
+                                ? "イベントのURL"
+                                : "作品のURL"}
+                  </h2>
+                  <p className="text-slate-500 text-sm mt-1">
+                    💡{" "}
+                    {contentType === "article"
+                      ? "記事のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
+                      : contentType === "design"
+                        ? "デザインのURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
+                        : contentType === "photo"
+                          ? "写真のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
+                          : contentType === "video"
+                            ? "動画のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
+                            : contentType === "podcast"
+                              ? "ポッドキャストのURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
+                              : contentType === "event"
+                                ? "イベントのURLを入力すると、作品名・詳細・バナー画像を自動で取得します"
+                                : "作品のURLを入力すると、作品名・詳細・バナー画像を自動で取得します"}
+                  </p>
+                </div>
+              </div>
 
               <div className="space-y-4">
                 <div>
@@ -1446,7 +1534,7 @@ function NewWorkForm({
                     placeholder="https://example.com/your-article"
                     value={formData.externalUrl}
                     onChange={(e) => handleUrlChange(e.target.value)}
-                    className="h-12"
+                    className="h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
@@ -1464,10 +1552,10 @@ function NewWorkForm({
                 )}
 
                 {previewData && (
-                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                  <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
                     {/* バナー画像 */}
                     {previewData.image && (
-                      <div className="relative aspect-video bg-gray-100">
+                      <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-slate-50">
                         <Image
                           src={previewData.image}
                           alt={previewData.title}
@@ -1484,8 +1572,8 @@ function NewWorkForm({
                     )}
 
                     {/* 作品情報 */}
-                    <div className="p-4">
-                      <div className="flex items-center text-green-600 mb-2">
+                    <div className="p-5">
+                      <div className="flex items-center text-emerald-600 mb-3">
                         <svg
                           className="w-4 h-4 mr-2"
                           fill="currentColor"
@@ -1497,22 +1585,22 @@ function NewWorkForm({
                             clipRule="evenodd"
                           />
                         </svg>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold">
                           作品情報を取得しました
                         </span>
                       </div>
 
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight">
                         {previewData.title}
                       </h3>
-                      <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                      <p className="text-slate-700 text-sm leading-relaxed mb-3">
                         {previewData.description}
                       </p>
 
                       {previewData.siteName && (
-                        <div className="flex items-center text-gray-500 text-xs">
+                        <div className="flex items-center text-slate-500 text-xs">
                           <svg
-                            className="w-3 h-3 mr-1"
+                            className="w-3 h-3 mr-1.5"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -1532,17 +1620,24 @@ function NewWorkForm({
             </div>
 
             {/* 制作時期 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                制作時期
-              </h2>
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  制作時期
+                </h2>
+              </div>
               <Input
                 type="date"
                 value={formData.productionDate}
                 onChange={(e) =>
                   handleInputChange("productionDate", e.target.value)
                 }
-                className="h-12"
+                className="h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
@@ -1725,38 +1820,45 @@ function NewWorkForm({
           {/* 右カラム: 入力項目 */}
           <div className="space-y-6">
             {/* 作品名 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                作品名
-              </h2>
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  作品名
+                </h2>
+              </div>
               <Input
                 placeholder="ここにタイトルが入ります"
                 value={formData.title || previewData?.title || ""}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                className="h-12"
+                className="h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             {/* 詳細説明・制作メモ・記事本文（タブUI） */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
               {/* タブボタン */}
-              <div className="flex border-b border-gray-200 mb-4">
+              <div className="flex border-b border-slate-200 mb-6">
                 <button
                   onClick={() => setActiveTab("description")}
-                  className={`flex-1 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === "description"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >
                   作品概要
                 </button>
                 <button
                   onClick={() => setActiveTab("productionNotes")}
-                  className={`flex-1 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === "productionNotes"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >
                   制作メモ（任意）
@@ -1764,10 +1866,10 @@ function NewWorkForm({
                 {contentType === "article" && (
                   <button
                     onClick={() => setActiveTab("articleContent")}
-                    className={`flex-1 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                       activeTab === "articleContent"
-                        ? "border-blue-500 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700"
+                        ? "border-blue-600 text-blue-600"
+                        : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     記事本文（任意）
@@ -1778,7 +1880,7 @@ function NewWorkForm({
               {/* 詳細説明タブ */}
               {activeTab === "description" && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4">
                     作品概要
                   </h2>
                   <Textarea
@@ -1789,7 +1891,7 @@ function NewWorkForm({
                     onChange={(e) =>
                       handleInputChange("description", e.target.value)
                     }
-                    className="min-h-[120px] resize-none"
+                    className="min-h-[140px] resize-none text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -1890,30 +1992,37 @@ function NewWorkForm({
             </div>
 
             {/* あなたの役割 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                あなたの役割は何でしたか？
-              </h2>
-              <div className="flex gap-2 mb-3">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  あなたの役割は何でしたか？
+                </h2>
+              </div>
+              <div className="flex gap-3 mb-4">
                 <Input
                   placeholder="クレジットを書く（例：ライター、編集者など）"
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
                   onKeyDown={handleRoleKeyPress}
-                  className="flex-1"
+                  className="flex-1 h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <Button
                   onClick={addCustomRole}
                   disabled={!newRole.trim()}
                   variant="outline"
-                  className="px-4"
+                  className="px-6 h-12 font-semibold border-2 border-slate-300 hover:bg-slate-50"
                 >
                   追加
                 </Button>
               </div>
 
               <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">よく使われる役割：</p>
+                <p className="text-sm font-medium text-slate-600 mb-3">よく使われる役割：</p>
                 <div className="flex flex-wrap gap-2">
                   {predefinedRoles.map((role) => (
                     <Button
@@ -1924,7 +2033,7 @@ function NewWorkForm({
                       aria-label="役割追加"
                       onClick={() => addRole(role)}
                       disabled={formData.roles.includes(role)}
-                      className="border border-gray-300 rounded-full hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-500 px-3 py-1 text-sm"
+                      className="border border-slate-300 rounded-full hover:bg-slate-50 hover:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 px-4 py-2 text-sm font-medium transition-colors"
                     >
                       {role}
                     </Button>
@@ -1933,13 +2042,13 @@ function NewWorkForm({
               </div>
 
               {formData.roles.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">選択済みの役割：</p>
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <p className="text-sm font-medium text-slate-600 mb-3">選択済みの役割：</p>
                   <div className="flex flex-wrap gap-2">
                     {formData.roles.map((role, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200"
                       >
                         {role}
                         <Button
@@ -1948,7 +2057,7 @@ function NewWorkForm({
                           size="icon"
                           aria-label="役割削除"
                           onClick={() => removeRole(role)}
-                          className="ml-2 text-blue-500 hover:text-red-500"
+                          className="h-4 w-4 p-0 hover:bg-blue-200 rounded-full"
                         >
                           <X className="w-3 h-3" />
                         </Button>
@@ -2025,14 +2134,14 @@ function NewWorkForm({
         </div>
 
         {/* AI分析エンジン - フル幅で下部に配置 */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-lg overflow-hidden">
           {/* ヘッダーセクション */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-7">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
                   <svg
-                    className="w-6 h-6 text-white"
+                    className="w-7 h-7 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -2046,7 +2155,7 @@ function NewWorkForm({
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl lg:text-2xl font-bold text-white">
+                  <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2 tracking-tight">
                     {contentType === "article"
                       ? "記事AI分析エンジン"
                       : contentType === "design"
@@ -2061,9 +2170,9 @@ function NewWorkForm({
                                 ? "イベントAI分析エンジン"
                                 : "AI分析エンジン"}
                   </h3>
-                  <p className="text-blue-100 text-sm mt-1 leading-relaxed">
+                  <p className="text-blue-50 text-base mt-1 leading-relaxed">
                     {contentType === "article"
-                      ? "記事の専門性・文章力・読者への価値提供を多角的に分析"
+                      ? "記事が解決する課題・解決策・成果を分析し、業界と専門性を可視化"
                       : contentType === "design"
                         ? "デザインの美的センス・技術力・ブランド価値向上を多角的に分析（画像ファイルの視覚的内容も詳細分析・作品名・概要も自動生成）"
                         : contentType === "photo"
@@ -2078,11 +2187,11 @@ function NewWorkForm({
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col items-center lg:items-end gap-2">
+              <div className="flex flex-col items-center lg:items-end gap-3">
                 <Button
                   onClick={analyzeWithAI}
                   disabled={isAnalyzing || isCooldown}
-                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 px-8 py-3 font-medium min-w-[140px] whitespace-nowrap backdrop-blur-sm transition-all duration-200 hover:scale-105"
+                  className="bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 px-10 py-4 font-semibold min-w-[160px] whitespace-nowrap backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:shadow-xl text-base"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
                   {isAnalyzing
@@ -2091,8 +2200,8 @@ function NewWorkForm({
                       ? `待機中 (${cooldownRemaining}s)`
                       : "AI分析実行"}
                 </Button>
-                <p className="text-blue-100 text-sm text-center lg:text-right">
-                  作品の強みと特徴を自動分析
+                <p className="text-blue-50 text-sm text-center lg:text-right font-medium">
+                  あなたの専門性を客観的に証明
                 </p>
                 {/* レート制限情報の表示 */}
                 {rateLimitInfo?.isActive && (
@@ -2107,14 +2216,14 @@ function NewWorkForm({
           </div>
 
           {/* コンテンツエリア */}
-          <div className="p-6 lg:p-8">
+          <div className="p-8 lg:p-10">
             {/* AI分析の説明（分析結果がない場合のみ表示） */}
             {!analysisResult && !isAnalyzing && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 rounded-2xl p-8 mb-8 shadow-sm">
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-6 h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -2128,79 +2237,85 @@ function NewWorkForm({
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-lg font-bold text-blue-900 mb-3">
+                    <h4 className="text-xl font-bold text-slate-900 mb-4">
                       AI分析でできること
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="bg-white/80 rounded-xl p-4 border border-blue-100 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <svg
-                            className="w-5 h-5 text-purple-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                            />
-                          </svg>
-                          <div className="font-semibold text-blue-800">
-                            プロレベル評価
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-blue-100/80 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-5 h-5 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="font-bold text-slate-900">
+                            コンテンツ分析
                           </div>
                         </div>
-                        <div className="text-blue-700 text-sm">
-                          技術力・専門性・創造性・影響力の4軸で100点満点評価
+                        <div className="text-slate-700 text-sm leading-relaxed">
+                          {contentType === "article"
+                            ? "課題・解決策・成果を分析し、あなたの価値を言語化"
+                            : "作品が解決する課題と成果を詳細に分析"}
                         </div>
                       </div>
-                      <div className="bg-white/80 rounded-xl p-4 border border-blue-100 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <svg
-                            className="w-5 h-5 text-emerald-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                            />
-                          </svg>
-                          <div className="font-semibold text-blue-800">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-blue-100/80 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-5 h-5 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="font-bold text-slate-900">
+                            業界・専門性の可視化
+                          </div>
+                        </div>
+                        <div className="text-slate-700 text-sm leading-relaxed">
+                          業界と専門性を自動抽出し、一目でわかるバッジ表示
+                        </div>
+                      </div>
+                      <div className="bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-blue-100/80 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-5 h-5 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="font-bold text-slate-900">
                             スマートタグ生成
                           </div>
                         </div>
-                        <div className="text-blue-700 text-sm">
+                        <div className="text-slate-700 text-sm leading-relaxed">
                           作品の特徴に合った最適なタグを自動提案
-                        </div>
-                      </div>
-                      <div className="bg-white/80 rounded-xl p-4 border border-blue-100 shadow-sm">
-                        <div className="flex items-center gap-2 mb-2">
-                          <svg
-                            className="w-5 h-5 text-orange-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                          <div className="font-semibold text-blue-800">
-                            詳細レポート
-                          </div>
-                        </div>
-                        <div className="text-blue-700 text-sm">
-                          {contentType === "design"
-                            ? "作品の概要・強み・ターゲット層を詳細分析（画像ファイルの視覚的内容も含む・作品名・概要も自動生成）"
-                            : "作品の概要・強み・ターゲット層を詳細分析"}
                         </div>
                       </div>
                       {contentType === "design" && (
@@ -2254,6 +2369,189 @@ function NewWorkForm({
               <div className="grid grid-cols-1 gap-8">
                 {/* 左カラム：概要・強み分析・AI推奨タグ */}
                 <div className="space-y-6">
+                  {/* 作品のすごさを一言で解説する吹き出し */}
+                  {(() => {
+                    // テキストを自然な区切りで切り詰める関数（日本語の助詞や句読点で区切る）
+                    const truncateText = (text: string, maxLength: number): string => {
+                      if (text.length <= maxLength) return text;
+                      
+                      // まず最大長で切り取る
+                      const truncated = text.substring(0, maxLength);
+                      
+                      // 句点（。）で区切れる場合は、その位置で切る
+                      const lastPeriod = truncated.lastIndexOf('。');
+                      if (lastPeriod > maxLength * 0.6) {
+                        return truncated.substring(0, lastPeriod + 1);
+                      }
+                      
+                      // 読点（、）で区切れる場合は、その位置で切る
+                      const lastComma = truncated.lastIndexOf('、');
+                      if (lastComma > maxLength * 0.6) {
+                        return truncated.substring(0, lastComma);
+                      }
+                      
+                      // 日本語の助詞で区切る（自然な区切り）
+                      const particles = ['は', 'が', 'を', 'に', 'で', 'と', 'から', 'まで', 'より', 'の', 'も', 'へ'];
+                      for (const particle of particles) {
+                        const lastParticle = truncated.lastIndexOf(particle);
+                        if (lastParticle > maxLength * 0.6 && lastParticle < maxLength - 1) {
+                          // 助詞の後で切る（助詞を含める）
+                          return truncated.substring(0, lastParticle + particle.length);
+                        }
+                      }
+                      
+                      // スペースで区切れる場合は、その位置で切る
+                      const lastSpace = truncated.lastIndexOf(' ');
+                      if (lastSpace > maxLength * 0.6) {
+                        return truncated.substring(0, lastSpace);
+                      }
+                      
+                      // それでも切れない場合は、少し短めに切る（単語の途中を避ける）
+                      // 最後の数文字を削除して、より自然な長さにする
+                      const safeLength = Math.max(maxLength - 5, maxLength * 0.85);
+                      return text.substring(0, Math.floor(safeLength));
+                    };
+
+                    // AI分析結果から作品の魅力を分析し、クリエイターの自己肯定感とモチベーションを高めるコメントを生成
+                    const generateHighlightComment = () => {
+                      const strengths = analysisResult.strengths;
+                      const contentAnalysis = analysisResult.contentAnalysis;
+                      const tags = analysisResult.tags || [];
+                      
+                      // 専門性タグから特徴を抽出
+                      const expertiseTags = analysisResult.tagClassification?.technique || [];
+                      const genreTags = analysisResult.tagClassification?.genre || [];
+                      const industryTag = genreTags[0] || tags.find((tag: string) => 
+                        ["医療", "金融", "IT", "SaaS", "BtoB", "教育", "不動産", "製造", "小売", "サービス"].some(industry => tag.includes(industry))
+                      ) || "";
+                      
+                      // 課題を抽出（箇条書きから複数の項目を取得）
+                      const problem = contentAnalysis?.problem || "";
+                      const problemItems = problem.split('\n')
+                        .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+                        .filter((item: string) => item.length > 0)
+                        .slice(0, 2);
+                      
+                      // 解決策を抽出（箇条書きから複数の項目を取得）
+                      const solution = contentAnalysis?.solution || "";
+                      const solutionItems = solution.split('\n')
+                        .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+                        .filter((item: string) => item.length > 0)
+                        .slice(0, 2);
+                      
+                      // 成果を抽出（数値があれば強調、箇条書きから複数の項目を取得）
+                      const result = contentAnalysis?.result || "";
+                      const resultItems = result.split('\n')
+                        .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+                        .filter((item: string) => item.length > 0)
+                        .slice(0, 2);
+                      const hasNumbers = /\d+/.test(result);
+                      const numberMatch = result.match(/\d+[%％]?/);
+                      
+                      // 創造性・専門性・影響力を抽出
+                      const creativity = strengths?.creativity?.[0] || "";
+                      const expertise = strengths?.expertise?.[0] || "";
+                      
+                      // パターン1: 数値成果 + 課題解決 + 専門性（最も魅力的）
+                      if (hasNumbers && numberMatch && problemItems.length > 0 && industryTag) {
+                        const expertiseText = expertiseTags[0] || expertise || "専門的な知識";
+                        const problemText = truncateText(problemItems[0], 60);
+                        return `${industryTag}の${problemText}という課題に取り組み、${numberMatch[0]}の成果を出している点が素晴らしいです。${expertiseText}を活かしたアプローチで、単なる情報提供を超えた業界への貢献を実現しています。この作品は、あなたの専門性と実践力の高さを証明するものと言えるでしょう。`;
+                      }
+                      
+                      // パターン2: 課題 + 解決策 + 専門性（具体的なアプローチを評価）
+                      if (problemItems.length > 0 && solutionItems.length > 0) {
+                        const problemText = truncateText(problemItems[0], 55);
+                        const solutionText = truncateText(solutionItems[0], 55);
+                        const expertiseText = expertiseTags[0] || industryTag || "専門知識";
+                        return `${problemText}という課題に対して、${solutionText}というアプローチで解決している点が評価できます。${expertiseText}を活かしながら、業界への貢献と読者への価値提供を両立させているこの作品は、あなたのプロフェッショナルなスキルを示すものです。`;
+                      }
+                      
+                      // パターン3: 創造性 + 専門性 + 影響力（総合的な評価）
+                      if (creativity && expertise && industryTag) {
+                        const creativityShort = truncateText(creativity, 50);
+                        const expertiseText = expertiseTags[0] || expertise;
+                        return `${industryTag}の${expertiseText}を活かしながら、${creativityShort}という視点で作品を仕上げている点が素晴らしいです。この作品は、あなたの専門性と創造性の両方が発揮された、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
+                      }
+                      
+                      // パターン4: 成果 + 専門性（成果を強調）
+                      if (resultItems.length > 0 && industryTag) {
+                        const resultText = truncateText(resultItems[0], 60);
+                        const expertiseText = expertiseTags[0] || "専門的な知識";
+                        return `${industryTag}の課題を解決し、${resultText}という成果を出している点が評価できます。${expertiseText}を活かしたこの作品は、あなたの実践力と専門性の高さを示すものです。`;
+                      }
+                      
+                      // パターン5: 業界 + 専門性 + 創造性（総合的な魅力）
+                      if (industryTag && expertiseTags.length > 0) {
+                        const expertiseText = expertiseTags[0];
+                        const creativityText = creativity || "創造的な視点";
+                        return `${industryTag}の${expertiseText}を活かしながら、${creativityText}で作品を仕上げている点が素晴らしいです。この作品は、あなたの専門性と創造性が融合した、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
+                      }
+                      
+                      // パターン6: 業界 + 専門性（フォールバック）
+                      if (industryTag) {
+                        const expertiseText = expertiseTags[0] || tags[0] || "専門性";
+                        return `${industryTag}の課題を解決する${contentType === "article" ? "記事" : "作品"}です。${expertiseText}を活かしながら、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、この作品の魅力として評価できます。`;
+                      }
+                      
+                      // パターン7: 最終フォールバック
+                      if (tags.length > 0) {
+                        return `${tags[0]}${tags[1] ? `と${tags[1]}` : ""}の専門知識を活かした${contentType === "article" ? "記事" : "作品"}です。この作品は、あなたの専門性と実践力の高さを示すものとして評価できます。`;
+                      }
+                      
+                      return `この${contentType === "article" ? "記事" : "作品"}は、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、魅力として評価できます。`;
+                    };
+                    
+                    const comment = generateHighlightComment();
+                    
+                    return (
+                      <div className="relative">
+                        {/* 吹き出しコメント */}
+                        <div className="bg-white border-2 border-gray-300 rounded-2xl p-5 shadow-lg relative overflow-visible">
+                          {/* コンテンツ */}
+                          <div className="relative z-10">
+                            <div className="flex items-start gap-3">
+                              {/* アイコン（コメント風） */}
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg
+                                  className="w-4 h-4 text-blue-600"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                  />
+                                </svg>
+                              </div>
+                              
+                              {/* テキスト */}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-gray-500 text-xs font-semibold">
+                                    作品の魅力
+                                  </span>
+                                </div>
+                                <p className="text-gray-900 text-sm leading-relaxed">
+                                  {comment}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* 吹き出しのしっぽ（左下、白背景に合わせて） */}
+                          <div className="absolute -bottom-3 left-6 w-0 h-0">
+                            <div className="w-0 h-0 border-l-[16px] border-l-transparent border-t-[16px] border-t-gray-300"></div>
+                            <div className="absolute top-[2px] left-[2px] w-0 h-0 border-l-[14px] border-l-transparent border-t-[14px] border-t-white"></div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* 分析概要 */}
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-4">
@@ -2285,7 +2583,15 @@ function NewWorkForm({
                   {/* AI評価スコア - 削除済み */}
 
                   {/* 専門性分析 */}
-                  <BtoBAnalysisSection aiAnalysis={analysisResult || {}} />
+                  <BtoBAnalysisSection
+                    aiAnalysis={analysisResult || {}}
+                    onUpdate={(updated) => {
+                      setAnalysisResult({
+                        ...analysisResult,
+                        ...updated,
+                      });
+                    }}
+                  />
 
                   {/* 強み分析 */}
                   {false && analysisResult.strengths && (
@@ -2424,24 +2730,31 @@ function NewWorkForm({
             )}
 
             {/* 手動タグ追加セクション（AI分析結果の外側） */}
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h5 className="text-sm font-bold text-blue-900 mb-3">
-                タグを追加
-              </h5>
+            <div className="mt-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </div>
+                <h5 className="text-base font-bold text-slate-900">
+                  タグを追加
+                </h5>
+              </div>
 
               {/* タグ入力エリア */}
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-3 mb-4">
                 <Input
                   placeholder="タグを入力..."
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={handleTagKeyPress}
-                  className="flex-1 h-8 text-sm bg-white"
+                  className="flex-1 h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <Button
                   onClick={addTag}
                   disabled={!newTag.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 h-8 text-xs"
+                  className="px-6 h-12 font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
                 >
                   追加
                 </Button>
@@ -2449,16 +2762,16 @@ function NewWorkForm({
 
               {/* 追加されたタグ表示 */}
               {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
                   {formData.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 rounded-full text-sm font-semibold border border-indigo-200"
                     >
                       #{tag}
                       <button
                         onClick={() => removeTag(tag)}
-                        className="ml-2 text-blue-600 hover:text-red-500"
+                        className="text-indigo-500 hover:text-red-500 transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -2471,12 +2784,12 @@ function NewWorkForm({
         </div>
 
         {/* 作品を保存ボタン */}
-        <div className="mt-8 flex justify-center">
-          <div className="flex space-x-4">
+        <div className="mt-10 flex justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
             <Button
               variant="outline"
               onClick={() => router.back()}
-              className="px-8 py-3 text-lg"
+              className="px-8 py-4 text-base font-semibold border-2 border-slate-300 hover:bg-slate-50"
             >
               キャンセル
             </Button>
@@ -2484,16 +2797,17 @@ function NewWorkForm({
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteModal(true)}
-                className="px-8 py-3 text-lg border-red-300 text-red-600 hover:bg-red-50"
+                className="px-8 py-4 text-base font-semibold border-2 border-red-300 text-red-600 hover:bg-red-50"
               >
                 削除
               </Button>
             )}
             <Button
               onClick={handleSubmit}
-              className="px-12 py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              disabled={isSaving || !formData.title}
+              className="flex-1 px-8 py-4 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all"
             >
-              作品を保存
+              {isSaving ? "保存中..." : "作品を保存"}
             </Button>
           </div>
         </div>
@@ -2517,7 +2831,6 @@ function NewWorkForm({
         type="work"
         data={savedWorkData || {}}
         userDisplayName={userDisplayName}
-        variant="toast"
       />
 
       {/* 削除確認モーダル */}

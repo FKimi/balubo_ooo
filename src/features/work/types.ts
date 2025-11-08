@@ -130,39 +130,12 @@ export interface AIAnalysisResult {
       targetReaderEstimation: string;
       btobContextUnderstanding: string;
     };
-    /** BtoB分析スコア */
-    scores?: {
-      industryIdentification: {
-        score: number;
-        reason: string;
-        industryTags: string[];
-        domainKeywords: string[];
-      };
-      problemPurposeAnalysis: {
-        score: number;
-        reason: string;
-        problemTags: string[];
-        purposeKeywords: string[];
-      };
-      achievementExtraction: {
-        score: number;
-        reason: string;
-        quantitativeResults: string[];
-        impactScore: number;
-      };
-      targetReaderEstimation: {
-        score: number;
-        reason: string;
-        targetTags: string[];
-        readerLevel: string;
-      };
-      btobContextUnderstanding: {
-        score: number;
-        reason: string;
-        contextScore: number;
-        btobElements: string[];
-      };
-    };
+  };
+  // コンテンツ分析（課題・解決策・成果）
+  contentAnalysis?: {
+    problem: string;
+    solution: string;
+    result: string;
   };
   // 古い形式のAI評価スコア（後方互換性のため）
   legacyEvaluation?: {

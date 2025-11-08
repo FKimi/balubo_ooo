@@ -50,7 +50,7 @@ export function EnhancedAnalysisProgress({
     {
       id: "ai_processing",
       title: "AI分析実行中",
-      description: "技術力・専門性・創造性・影響力を多角的に評価しています",
+      description: "課題・解決策・成果を分析し、業界と専門性を可視化しています",
       duration: 12,
       icon: "🤖",
     },
@@ -142,115 +142,149 @@ export function EnhancedAnalysisProgress({
   const currentTip = tips[Math.floor(elapsedTime / 8) % tips.length];
 
   return (
-    <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center text-lg">
-              {analysisSteps[currentStep]?.icon || "🤖"}
+    <div className="mb-8 bg-white border-2 border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+      {/* ヘッダー（青いバー） */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-white text-sm font-medium">
+                記事が解決する課題・解決策・成果を分析し、業界と専門性を可視化
+              </p>
             </div>
           </div>
-          <div>
-            <h3 className="text-blue-900 font-bold text-xl">
-              高度AI分析を実行中...
-            </h3>
-            <p className="text-blue-700 text-sm">
-              予想時間: 約{Math.ceil(estimatedTotalTime / 60)}分 | 経過:{" "}
-              {elapsedTime}秒
-            </p>
+          <div className="text-white/90 text-sm font-medium hidden sm:block">
+            あなたの専門性を客観的に証明
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onCancel}
-          className="text-gray-600 hover:text-gray-800"
-        >
-          キャンセル
-        </Button>
       </div>
 
-      {/* プログレスバー */}
-      <div className="mb-6">
-        <div className="flex justify-between text-sm text-blue-700 mb-2">
-          <span>進捗</span>
-          <span>{Math.round(progressPercentage)}%</span>
-        </div>
-        <div className="w-full bg-blue-200 rounded-full h-3">
-          <div
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-1000 ease-out"
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* 現在のステップ */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-            {currentStep + 1}
+      {/* メインコンテンツ */}
+      <div className="p-6">
+        {/* ヘッダー部分 */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl shadow-lg">
+                  {analysisSteps[currentStep]?.icon || "🤖"}
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-gray-900 font-bold text-xl mb-1">
+                高度AI分析を実行中...
+              </h3>
+              <p className="text-gray-600 text-sm">
+                予想時間: 約{Math.ceil(estimatedTotalTime / 60)}分 | 経過: {elapsedTime}秒
+              </p>
+            </div>
           </div>
-          <h4 className="text-lg font-semibold text-blue-900">
-            {analysisSteps[currentStep]?.title || "分析完了間近"}
-          </h4>
-        </div>
-        <p className="text-blue-700 ml-11">
-          {analysisSteps[currentStep]?.description ||
-            "最終的な分析結果をまとめています..."}
-        </p>
-      </div>
-
-      {/* ステップ一覧 */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        {analysisSteps.map((step, index) => (
-          <div
-            key={step.id}
-            className={`p-3 rounded-lg border-2 transition-all duration-300 ${
-              index <= currentStep
-                ? "bg-blue-100 border-blue-400 text-blue-800"
-                : "bg-gray-50 border-gray-200 text-gray-500"
-            }`}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+            className="text-gray-600 hover:text-gray-800 border-gray-300"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{step.icon}</span>
-              <span className="font-medium text-sm">{step.title}</span>
+            キャンセル
+          </Button>
+        </div>
+
+        {/* プログレスバー */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-gray-700 mb-2">
+            <span className="font-medium">進捗</span>
+            <span className="font-semibold">{Math.round(progressPercentage)}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
+              style={{ width: `${progressPercentage}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
             </div>
-            {index <= currentStep && (
-              <div className="text-xs mt-1 opacity-75">約{step.duration}秒</div>
+          </div>
+        </div>
+
+        {/* 現在のステップ（大きく表示） */}
+        <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+              {currentStep + 1}
+            </div>
+            <div className="flex-1">
+              <h4 className="text-lg font-bold text-gray-900 mb-1">
+                {analysisSteps[currentStep]?.title || "分析完了間近"}
+              </h4>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                {analysisSteps[currentStep]?.description ||
+                  "最終的な分析結果をまとめています..."}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ステップ一覧（2x2グリッド） */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {analysisSteps.map((step, index) => {
+            const isActive = index === currentStep;
+            const isCompleted = index < currentStep;
+            const isPending = index > currentStep;
+
+            return (
+              <div
+                key={step.id}
+                className={`p-4 rounded-lg border-2 transition-all duration-300 ${
+                  isActive
+                    ? "bg-blue-600 border-blue-700 text-white shadow-lg scale-105"
+                    : isCompleted
+                    ? "bg-blue-50 border-blue-300 text-blue-800"
+                    : "bg-gray-50 border-gray-200 text-gray-500"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xl">{step.icon}</span>
+                  <span className="font-semibold text-sm flex-1">{step.title}</span>
+                  {isCompleted && (
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {isActive && (
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  )}
+                </div>
+                {(isActive || isCompleted) && (
+                  <div className={`text-xs mt-1 ${isActive ? "text-white/80" : "text-blue-600"}`}>
+                    約{step.duration}秒
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 残り時間とヒント */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="text-sm font-medium text-gray-700">
+            {remainingTime > 0 ? (
+              <>残り約{Math.ceil(remainingTime / 60)}分</>
+            ) : (
+              <span className="text-blue-600">まもなく完了します...</span>
             )}
           </div>
-        ))}
-      </div>
 
-      {/* 残り時間とヒント */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-blue-600">
-          {remainingTime > 0 ? (
-            <>残り約{Math.ceil(remainingTime / 60)}分</>
-          ) : (
-            <>まもなく完了します...</>
+          {showTips && (
+            <div className="text-sm text-blue-700 bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg animate-fade-in">
+              {currentTip}
+            </div>
           )}
-        </div>
-
-        {showTips && (
-          <div className="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full animate-pulse">
-            {currentTip}
-          </div>
-        )}
-      </div>
-
-      {/* 楽しいアニメーション要素 */}
-      <div className="mt-4 flex justify-center">
-        <div className="flex gap-1">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
-              style={{ animationDelay: `${i * 0.1}s` }}
-            ></div>
-          ))}
         </div>
       </div>
     </div>

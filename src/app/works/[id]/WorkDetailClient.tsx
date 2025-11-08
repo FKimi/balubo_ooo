@@ -219,18 +219,43 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-              <div className="h-96 bg-gray-200 rounded mb-8"></div>
-              <div className="h-32 bg-gray-200 rounded mb-4"></div>
-              <div className="h-24 bg-gray-200 rounded"></div>
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          <div className="max-w-7xl mx-auto">
+            <div className="animate-pulse space-y-8">
+              {/* バナーとタイトルのスケルトン */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                {/* バナーのスケルトン */}
+                <div className="h-64 md:h-80 lg:h-[400px] bg-gray-200"></div>
+                {/* タイトルのスケルトン */}
+                <div className="bg-white p-6 lg:p-8 lg:pl-10 flex flex-col justify-center space-y-6">
+                  <div className="space-y-4">
+                    <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* コンテンツのスケルトン */}
+              <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 lg:p-8">
+                <div className="space-y-6">
+                  <div className="h-6 bg-gray-200 rounded w-32"></div>
+                  <div className="h-24 bg-gray-200 rounded"></div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
@@ -452,17 +477,17 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <main className="container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
           <div className="flex items-center justify-between mb-8">
             <Link href="/profile">
               <Button
-                variant="outline"
-                className="flex items-center gap-2 hover:bg-white/70"
+                variant="ghost"
+                className="flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 -ml-2"
               >
                 <svg
                   className="w-4 h-4"
@@ -486,7 +511,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-colors"
+                  className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <svg
                     className="w-4 h-4 mr-2"
@@ -504,7 +529,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                   削除
                 </button>
                 <Link href={`/works/${work.id}/edit`}>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
                     <svg
                       className="w-4 h-4 mr-2"
                       fill="none"
@@ -526,178 +551,398 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           </div>
 
           {/* 作品詳細 */}
-          <Card className="overflow-hidden shadow-lg border border-gray-200 bg-white">
-            {/* バナー画像 */}
-            <div className="h-80 bg-gray-100 relative overflow-hidden">
-              {work.external_url ||
-              work.banner_image_url ||
-              work.previewData?.image ||
-              work.preview_data?.image ? (
-                <WorkBanner
-                  url={work.external_url || ""}
-                  title={work.title}
-                  previewData={work.previewData || work.preview_data}
-                  bannerImageUrl={work.banner_image_url || ""}
-                  useProxy={true}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <div className="w-24 h-24 bg-white rounded-lg shadow-lg mx-auto mb-4 flex items-center justify-center">
-                      <svg
-                        className="w-12 h-12 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="text-gray-600 text-lg font-medium">
-                      作品
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <CardContent className="p-6">
-              {/* タイトルと基本情報 */}
-              <div className="mb-6">
-                <div className="flex items-start justify-between mb-6">
-                  <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-                    {work.title}
-                  </h1>
-                  {work.productionDate && (
-                    <span className="text-gray-500 text-sm font-medium bg-gray-100 px-4 py-2 rounded-full whitespace-nowrap ml-4">
-                      {new Date(work.productionDate).toLocaleDateString(
-                        "ja-JP",
-                        { year: "numeric", month: "long" },
-                      )}
-                    </span>
-                  )}
-                </div>
-
-                {/* 作者情報 */}
-                {authorProfile && (
-                  <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex items-center gap-4">
-                      {/* プロフィール画像 */}
-                      <div className="flex-shrink-0">
-                        {authorProfile.avatar_image_url ? (
-                          <Image
-                            src={authorProfile.avatar_image_url}
-                            alt={authorProfile.display_name}
-                            width={64}
-                            height={64}
-                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-xl shadow-sm">
-                            {authorProfile.display_name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 作者情報 */}
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {authorProfile.display_name}
-                          </h3>
-                          {authorProfile.professions &&
-                            authorProfile.professions.length > 0 && (
-                              <span className="text-sm text-gray-600">
-                                {authorProfile.professions.join(" / ")}
-                              </span>
-                            )}
-                        </div>
-
-                        {authorProfile.bio && (
-                          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                            {authorProfile.bio}
-                          </p>
-                        )}
-
-                        {/* プロフィールへのリンク */}
-                        <Link
-                          href={
-                            authorProfile.slug
-                              ? `/${authorProfile.slug}`
-                              : `/share/profile/${authorProfile.user_id}`
-                          }
-                          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+          <Card className="overflow-hidden shadow-md border border-gray-200 bg-white rounded-xl mb-8 transition-shadow duration-200 hover:shadow-lg">
+            {/* バナーとタイトルを2カラムレイアウト */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+              {/* 左カラム：バナー画像 */}
+              <div className="h-64 md:h-80 lg:h-full lg:min-h-[400px] relative overflow-hidden bg-gray-50 order-1 lg:order-1 transition-opacity duration-300 lg:pl-6 lg:pt-6">
+                {work.external_url ||
+                work.banner_image_url ||
+                work.previewData?.image ||
+                work.preview_data?.image ? (
+                  <WorkBanner
+                    url={work.external_url || ""}
+                    title={work.title}
+                    previewData={work.previewData || work.preview_data}
+                    bannerImageUrl={work.banner_image_url || ""}
+                    useProxy={true}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className="text-center p-6">
+                      <div className="w-16 h-16 bg-white rounded-lg shadow-sm mx-auto mb-3 flex items-center justify-center border border-gray-200">
+                        <svg
+                          className="w-8 h-8 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                          プロフィールを見る
-                        </Link>
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="text-gray-500 text-sm font-medium">
+                        作品
                       </div>
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* 右カラム：タイトルとメタ情報 */}
+              <div className="bg-white p-6 lg:p-8 lg:pl-10 flex flex-col justify-center order-2 lg:order-2 transition-all duration-300 hover:bg-gray-50/50">
+                <div className="space-y-6">
+                  {/* タイトル */}
+                  <div>
+                    <h1 className="text-xl md:text-2xl lg:text-2xl font-bold text-gray-900 leading-[1.3] tracking-tight mb-4 line-clamp-2">
+                      {work.title}
+                    </h1>
+                    {work.productionDate && (
+                      <span className="inline-block text-gray-600 text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200 transition-all duration-200 hover:bg-gray-200">
+                        {new Date(work.productionDate).toLocaleDateString(
+                          "ja-JP",
+                          { year: "numeric", month: "long" },
+                        )}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* メタデータ（2カラム） */}
+                  {aiAnalysis && (
+                    <div className="grid grid-cols-2 gap-6 pt-6 border-t-2 border-gray-300">
+                      {/* 左カラム */}
+                      <div className="space-y-5">
+                        {/* 業界 */}
+                        {aiAnalysis.tagClassification?.genre && aiAnalysis.tagClassification.genre.length > 0 && (
+                          <div>
+                            <p className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wider flex items-center gap-2">
+                              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                              </svg>
+                              業界
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {aiAnalysis.tagClassification.genre.slice(0, 4).map((genre, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg border-2 border-blue-700 shadow-sm"
+                                >
+                                  {genre}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* 担当範囲 */}
+                        {work.roles && work.roles.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">担当範囲</p>
+                            <div className="text-sm text-gray-900 leading-relaxed">
+                              {work.roles.map((role, idx) => (
+                                <span key={idx}>
+                                  {role}
+                                  {idx < work.roles.length - 1 && " | "}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 右カラム */}
+                      <div className="space-y-5">
+                        {/* 専門性 */}
+                        {(() => {
+                          const allTags = aiAnalysis.tags || [];
+                          const genreTags = new Set(aiAnalysis.tagClassification?.genre || []);
+                          const expertiseTags = allTags.filter(tag => !genreTags.has(tag)).slice(0, 4);
+                          const techniqueTags = aiAnalysis.tagClassification?.technique || [];
+                          const purposeTags = aiAnalysis.tagClassification?.purpose || [];
+                          const combinedExpertise = [...expertiseTags, ...techniqueTags, ...purposeTags]
+                            .filter((tag, idx, arr) => arr.indexOf(tag) === idx)
+                            .slice(0, 4);
+
+                          return combinedExpertise.length > 0 ? (
+                            <div>
+                              <p className="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                専門性
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {combinedExpertise.map((exp, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-lg border-2 border-gray-900 shadow-sm"
+                                  >
+                                    {exp}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null;
+                        })()}
+                        {/* 成果物 */}
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">成果物</p>
+                          <div className="text-sm text-gray-900 font-medium">
+                            {work.content_type === "article" && "記事"}
+                            {work.content_type === "design" && "デザイン"}
+                            {work.content_type === "photo" && "写真"}
+                            {work.content_type === "video" && "動画"}
+                            {work.content_type === "podcast" && "ポッドキャスト"}
+                            {work.content_type === "event" && "イベント"}
+                            {!work.content_type && "作品"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <CardContent className="p-6 lg:p-8">
+              {/* メインコンテンツ（全幅） */}
+              <div className="space-y-8">
+                {/* 説明文と作者情報を統合 */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* 左側：説明文（2カラム分） */}
+                  <div className="lg:col-span-2">
+                    {(work.description ||
+                      (currentUser && work.user_id === currentUser.id)) && (
+                      <div>
+                        {currentUser &&
+                          work.user_id === currentUser.id &&
+                          !isEditingDescription && (
+                            <div className="flex items-center justify-between mb-4">
+                              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <svg
+                                    className="w-3.5 h-3.5 text-white"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                    />
+                                  </svg>
+                                </div>
+                                作品について
+                              </h2>
+                              <button
+                                onClick={() => setIsEditingDescription(true)}
+                                className="flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                              >
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                  />
+                                </svg>
+                                編集
+                              </button>
+                            </div>
+                          )}
+                        {!currentUser || work.user_id !== currentUser.id ? (
+                          <div className="mb-4">
+                            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                              <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg
+                                  className="w-3.5 h-3.5 text-white"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                  />
+                                </svg>
+                              </div>
+                              作品について
+                            </h2>
+                          </div>
+                        ) : null}
+                      <div className="bg-white rounded-lg p-5 border border-gray-200 transition-shadow duration-200 hover:shadow-sm">
+                        {isEditingDescription &&
+                        currentUser &&
+                        work.user_id === currentUser.id ? (
+                          <div>
+                            <textarea
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              placeholder="作品について説明してください..."
+                              className="w-full min-h-[120px] p-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-700 leading-relaxed transition-all duration-200"
+                              aria-label="作品説明を編集"
+                            />
+                              <div className="flex gap-3 mt-4">
+                                <button
+                                  onClick={handleSaveDescription}
+                                  disabled={isSavingDescription}
+                                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                  {isSavingDescription ? "保存中..." : "保存"}
+                                </button>
+                                <button
+                                  onClick={handleCancelDescription}
+                                  disabled={isSavingDescription}
+                                  className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                                >
+                                  キャンセル
+                                </button>
+                              </div>
+                            </div>
+                          ) : work.description ? (
+                            <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap">
+                              {work.description}
+                            </p>
+                          ) : currentUser && work.user_id === currentUser.id ? (
+                            <div className="text-center py-12">
+                              <p className="text-gray-500 mb-4 font-medium">
+                                作品の説明がまだ記入されていません
+                              </p>
+                              <button
+                                onClick={() => setIsEditingDescription(true)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2"
+                              >
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                  />
+                                </svg>
+                                作品説明を追加
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 右側：作者情報（1カラム分） */}
+                  {authorProfile && (
+                    <div className="lg:col-span-1">
+                      <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 sticky top-6 transition-all duration-300 hover:shadow-md">
+                        <div className="flex flex-col items-center text-center">
+                          {/* プロフィール画像 */}
+                          <div className="mb-4">
+                            {authorProfile.avatar_image_url ? (
+                              <Image
+                                src={authorProfile.avatar_image_url}
+                                alt={`${authorProfile.display_name}のプロフィール画像`}
+                                width={80}
+                                height={80}
+                                className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md transition-transform duration-300 hover:scale-105"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-md transition-transform duration-300 hover:scale-105">
+                                {authorProfile.display_name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* 作者情報 */}
+                          <div className="w-full">
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">
+                              {authorProfile.display_name}
+                            </h3>
+                            {authorProfile.professions &&
+                              authorProfile.professions.length > 0 && (
+                                <p className="text-sm text-gray-600 font-medium mb-3">
+                                  {authorProfile.professions.join(" / ")}
+                                </p>
+                              )}
+
+                            {authorProfile.bio && (
+                              <p className="text-sm text-gray-700 mb-4 leading-relaxed line-clamp-3">
+                                {authorProfile.bio}
+                              </p>
+                            )}
+
+                            {/* プロフィールへのリンク */}
+                            <Link
+                              href={
+                                authorProfile.slug
+                                  ? `/${authorProfile.slug}`
+                                  : `/share/profile/${authorProfile.user_id}`
+                              }
+                              className="inline-flex items-center justify-center gap-2 w-full px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium transition-all duration-200 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-[1.02]"
+                              aria-label={`${authorProfile.display_name}のプロフィールを見る`}
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                              プロフィールを見る
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* 役割 */}
                 {work.roles && work.roles.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2" role="list" aria-label="担当役割">
                     {work.roles.map((role, index) => (
                       <span
                         key={index}
-                        className="px-4 py-2 bg-blue-50 text-blue-800 text-sm rounded-full font-medium border border-blue-200"
+                        className="px-4 py-2 bg-blue-50 text-blue-700 text-sm rounded-full font-medium border border-blue-200 transition-all duration-200 hover:bg-blue-100 hover:scale-105"
+                        role="listitem"
                       >
                         {role}
                       </span>
                     ))}
                   </div>
                 )}
-              </div>
 
-              {/* 説明文 */}
-              {(work.description ||
-                (currentUser && work.user_id === currentUser.id)) && (
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-semibold text-gray-900 flex items-center gap-3">
-                      <svg
-                        className="w-6 h-6 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                        />
-                      </svg>
-                      作品について
-                    </h2>
-                    {currentUser &&
-                      work.user_id === currentUser.id &&
-                      !isEditingDescription && (
-                        <button
-                          onClick={() => setIsEditingDescription(true)}
-                          className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
+                {/* 制作メモ */}
+                {(work.production_notes ||
+                  (currentUser && work.user_id === currentUser.id)) && (
+                  <div className="pt-8 border-t border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2" id="production-notes-heading">
+                        <div className="w-7 h-7 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0" aria-hidden="true">
                           <svg
-                            className="w-4 h-4"
+                            className="w-3.5 h-3.5 text-white"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -709,246 +954,131 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                               d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                             />
                           </svg>
-                          編集
-                        </button>
-                      )}
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                    {isEditingDescription &&
-                    currentUser &&
-                    work.user_id === currentUser.id ? (
-                      <div>
-                        <textarea
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          placeholder="作品について説明してください..."
-                          className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                        />
-                        <div className="flex gap-2 mt-3">
-                          <button
-                            onClick={handleSaveDescription}
-                            disabled={isSavingDescription}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                          >
-                            {isSavingDescription ? "保存中..." : "保存"}
-                          </button>
-                          <button
-                            onClick={handleCancelDescription}
-                            disabled={isSavingDescription}
-                            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
-                          >
-                            キャンセル
-                          </button>
                         </div>
-                      </div>
-                    ) : work.description ? (
-                      <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
-                        {work.description}
-                      </p>
-                    ) : currentUser && work.user_id === currentUser.id ? (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500 mb-4">
-                          作品の説明がまだ記入されていません
-                        </p>
-                        <button
-                          onClick={() => setIsEditingDescription(true)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2 inline"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          作品説明を追加
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-
-              {/* 制作メモ */}
-              {(work.production_notes ||
-                (currentUser && work.user_id === currentUser.id)) && (
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-semibold text-gray-900 flex items-center gap-3">
-                      <svg
-                        className="w-6 h-6 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                      制作メモ
-                    </h2>
-                    {currentUser &&
-                      work.user_id === currentUser.id &&
-                      !isEditingProductionNotes && (
-                        <button
-                          onClick={() => setIsEditingProductionNotes(true)}
-                          className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          編集
-                        </button>
-                      )}
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                    <div className="mb-3">
-                      <span className="text-sm text-gray-700 font-medium bg-gray-200 px-3 py-1 rounded-full">
-                        制作過程・背景・こだわり
-                      </span>
-                    </div>
-                    {isEditingProductionNotes &&
-                    currentUser &&
-                    work.user_id === currentUser.id ? (
-                      <div>
-                        <textarea
-                          value={productionNotes}
-                          onChange={(e) => setProductionNotes(e.target.value)}
-                          placeholder="制作背景、目的、こだわったポイントなどを入力..."
-                          className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                        />
-                        <div className="flex gap-2 mt-3">
+                        制作メモ
+                      </h2>
+                      {currentUser &&
+                        work.user_id === currentUser.id &&
+                        !isEditingProductionNotes && (
                           <button
-                            onClick={handleSaveProductionNotes}
-                            disabled={isSavingProductionNotes}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                            onClick={() => setIsEditingProductionNotes(true)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            aria-label="制作メモを編集する"
                           >
-                            {isSavingProductionNotes ? "保存中..." : "保存"}
-                          </button>
-                          <button
-                            onClick={handleCancelProductionNotes}
-                            disabled={isSavingProductionNotes}
-                            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
-                          >
-                            キャンセル
-                          </button>
-                        </div>
-                      </div>
-                    ) : work.production_notes ? (
-                      <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
-                        {work.production_notes}
-                      </p>
-                    ) : currentUser && work.user_id === currentUser.id ? (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500 mb-4">
-                          制作メモがまだ記入されていません
-                        </p>
-                        <button
-                          onClick={() => setIsEditingProductionNotes(true)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2 inline"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          制作メモを追加
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-
-              {/* AI分析結果 */}
-              {aiAnalysis && (
-                <div className="mb-6">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <svg
-                        className="w-5 h-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                        />
-                      </svg>
-                    </div>
-                    AI分析結果
-                  </h2>
-
-                  <div className="space-y-6">
-                    {/* 作品概要・要約 */}
-                    {aiAnalysis.summary && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <svg
-                            className="w-5 h-5 text-blue-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                            />
-                          </svg>
-                          <h4 className="text-lg font-bold text-gray-900">
-                            コンテンツ概要
-                          </h4>
-                        </div>
-                        <p className="text-gray-700 leading-relaxed text-sm">
-                          {aiAnalysis.summary}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* AI評価スコア - 削除済み */}
-
-                    {/* 専門性分析 */}
-                    <BtoBAnalysisSection aiAnalysis={aiAnalysis || {}} />
-
-                    {/* 強み分析 */}
-                    {aiAnalysis.strengths &&
-                      aiAnalysis.strengths.length > 0 && (
-                        <div className="bg-white border border-gray-200 rounded-lg p-4">
-                          <h5 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <svg
-                              className="w-5 h-5 text-blue-600"
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                            編集
+                          </button>
+                        )}
+                    </div>
+                    <div className="bg-white rounded-lg p-5 border border-gray-200 transition-all duration-200 hover:shadow-sm">
+                      <div className="mb-3">
+                        <span className="text-xs text-gray-600 font-medium bg-gray-100 px-3 py-1.5 rounded-full uppercase tracking-wide">
+                          制作過程・背景・こだわり
+                        </span>
+                      </div>
+                      {isEditingProductionNotes &&
+                      currentUser &&
+                      work.user_id === currentUser.id ? (
+                        <div>
+                          <label htmlFor="production-notes-textarea" className="sr-only">
+                            制作メモを入力
+                          </label>
+                          <textarea
+                            id="production-notes-textarea"
+                            value={productionNotes}
+                            onChange={(e) => setProductionNotes(e.target.value)}
+                            placeholder="制作背景、目的、こだわったポイントなどを入力..."
+                            className="w-full min-h-[120px] p-4 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-700 leading-relaxed transition-all duration-200"
+                            aria-labelledby="production-notes-heading"
+                          />
+                          <div className="flex gap-3 mt-4">
+                            <button
+                              onClick={handleSaveProductionNotes}
+                              disabled={isSavingProductionNotes}
+                              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                              aria-label="制作メモを保存する"
+                            >
+                              {isSavingProductionNotes ? "保存中..." : "保存"}
+                            </button>
+                            <button
+                              onClick={handleCancelProductionNotes}
+                              disabled={isSavingProductionNotes}
+                              className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                              aria-label="編集をキャンセルする"
+                            >
+                              キャンセル
+                            </button>
+                          </div>
+                        </div>
+                      ) : work.production_notes ? (
+                        <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap" aria-labelledby="production-notes-heading">
+                          {work.production_notes}
+                        </p>
+                      ) : currentUser && work.user_id === currentUser.id ? (
+                        <div className="text-center py-12">
+                          <p className="text-gray-500 mb-4 font-medium">
+                            制作メモがまだ記入されていません
+                          </p>
+                          <button
+                            onClick={() => setIsEditingProductionNotes(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-200 inline-flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105"
+                            aria-label="制作メモを追加する"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                            制作メモを追加
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+
+                {/* AI分析結果（全幅） */}
+                {aiAnalysis && (
+                  <div className="pt-8 border-t border-gray-200">
+                    <BtoBAnalysisSection aiAnalysis={aiAnalysis || {}} editable={false} />
+                  </div>
+                )}
+
+                {/* 補足情報（2カラム） */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-8 border-t border-gray-200">
+                  {/* 左カラム */}
+                  <div className="space-y-6">
+                    {/* タグとキーワードを統合 */}
+                    {((aiAnalysis?.tags && aiAnalysis.tags.length > 0) ||
+                      (work.tags && work.tags.length > 0) ||
+                      (aiAnalysis?.keywords && aiAnalysis.keywords.length > 0)) && (
+                      <div className="bg-white rounded-lg p-5 border border-gray-200 transition-shadow duration-200 hover:shadow-md">
+                        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-3.5 h-3.5 text-white"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -957,175 +1087,111 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M13 10V3L4 14h7v7l9-11h-7z"
+                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                               />
                             </svg>
-                            この作品の強み
-                          </h5>
-                          <div className="space-y-4">
-                            {/* 創造性 */}
-                            {aiAnalysis.strengths.creativity &&
-                              aiAnalysis.strengths.creativity.length > 0 && (
-                                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                  <h6 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-blue-600"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
-                                      />
-                                    </svg>
-                                    創造性
-                                  </h6>
-                                  <ul className="space-y-1">
-                                    {aiAnalysis.strengths.creativity.map(
-                                      (strength: string, index: number) => (
-                                        <li
-                                          key={index}
-                                          className="flex items-start gap-2 text-gray-700 text-sm"
-                                        >
-                                          <span className="text-blue-600 mt-1 text-xs">
-                                            ●
-                                          </span>
-                                          <span className="leading-relaxed">
-                                            {strength}
-                                          </span>
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
-
-                            {/* 専門性 */}
-                            {aiAnalysis.strengths.expertise &&
-                              aiAnalysis.strengths.expertise.length > 0 && (
-                                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                  <h6 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-blue-600"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                      />
-                                    </svg>
-                                    専門性
-                                  </h6>
-                                  <ul className="space-y-1">
-                                    {aiAnalysis.strengths.expertise.map(
-                                      (strength: string, index: number) => (
-                                        <li
-                                          key={index}
-                                          className="flex items-start gap-2 text-gray-700 text-sm"
-                                        >
-                                          <span className="text-blue-600 mt-1 text-xs">
-                                            ●
-                                          </span>
-                                          <span className="leading-relaxed">
-                                            {strength}
-                                          </span>
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
-
-                            {/* 影響力 */}
-                            {aiAnalysis.strengths.impact &&
-                              aiAnalysis.strengths.impact.length > 0 && (
-                                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                  <h6 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-blue-600"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M13 10V3L4 14h7v7l9-11h-7z"
-                                      />
-                                    </svg>
-                                    影響力
-                                  </h6>
-                                  <ul className="space-y-1">
-                                    {aiAnalysis.strengths.impact.map(
-                                      (strength: string, index: number) => (
-                                        <li
-                                          key={index}
-                                          className="flex items-start gap-2 text-gray-700 text-sm"
-                                        >
-                                          <span className="text-blue-600 mt-1 text-xs">
-                                            ●
-                                          </span>
-                                          <span className="leading-relaxed">
-                                            {strength}
-                                          </span>
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
                           </div>
-                        </div>
-                      )}
+                          タグ・キーワード
+                        </h3>
+                        <div className="space-y-4">
+                          {/* 関連タグ */}
+                          {(aiAnalysis?.tags && aiAnalysis.tags.length > 0) ||
+                          (work.tags && work.tags.length > 0) ? (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">関連タグ</p>
+                              <div className="flex flex-wrap gap-2">
+                                {(aiAnalysis?.tags || work.tags || []).map(
+                                  (tag: string, index: number) => (
+                                    <span
+                                      key={index}
+                                      className="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200 font-medium"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          ) : null}
 
-                    {/* キーワード */}
-                    {aiAnalysis.keywords && aiAnalysis.keywords.length > 0 && (
-                      <div className="bg-white border border-gray-200 rounded-lg p-4">
-                        <h5 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                          <svg
-                            className="w-5 h-5 text-blue-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                            />
-                          </svg>
-                          キーワード
-                        </h5>
-                        <div className="flex flex-wrap gap-2">
-                          {aiAnalysis.keywords.map(
-                            (keyword: string, index: number) => (
-                              <span
-                                key={index}
-                                className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full border border-gray-200"
-                              >
-                                {keyword}
-                              </span>
-                            ),
+                          {/* キーワード */}
+                          {aiAnalysis?.keywords && aiAnalysis.keywords.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">キーワード</p>
+                              <div className="flex flex-wrap gap-2">
+                                {aiAnalysis.keywords.map(
+                                  (keyword: string, index: number) => (
+                                    <span
+                                      key={index}
+                                      className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200"
+                                    >
+                                      {keyword}
+                                    </span>
+                                  ),
+                                )}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
                     )}
+                  </div>
 
-                    {/* タグ */}
-                    {aiAnalysis.tags && aiAnalysis.tags.length > 0 && (
-                      <div className="bg-white border border-gray-200 rounded-lg p-4">
-                        <h5 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  {/* 右カラム */}
+                  <div className="space-y-6">
+                    {/* 外部リンク */}
+                    {work.external_url && (
+                      <div className="bg-white rounded-lg p-5 border border-gray-200 transition-shadow duration-200 hover:shadow-md">
+                        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-3.5 h-3.5 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
+                          </div>
+                          外部リンク
+                        </h3>
+                        <a
+                          href={work.external_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          aria-label="作品を外部サイトで確認する"
+                        >
                           <svg
-                            className="w-5 h-5 text-blue-600"
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                          作品を確認する
+                        </a>
+                      </div>
+                    )}
+
+                    {/* アクションボタン */}
+                    <div className="bg-white rounded-lg p-5 border border-gray-200 transition-shadow duration-200 hover:shadow-md">
+                      <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg
+                            className="w-3.5 h-3.5 text-white"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -1134,130 +1200,40 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
                             />
                           </svg>
-                          関連タグ
-                        </h5>
-                        <div className="flex flex-wrap gap-2">
-                          {aiAnalysis.tags.map((tag: string, index: number) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200"
-                            >
-                              {tag}
-                            </span>
-                          ))}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* タグ（AI分析タグがない場合のみ表示） */}
-              {(!aiAnalysis?.tags || aiAnalysis.tags.length === 0) &&
-                work.tags &&
-                work.tags.length > 0 && (
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                      <svg
-                        className="w-6 h-6 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                        />
-                      </svg>
-                      タグ
-                    </h2>
-                    <div className="flex flex-wrap gap-2">
-                      {work.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-4 py-2 bg-blue-50 text-blue-800 text-sm rounded-full font-medium border border-blue-200"
+                        アクション
+                      </h3>
+                      <div className="flex flex-col gap-3">
+                        <LikeButton workId={work.id} />
+                        <Button
+                          onClick={() => setShowShareModal(true)}
+                          variant="outline"
+                          className="w-full border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-400 text-gray-700 hover:text-blue-700 transition-all duration-200 text-sm py-3 font-medium transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          aria-label="作品をシェアする"
                         >
-                          {tag}
-                        </span>
-                      ))}
+                          <svg
+                            className="w-4 h-4 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                            />
+                          </svg>
+                          共有
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                )}
-
-              {/* 外部リンク */}
-              {work.external_url && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
-                    <svg
-                      className="w-6 h-6 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                      />
-                    </svg>
-                    外部リンク
-                  </h2>
-                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                    <a
-                      href={work.external_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-lg transition-colors"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                      作品を確認する
-                    </a>
-                  </div>
                 </div>
-              )}
-
-              {/* アクションボタン */}
-              <div className="flex flex-wrap gap-4 pt-8 border-t border-gray-200">
-                <LikeButton workId={work.id} />
-
-                <Button
-                  onClick={() => setShowShareModal(true)}
-                  variant="outline"
-                  className="flex items-center gap-2 hover:bg-blue-50"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-                    />
-                  </svg>
-                  共有
-                </Button>
               </div>
             </CardContent>
           </Card>

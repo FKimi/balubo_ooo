@@ -136,37 +136,10 @@ export interface AnalysisResult {
   };
   oneLinerSummary: string;
   tagCloud: string[];
-  detailedMetrics: {
-    technology: {
-      score: number;
-      headline: string;
-      goodHighlight: string;
-      nextTip: string;
-    };
-    expertise: {
-      score: number;
-      headline: string;
-      goodHighlight: string;
-      nextTip: string;
-    };
-    creativity: {
-      score: number;
-      headline: string;
-      goodHighlight: string;
-      nextTip: string;
-    };
-    impact: {
-      score: number;
-      headline: string;
-      goodHighlight: string;
-      nextTip: string;
-    };
-    overall: {
-      score: number;
-      headline: string;
-      goodHighlight: string;
-      nextTip: string;
-    };
+  contentAnalysis: {
+    problem: string;
+    solution: string;
+    result: string;
   };
   learningPoints: string[];
   clientAppeal: string[];
@@ -356,9 +329,31 @@ async function callGeminiAPISingle(
     console.error("=== Gemini API Error ===");
     console.error("使用中のAPIキー:", currentApiKey.substring(0, 10) + "...");
     console.error("ステータス:", response.status);
-    console.error("エラーデータ:", errorData);
+    console.error("ステータステキスト:", response.statusText);
+    console.error("エラーデータ:", JSON.stringify(errorData, null, 2));
     console.error("エラーデータ型:", typeof errorData);
     console.error("エラーデータキー:", Object.keys(errorData));
+    
+    // エラーデータの詳細を確認
+    if (errorData && typeof errorData === "object") {
+      if (errorData.error) {
+        console.error("errorData.error:", JSON.stringify(errorData.error, null, 2));
+        if (errorData.error.message) {
+          console.error("errorData.error.message:", errorData.error.message);
+        }
+        if (errorData.error.code) {
+          console.error("errorData.error.code:", errorData.error.code);
+        }
+        if (errorData.error.status) {
+          console.error("errorData.error.status:", errorData.error.status);
+        }
+      }
+      if (errorData.message) {
+        console.error("errorData.message:", errorData.message);
+      }
+    }
+    
+    console.error("レスポンスヘッダー:", Object.fromEntries(response.headers.entries()));
     console.error("=======================");
 
     // APIキーの失敗を記録
@@ -366,26 +361,40 @@ async function callGeminiAPISingle(
 
     // エラーメッセージの適切な処理
     let errorMessage = `HTTP ${response.status}`;
+    let errorDetails: any = {
+      status: response.status,
+      statusText: response.statusText,
+      apiKey: currentApiKey.substring(0, 10) + "...",
+    };
 
     if (errorData && typeof errorData === "object") {
       if (typeof errorData.error === "string") {
         errorMessage = errorData.error;
+        errorDetails.errorMessage = errorData.error;
       } else if (errorData.error && typeof errorData.error === "object") {
         if (
           errorData.error.message &&
           typeof errorData.error.message === "string"
         ) {
           errorMessage = errorData.error.message;
+          errorDetails.errorMessage = errorData.error.message;
+          errorDetails.errorCode = errorData.error.code;
+          errorDetails.errorStatus = errorData.error.status;
         } else {
           try {
             errorMessage = JSON.stringify(errorData.error, null, 2);
+            errorDetails.errorObject = errorData.error;
           } catch (stringifyError) {
             errorMessage = "Gemini APIエラー（詳細不明）";
           }
         }
       } else if (errorData.message && typeof errorData.message === "string") {
         errorMessage = errorData.message;
+        errorDetails.errorMessage = errorData.message;
       }
+      
+      // エラーデータ全体を保存
+      errorDetails.fullErrorData = errorData;
     }
 
     // 返却用の Error に追加情報を付与
@@ -396,6 +405,7 @@ async function callGeminiAPISingle(
         ? "RATE_LIMIT"
         : "GEMINI_ERROR";
     err.isRateLimit = err.code === "RATE_LIMIT";
+    err.errorDetails = errorDetails; // エラー詳細を追加
     throw err;
   }
 
@@ -495,37 +505,10 @@ export function parseAnalysisResult(generatedText: string): AnalysisResult {
       },
       oneLinerSummary: "分析に失敗しました",
       tagCloud: ["#分析失敗"],
-      detailedMetrics: {
-        technology: {
-          score: 70,
-          headline: "分析に失敗しました",
-          goodHighlight: "分析に失敗しました",
-          nextTip: "分析を再実行してください",
-        },
-        expertise: {
-          score: 70,
-          headline: "分析に失敗しました",
-          goodHighlight: "分析に失敗しました",
-          nextTip: "分析を再実行してください",
-        },
-        creativity: {
-          score: 70,
-          headline: "分析に失敗しました",
-          goodHighlight: "分析に失敗しました",
-          nextTip: "分析を再実行してください",
-        },
-        impact: {
-          score: 70,
-          headline: "分析に失敗しました",
-          goodHighlight: "分析に失敗しました",
-          nextTip: "分析を再実行してください",
-        },
-        overall: {
-          score: 70,
-          headline: "分析に失敗しました",
-          goodHighlight: "分析に失敗しました",
-          nextTip: "分析を再実行してください",
-        },
+      contentAnalysis: {
+        problem: "分析に失敗しました",
+        solution: "分析に失敗しました",
+        result: "分析に失敗しました",
       },
       learningPoints: ["分析を再実行してください"],
       clientAppeal: ["分析を再実行してください"],
@@ -607,12 +590,18 @@ export function handleAnalysisError(error: any) {
     }
   }
 
+  // エラー詳細を取得
+  const errorDetails = (error as any)?.errorDetails || null;
+  
   return NextResponse.json(
     {
       error: errorMessage,
       details: error instanceof Error ? error.message : "Unknown error",
       errorType: typeof error,
       timestamp: new Date().toISOString(),
+      errorDetails: errorDetails, // エラー詳細を追加
+      status: statusFromError || statusCode,
+      isRateLimit: isRateLimit || statusFromError === 429,
     },
     { status: statusCode },
   );
