@@ -131,7 +131,7 @@ export function generateWorkShareMessage(
   // AI分析から専門性タグを追加
   const analysis = work.ai_analysis_result as any;
   if (analysis?.tags && analysis.tags.length > 0) {
-    takeFirst(analysis.tags, 2).forEach((tag: string) => {
+    takeFirst(analysis.tags as string[], 2).forEach((tag: string) => {
       if (tag.length <= 10 && !hashtags.includes(tag)) {
         hashtags.push(tag);
       }
