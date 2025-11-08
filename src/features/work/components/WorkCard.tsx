@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { WorkData } from "@/features/work/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, Heart, MessageCircle, Calendar } from "lucide-react";
+import { formatDateToYearMonth } from "@/utils/dateFormat";
 
 interface WorkCardProps {
   work: WorkData;
@@ -12,20 +13,7 @@ interface WorkCardProps {
 }
 
 export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
-  // production_date をフォーマット (例: 2024年3月)
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "";
-    try {
-      const date = new Date(dateString);
-      // Invalid Dateの場合を考慮
-      if (isNaN(date.getTime())) return "";
-      return `${date.getFullYear()}年${date.getMonth() + 1}月`;
-    } catch (e) {
-      return "";
-    }
-  };
-
-  const formattedDate = formatDate(work.production_date);
+  const formattedDate = formatDateToYearMonth(work.production_date);
 
   // いいね・コメント数を安全に取得
   const likesCount = work.likes_count ?? work.likes?.[0]?.count ?? 0;

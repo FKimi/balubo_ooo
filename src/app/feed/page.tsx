@@ -19,6 +19,7 @@ import { SearchFilters } from "@/components/feed/SearchFilters";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { WorkCard } from "@/components/feed/WorkCard";
 import { DiscoverySection } from "@/components/feed/DiscoverySection";
+import { formatTimeAgo } from "@/utils/dateFormat";
 
 // Supabaseクライアントをコンポーネント外で初期化
 // `getSupabaseBrowserClient` はクッキーに保存されたセッションを自動で参照します
@@ -334,19 +335,6 @@ function FeedPageContent() {
   }, [feedItems]);
 
   const _tabConfigs = [{ key: "works", label: "作品" }];
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInHours / 24);
-
-    if (diffInHours < 1) return "今";
-    if (diffInHours < 24) return `${diffInHours}時間前`;
-    if (diffInDays < 7) return `${diffInDays}日前`;
-    return date.toLocaleDateString("ja-JP");
-  };
 
   // いいね処理
   const handleLike = async (itemId: string, itemType: "work") => {

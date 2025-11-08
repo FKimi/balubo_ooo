@@ -1,4 +1,5 @@
 import type { WorkData } from "@/features/work/types";
+import { formatLocalizedDate } from "./dateFormat";
 
 /**
  * 月別のアウトプット（作品）数とインプット数を計算して返す。
@@ -51,7 +52,7 @@ export function generateTimeline(
   works.forEach((work) => {
     if (work.production_date) {
       events.push({
-        date: new Date(work.production_date).toLocaleDateString("ja-JP"),
+        date: formatLocalizedDate(work.production_date),
         event: `作品「${work.title}」を制作`,
         type: "work",
       });
@@ -61,7 +62,7 @@ export function generateTimeline(
   inputs.forEach((input) => {
     if (input.consumptionDate) {
       events.push({
-        date: new Date(input.consumptionDate).toLocaleDateString("ja-JP"),
+        date: formatLocalizedDate(input.consumptionDate),
         event: `「${input.title}」を学習`,
         type: "input",
       });

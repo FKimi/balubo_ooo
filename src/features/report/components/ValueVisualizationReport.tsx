@@ -14,6 +14,7 @@ import { CareerNarrativeSection } from "./CareerNarrativeSection";
 // HighlightChipsはヘッダー統合により不使用
 import type { WorkData } from "@/features/work/types";
 import type { ReportData } from "./types";
+import { formatDateTime } from "@/utils/dateFormat";
 
 interface ValueVisualizationReportProps {
   works: WorkData[];
@@ -122,17 +123,6 @@ export function ValueVisualizationReport({
   };
   // clearCache は将来の使用のために保持
   void clearCache;
-
-  const formatDateTime = (ts?: number) => {
-    if (!ts) return "";
-    const d = new Date(ts);
-    return d.toLocaleString("ja-JP", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   // レート制限（クールダウン・日次上限）
   const getRegenMetaKey = () => {
