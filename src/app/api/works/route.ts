@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { DatabaseClient } from "@/lib/database";
 import { withAuth } from "@/lib/api-utils";
+import { isValidDateString } from "@/utils/validation";
 import fs from "fs";
 import path from "path";
 
@@ -45,17 +46,14 @@ export async function POST(request: NextRequest) {
     // production_dateの形式変換（YYYY-MM → YYYY-MM-01）
     let productionDate = null;
     if (workData.productionDate && workData.productionDate.trim()) {
-      if (workData.productionDate.match(/^\d{4}-\d{2}$/)) {
-        productionDate = `${workData.productionDate}-01`;
-        console.log(
-          "production_date変換:",
-          workData.productionDate,
-          "→",
-          productionDate,
-        );
-      } else if (workData.productionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        productionDate = workData.productionDate;
-        console.log("production_date（変換不要）:", productionDate);
+      const trimmed = workData.productionDate.trim();
+      if (isValidDateString(trimmed)) {
+        // YYYY-MM形式の場合は-01を追加
+        if (trimmed.match(/^\d{4}-\d{2}$/)) {
+          productionDate = `${trimmed}-01`;
+        } else {
+          productionDate = trimmed;
+        }
       } else {
         console.warn("不正なproduction_date形式:", workData.productionDate);
         productionDate = null;

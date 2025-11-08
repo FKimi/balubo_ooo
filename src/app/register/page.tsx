@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { isValidEmail } from "@/utils/validation";
 
 interface FormData {
   displayName: string;
@@ -26,12 +27,6 @@ interface FormData {
 interface FormErrors {
   [key: string]: string;
 }
-
-// バリデーション関数
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
 
 const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) return error.message;
@@ -76,7 +71,7 @@ export default function RegisterPage() {
 
     if (!formData.email.trim()) {
       newErrors.email = "メールアドレスを入力してください";
-    } else if (!validateEmail(formData.email)) {
+    } else if (!isValidEmail(formData.email)) {
       newErrors.email = "有効なメールアドレスを入力してください";
     }
 

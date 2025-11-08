@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isValidEmail } from "@/utils/validation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
 
 // 簡易 Rate Limit（メモリベース）: IP+メールの組み合わせで短時間の過剰送信を抑止
 // 注意: サーバレス/複数インスタンスでは共有されないため、本番は外部ストア推奨
