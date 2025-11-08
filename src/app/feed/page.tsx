@@ -20,6 +20,7 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { WorkCard } from "@/components/feed/WorkCard";
 import { DiscoverySection } from "@/components/feed/DiscoverySection";
 import { formatTimeAgo } from "@/utils/dateFormat";
+import { takeFirst } from "@/utils/arrayUtils";
 
 // Supabaseクライアントをコンポーネント外で初期化
 // `getSupabaseBrowserClient` はクッキーに保存されたセッションを自動で参照します
@@ -199,10 +200,12 @@ function FeedPageContent() {
               },
               {},
             );
-            const sortedTags = Object.entries(tagCounts)
-              .sort(([, a], [, b]) => (b as number) - (a as number))
-              .slice(0, 10)
-              .map(([tag]) => tag);
+            const sortedTags = takeFirst(
+              Object.entries(tagCounts).sort(
+                ([, a], [, b]) => (b as number) - (a as number),
+              ),
+              10,
+            ).map(([tag]) => tag);
             setPopularTags(sortedTags);
           }
 

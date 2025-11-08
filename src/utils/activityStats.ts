@@ -1,5 +1,6 @@
 import type { WorkData } from "@/features/work/types";
 import { formatLocalizedDate } from "./dateFormat";
+import { takeFirst } from "./arrayUtils";
 
 /**
  * 月別のアウトプット（作品）数とインプット数を計算して返す。
@@ -69,7 +70,10 @@ export function generateTimeline(
     }
   });
 
-  return events
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 20);
+  return takeFirst(
+    events.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    ),
+    20,
+  );
 }

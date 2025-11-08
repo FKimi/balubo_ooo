@@ -1,4 +1,5 @@
 import type { WorkData } from "@/features/work/types";
+import { takeFirst } from "./arrayUtils";
 
 // X（Twitter）共有用のデータ型
 interface ShareData {
