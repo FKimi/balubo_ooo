@@ -23,7 +23,7 @@ export function ShareModal({
   type,
   data,
   userDisplayName,
-  variant = "modal",
+  variant: _variant = "modal",
 }: ShareModalProps) {
   const modalData = useMemo(() => {
     if (type === "work") {
@@ -64,10 +64,6 @@ export function ShareModal({
 
   const handleShare = () => {
     // 編集されたテキストでシェア
-    const shareData = {
-      ...modalData,
-      text: editedText,
-    };
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(editedText)}${modalData.url ? `&url=${encodeURIComponent(modalData.url)}` : ""}${modalData.hashtags ? `&hashtags=${modalData.hashtags.join(",")}` : ""}`;
     window.open(
       twitterUrl,

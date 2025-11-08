@@ -58,20 +58,8 @@ function generateContentAnalysisSummary(work: WorkData, maxLength: number = 100)
 // 作品共有用メッセージ生成（バイラル重視）
 export function generateWorkShareMessage(
   work: WorkData,
-  userDisplayName: string = "クリエイター",
+  _userDisplayName: string = "クリエイター",
 ): ShareData {
-  const contentTypeMap = {
-    article: "記事",
-    design: "デザイン",
-    photo: "写真",
-    video: "動画",
-    podcast: "ポッドキャスト",
-    event: "イベント",
-  };
-
-  const contentTypeText =
-    contentTypeMap[work.content_type as keyof typeof contentTypeMap] || "作品";
-
   // タイトルを短縮（最大30文字）
   const title = work.title || "無題の作品";
   const shortTitle = title.length > 30
