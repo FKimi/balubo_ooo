@@ -15,6 +15,7 @@ import { CareerNarrativeSection } from "./CareerNarrativeSection";
 import type { WorkData } from "@/features/work/types";
 import type { ReportData } from "./types";
 import { formatDateTime } from "@/utils/dateFormat";
+import { fetcher } from "@/utils/fetcher";
 
 interface ValueVisualizationReportProps {
   works: WorkData[];
@@ -240,7 +241,7 @@ export function ValueVisualizationReport({
       }
 
       // 実際のAPIコール（現在はモックデータ）
-      const response = await fetch(
+      const data = await fetcher<{ data: ReportData }>(
         `/api/report/value-visualization/${userId}`,
         {
           method: "POST",
@@ -250,12 +251,6 @@ export function ValueVisualizationReport({
           body: JSON.stringify({ works }),
         },
       );
-
-      if (!response.ok) {
-        throw new Error("レポート生成に失敗しました");
-      }
-
-      const data = await response.json();
       // プロフィールの経験年数をメトリクスへ注入（存在する場合）
       const experienceYears = (() => {
         // profilesテーブルのexperience_yearsや型のexperienceYearsに対応

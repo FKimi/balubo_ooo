@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { getErrorMessage } from "@/utils/errorUtils";
 
 // 型定義の改善
 interface AuthError {
