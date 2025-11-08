@@ -586,11 +586,13 @@ export function handleAnalysisError(error: any) {
   // エラーの種類に応じて適切なメッセージを返す
   let errorMessage = "AI分析中にエラーが発生しました";
   let statusCode = 500;
+  let statusFromError: number | undefined;
+  let isRateLimit = false;
 
   if (error instanceof Error) {
     const messageLower = error.message.toLowerCase();
-    const statusFromError = (error as any).status as number | undefined;
-    const isRateLimit =
+    statusFromError = (error as any).status as number | undefined;
+    isRateLimit =
       (error as any).isRateLimit ||
       messageLower.includes("rate limit") ||
       messageLower.includes("quota");
