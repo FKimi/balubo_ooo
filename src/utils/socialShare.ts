@@ -121,7 +121,7 @@ export function generateWorkShareMessage(
 
   // 作品タグを追加（最大3つまで）
   if (work.tags && work.tags.length > 0) {
-    work.tags.slice(0, 3).forEach((tag) => {
+    takeFirst(work.tags, 3).forEach((tag) => {
       if (tag.length <= 10 && !hashtags.includes(tag)) {
         hashtags.push(tag);
       }
@@ -131,7 +131,7 @@ export function generateWorkShareMessage(
   // AI分析から専門性タグを追加
   const analysis = work.ai_analysis_result as any;
   if (analysis?.tags && analysis.tags.length > 0) {
-    analysis.tags.slice(0, 2).forEach((tag: string) => {
+    takeFirst(analysis.tags, 2).forEach((tag: string) => {
       if (tag.length <= 10 && !hashtags.includes(tag)) {
         hashtags.push(tag);
       }
@@ -140,7 +140,7 @@ export function generateWorkShareMessage(
 
   const result: ShareData = {
     text: message.trim(),
-    hashtags: hashtags.slice(0, 10), // 最大10個まで
+    hashtags: takeFirst(hashtags, 10), // 最大10個まで
   };
 
   // 作品詳細ページのURLを使用
