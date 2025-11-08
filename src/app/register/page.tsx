@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { isValidEmail } from "@/utils/validation";
+import { isValidEmail, isNotEmpty } from "@/utils/validation";
 import { getErrorMessage } from "@/utils/errorUtils";
 
 interface FormData {
@@ -60,11 +60,11 @@ export default function RegisterPage() {
     const newErrors: FormErrors = {};
 
     // ガード節パターンでバリデーション
-    if (!formData.displayName.trim()) {
+    if (!isNotEmpty(formData.displayName)) {
       newErrors.displayName = "表示名を入力してください";
     }
 
-    if (!formData.email.trim()) {
+    if (!isNotEmpty(formData.email)) {
       newErrors.email = "メールアドレスを入力してください";
     } else if (!isValidEmail(formData.email)) {
       newErrors.email = "有効なメールアドレスを入力してください";

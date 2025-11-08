@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { DatabaseClient } from "@/lib/database";
 import { withAuth } from "@/lib/api-utils";
-import { isValidDateString } from "@/utils/validation";
+import { isValidDateString, isNotEmpty } from "@/utils/validation";
 import fs from "fs";
 import path from "path";
 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     console.log("受信した作品データ:", Object.keys(workData));
 
     // バリデーション
-    if (!workData.title || workData.title.trim() === "") {
+    if (!isNotEmpty(workData.title)) {
       throw new Error("タイトルは必須です");
     }
 
