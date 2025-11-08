@@ -38,11 +38,20 @@ export function getErrorDetails(error: unknown): {
   
   if (error && typeof error === "object") {
     const errorObj = error as Record<string, unknown>;
-    return {
-      message,
-      code: typeof errorObj.code === "string" ? errorObj.code : undefined,
-      status: typeof errorObj.status === "number" ? errorObj.status : undefined,
-    };
+    const result: {
+      message: string;
+      code?: string;
+      status?: number;
+    } = { message };
+    
+    if (typeof errorObj.code === "string") {
+      result.code = errorObj.code;
+    }
+    if (typeof errorObj.status === "number") {
+      result.status = errorObj.status;
+    }
+    
+    return result;
   }
   
   return { message };
