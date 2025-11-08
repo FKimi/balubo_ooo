@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { isValidEmail } from "@/utils/validation";
+import { getErrorMessage } from "@/utils/errorUtils";
 
 interface FormData {
   displayName: string;
@@ -27,12 +28,6 @@ interface FormData {
 interface FormErrors {
   [key: string]: string;
 }
-
-const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return "予期しないエラーが発生しました";
-};
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState<FormData>({
