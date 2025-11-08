@@ -170,7 +170,7 @@ async function getPublicProfile(userId: string) {
     if (isNotEmptyArray(works)) {
       console.log(
         "作品データ取得成功:",
-        (works as any[]).length + "件の作品が見つかりました",
+        getArrayLength(works) + "件の作品が見つかりました",
       );
     } else if (works && Array.isArray(works) && works.length === 0) {
       console.log("作品データは空ですが、エラーなし（作品が存在しない可能性）");
