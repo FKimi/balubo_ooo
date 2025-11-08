@@ -262,7 +262,7 @@ export function ValueVisualizationReport({
         ...data.data,
         performanceMetrics: {
           ...data.data.performanceMetrics,
-          experienceYears,
+          ...(experienceYears !== undefined && { experienceYears }),
         },
       };
       setReportData(merged);

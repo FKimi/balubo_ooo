@@ -4,7 +4,7 @@ import type { WorkData, WorkCategory } from "@/features/work/types";
 
 export function useWorkCategories(
   savedWorks: WorkData[],
-  setSavedWorks: (works: WorkData[]) => void,
+  setSavedWorks: (_works: WorkData[]) => void,
 ) {
   const [categories, setCategories] = useState<WorkCategory[]>([]);
 
