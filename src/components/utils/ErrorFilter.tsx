@@ -40,7 +40,7 @@ export function ErrorFilter() {
     const originalConsoleWarn = console.warn;
 
     // console.error をフィルタリング
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       const message = args.join(" ");
 
       if (!shouldFilterError(message)) {
@@ -49,7 +49,7 @@ export function ErrorFilter() {
     };
 
     // console.warn をフィルタリング
-    console.warn = (...args: any[]) => {
+    console.warn = (...args: unknown[]) => {
       const message = args.join(" ");
 
       if (!shouldFilterError(message)) {

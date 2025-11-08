@@ -568,8 +568,16 @@ function cleanJsonString(str: string): string {
   return txt;
 }
 
+/**
+ * エラーオブジェクトの拡張型
+ */
+interface ExtendedError extends Error {
+  status?: number;
+  isRateLimit?: boolean;
+}
+
 // 共通のエラーハンドリング
-export function handleAnalysisError(error: any) {
+export function handleAnalysisError(error: unknown) {
   console.error("=== AI Analysis Error ===");
   console.error("エラー:", error);
   console.error("エラー型:", typeof error);
@@ -591,9 +599,10 @@ export function handleAnalysisError(error: any) {
 
   if (error instanceof Error) {
     const messageLower = error.message.toLowerCase();
-    statusFromError = (error as any).status as number | undefined;
+    const extendedError = error as ExtendedError;
+    statusFromError = extendedError.status;
     isRateLimit =
-      (error as any).isRateLimit ||
+      extendedError.isRateLimit ||
       messageLower.includes("rate limit") ||
       messageLower.includes("quota");
 
