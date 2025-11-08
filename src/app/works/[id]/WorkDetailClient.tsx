@@ -626,7 +626,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                               業界
                             </p>
                             <div className="flex flex-wrap gap-2">
-                              {aiAnalysis.tagClassification.genre.slice(0, 4).map((genre: string, idx) => (
+                              {aiAnalysis.tagClassification.genre.slice(0, 4).map((genre: string, idx: number) => (
                                 <span
                                   key={idx}
                                   className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg border-2 border-blue-700 shadow-sm"
