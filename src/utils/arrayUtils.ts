@@ -21,7 +21,7 @@ export function takeFirst<T>(array: T[], count: number): T[] {
  */
 export function takeTop<T>(
   array: T[],
-  compareFn: (a: T, b: T) => number,
+  compareFn: (_a: T, _b: T) => number,
   count: number,
 ): T[] {
   return [...array].sort(compareFn).slice(0, count);
