@@ -416,14 +416,16 @@ async function processFeedRequest(request: NextRequest) {
     }
 
     const profileMap = new Map<string, FeedUser>(
-      (profiles || []).map((p: any) => [
-        p.user_id,
-        {
+      (profiles || []).map((p: any) => {
+        const profile: FeedUser = {
           id: p.user_id,
           display_name: p.display_name || "ユーザー",
-          avatar_image_url: p.avatar_image_url || undefined,
-        },
-      ]),
+        };
+        if (p.avatar_image_url) {
+          profile.avatar_image_url = p.avatar_image_url;
+        }
+        return [p.user_id, profile] as const;
+      }),
     );
 
     // フィードアイテムを統合
@@ -435,11 +437,12 @@ async function processFeedRequest(request: NextRequest) {
       
       // プロフィールが見つからない場合はデフォルトユーザー情報を作成
       if (!userProfile) {
-        console.warn(`Feed API: プロフィールが見つかりません (user_id: ${work.user_id})`);
+        console.warn(
+          `Feed API: プロフィールが見つかりません (user_id: ${work.user_id})`,
+        );
         userProfile = {
           id: work.user_id,
           display_name: "ユーザー",
-          avatar_image_url: undefined,
         };
       }
       
