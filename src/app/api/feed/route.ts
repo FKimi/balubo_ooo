@@ -27,8 +27,8 @@ interface FeedItem {
   // work specific
   description?: string;
   external_url?: string;
-  tags?: string[];
-  roles?: string[];
+  tags: string[];
+  roles: string[];
   banner_image_url?: string;
 }
 
@@ -447,23 +447,32 @@ async function processFeedRequest(request: NextRequest) {
       }
       
       const key = `work_${work.id}`;
-      feedItems.push({
+      const feedItem: FeedItem = {
         id: work.id,
-        type: "work" as const,
+        type: "work",
         title: work.title,
-        description: work.description
-          ? work.description.substring(0, 200)
-          : undefined,
-        external_url: work.external_url,
-        tags: work.tags?.slice(0, 5) || [],
-        roles: work.roles?.slice(0, 3) || [],
-        banner_image_url: work.banner_image_url,
         created_at: work.created_at,
         user: userProfile,
         likes_count: likesCountMap.get(key) || 0,
         comments_count: commentsCountMap.get(key) || 0,
         user_has_liked: userLikesSet.has(key),
-      });
+        tags: work.tags?.slice(0, 5) || [],
+        roles: work.roles?.slice(0, 3) || [],
+      };
+
+      if (work.description) {
+        feedItem.description = work.description.substring(0, 200);
+      }
+
+      if (work.external_url) {
+        feedItem.external_url = work.external_url;
+      }
+
+      if (work.banner_image_url) {
+        feedItem.banner_image_url = work.banner_image_url;
+      }
+
+      feedItems.push(feedItem);
     }
 
     // 作成日時でソート
