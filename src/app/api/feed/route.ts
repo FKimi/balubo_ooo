@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 // 動的レンダリングを強制
 export const runtime = "nodejs";
@@ -35,6 +36,20 @@ interface Work {
   id: string;
   user_id: string;
   title: string;
+type WorksQueryResult = {
+  data: Work[] | null;
+  error: PostgrestError | null;
+};
+
+function isWorksQueryResult(value: unknown): value is WorksQueryResult {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return "data" in record && "error" in record;
+}
+
   description?: string;
   external_url?: string;
   tags?: string[];
@@ -206,13 +221,23 @@ async function processFeedRequest(request: NextRequest) {
 
   try {
     // works取得（タイムアウト付き）
-    let worksResult;
-    try {
-      worksResult = await Promise.race([worksPromise, dataTimeout]);
-    } catch (timeoutError) {
-      console.error("Feed API: works取得タイムアウト:", timeoutError);
-      throw new Error("データ取得がタイムアウトしました");
+    const worksResultRaw = await (async () => {
+      try {
+        return await Promise.race([worksPromise, dataTimeout]);
+      } catch (timeoutError) {
+        console.error("Feed API: works取得タイムアウト:", timeoutError);
+        throw new Error("データ取得がタイムアウトしました");
+      }
+    })();
+
+    if (!isWorksQueryResult(worksResultRaw)) {
+      console.error("Feed API: works取得結果の形式が予期せぬ値です", {
+        worksResultRaw,
+      });
+      throw new Error("Works取得エラー: 予期しないレスポンス形式です");
     }
+
+    const worksResult = worksResultRaw;
 
     // エラーチェック
     if (worksResult.error) {
