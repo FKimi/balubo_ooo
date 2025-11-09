@@ -51,3 +51,5 @@ ON likes(target_type, target_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_comments_target_type_target_id 
 ON comments(target_type, target_id);
 
+
+

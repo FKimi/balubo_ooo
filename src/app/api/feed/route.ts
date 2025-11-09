@@ -267,25 +267,31 @@ async function processFeedRequest(request: NextRequest) {
       [likesCountResult, userLikesResult, commentsCountResult, profilesResult] =
         await Promise.all([
         // likesカウントをSQL集約で取得（全件取得ではなく集約のみ）
-        allIds.length > 0
-          ? supabase
-              .rpc("get_likes_count", {
-                work_ids: allIds,
-                target_type: "work",
-              })
-              .catch((rpcError) => {
-                // RPCが存在しない場合はフォールバック
-                console.log(
-                  "Feed API: RPC get_likes_countが利用できないため、フォールバックを使用",
-                  rpcError,
-                );
-                return supabase
-                  .from("likes")
-                  .select("target_id, target_type")
-                  .in("target_id", allIds)
-                  .eq("target_type", "work");
-              })
-          : Promise.resolve({ data: null, error: null }),
+        (async () => {
+          if (allIds.length === 0) {
+            return { data: null, error: null };
+          }
+
+          const rpcResult = await supabase.rpc("get_likes_count", {
+            work_ids: allIds,
+            target_type: "work",
+          });
+
+          if (!rpcResult.error) {
+            return rpcResult;
+          }
+
+          console.log(
+            "Feed API: RPC get_likes_countが利用できないため、フォールバックを使用",
+            rpcResult.error,
+          );
+
+          return supabase
+            .from("likes")
+            .select("target_id, target_type")
+            .in("target_id", allIds)
+            .eq("target_type", "work");
+        })(),
         // 現在のユーザーのいいね状態を取得（user_has_liked判定用）
         allIds.length > 0 && currentUserId
           ? supabase
@@ -296,25 +302,31 @@ async function processFeedRequest(request: NextRequest) {
               .eq("user_id", currentUserId)
           : Promise.resolve({ data: [], error: null }),
         // commentsカウントをSQL集約で取得
-        allIds.length > 0
-          ? supabase
-              .rpc("get_comments_count", {
-                work_ids: allIds,
-                target_type: "work",
-              })
-              .catch((rpcError) => {
-                // RPCが存在しない場合はフォールバック
-                console.log(
-                  "Feed API: RPC get_comments_countが利用できないため、フォールバックを使用",
-                  rpcError,
-                );
-                return supabase
-                  .from("comments")
-                  .select("target_id, target_type")
-                  .in("target_id", allIds)
-                  .eq("target_type", "work");
-              })
-          : Promise.resolve({ data: null, error: null }),
+        (async () => {
+          if (allIds.length === 0) {
+            return { data: null, error: null };
+          }
+
+          const rpcResult = await supabase.rpc("get_comments_count", {
+            work_ids: allIds,
+            target_type: "work",
+          });
+
+          if (!rpcResult.error) {
+            return rpcResult;
+          }
+
+          console.log(
+            "Feed API: RPC get_comments_countが利用できないため、フォールバックを使用",
+            rpcResult.error,
+          );
+
+          return supabase
+            .from("comments")
+            .select("target_id, target_type")
+            .in("target_id", allIds)
+            .eq("target_type", "work");
+        })(),
         // プロフィール情報を一括取得（軽量化）
         userIds.length > 0
           ? supabase
