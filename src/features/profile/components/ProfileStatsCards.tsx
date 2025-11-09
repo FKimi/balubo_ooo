@@ -1,0 +1,139 @@
+"use client";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { useMemo } from "react";
+
+interface ProfileStatsCardsProps {
+  worksCount: number;
+  skillsCount: number;
+  careerCount: number;
+  followerCount?: number | undefined;
+}
+
+export function ProfileStatsCards({
+  worksCount,
+  skillsCount,
+  careerCount,
+  followerCount,
+}: ProfileStatsCardsProps) {
+  const stats = useMemo(
+    () => [
+      {
+        label: "作品数",
+        value: worksCount,
+        icon: (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
+          </svg>
+        ),
+        color: "text-blue-600",
+        bgColor: "bg-blue-50",
+      },
+      {
+        label: "スキル",
+        value: skillsCount,
+        icon: (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
+          </svg>
+        ),
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+      },
+      {
+        label: "キャリア",
+        value: careerCount,
+        icon: (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2M8 6v2a2 2 0 002 2h4a2 2 0 002-2V6m0 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2z"
+            />
+          </svg>
+        ),
+        color: "text-purple-600",
+        bgColor: "bg-purple-50",
+      },
+      ...(followerCount !== undefined
+        ? [
+            {
+              label: "フォロワー",
+              value: followerCount,
+              icon: (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+              ),
+              color: "text-orange-600",
+              bgColor: "bg-orange-50",
+            },
+          ]
+        : []),
+    ],
+    [worksCount, skillsCount, careerCount, followerCount],
+  );
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {stats.map((stat, index) => (
+        <Card
+          key={index}
+          className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div
+                className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center ${stat.color}`}
+              >
+                {stat.icon}
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">
+              {stat.value}
+            </div>
+            <div className="text-xs text-gray-600">{stat.label}</div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+

@@ -16,6 +16,8 @@ import { ProfileData, CareerItem } from "@/features/profile/types";
 import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfileTabs } from "@/features/profile/components/ProfileTabs";
 import { ProfileModals } from "@/features/profile/components/ProfileModals";
+import { ProfileStatsCards } from "@/features/profile/components/ProfileStatsCards";
+import { ProfileSidebar } from "@/features/profile/components/ProfileSidebar";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
 
 // 完全なデフォルトプロフィールデータ
@@ -41,7 +43,7 @@ const completeDefaultProfileData: ProfileData = {
 
 function ProfileLoadingFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-blue-50/20 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-600">プロフィールを読み込んでいます...</p>
@@ -110,6 +112,9 @@ function ProfileContent() {
 
   const [savedWorks, setSavedWorks] = useState<any[]>([]);
   const [_isLoadingWorks, setIsLoadingWorks] = useState(false);
+  const [followerCount, setFollowerCount] = useState<number | undefined>(
+    undefined,
+  );
 
   // インプット関連のstate（一時的に未使用）
   // const [_inputs, _setInputs] = useState<InputData[]>([])
@@ -188,18 +193,7 @@ function ProfileContent() {
           error: sessionError,
         } = await supabase.auth.getSession();
 
-        console.log("[Profile] getSession結果:", {
-          sessionExists: !!session,
-          accessTokenExists: !!session?.access_token,
-          accessToken: session?.access_token,
-          sessionError: sessionError?.message,
-        });
-
         if (sessionError || !session?.access_token) {
-          console.error(
-            "[Profile] セッションまたはアクセストークンがありません。APIリクエストをスキップします。",
-            sessionError?.message || "不明なエラー",
-          );
           setProfileData(completeDefaultProfileData);
           setSavedWorks([]);
           setIsLoadingWorks(false);
@@ -211,20 +205,15 @@ function ProfileContent() {
           Authorization: `Bearer ${session.access_token}`,
         };
 
-        // 並列でデータを取得
-        console.log("[Profile] データ取得開始", {
-          userId: user.id,
-          hasToken: !!session?.access_token,
-        });
-        const [profileResponse, worksResponse] = await Promise.all([
+        // 並列でデータを取得（パフォーマンス改善）
+        const [profileResponse, worksResponse, statsResponse] =
+          await Promise.all([
           fetch(`/api/profile`, { headers }),
           fetch(`/api/works?userId=${user.id}`, { headers }),
+            fetch(`/api/connections/stats?userId=${user.id}`, { headers }).catch(
+              () => null,
+            ),
         ]);
-
-        console.log("[Profile] API レスポンス状況:", {
-          profile: profileResponse.status,
-          works: worksResponse.status,
-        });
 
         // プロフィールデータの処理
         if (profileResponse.ok) {
@@ -285,7 +274,6 @@ function ProfileContent() {
         // 作品データの処理
         if (worksResponse.ok) {
           const worksData = await worksResponse.json();
-          console.log("[Profile] 作品データ取得成功:", worksData);
           const sortedWorks = (worksData.works || []).sort((a: any, b: any) => {
             const dateA = new Date(a.created_at).getTime();
             const dateB = new Date(b.created_at).getTime();
@@ -293,13 +281,20 @@ function ProfileContent() {
           });
           setSavedWorks(sortedWorks);
         } else {
-          const errorText = await worksResponse.text();
-          console.error(
-            "[Profile] 作品データ取得失敗:",
-            worksResponse.status,
-            errorText,
-          );
           setSavedWorks([]);
+        }
+
+        // フォロワー統計の処理
+        if (statsResponse?.ok) {
+          try {
+            const statsData = await statsResponse.json();
+            setFollowerCount(statsData.followerCount || 0);
+          } catch (error) {
+            console.error("フォロワー統計の取得エラー:", error);
+            setFollowerCount(undefined);
+          }
+        } else {
+          setFollowerCount(undefined);
         }
       } catch (error) {
         console.error("データ読み込みエラー:", error);
@@ -612,8 +607,14 @@ function ProfileContent() {
   const slug = profileData?.slug || "";
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0;
 
-  // --- AI分析 強み集計 (詳細分析) ---
+  // --- AI分析 強み集計 (詳細分析) - useMemoでメモ化（パフォーマンス改善） ---
   const strengthsAnalysis = useMemo(() => {
+    if (!savedWorks || savedWorks.length === 0) {
+      return {
+        strengths: [],
+        jobMatchingHints: [],
+      };
+    }
     return analyzeStrengthsFromWorks(savedWorks);
   }, [savedWorks]);
 
@@ -622,84 +623,111 @@ function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-visible">
+    <div className="min-h-screen bg-white relative overflow-visible">
       <main className="relative px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
-        <div className="w-full">
-          {/* プロフィールヘッダー */}
-          <div className="mb-0">
-            <ProfileHeader
-              displayName={displayName}
-              title={title}
-              bio={bio}
-              location={location}
-              websiteUrl={websiteUrl}
-              backgroundImageUrl={backgroundImageUrl}
-              avatarImageUrl={avatarImageUrl}
-              isProfileEmpty={isProfileEmpty}
-              hasCustomBackground={hasCustomBackground}
-              hasCustomAvatar={hasCustomAvatar}
-              userId={user?.id}
-              slug={slug}
-              portfolioVisibility={profileData?.portfolioVisibility}
-            />
-          </div>
-
-          {/* タブコンテンツ - ヘッダーと直接つなげる */}
-          <div className="-mt-4">
-            <ProfileTabs
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              profileData={profileData}
-              savedWorks={savedWorks}
-              setSavedWorks={setSavedWorks}
-              deleteWork={deleteWork}
-              onAddSkill={() => setIsSkillModalOpen(true)}
-              onRemoveSkill={handleRemoveSkill}
-              setIsSkillModalOpen={setIsSkillModalOpen}
-              onEditCareer={handleEditCareer}
-              onDeleteCareerConfirm={handleDeleteCareerConfirm}
-              setIsCareerModalOpen={setIsCareerModalOpen}
-              onUpdateIntroduction={handleUpdateIntroduction}
-              setIsIntroductionModalOpen={setIsIntroductionModalOpen}
-              strengthsAnalysis={strengthsAnalysis}
-              getTabsInfo={setTabsInfo}
-            />
-          </div>
-
-          {/* モーダル群 */}
-          <ProfileModals
-            isSkillModalOpen={isSkillModalOpen}
-            setIsSkillModalOpen={setIsSkillModalOpen}
-            newSkill={newSkill}
-            setNewSkill={setNewSkill}
-            onAddSkill={handleAddSkill}
-            isUpdatingSkills={isUpdatingSkills}
-            skillError={skillError}
-            setSkillError={setSkillError}
-            isIntroductionModalOpen={isIntroductionModalOpen}
-            setIsIntroductionModalOpen={setIsIntroductionModalOpen}
-            currentIntroduction={currentIntroduction}
-            setCurrentIntroduction={setCurrentIntroduction}
-            isUpdatingIntroduction={isUpdatingIntroduction}
-            onUpdateIntroduction={handleUpdateIntroduction}
-            isCareerModalOpen={isCareerModalOpen}
-            setIsCareerModalOpen={setIsCareerModalOpen}
-            newCareer={newCareer}
-            setNewCareer={setNewCareer}
-            onAddCareer={handleAddCareer}
-            isEditCareerModalOpen={isEditCareerModalOpen}
-            setIsEditCareerModalOpen={setIsEditCareerModalOpen}
-            editingCareer={editingCareer}
-            setEditingCareer={setEditingCareer}
-            onUpdateCareer={handleUpdateCareer}
-            isDeleteConfirmOpen={isDeleteConfirmOpen}
-            setIsDeleteConfirmOpen={setIsDeleteConfirmOpen}
-            deletingCareerId={deletingCareerId}
-            setDeletingCareerId={setDeletingCareerId}
-            onDeleteCareer={handleDeleteCareer}
-            isUpdatingCareer={isUpdatingCareer}
+        <div className="max-w-[1920px] mx-auto flex gap-6">
+          {/* 左サイドバー - デスクトップで表示 */}
+          <ProfileSidebar
+            displayName={displayName}
+            title={title}
+            bio={bio}
+            location={location}
+            avatarImageUrl={avatarImageUrl}
+            userId={user?.id}
+            slug={slug}
+            portfolioVisibility={profileData?.portfolioVisibility}
+            worksCount={savedWorks.length}
+            skillsCount={profileData?.skills?.length || 0}
+            careerCount={profileData?.career?.length || 0}
+            followerCount={followerCount}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
           />
+
+          {/* メインコンテンツエリア */}
+          <div className="flex-1 min-w-0">
+            {/* モバイル・タブレット用: プロフィールヘッダーと統計カード */}
+            <div className="lg:hidden space-y-6 mb-6">
+              <ProfileHeader
+                displayName={displayName}
+                title={title}
+                bio={bio}
+                location={location}
+                websiteUrl={websiteUrl}
+                backgroundImageUrl={backgroundImageUrl}
+                avatarImageUrl={avatarImageUrl}
+                isProfileEmpty={isProfileEmpty}
+                hasCustomBackground={hasCustomBackground}
+                hasCustomAvatar={hasCustomAvatar}
+                userId={user?.id}
+                slug={slug}
+                portfolioVisibility={profileData?.portfolioVisibility}
+              />
+              <ProfileStatsCards
+                worksCount={savedWorks.length}
+                skillsCount={profileData?.skills?.length || 0}
+                careerCount={profileData?.career?.length || 0}
+                followerCount={followerCount}
+              />
+            </div>
+
+            {/* タブコンテンツ */}
+            <div>
+              <ProfileTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                profileData={profileData}
+                savedWorks={savedWorks}
+                setSavedWorks={setSavedWorks}
+                deleteWork={deleteWork}
+                onAddSkill={() => setIsSkillModalOpen(true)}
+                onRemoveSkill={handleRemoveSkill}
+                setIsSkillModalOpen={setIsSkillModalOpen}
+                onEditCareer={handleEditCareer}
+                onDeleteCareerConfirm={handleDeleteCareerConfirm}
+                setIsCareerModalOpen={setIsCareerModalOpen}
+                onUpdateIntroduction={handleUpdateIntroduction}
+                setIsIntroductionModalOpen={setIsIntroductionModalOpen}
+                strengthsAnalysis={strengthsAnalysis}
+                getTabsInfo={setTabsInfo}
+              />
+            </div>
+          </div>
         </div>
+
+        {/* モーダル群 */}
+        <ProfileModals
+          isSkillModalOpen={isSkillModalOpen}
+          setIsSkillModalOpen={setIsSkillModalOpen}
+          newSkill={newSkill}
+          setNewSkill={setNewSkill}
+          onAddSkill={handleAddSkill}
+          isUpdatingSkills={isUpdatingSkills}
+          skillError={skillError}
+          setSkillError={setSkillError}
+          isIntroductionModalOpen={isIntroductionModalOpen}
+          setIsIntroductionModalOpen={setIsIntroductionModalOpen}
+          currentIntroduction={currentIntroduction}
+          setCurrentIntroduction={setCurrentIntroduction}
+          isUpdatingIntroduction={isUpdatingIntroduction}
+          onUpdateIntroduction={handleUpdateIntroduction}
+          isCareerModalOpen={isCareerModalOpen}
+          setIsCareerModalOpen={setIsCareerModalOpen}
+          newCareer={newCareer}
+          setNewCareer={setNewCareer}
+          onAddCareer={handleAddCareer}
+          isEditCareerModalOpen={isEditCareerModalOpen}
+          setIsEditCareerModalOpen={setIsEditCareerModalOpen}
+          editingCareer={editingCareer}
+          setEditingCareer={setEditingCareer}
+          onUpdateCareer={handleUpdateCareer}
+          isDeleteConfirmOpen={isDeleteConfirmOpen}
+          setIsDeleteConfirmOpen={setIsDeleteConfirmOpen}
+          deletingCareerId={deletingCareerId}
+          setDeletingCareerId={setDeletingCareerId}
+          onDeleteCareer={handleDeleteCareer}
+          isUpdatingCareer={isUpdatingCareer}
+        />
       </main>
     </div>
   );

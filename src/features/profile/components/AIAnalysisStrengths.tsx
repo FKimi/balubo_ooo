@@ -42,7 +42,7 @@ export function AIAnalysisStrengths({
       {/* あなたのタグセクション */}
       {yourTags.length > 0 && (
         <div
-          className={`${compact ? "border border-gray-200/80 rounded-xl p-5 sm:p-6 mb-5 shadow-elegant" : "border border-gray-200/80 rounded-2xl p-8 mb-8 shadow-elegant"}`}
+          className={`${compact ? "border border-gray-200 rounded-lg p-5 sm:p-6 mb-5 shadow-sm bg-white" : "border border-gray-200 rounded-lg p-6 mb-6 shadow-sm bg-white"}`}
         >
           <div className="flex items-center justify-between mb-4">
             <h2
@@ -75,7 +75,7 @@ export function AIAnalysisStrengths({
                 <Badge
                   variant="outline"
                   className={`
-                    px-3 py-1.5 rounded-full border transition-all duration-200 cursor-pointer
+                    px-3 py-1.5 rounded-lg border transition-colors cursor-pointer
                     ${
                       index < 3
                         ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
@@ -112,7 +112,7 @@ export function AIAnalysisStrengths({
 
       {/* AI分析による強みセクション */}
       <div
-        className={`${compact ? "border border-gray-200/80 rounded-xl p-5 sm:p-6 shadow-elegant" : "border border-gray-200/80 rounded-2xl p-8 shadow-elegant"}`}
+        className={`${compact ? "border border-gray-200 rounded-lg p-5 sm:p-6 shadow-sm bg-white" : "border border-gray-200 rounded-lg p-6 shadow-sm bg-white"}`}
       >
         {/* ヘッダーセクション */}
         <div className="flex items-center justify-between mb-4">
@@ -143,7 +143,7 @@ export function AIAnalysisStrengths({
           {strengths.slice(0, 3).map((s, idx) => (
             <div
               key={idx}
-              className={`${compact ? "p-4 sm:p-5" : "p-6"} rounded-xl bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-300 ${variant === "horizontal" ? "flex items-start gap-3 sm:gap-3.5 h-full" : "h-full"}`}
+              className={`${compact ? "p-4 sm:p-5" : "p-5"} rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all ${variant === "horizontal" ? "flex items-start gap-3 sm:gap-3.5 h-full" : "h-full"}`}
             >
               <div className="flex-1">
                 <div
@@ -203,7 +203,7 @@ export function AIAnalysisStrengths({
                 {jobMatchingHints.map((hint, idx) => (
                   <div
                     key={idx}
-                    className="p-4 bg-gray-50/80 rounded-xl border border-gray-200/60 hover:border-gray-300 hover:bg-gray-100/80 hover:shadow-sm transition-all duration-200"
+                    className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-100 hover:shadow-sm transition-all"
                   >
                     <p className="text-sm text-gray-700 leading-relaxed">
                       {hint}

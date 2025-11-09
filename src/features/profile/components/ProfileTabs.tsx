@@ -19,7 +19,7 @@ import { calculateTopTags } from "@/features/profile/lib/profileUtils";
 import { useState, useEffect, useMemo } from "react";
 import { RolePieChart } from "./RolePieChart";
 import { EmptyState } from "@/components/common";
-import { useTagStatistics } from "@/hooks/useTagStatistics";
+// useTagStatisticsは使用されていないため削除（パフォーマンス改善）
 import { AIAnalysisStrengths } from "./AIAnalysisStrengths";
 
 interface ProfileTabsProps {
@@ -100,16 +100,12 @@ export function ProfileTabs({
     deleteCategory,
     updateWorkCategory,
   } = useWorkCategories(savedWorks, setSavedWorks);
-  const {
-    data: tagStatistics,
-    getTagStatistic,
-    getTagRanking,
-  } = useTagStatistics();
+  // useTagStatisticsは使用されていないため削除（パフォーマンス改善）
 
   // 作品追加モーダルはレイアウトのグローバル管理を利用
 
-  // よく使用するタグを計算（作品データから）
-  const topTags = calculateTopTags(savedWorks);
+  // よく使用するタグを計算（作品データから）- useMemoでメモ化
+  const topTags = useMemo(() => calculateTopTags(savedWorks), [savedWorks]);
 
   // タブ設定
   const tabs = useMemo(
@@ -199,20 +195,18 @@ export function ProfileTabs({
 
   return (
     <div>
-      {/* 完全に統合されたタブカード */}
-      <div className="relative">
-        <div className="bg-white border border-gray-200 border-t-0 rounded-b-2xl shadow-lg relative z-10 overflow-hidden">
-          {/* タブナビゲーション - nDash風 */}
-          <div className="border-b border-gray-200 bg-white">
-            <div className="px-4 sm:px-6 lg:px-8">
-              <div className="flex space-x-8">
+      {/* モバイル用タブナビゲーション */}
+      <div className="lg:hidden mb-4">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+          <div className="px-4 sm:px-6">
+            <div className="flex space-x-8 overflow-x-auto scrollbar-hide">
                 {tabs.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() =>
                       setActiveTab(tab.key as "profile" | "works" | "details")
                     }
-                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 whitespace-nowrap ${
                       activeTab === tab.key
                         ? "border-blue-600 text-blue-600"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -221,11 +215,13 @@ export function ProfileTabs({
                     {tab.label}
                   </button>
                 ))}
+            </div>
               </div>
             </div>
           </div>
 
-          {/* タブコンテンツ */}
+      {/* タブコンテンツのみ（ナビゲーションはサイドバーに移動） */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
           <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
             {/* プロフィールタブ */}
             {activeTab === "profile" && (
@@ -234,12 +230,12 @@ export function ProfileTabs({
                 {!profileData?.bio &&
                   (!profileData?.skills || profileData.skills.length === 0) &&
                   (!profileData?.career || profileData.career.length === 0) && (
-                    <Card className="border-dashed border-2 border-[#5570F3]/30 bg-gradient-to-br from-[#5570F3]/10 via-[#5570F3]/15 to-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 backdrop-blur-sm w-full">
-                      <CardContent className="p-8 text-center">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    <Card className="border-dashed border-2 border-gray-300 bg-gray-50 rounded-lg shadow-sm w-full">
+                      <CardContent className="p-6 sm:p-8 text-center">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">
                           プロフィールを充実させましょう！
                         </h3>
-                        <p className="text-gray-600 mb-6 leading-relaxed">
+                        <p className="text-sm text-gray-600 mb-6 leading-relaxed">
                           あなたの経験やスキルを追加して、他のクリエイターとのつながりを深めましょう。
                           <br />
                           プロフィールが充実していると、より多くの機会が生まれます。
@@ -247,7 +243,7 @@ export function ProfileTabs({
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                           <Button
                             onClick={() => setIsSkillModalOpen(true)}
-                            className="bg-[#5570F3] hover:bg-[#4461E8] text-white rounded-2xl shadow-lg shadow-[#5570F3]/30 transition-all duration-300"
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
                           >
                             <svg
                               className="w-4 h-4 mr-2"
@@ -267,7 +263,7 @@ export function ProfileTabs({
                           <Button
                             onClick={() => setIsCareerModalOpen(true)}
                             variant="outline"
-                            className="border-[#5570F3] text-[#5570F3] hover:bg-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 transition-all duration-300"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-sm transition-colors"
                           >
                             <svg
                               className="w-4 h-4 mr-2"
@@ -290,16 +286,16 @@ export function ProfileTabs({
                   )}
 
                 {/* 詳細自己紹介セクション */}
-                <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 w-full">
+                <Card className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow w-full">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-2xl font-bold text-gray-900">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-900">
                         自己紹介
                       </h3>
                       <Button
                         onClick={() => setIsIntroductionModalOpen(true)}
                         size="sm"
-                        className="bg-[#5570F3] hover:bg-[#4461E8] text-white rounded-2xl shadow-lg shadow-[#5570F3]/30 transition-all duration-300 hover:-translate-y-0.5"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
                       >
                         <svg
                           className="w-4 h-4 mr-2"
@@ -332,7 +328,7 @@ export function ProfileTabs({
                         <Button
                           onClick={() => setIsIntroductionModalOpen(true)}
                           variant="outline"
-                          className="border-[#5570F3] text-[#5570F3] hover:bg-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 transition-all duration-300 hover:-translate-y-0.5"
+                          className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-sm transition-colors"
                         >
                           自己紹介を追加
                         </Button>
@@ -342,16 +338,16 @@ export function ProfileTabs({
                 </Card>
 
                 {/* できること（スキル）セクション */}
-                <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 w-full">
+                <Card className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow w-full">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-2xl font-bold text-gray-900">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-900">
                         経験・スキル
                       </h3>
                       <Button
                         onClick={() => setIsSkillModalOpen(true)}
                         size="sm"
-                        className="bg-[#5570F3] hover:bg-[#4461E8] text-white rounded-2xl shadow-lg shadow-[#5570F3]/30 transition-all duration-300 hover:-translate-y-0.5"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
                       >
                         <svg
                           className="w-4 h-4 mr-2"
@@ -376,12 +372,12 @@ export function ProfileTabs({
                           <div key={_index} className="group relative">
                             <Badge
                               variant="secondary"
-                              className="px-3 py-1 bg-[#5570F3]/10 text-[#5570F3] hover:bg-[#5570F3]/20 transition-all duration-300 pr-8 rounded-2xl border border-[#5570F3]/20 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                              className="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors pr-8 rounded-lg border border-blue-200"
                             >
                               {skill}
                               <button
                                 onClick={() => onRemoveSkill?.(_index)}
-                                className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#5570F3] hover:bg-[#4461E8] text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                               >
                                 ×
                               </button>
@@ -397,7 +393,7 @@ export function ProfileTabs({
                         <Button
                           onClick={() => setIsSkillModalOpen(true)}
                           variant="outline"
-                          className="border-[#5570F3] text-[#5570F3] hover:bg-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 transition-all duration-300 hover:-translate-y-0.5"
+                          className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-sm transition-colors"
                         >
                           最初のスキルを追加
                         </Button>
@@ -407,16 +403,16 @@ export function ProfileTabs({
                 </Card>
 
                 {/* キャリアセクション */}
-                <Card className="rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 w-full">
+                <Card className="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow w-full">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-2xl font-bold text-gray-900">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-900">
                         キャリア
                       </h3>
                       <Button
                         onClick={() => setIsCareerModalOpen(true)}
                         size="sm"
-                        className="bg-[#5570F3] hover:bg-[#4461E8] text-white rounded-2xl shadow-lg shadow-[#5570F3]/30 transition-all duration-300 hover:-translate-y-0.5"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
                       >
                         <svg
                           className="w-4 h-4 mr-2"
@@ -458,7 +454,7 @@ export function ProfileTabs({
                           .map((careerItem, _index) => (
                             <div
                               key={careerItem.id}
-                              className="border border-[#5570F3]/10 rounded-2xl p-4 hover:shadow-lg hover:shadow-[#5570F3]/20 transition-all duration-300 bg-white/50 backdrop-blur-sm hover:-translate-y-0.5"
+                              className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white"
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
@@ -467,7 +463,7 @@ export function ProfileTabs({
                                       {careerItem.position}
                                     </h4>
                                     {careerItem.isCurrent && (
-                                      <Badge className="bg-[#5570F3]/10 text-[#5570F3] text-xs rounded-full shadow-sm">
+                                      <Badge className="bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">
                                         現職
                                       </Badge>
                                     )}
@@ -495,7 +491,7 @@ export function ProfileTabs({
                                 <div className="flex gap-2 ml-4">
                                   <button
                                     onClick={() => onEditCareer(careerItem)}
-                                    className="w-8 h-8 bg-[#5570F3]/10 hover:bg-[#5570F3]/20 text-[#5570F3] rounded-full flex items-center justify-center transition-all duration-300 shadow-lg shadow-[#5570F3]/20 hover:shadow-md hover:-translate-y-0.5"
+                                    className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center justify-center transition-colors border border-gray-200"
                                   >
                                     <svg
                                       className="w-4 h-4"
@@ -515,7 +511,7 @@ export function ProfileTabs({
                                     onClick={() =>
                                       onDeleteCareerConfirm(careerItem.id)
                                     }
-                                    className="w-8 h-8 bg-red-100/80 hover:bg-red-200/80 text-red-600 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                                    className="w-8 h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg flex items-center justify-center transition-colors border border-red-200"
                                   >
                                     <svg
                                       className="w-4 h-4"
@@ -544,7 +540,7 @@ export function ProfileTabs({
                         <Button
                           onClick={() => setIsCareerModalOpen(true)}
                           variant="outline"
-                          className="border-[#5570F3] text-[#5570F3] hover:bg-[#5570F3]/10 rounded-2xl shadow-lg shadow-[#5570F3]/20 transition-all duration-300 hover:-translate-y-0.5"
+                          className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-sm transition-colors"
                         >
                           最初のキャリアを追加
                         </Button>
@@ -563,18 +559,18 @@ export function ProfileTabs({
                     {/* 主な作品セクション */}
                     {savedWorks.filter((work) => work.is_featured).length >
                       0 && (
-                      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full">
-                        <div className="p-6 border-b border-gray-100">
+                      <div className="bg-white rounded-lg border border-gray-200 shadow-sm w-full mb-6">
+                        <div className="p-6 border-b border-gray-200">
                           <div className="flex items-center justify-between">
                             <div>
-                              <h3 className="text-xl font-semibold text-gray-900">
+                              <h3 className="text-lg font-semibold text-gray-900">
                                 主な作品
                               </h3>
                               <p className="text-sm text-gray-600 mt-1">
                                 あなたの代表的な作品を紹介
                               </p>
                             </div>
-                            <span className="text-sm font-medium text-[#1976D2] bg-[#1976D2]/10 px-3 py-1 rounded-full">
+                            <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200">
                               {
                                 savedWorks.filter((work) => work.is_featured)
                                   .length
@@ -584,7 +580,7 @@ export function ProfileTabs({
                           </div>
                         </div>
                         <div className="p-6 w-full">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {savedWorks
                               .filter((work) => work.is_featured)
                               .sort(
@@ -595,14 +591,14 @@ export function ProfileTabs({
                               .map((work, index) => (
                                 <div key={work.id} className="relative group">
                                   {/* ランキングバッジ */}
-                                  <div className="absolute top-3 left-3 z-10">
+                                  <div className="absolute top-2 left-2 z-10">
                                     <div
-                                      className={`px-2 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
+                                      className={`px-2 py-1 rounded text-xs font-bold text-white ${
                                         index === 0
-                                          ? "bg-[#5570F3]"
+                                          ? "bg-blue-600"
                                           : index === 1
-                                            ? "bg-[#4461E8]"
-                                            : "bg-[#3D51DD]"
+                                            ? "bg-blue-500"
+                                            : "bg-blue-400"
                                       }`}
                                     >
                                       #{index + 1}
@@ -610,18 +606,21 @@ export function ProfileTabs({
                                   </div>
 
                                   {/* 作品カード */}
-                                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg shadow-[#5570F3]/10 border border-[#5570F3]/10 overflow-hidden hover:shadow-xl hover:shadow-[#5570F3]/20 transition-all duration-300 group-hover:scale-[1.02] hover:-translate-y-1">
+                                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                                     <a
                                       href={`/works/${work.id}`}
                                       className="block"
                                     >
-                                      <div className="aspect-video bg-gradient-to-br from-[#5570F3]/5 to-[#5570F3]/10 relative overflow-hidden">
+                                      <div className="aspect-video bg-gray-100 relative overflow-hidden">
                                         {work.banner_image_url ? (
                                           <Image
                                             src={work.banner_image_url}
                                             alt={work.title}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            loading="lazy"
+                                            quality={85}
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                                           />
                                         ) : work.preview_data?.image ? (
                                           <Image
@@ -629,11 +628,14 @@ export function ProfileTabs({
                                             alt={work.title}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            loading="lazy"
+                                            quality={85}
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                                           />
                                         ) : (
                                           <div className="w-full h-full flex items-center justify-center">
                                             <svg
-                                              className="w-12 h-12 text-black"
+                                              className="w-12 h-12 text-gray-400"
                                               fill="none"
                                               stroke="currentColor"
                                               viewBox="0 0 24 24"
@@ -659,13 +661,13 @@ export function ProfileTabs({
                                               .map((tag, idx) => (
                                                 <span
                                                   key={idx}
-                                                  className="text-xs px-2 py-1 bg-[#5570F3]/10 text-[#5570F3] rounded-full shadow-sm"
+                                                  className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200"
                                                 >
                                                   {tag}
                                                 </span>
                                               ))}
                                             {work.tags.length > 2 && (
-                                              <span className="text-xs px-2 py-1 bg-[#5570F3]/10 text-[#5570F3] rounded-full shadow-sm">
+                                              <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
                                                 +{work.tags.length - 2}
                                               </span>
                                             )}
@@ -682,11 +684,11 @@ export function ProfileTabs({
                     )}
 
                     {/* 通常の作品一覧 */}
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full">
-                      <div className="p-6 border-b border-gray-100">
-                        <div className="flex items-center justify-between">
+                    <div className="bg-white rounded-lg border border-gray-200 shadow-sm w-full">
+                      <div className="p-6 border-b border-gray-200">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold text-gray-900">
                               すべての作品
                             </h3>
                             <p className="text-sm text-gray-600 mt-1">
@@ -696,7 +698,7 @@ export function ProfileTabs({
                           <Button
                             onClick={openContentTypeSelector}
                             size="sm"
-                            className="bg-[#1e3a8a] hover:bg-[#1b2f6e] text-white rounded-xl shadow-sm transition-all duration-200"
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors whitespace-nowrap"
                           >
                             <svg
                               className="w-4 h-4 mr-2"
@@ -757,9 +759,9 @@ export function ProfileTabs({
                   )}
 
                 {/* 作品統計・役割分析 */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full">
-                  <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-xl font-semibold text-gray-900">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm w-full">
+                  <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900">
                       作品統計・役割分析
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
@@ -799,7 +801,7 @@ export function ProfileTabs({
                         {/* 右側: 統計情報 */}
                         <div className="space-y-6">
                           {/* 基本統計 */}
-                          <div className="bg-gray-50 rounded-xl p-4">
+                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             <h5 className="font-semibold text-gray-900 mb-3">
                               基本統計
                             </h5>
@@ -824,7 +826,7 @@ export function ProfileTabs({
                           </div>
 
                           {/* 専門性分析 */}
-                          <div className="bg-[#5570F3]/5 rounded-xl p-4">
+                          <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                             <h5 className="font-semibold text-gray-900 mb-3">
                               専門性分析
                             </h5>
@@ -832,7 +834,7 @@ export function ProfileTabs({
                               {workStats.roleDistribution.length > 0 &&
                                 workStats.roleDistribution[0] && (
                                   <>
-                                    <span className="font-semibold text-[#5570F3]">
+                                    <span className="font-semibold text-blue-700">
                                       {workStats.roleDistribution[0].role}
                                     </span>
                                     が
@@ -847,7 +849,7 @@ export function ProfileTabs({
                                       workStats.roleDistribution[1] && (
                                         <>
                                           また、
-                                          <span className="font-semibold text-[#5570F3]">
+                                          <span className="font-semibold text-blue-700">
                                             {workStats.roleDistribution[1].role}
                                           </span>
                                           も重要なスキルとして活用されています。
@@ -873,7 +875,6 @@ export function ProfileTabs({
                 </div>
               </div>
             )}
-          </div>
         </div>
       </div>
 

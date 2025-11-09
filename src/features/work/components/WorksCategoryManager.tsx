@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   DndContext,
   useDraggable,
@@ -251,8 +251,8 @@ export function WorksCategoryManager({
     }
   };
 
-  // 掲載月の一覧を取得
-  const getAvailableMonths = () => {
+  // 掲載月の一覧を取得 - useMemoでメモ化（パフォーマンス改善）
+  const availableMonths = useMemo(() => {
     const monthSet = new Set<string>();
     savedWorks.forEach((work) => {
       if (work.production_date) {
@@ -274,9 +274,7 @@ export function WorksCategoryManager({
           label: `${year}年${parseInt(month)}月`,
         };
       });
-  };
-
-  const availableMonths = getAvailableMonths();
+  }, [savedWorks]);
 
   // ALLタブを含む全カテゴリリスト
   const allCategoriesWithAll = [
@@ -285,20 +283,20 @@ export function WorksCategoryManager({
     ...categories.filter((cat) => cat.id !== "uncategorized"),
   ];
 
-  // 選択されたカテゴリと月の作品を取得
-  const getFilteredWorks = () => {
-    let filteredWorks = savedWorks;
+  // 選択されたカテゴリと月の作品を取得 - useMemoでメモ化（パフォーマンス改善）
+  const filteredWorks = useMemo(() => {
+    let filtered = savedWorks;
 
     // カテゴリフィルタ
     if (selectedCategory !== "all") {
       const category = categories.find((cat) => cat.id === selectedCategory);
-      filteredWorks = category?.works || [];
+      filtered = category?.works || [];
     }
 
     // 月フィルタ
     if (selectedMonth !== "all") {
       const [targetYear, targetMonth] = selectedMonth.split("-").map(Number);
-      filteredWorks = filteredWorks.filter((work) => {
+      filtered = filtered.filter((work) => {
         if (!work.production_date) return false;
         const date = new Date(work.production_date);
         return (
@@ -308,10 +306,8 @@ export function WorksCategoryManager({
       });
     }
 
-    return filteredWorks;
-  };
-
-  const filteredWorks = getFilteredWorks();
+    return filtered;
+  }, [savedWorks, selectedCategory, selectedMonth, categories]);
 
   // カテゴリ削除
   const handleDeleteCategory = async (categoryId: string) => {
