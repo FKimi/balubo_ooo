@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ShareProfileButton } from "./ShareProfileButton";
@@ -149,12 +150,14 @@ export function ProfileSidebar({
               <div className="flex flex-col items-center">
                 <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 mb-3 bg-gray-50">
                   {resolvedAvatarUrl && !avatarError ? (
-                    <img
+                    <Image
                       src={resolvedAvatarUrl}
                       alt="プロフィール画像"
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                       onError={() => setAvatarError(true)}
-                      onLoad={() => setAvatarError(false)}
+                      onLoadingComplete={() => setAvatarError(false)}
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100">

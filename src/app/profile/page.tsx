@@ -8,7 +8,6 @@ import React, {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";

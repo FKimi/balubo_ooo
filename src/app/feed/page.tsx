@@ -149,8 +149,6 @@ function FeedPageContent() {
           ...(params.feedMode === "following" && { followingOnly: "true" }),
         });
 
-        // キャッシュを活用してパフォーマンス向上
-        const cacheKey = `feed-${searchParams.toString()}`;
         const cacheOptions: RequestInit = {
           method: "GET",
           headers,
