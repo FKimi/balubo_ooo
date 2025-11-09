@@ -141,16 +141,16 @@ export default function EnterpriseLandingPage() {
             </div>
           </Link>
           <nav className="hidden md:flex items-center space-x-6" aria-label="グローバルナビゲーション">
-            <Link href="/" className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium">
+            <Link href="/" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
               クリエイター向け
             </Link>
-            <Link href="#why" className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium">
+            <Link href="#why" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
               サービス
             </Link>
-            <Link href="#pricing" className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium">
+            <Link href="#pricing" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
               料金
             </Link>
-            <Button asChild className="rounded-lg bg-[#0A66C2] text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#004182] focus-visible:ring-2 focus-visible:ring-[#0A66C2] focus-visible:ring-offset-2 shadow-sm">
+            <Button asChild className="rounded-xl bg-blue-600 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30">
               <a href="#waitlist">無料登録</a>
             </Button>
           </nav>
@@ -167,7 +167,7 @@ export default function EnterpriseLandingPage() {
                 <div className="space-y-8 md:space-y-12 text-center lg:text-left">
                   <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
                     <span className="block leading-[1.05]">
-                      クリエイター探しで、<br />もう<span className="text-[#0A66C2]">時間を溶かさない</span>
+                      クリエイター探しで、<br />もう<span className="text-blue-600">時間を溶かさない</span>
                     </span>
                   </h1>
 
@@ -176,7 +176,7 @@ export default function EnterpriseLandingPage() {
                       専門性でマッチングする時代へ。
                     </p>
                     <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-                      <span className="text-[#0A66C2] font-semibold">balubo</span>は、AIがクリエイターの「専門性」を可視化し、BtoB企業と最適なプロとの出会いを実現する専門性マッチングプラットフォームです。
+                      <span className="text-blue-600 font-semibold">balubo</span>は、AIがクリエイターの「専門性」を可視化し、BtoB企業と最適なプロとの出会いを実現する専門性マッチングプラットフォームです。
                     </p>
                     <p className="text-base text-gray-700 leading-relaxed">
                       ゼロからの事業説明も、終わらない探索も、ミスマッチも。すべての課題を解決し、あなたの事業を深く理解したプロクリエイターと、瞬時に出会えます。
@@ -185,8 +185,8 @@ export default function EnterpriseLandingPage() {
 
                   {/* 社会的証明バッジ */}
                   <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200 shadow-sm">
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0A66C2]">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-50/80 rounded-full border border-blue-200 shadow-sm">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600">
                         <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                         </svg>
@@ -200,7 +200,7 @@ export default function EnterpriseLandingPage() {
                       <Button
                         asChild
                         size="lg"
-                        className="w-full rounded-lg bg-[#0A66C2] px-10 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-[#004182] sm:w-auto"
+                        className="w-full rounded-xl bg-blue-600 px-10 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 sm:w-auto"
                       >
                         <a href="#waitlist" className="inline-flex items-center justify-center">
                           無料でウェイトリストに登録
@@ -232,13 +232,13 @@ export default function EnterpriseLandingPage() {
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start text-sm text-gray-600">
                       <span className="flex items-center justify-center lg:justify-start">
-                        <svg className="mr-1.5 h-4 w-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <svg className="mr-1.5 h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         ベータ版無料
                       </span>
                       <span className="flex items-center justify-center lg:justify-start">
-                        <svg className="mr-1.5 h-4 w-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <svg className="mr-1.5 h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         クレジットカード不要
@@ -250,11 +250,11 @@ export default function EnterpriseLandingPage() {
                 {/* Right Visual */}
                 <div className="flex justify-center lg:justify-end">
                   <div className="relative w-full max-w-lg">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#0A66C2]/20 to-blue-100/40 rounded-3xl blur-3xl"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-blue-100/40 rounded-3xl blur-3xl"></div>
                     <div className="relative bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
                       <div className="space-y-6">
                         <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-transparent rounded-xl border border-blue-100">
-                          <div className="w-12 h-12 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-bold text-xl">AI</div>
+                          <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl">AI</div>
                           <div className="flex-1">
                             <div className="h-3 bg-gray-200 rounded-full w-3/4 mb-2"></div>
                             <div className="h-2 bg-gray-100 rounded-full w-1/2"></div>
@@ -268,7 +268,7 @@ export default function EnterpriseLandingPage() {
                                 <div className="h-2 bg-gray-200 rounded-full w-full mb-1"></div>
                                 <div className="h-2 bg-gray-100 rounded-full w-2/3"></div>
                               </div>
-                            <div className="text-[#0A66C2]">
+                            <div className="text-blue-600">
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                               </svg>
@@ -295,9 +295,9 @@ export default function EnterpriseLandingPage() {
               <p className="text-lg text-gray-600 mt-4">多くのBtoB企業が直面する、クリエイター採用の課題</p>
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-              <div className="group relative rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-[#0A66C2]">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0A66C2] font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">1</div>
-                <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-[#0A66C2] group-hover:bg-blue-100 transition-colors">
+              <div className="group relative rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-blue-600">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">1</div>
+                <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -305,9 +305,9 @@ export default function EnterpriseLandingPage() {
                 <h3 className="font-bold text-xl text-gray-900 mb-3">長期化する探索</h3>
                 <p className="text-gray-600 leading-relaxed">SNSやポートフォリオサイトを探し続け、貴重な時間が消えていく。気づけば何週間も経っている。</p>
               </div>
-              <div className="group relative rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-[#0A66C2]">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0A66C2] font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">2</div>
-                <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-[#0A66C2] group-hover:bg-blue-100 transition-colors">
+              <div className="group relative rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-blue-600">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">2</div>
+                <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -315,9 +315,9 @@ export default function EnterpriseLandingPage() {
                 <h3 className="font-bold text-xl text-gray-900 mb-3">ミスマッチの繰り返し</h3>
                 <p className="text-gray-600 leading-relaxed">やっと見つけても、業界理解が浅くゼロから事業説明。意図が伝わらず、期待したアウトプットが得られない。</p>
               </div>
-              <div className="group relative rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-[#0A66C2]">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0A66C2] font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">3</div>
-                <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-[#0A66C2] group-hover:bg-blue-100 transition-colors">
+              <div className="group relative rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-blue-600">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">3</div>
+                <div className="mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
@@ -350,9 +350,9 @@ export default function EnterpriseLandingPage() {
                 <p className="text-lg text-gray-600 mt-4">失っているのは、時間だけではありません</p>
               </div>
               <div className="grid gap-6 md:gap-8">
-                <div className="group bg-white rounded-2xl p-8 shadow-lg border-l-4 border-[#0A66C2] hover:shadow-2xl transition-all duration-300 hover:-translate-x-2">
+                <div className="group bg-white rounded-2xl p-8 shadow-lg border-l-4 border-blue-600 hover:shadow-2xl transition-all duration-300 hover:-translate-x-2">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-[#0A66C2] group-hover:scale-110 transition-transform">
+                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                       </svg>
@@ -393,7 +393,7 @@ export default function EnterpriseLandingPage() {
               <div className="mt-12 p-8 bg-gradient-to-r from-blue-50 to-white rounded-2xl shadow-xl border-2 border-blue-200">
                 <div className="text-center">
                   <p className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed">
-                    これらの課題を解決することが、<br className="sm:hidden" />BtoB企業のコンテンツマーケティング<span className="text-[#0A66C2]">成功の鍵</span>です。
+                    これらの課題を解決することが、<br className="sm:hidden" />BtoB企業のコンテンツマーケティング<span className="text-blue-600">成功の鍵</span>です。
                   </p>
                 </div>
               </div>
@@ -406,7 +406,7 @@ export default function EnterpriseLandingPage() {
           <div className="absolute inset-0 bg-grid-slate-100 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)] opacity-40" style={{backgroundSize: '30px 30px', backgroundImage: 'linear-gradient(to right, rgb(241 245 249 / 0.3) 1px, transparent 1px), linear-gradient(to bottom, rgb(241 245 249 / 0.3) 1px, transparent 1px)'}}></div>
           <div className="container mx-auto px-4 relative z-10">
             <div className="text-center max-w-4xl mx-auto mb-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#0A66C2] to-blue-600 mb-6 shadow-lg">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 mb-6 shadow-lg">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -421,10 +421,10 @@ export default function EnterpriseLandingPage() {
             </div>
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0A66C2] to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
                 <div className="relative bg-white rounded-2xl p-8">
                   <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <svg className="w-8 h-8 text-[#0A66C2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
@@ -435,10 +435,10 @@ export default function EnterpriseLandingPage() {
                 </div>
               </div>
               <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0A66C2] to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
                 <div className="relative bg-white rounded-2xl p-8">
                   <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <svg className="w-8 h-8 text-[#0A66C2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
@@ -449,10 +449,10 @@ export default function EnterpriseLandingPage() {
                 </div>
               </div>
               <div className="relative bg-white rounded-2xl p-8 shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0A66C2] to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity blur"></div>
                 <div className="relative bg-white rounded-2xl p-8">
                   <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <svg className="w-8 h-8 text-[#0A66C2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
@@ -471,36 +471,36 @@ export default function EnterpriseLandingPage() {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto mb-20">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-                baluboがもたらす、<br className="sm:hidden" /><span className="text-[#0A66C2]">3つの価値</span>
+                baluboがもたらす、<br className="sm:hidden" /><span className="text-blue-600">3つの価値</span>
               </h2>
               <p className="text-lg text-gray-600">クリエイター採用の課題を、根本から解決します</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8 lg:gap-12 max-w-7xl mx-auto">
               <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-[#0A66C2] to-blue-600 rounded-3xl opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-xl border-2 border-blue-200 hover:border-[#0A66C2] transition-all duration-300 hover:-translate-y-2">
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
+                <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-xl border-2 border-blue-200 hover:border-blue-600 transition-all duration-300 hover:-translate-y-2">
                   <div className="mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">1</div>
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg">1</div>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">探索時間の短縮</h3>
                   <p className="text-gray-700 leading-relaxed mb-6">
-                    AIが最適なクリエイターを瞬時に提案。<span className="font-bold text-[#0A66C2]">膨大な探索時間を削減</span>し、戦略業務に集中できます。
+                    AIが最適なクリエイターを瞬時に提案。<span className="font-bold text-blue-600">膨大な探索時間を削減</span>し、戦略業務に集中できます。
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>SNS探索の無限ループから解放</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>面談調整・選考プロセスの効率化</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>本来の戦略業務に集中可能</span>
@@ -509,10 +509,10 @@ export default function EnterpriseLandingPage() {
                 </div>
               </div>
               <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-[#0A66C2] to-blue-600 rounded-3xl opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-xl border-2 border-blue-200 hover:border-[#0A66C2] transition-all duration-300 hover:-translate-y-2">
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
+                <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-xl border-2 border-blue-200 hover:border-blue-600 transition-all duration-300 hover:-translate-y-2">
                   <div className="mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">2</div>
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg">2</div>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">ミスマッチの削減</h3>
                   <p className="text-gray-700 leading-relaxed mb-6">
@@ -541,30 +541,30 @@ export default function EnterpriseLandingPage() {
                 </div>
               </div>
               <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-[#0A66C2] to-blue-600 rounded-3xl opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-xl border-2 border-blue-200 hover:border-[#0A66C2] transition-all duration-300 hover:-translate-y-2">
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
+                <div className="relative bg-white rounded-2xl p-8 md:p-10 shadow-xl border-2 border-blue-200 hover:border-blue-600 transition-all duration-300 hover:-translate-y-2">
                   <div className="mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">3</div>
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg">3</div>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">コンテンツ品質の向上</h3>
                   <p className="text-gray-700 leading-relaxed mb-6">
-                    <span className="font-bold text-[#0A66C2]">専門性の高いプロ</span>が、事業を深く理解したコンテンツを制作。修正回数が減り、成果が向上します。
+                    <span className="font-bold text-blue-600">専門性の高いプロ</span>が、事業を深く理解したコンテンツを制作。修正回数が減り、成果が向上します。
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>専門性の高いコンテンツ制作</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>修正回数の大幅削減</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm text-gray-600">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>リード獲得・CV率の向上</span>
@@ -582,15 +582,15 @@ export default function EnterpriseLandingPage() {
             <div className="max-w-5xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-                  なぜ、baluboは<br className="sm:hidden" /><span className="text-[#0A66C2]">最適なマッチング</span>を<br className="sm:hidden" />実現できるのか？
+                  なぜ、baluboは<br className="sm:hidden" /><span className="text-blue-600">最適なマッチング</span>を<br className="sm:hidden" />実現できるのか？
                 </h2>
                 <p className="text-lg text-gray-600 mt-4">2つのコア技術</p>
               </div>
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="group relative bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 md:p-10 border-2 border-blue-100 hover:border-blue-300 shadow-lg hover:shadow-2xl transition-all duration-300">
-                  <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-bold text-xl">1</div>
+                  <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xl">1</div>
                   <div className="mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -602,15 +602,15 @@ export default function EnterpriseLandingPage() {
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 rounded-full bg-[#0A66C2]"></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-600"></div>
                       <span className="text-gray-700">業界特化度・専門性の定量評価</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 rounded-full bg-[#0A66C2]"></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-600"></div>
                       <span className="text-gray-700">コミュニケーション適性の分析</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 rounded-full bg-[#0A66C2]"></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-600"></div>
                       <span className="text-gray-700">プロジェクト成功率の予測</span>
                     </div>
                   </div>
@@ -654,7 +654,7 @@ export default function EnterpriseLandingPage() {
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
-                  こんな方に<span className="text-[#0A66C2]">おすすめ</span>です
+                  こんな方に<span className="text-blue-600">おすすめ</span>です
                 </h2>
                 <p className="text-lg text-gray-600">
                   baluboは、BtoB領域でコンテンツ制作に関わるすべての方を支援します
@@ -663,8 +663,8 @@ export default function EnterpriseLandingPage() {
 
               <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 {/* スタートアップの一人広報 */}
-                <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-[#0A66C2] hover:shadow-2xl transition-all duration-300">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-blue-600 flex items-center justify-center mb-6 shadow-lg">
+                <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-600 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-6 shadow-lg">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
@@ -675,19 +675,19 @@ export default function EnterpriseLandingPage() {
                   </p>
                   <div className="space-y-3 text-sm text-gray-700">
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>時間をかけずに質の高いライターを見つけたい</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>予算は限られているが成果は出したい</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>事業成長に直結するコンテンツを作りたい</span>
@@ -696,8 +696,8 @@ export default function EnterpriseLandingPage() {
                 </div>
 
                 {/* 自動車メーカーの広報担当者 */}
-                <div className="bg-white rounded-2xl p-8 border-2 border-[#0A66C2] hover:shadow-2xl transition-all duration-300 shadow-xl">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A66C2] to-blue-600 flex items-center justify-center mb-6 shadow-lg">
+                <div className="bg-white rounded-2xl p-8 border-2 border-blue-600 hover:shadow-2xl transition-all duration-300 shadow-xl">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-6 shadow-lg">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
@@ -708,19 +708,19 @@ export default function EnterpriseLandingPage() {
                   </p>
                   <div className="space-y-3 text-sm text-gray-700">
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>業界知識のあるライターが見つからない</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>ゼロからの事業説明に疲れた</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>技術の価値を正しく伝えたい</span>
@@ -729,7 +729,7 @@ export default function EnterpriseLandingPage() {
                 </div>
 
                 {/* メディア・制作会社・代理店 */}
-                <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-[#0A66C2] hover:shadow-2xl transition-all duration-300">
+                <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-blue-600 hover:shadow-2xl transition-all duration-300">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center mb-6 shadow-lg">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -741,19 +741,19 @@ export default function EnterpriseLandingPage() {
                   </p>
                   <div className="space-y-3 text-sm text-gray-700">
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>特定業界に強いクリエイターを探している</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>データで専門性を証明したい</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span>クライアント満足度を高めたい</span>
@@ -766,7 +766,7 @@ export default function EnterpriseLandingPage() {
                 <p className="text-lg text-gray-700 mb-6">
                   あなたのチームに最適な活用方法を、ご提案します
                 </p>
-                <Button asChild size="lg" className="bg-[#0A66C2] hover:bg-[#004182] text-white shadow-lg">
+                <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
                   <a href="#waitlist">無料で試してみる</a>
                 </Button>
               </div>
@@ -780,7 +780,7 @@ export default function EnterpriseLandingPage() {
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 mb-6">
-                  <span className="text-sm font-medium text-[#0A66C2]">シンプルで分かりやすい料金体系</span>
+                  <span className="text-sm font-medium text-blue-600">シンプルで分かりやすい料金体系</span>
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
                   あなたに最適なプランを<br className="sm:hidden" />お選びください
@@ -808,25 +808,25 @@ export default function EnterpriseLandingPage() {
                   </div>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">月5件までのプロジェクト登録</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">基本的なAIマッチング機能</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">クリエイター検索機能</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">メールサポート</span>
@@ -838,14 +838,14 @@ export default function EnterpriseLandingPage() {
                 </div>
 
                 {/* スタンダードプラン */}
-                <div className="relative bg-white rounded-2xl border-2 border-[#0A66C2] p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 scale-105">
+                <div className="relative bg-white rounded-2xl border-2 border-blue-600 p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 scale-105">
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-[#0A66C2] to-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">おすすめ</span>
+                    <span className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-1 rounded-full text-sm font-semibold">おすすめ</span>
                   </div>
                   <div className="text-center mt-4">
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">スタンダード</h3>
                     <div className="mb-6">
-                      <span className="text-4xl font-extrabold text-[#0A66C2]">¥4,980</span>
+                      <span className="text-4xl font-extrabold text-blue-600">¥4,980</span>
                       <span className="text-gray-600">/月</span>
                     </div>
                     <p className="text-gray-600 mb-6">
@@ -854,37 +854,37 @@ export default function EnterpriseLandingPage() {
                   </div>
                   <ul className="space-y-4 mb-8">
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700"><span className="font-semibold">無制限</span>のプロジェクト登録</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">高度なAIマッチング機能</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">優先的なクリエイター紹介</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">プロジェクト管理機能</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-[#0A66C2] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       <span className="text-gray-700">チャット・メールサポート</span>
                     </li>
                   </ul>
-                  <Button asChild className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white">
+                  <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                     <a href="#waitlist">今すぐ始める</a>
                   </Button>
                 </div>
@@ -993,16 +993,16 @@ export default function EnterpriseLandingPage() {
                     answer: "プランによって異なりますが、基本的に長期契約の縛りはございません。プロジェクト単位でのご利用も可能です。柔軟なプランをご用意していますので、お気軽にご相談ください。"
                   }
                 ].map((faq, index) => (
-                  <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-[#0A66C2]">
+                  <div key={index} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-gray-200 hover:border-blue-600">
                     <button
-                      className="w-full p-6 md:p-8 flex items-center justify-between text-left font-bold text-lg text-gray-900 hover:text-[#0A66C2] hover:bg-gray-50 transition-colors"
+                      className="w-full p-6 md:p-8 flex items-center justify-between text-left font-bold text-lg text-gray-900 hover:text-blue-600 hover:bg-gray-50 transition-colors"
                       onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                       aria-expanded={openFaqIndex === index}
                       aria-controls={`faq-answer-${index}`}
                     >
                       <span>{faq.question}</span>
                       <svg
-                        className={`w-6 h-6 flex-shrink-0 text-[#0A66C2] transition-transform duration-300 ${
+                        className={`w-6 h-6 flex-shrink-0 text-blue-600 transition-transform duration-300 ${
                           openFaqIndex === index ? "rotate-180" : ""
                         }`}
                         fill="none"
@@ -1019,7 +1019,7 @@ export default function EnterpriseLandingPage() {
                       }`}
                     >
                       <div className="px-6 md:px-8 pb-6 md:pb-8">
-                        <p className="text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-[#0A66C2]">
+                        <p className="text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
                           {faq.answer}
                         </p>
                       </div>
@@ -1044,12 +1044,12 @@ export default function EnterpriseLandingPage() {
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl leading-tight mb-8">
                 クリエイター探しの課題は、
                 <br />
-                <span className="text-[#0A66C2]">今日で終わりにしませんか？</span>
+                <span className="text-blue-600">今日で終わりにしませんか？</span>
               </h2>
               
               <div className="mx-auto max-w-3xl space-y-6 mb-12">
                 <p className="text-xl md:text-2xl leading-relaxed text-gray-800 font-medium">
-                  <span className="text-[#0A66C2] font-bold">balubo</span>で、あなたの事業を深く理解したプロと出会う。
+                  <span className="text-blue-600 font-bold">balubo</span>で、あなたの事業を深く理解したプロと出会う。
                 </p>
                 <p className="text-lg md:text-xl leading-relaxed text-gray-700">
                   新しい出会い、新しいコンテンツ、新しい成果が、あなたを待っています。
@@ -1058,23 +1058,23 @@ export default function EnterpriseLandingPage() {
 
               <div className="mx-auto max-w-3xl bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-8 md:p-10 mb-12">
                 <p className="text-3xl md:text-4xl text-gray-900 font-bold leading-tight mb-6">
-                  今すぐウェイトリストに<br className="sm:hidden" /><span className="text-[#0A66C2]">無料で登録</span>
+                  今すぐウェイトリストに<br className="sm:hidden" /><span className="text-blue-600">無料で登録</span>
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-base text-gray-700 mb-8">
                   <span className="flex items-center">
-                    <svg className="w-5 h-5 mr-1.5 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 mr-1.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     ベータ版無料
                   </span>
                   <span className="flex items-center">
-                    <svg className="w-5 h-5 mr-1.5 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 mr-1.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     1分で登録完了
                   </span>
                   <span className="flex items-center">
-                    <svg className="w-5 h-5 mr-1.5 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 mr-1.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     先行案内・限定特典
@@ -1084,7 +1084,7 @@ export default function EnterpriseLandingPage() {
                 <Button 
                   asChild
                   size="lg"
-                  className="w-full max-w-md rounded-lg bg-gradient-to-r from-[#0A66C2] to-[#004182] px-12 py-6 text-xl font-bold text-white transition-all duration-200 hover:shadow-2xl hover:scale-105"
+                  className="w-full max-w-md rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-12 py-6 text-xl font-bold text-white transition-all duration-200 hover:shadow-2xl hover:scale-105 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
                 >
                   <a 
                     href="https://docs.google.com/forms/d/e/1FAIpQLSc7UzTNUD-8Fs2BAoOuKNGlju5PX5qxneXmhvmN7pwGH6FtCg/viewform?usp=header"
@@ -1107,7 +1107,7 @@ export default function EnterpriseLandingPage() {
                   { text: "情報は安全に保護", icon: <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg> }
                 ].map((feature) => (
                   <div key={feature.text} className="flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0A66C2] text-white">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white">
                       {feature.icon}
                     </div>
                     <span className="font-medium">
@@ -1146,7 +1146,7 @@ export default function EnterpriseLandingPage() {
                 type="button"
                 onClick={() => setIsSurveyOpen(false)}
                 aria-label="閉じる"
-                className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:ring-2 focus-visible:ring-[#0A66C2] focus-visible:ring-offset-2"
+                className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
                 ×
               </button>
@@ -1242,7 +1242,7 @@ export default function EnterpriseLandingPage() {
                     disabled={
                       isSubmitting || (Boolean(budgetMin) && Boolean(budgetMax) && Number(budgetMin) > Number(budgetMax))
                     }
-                    className="bg-[#0A66C2] text-white hover:bg-[#004182]"
+                    className="bg-blue-600 text-white hover:bg-blue-700"
                   >
                     {isSubmitting ? "送信中..." : "回答を送信する"}
                   </Button>

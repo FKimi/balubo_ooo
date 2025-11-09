@@ -84,8 +84,8 @@ function Modal({
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg mx-4 bg-white rounded-lg shadow-lg p-6 z-10">
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
+      <div className="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-xl shadow-gray-900/10 p-6 z-10 border border-gray-200/60">
+        <h2 className="text-lg font-semibold mb-4 text-gray-900">{title}</h2>
         {children}
       </div>
     </div>
@@ -176,6 +176,7 @@ export function ProfileModals({
             <Button
               onClick={onAddSkill}
               disabled={isUpdatingSkills || !newSkill.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
               {isUpdatingSkills ? "追加中..." : "追加"}
             </Button>
@@ -207,6 +208,7 @@ export function ProfileModals({
             <Button
               onClick={() => onUpdateIntroduction(currentIntroduction)}
               disabled={isUpdatingIntroduction}
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
               {isUpdatingIntroduction ? "保存中..." : "保存"}
             </Button>
@@ -307,6 +309,7 @@ export function ProfileModals({
                   newCareer.startDate
                 )
               }
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
               {isUpdatingCareer ? "追加中..." : "追加"}
             </Button>
@@ -416,7 +419,7 @@ export function ProfileModals({
               >
                 キャンセル
               </Button>
-              <Button onClick={onUpdateCareer} disabled={isUpdatingCareer}>
+              <Button onClick={onUpdateCareer} disabled={isUpdatingCareer} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30">
                 {isUpdatingCareer ? "保存中..." : "保存"}
               </Button>
             </div>

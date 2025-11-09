@@ -66,7 +66,7 @@ export default function HelpPage() {
       id: "analysis",
       title: "AI分析機能",
       icon: <BarChart3 className="w-5 h-5" />,
-      description: "強み分析と詳細レポートの活用",
+      description: "強み分析の活用",
     },
     {
       id: "faq",
@@ -681,50 +681,6 @@ export default function HelpPage() {
             </div>
 
             <div className="space-y-6">
-              <Card className="border-[#5570F3]/20">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#5570F3]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <BarChart3 className="w-5 h-5 text-[#5570F3]" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">
-                        詳細レポート
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        投稿した作品から、あなたのクリエイティブな特徴や強みを分析します。
-                      </p>
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="bg-[#5570F3]/5 p-4 rounded-lg border border-[#5570F3]/20">
-                          <h4 className="font-medium text-[#5570F3] mb-2">
-                            テイスト分析
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            デザインスタイルや色彩傾向を分析
-                          </p>
-                        </div>
-                        <div className="bg-[#5570F3]/5 p-4 rounded-lg border border-[#5570F3]/20">
-                          <h4 className="font-medium text-[#5570F3] mb-2">
-                            思考プロセス
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            制作アプローチの特徴を言語化
-                          </p>
-                        </div>
-                        <div className="bg-[#5570F3]/5 p-4 rounded-lg border border-[#5570F3]/20">
-                          <h4 className="font-medium text-[#5570F3] mb-2">
-                            マッチング相性
-                          </h4>
-                          <p className="text-sm text-gray-600">
-                            適性のある業界・職種を提案
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               <Card className="border-[#5570F3]/20">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">

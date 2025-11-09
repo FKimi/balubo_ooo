@@ -11,13 +11,18 @@ import { isNotEmptyArray, getArrayLength } from "@/utils/arrayUtils";
 // import { InputData } from '@/types/input'
 
 async function getPublicProfileBySlug(slug: string) {
-  console.log("getPublicProfileBySlug: 検索スラッグ:", slug);
+  // URLエンコードされたスラッグをデコード
+  const decodedSlug = decodeURIComponent(slug);
+  console.log("getPublicProfileBySlug: 検索スラッグ:", {
+    original: slug,
+    decoded: decodedSlug,
+  });
 
-  // anon クライアントで公開プロフィールを取得
+  // anon クライアントで公開プロフィールを取得（デコード済みスラッグで検索）
   const profileResponse = await supabase
     .from("profiles")
     .select("*")
-    .eq("slug", slug)
+    .eq("slug", decodedSlug)
     .eq("portfolio_visibility", "public")
     .single();
 
@@ -31,6 +36,7 @@ async function getPublicProfileBySlug(slug: string) {
 
   // anon で見つからない場合、Service Role で再試行（ローカルでも env があれば）
   if ((error || !profile) && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.log("getPublicProfileBySlug: Service Roleで再試行中...");
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -38,12 +44,47 @@ async function getPublicProfileBySlug(slug: string) {
         auth: { autoRefreshToken: false, persistSession: false },
       },
     );
-    const { data: profileAdmin } = await admin
+    const { data: profileAdmin, error: adminError } = await admin
       .from("profiles")
       .select("*")
-      .eq("slug", slug)
+      .eq("slug", decodedSlug)
       .single();
+    
+    console.log("getPublicProfileBySlug: Service Role結果:", {
+      data: profileAdmin ? { displayName: profileAdmin.display_name } : null,
+      error: adminError,
+    });
+    
     profile = profileAdmin || null;
+  }
+  
+  // プロフィールが見つからない場合の詳細ログ
+  if (!profile) {
+    console.log("getPublicProfileBySlug: プロフィールが見つかりませんでした", {
+      searchedSlug: decodedSlug,
+      originalSlug: slug,
+      anonError: error,
+    });
+    
+    // デバッグ用: すべての公開プロフィールのスラッグを確認（開発環境のみ）
+    if (process.env.NODE_ENV === "development" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const admin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: { autoRefreshToken: false, persistSession: false },
+        },
+      );
+      const { data: allProfiles } = await admin
+        .from("profiles")
+        .select("slug, display_name, portfolio_visibility")
+        .eq("portfolio_visibility", "public")
+        .limit(10);
+      
+      console.log("getPublicProfileBySlug: 利用可能な公開プロフィールのスラッグ:", 
+        allProfiles?.map(p => ({ slug: p.slug, displayName: p.display_name }))
+      );
+    }
   }
 
   if (!profile) return null;
@@ -195,11 +236,18 @@ export default async function PublicProfileSlugPage({
   const data = await getPublicProfileBySlug(slug);
   if (!data) notFound();
   return (
-    <div className="min-h-screen bg-white">
-      <Suspense fallback={<div>読み込み中...</div>}>
-        <PublicProfileContent data={data} userId={data.profile.user_id} />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">プロフィールを読み込んでいます...</p>
+          </div>
+        </div>
+      }
+    >
+      <PublicProfileContent data={data} userId={data.profile.user_id} />
+    </Suspense>
   );
 }
 

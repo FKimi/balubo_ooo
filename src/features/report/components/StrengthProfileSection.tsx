@@ -271,7 +271,7 @@ export function StrengthProfileSection({ works }: StrengthProfileProps) {
                       ) : (
                         <div className="h-8 w-8 rounded bg-gray-100 border border-gray-200" />
                       )}
-                      <span className="truncate group-hover:text-blue-700">
+                      <span className="truncate group-hover:text-blue-600 transition-colors">
                         {w.title || "無題"}
                         {w.content_type ? ` ・ ${w.content_type}` : ""}
                       </span>
@@ -311,7 +311,7 @@ export function StrengthProfileSection({ works }: StrengthProfileProps) {
               {recent90Days < 2 && (
                 <a
                   href="/works/new"
-                  className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-700 hover:bg-blue-50 transition-colors"
+                  className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   新しい作品を追加
                 </a>
@@ -319,7 +319,7 @@ export function StrengthProfileSection({ works }: StrengthProfileProps) {
               {uniqueTypes <= 2 && (
                 <a
                   href="/works/new"
-                  className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-700 hover:bg-blue-50 transition-colors"
+                  className="text-xs rounded-full border border-blue-300 px-3 py-1 bg-white text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   異分野に挑戦
                 </a>

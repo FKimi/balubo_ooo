@@ -11,6 +11,7 @@ import { RolePieChart } from "./RolePieChart";
 import { calculateTopTags } from "@/features/profile/lib/profileUtils";
 import { EmptyState } from "@/components/common";
 import { useTagStatistics } from "@/hooks/useTagStatistics";
+import type { JobMatchingHint } from "@/features/profile/lib/profileUtils";
 
 interface PublicProfileTabsProps {
   activeTab: "profile" | "works" | "details";
@@ -20,6 +21,7 @@ interface PublicProfileTabsProps {
   skills: string[];
   career: any[];
   isProfileEmpty: boolean;
+  jobMatchingHints?: JobMatchingHint[];
 }
 
 export function PublicProfileTabs({
@@ -29,6 +31,7 @@ export function PublicProfileTabs({
   works,
   skills,
   career,
+  jobMatchingHints,
 }: PublicProfileTabsProps) {
   const workStats = useWorkStatistics(works);
   const {
@@ -67,7 +70,7 @@ export function PublicProfileTabs({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <TabNavigation
         tabs={tabs}
         activeTab={activeTab}
@@ -76,7 +79,7 @@ export function PublicProfileTabs({
         }
       />
 
-      <div className="mt-6">
+      <div className="mt-8">
         {activeTab === "profile" && (
           <div className="space-y-8">
             {!profile?.bio &&
@@ -409,6 +412,88 @@ export function PublicProfileTabs({
                         <div className="text-xs text-gray-500">分野</div>
                       </div>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* こんな仕事が向いているかも */}
+            {jobMatchingHints && jobMatchingHints.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-6">
+                    <svg
+                      className="w-6 h-6 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 002 2M8 6v2a2 2 0 002 2h4a2 2 0 002-2V6m0 0V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2z"
+                      />
+                    </svg>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      こんな仕事が向いているかも
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    {jobMatchingHints.map((hint, idx) => (
+                      <div
+                        key={idx}
+                        className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all"
+                      >
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-5 h-5 text-blue-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-base font-semibold text-gray-900 mb-2">
+                              {hint.title}
+                            </h4>
+                            <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                              {hint.description}
+                            </p>
+                            <div className="space-y-2">
+                              <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-blue-700 flex-shrink-0">
+                                    理由:
+                                  </span>
+                                  <p className="text-xs text-gray-700 leading-relaxed">
+                                    {hint.reason}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs font-semibold text-blue-700 flex-shrink-0">
+                                    おすすめの理由:
+                                  </span>
+                                  <p className="text-xs text-gray-700 leading-relaxed">
+                                    {hint.whyRecommended}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

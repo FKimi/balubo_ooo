@@ -123,7 +123,7 @@ export function WorksSection({
         {analysis.creativity.averageScore > 0 &&
           renderFieldCard(
             "創造性",
-            "bg-gradient-to-r from-purple-500 to-purple-600",
+            "bg-gradient-to-r from-gray-400 to-gray-500",
             analysis.creativity,
             "purple",
           )}
@@ -192,7 +192,7 @@ export function WorksSection({
                 {topRoles.map((role: any) => (
                   <span
                     key={role.role}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200"
                   >
                     {role.role} ({role.count}件)
                   </span>
@@ -242,7 +242,7 @@ export function WorksSection({
                 {categories.map(([category, count]) => (
                   <span
                     key={category}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
                   >
                     {category} ({count}件)
                   </span>

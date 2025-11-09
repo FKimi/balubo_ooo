@@ -144,16 +144,16 @@ export default function OGTestPage() {
               </div>
             </div>
 
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-purple-900 mb-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 📊 現在のOGP設定
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold text-purple-800 mb-2">
+                  <h3 className="font-semibold text-gray-800 mb-2">
                     メタデータ
                   </h3>
-                  <ul className="text-sm text-purple-700 space-y-1">
+                  <ul className="text-sm text-gray-700 space-y-1">
                     <li>
                       <strong>タイトル:</strong> OGPテストページ - balubo
                     </li>
@@ -171,10 +171,10 @@ export default function OGTestPage() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-purple-800 mb-2">
+                  <h3 className="font-semibold text-gray-800 mb-2">
                     Twitter Card
                   </h3>
-                  <ul className="text-sm text-purple-700 space-y-1">
+                  <ul className="text-sm text-gray-700 space-y-1">
                     <li>
                       <strong>カードタイプ:</strong> summary_large_image
                     </li>

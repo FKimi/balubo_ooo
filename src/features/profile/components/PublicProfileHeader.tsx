@@ -49,9 +49,9 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
 
   return (
     <div className="mb-8">
-      <div className="relative w-full">
+      <div className="relative w-full bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
         {/* 背景画像（ProfileHeader と同じ高さ/構造） */}
-        <div className="relative h-48 sm:h-64 md:h-72 lg:h-80 w-full overflow-hidden">
+        <div className="relative h-48 sm:h-64 md:h-72 lg:h-80 w-full overflow-hidden rounded-t-xl">
           {resolvedBgUrl ? (
             <Image
               src={resolvedBgUrl}
@@ -60,15 +60,15 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
               className="object-cover"
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800" />
           )}
           <div className="absolute inset-0 bg-black/10" />
         </div>
 
         {/* 情報コンテナ（ProfileHeader と同等の白背景セクション） */}
-        <div className="relative bg-white rounded-b-2xl">
+        <div className="relative bg-white">
           <div className="relative px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between pt-4 pb-4">
+            <div className="flex items-end justify-between pt-4 pb-6">
               <div className="relative -mt-16 sm:-mt-20">
                 <div className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white flex-shrink-0">
                   {resolvedAvatarUrl ? (
@@ -93,28 +93,28 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
             </div>
 
             {/* テキスト情報・リンク等（ProfileHeaderと近しい階層/余白） */}
-            <div className="pb-4">
-              <div className="mb-3">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
+            <div className="pb-6">
+              <div className="mb-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-2">
                   {displayName || "ユーザー"}
                 </h1>
                 {professions && professions.length > 0 && (
-                  <p className="text-base text-gray-600 mt-1">
+                  <p className="text-base sm:text-lg text-gray-600">
                     {professions[0]}
                   </p>
                 )}
               </div>
 
               {bio && (
-                <p className="text-base text-gray-900 leading-relaxed mb-3 whitespace-pre-wrap">
+                <p className="text-base text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">
                   {bio}
                 </p>
               )}
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600 mb-3">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 mb-4">
                 <FollowStats userId={userId} />
                 {location && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <svg
                       className="w-4 h-4 text-gray-500"
                       fill="none"
@@ -138,7 +138,7 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
                   </div>
                 )}
                 {websiteUrl && (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <svg
                       className="w-4 h-4 text-gray-500"
                       fill="none"
@@ -156,7 +156,7 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
                       href={websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:text-blue-600 hover:underline truncate max-w-[200px] sm:max-w-none transition-colors duration-200"
+                      className="text-blue-600 hover:text-blue-700 hover:underline truncate max-w-[200px] sm:max-w-none transition-colors duration-200 font-medium"
                     >
                       {websiteUrl.replace(/^https?:\/\//, "")}
                     </a>

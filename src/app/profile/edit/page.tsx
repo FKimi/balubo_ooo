@@ -386,9 +386,9 @@ export default function ProfileEditPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* 基本情報 */}
               <Card className="border border-gray-200 shadow-lg shadow-gray-100/50 bg-white rounded-2xl overflow-hidden">
-                <CardHeader className="pb-6 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-b border-gray-100">
+                <CardHeader className="pb-6 bg-gradient-to-r from-blue-50/50 to-blue-50/30 border-b border-gray-100">
                   <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
                       <svg
                         className="w-5 h-5 text-white"
                       fill="none"
@@ -427,8 +427,8 @@ export default function ProfileEditPage() {
                       <div
                         className={`relative w-full h-48 sm:h-56 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden border-2 border-dashed transition-all duration-300 cursor-pointer group ${
                           formData.backgroundImageUrl
-                            ? "border-gray-300 hover:border-blue-400 hover:shadow-lg"
-                            : "border-gray-300 hover:border-blue-500 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50"
+                            ? "border-gray-300 hover:border-blue-500 hover:shadow-lg"
+                            : "border-gray-300 hover:border-blue-600 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-50/50"
                         }`}
                         onDragOver={(e) => handleDragOver(e, "background")}
                         onDragLeave={(e) => handleDragLeave(e, "background")}
@@ -457,7 +457,7 @@ export default function ProfileEditPage() {
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             <div className="text-center px-4">
-                              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-blue-100 to-indigo-100 group-hover:from-blue-200 group-hover:to-indigo-200 transition-colors shadow-inner">
+                              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors shadow-inner">
                                 <svg
                                   className="w-8 h-8 text-blue-600"
                                   fill="none"
@@ -526,7 +526,7 @@ export default function ProfileEditPage() {
                           variant="outline"
                           size="sm"
                           asChild
-                          className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all shadow-sm"
+                          className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 transition-all shadow-sm rounded-xl"
                         >
                           <label
                             htmlFor="backgroundImage"
@@ -549,7 +549,7 @@ export default function ProfileEditPage() {
                           </label>
                         </Button>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3">
+                      <div className="bg-blue-50/80 border border-blue-200/60 rounded-xl p-3">
                         <p className="text-xs text-gray-600">
                           <span className="font-semibold">推奨サイズ:</span> 1200×300px
                           <span className="mx-2">•</span>
@@ -618,7 +618,7 @@ export default function ProfileEditPage() {
                           type="button"
                           size="sm"
                           asChild
-                            className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 transition-all shadow-sm"
+                            className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 transition-all shadow-sm rounded-xl"
                         >
                           <label
                             htmlFor="avatarImage"
@@ -677,7 +677,7 @@ export default function ProfileEditPage() {
                           </Button>
                         )}
                       </div>
-                        <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3">
+                        <div className="bg-blue-50/80 border border-blue-200/60 rounded-xl p-3">
                       <p
                         className={`text-xs transition-colors ${
                               isDraggingAvatar
@@ -710,7 +710,7 @@ export default function ProfileEditPage() {
                       onChange={handleInputChange}
                       placeholder="あなたの名前またはニックネーム"
                       required
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all rounded-lg"
+                      className="h-11 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl"
                     />
                   </div>
 
@@ -728,7 +728,7 @@ export default function ProfileEditPage() {
                       value={formData.title}
                       onChange={handleInputChange}
                       placeholder="例: フロントエンドエンジニア、デザイナー、ライター"
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all rounded-lg"
+                      className="h-11 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl"
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       あなたの現在の肩書きや役職を入力してください
@@ -749,7 +749,7 @@ export default function ProfileEditPage() {
                       value={formData.bio}
                       onChange={handleInputChange}
                       placeholder="あなたの経歴、得意分野、価値観などを簡潔に記述してください"
-                      className="min-h-[140px] border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all rounded-lg resize-none"
+                      className="min-h-[140px] border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl resize-none"
                       maxLength={300}
                     />
                     <div className="flex items-center justify-between">
@@ -784,7 +784,7 @@ export default function ProfileEditPage() {
                       value={formData.location}
                       onChange={handleInputChange}
                       placeholder="例: 東京都"
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all rounded-lg"
+                      className="h-11 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl"
                     />
                   </div>
 
@@ -803,7 +803,7 @@ export default function ProfileEditPage() {
                       value={formData.websiteUrl}
                       onChange={handleInputChange}
                       placeholder="https://your-portfolio.com"
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all rounded-lg"
+                      className="h-11 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl"
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       あなたのポートフォリオサイトやブログのURLを入力してください
@@ -816,7 +816,7 @@ export default function ProfileEditPage() {
               <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
                 <Button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 h-12 text-base font-semibold rounded-xl"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 h-12 text-base font-semibold rounded-xl"
                   disabled={isLoading}
                 >
                   {isLoading ? (

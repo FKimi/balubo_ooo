@@ -144,7 +144,7 @@ export function EnhancedAnalysisProgress({
   return (
     <div className="mb-8 bg-white border-2 border-gray-200 rounded-2xl shadow-lg overflow-hidden">
       {/* ヘッダー（青いバー） */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -204,7 +204,7 @@ export function EnhancedAnalysisProgress({
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 h-2.5 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
               style={{ width: `${progressPercentage}%` }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
@@ -213,7 +213,7 @@ export function EnhancedAnalysisProgress({
         </div>
 
         {/* 現在のステップ（大きく表示） */}
-        <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+        <div className="mb-8 bg-gradient-to-r from-blue-50 to-blue-50/80 rounded-xl p-6 border border-blue-200">
           <div className="flex items-center gap-4 mb-3">
             <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
               {currentStep + 1}

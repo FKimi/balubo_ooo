@@ -74,7 +74,7 @@ export function NotificationDropdown({
       case "new_comment":
         return "text-blue-600 bg-blue-50";
       case "new_review":
-        return "text-purple-600 bg-purple-50";
+        return "text-gray-700 bg-gray-50";
       default:
         return "text-gray-600 bg-gray-50";
     }

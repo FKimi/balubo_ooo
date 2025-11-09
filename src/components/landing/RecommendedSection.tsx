@@ -43,7 +43,7 @@ const personas: RecommendedPersona[] = [
       </svg>
     ),
     color: "text-blue-600",
-    bgColor: "from-blue-50 to-indigo-50",
+    bgColor: "from-blue-50 to-blue-50/80",
     borderColor: "border-blue-200"
   },
   {
@@ -76,9 +76,9 @@ const personas: RecommendedPersona[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
       </svg>
     ),
-    color: "text-purple-600",
-    bgColor: "from-purple-50 to-violet-50",
-    borderColor: "border-purple-200"
+    color: "text-gray-700",
+    bgColor: "from-gray-50 to-gray-50/80",
+    borderColor: "border-gray-200"
   },
   {
     title: "コンテンツチームのリーダー・マネージャー",
@@ -112,7 +112,7 @@ export default function RecommendedSection() {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
             このようなプロフェッショナルに
-            <span className="text-[#0A66C2]">最適です</span>
+            <span className="text-blue-600">最適です</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             baluboは、あなたの専門性を客観的に証明し、
@@ -176,7 +176,7 @@ export default function RecommendedSection() {
 
         {/* 下部CTA */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 md:p-10">
+          <div className="bg-gradient-to-br from-blue-50 via-blue-50/80 to-blue-50/60 border-2 border-blue-200 rounded-2xl p-8 md:p-10">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
               あなたも、専門性を証明しませんか？
             </h3>
@@ -189,7 +189,7 @@ export default function RecommendedSection() {
               <span className="text-sm text-gray-600">まずは無料で</span>
               <button
                 onClick={() => router.push("/register")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105"
               >
                 専門性スコアを見る（無料・3分）
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

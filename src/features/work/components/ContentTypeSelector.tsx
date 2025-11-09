@@ -323,7 +323,7 @@ export function ContentTypeSelector({
 
                 {/* ホバー時のオーバーレイ（有効な場合のみ） */}
                 {type.enabled && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-30 transition-opacity duration-200"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-blue-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                 )}
 
                 {/* 無効状態のオーバーレイ */}

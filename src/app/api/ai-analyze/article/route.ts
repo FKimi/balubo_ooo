@@ -3,6 +3,7 @@ import {
   callGeminiAPI,
   parseAnalysisResult,
   handleAnalysisError,
+  fetchArticleContentFromUrl,
   AnalysisRequest,
 } from "../utils/ai-analyzer";
 
@@ -25,6 +26,27 @@ export async function POST(body: any) {
       );
     }
 
+    // URLが提供されているが、fullContentがない場合はURLから記事本文を取得
+    let articleContent = fullContent;
+    if (url && !articleContent) {
+      try {
+        console.log("URLから記事本文を取得します:", url);
+        articleContent = await fetchArticleContentFromUrl(url);
+        console.log("記事本文の取得に成功:", articleContent.length, "文字");
+      } catch (fetchError: any) {
+        console.error("URLからの記事本文取得エラー:", fetchError);
+        // エラーが発生しても、タイトルや説明文があれば分析を続行
+        if (!description && !title) {
+          return NextResponse.json(
+            { error: `記事本文の取得に失敗しました: ${fetchError.message}` },
+            { status: 400 },
+          );
+        }
+        // タイトルや説明文があれば、それらを使って分析を続行
+        articleContent = undefined;
+      }
+    }
+
     // ビジネス特化の高精度分析プロンプト
     const articleAnalysisPrompt = `
 あなたはビジネスマーケティング・コンテンツ戦略の専門家です。以下の記事作品を、ビジネスコンテンツの観点から詳細に分析し、プロクリエイターの専門性を可視化する具体的なタグを10個以上生成してください。
@@ -33,7 +55,7 @@ export async function POST(body: any) {
 記事URL: ${url || "未設定"}
 記事説明・概要: ${description || "未設定"}
 ${productionNotes ? `制作メモ・目的・背景: ${productionNotes}` : ""}
-${fullContent ? `記事本文: ${fullContent.substring(0, 3000)}${fullContent.length > 3000 ? "...(本文が長いため一部省略)" : ""}` : ""}
+${articleContent ? `記事本文: ${articleContent.substring(0, 3000)}${articleContent.length > 3000 ? "...(本文が長いため一部省略)" : ""}` : ""}
 
 ## コンテンツ分析の観点
 

@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { PublicProfileHeader } from "@/features/profile/components/PublicProfileHeader";
 import { PublicProfileTabs } from "@/features/profile/components/PublicProfileTabs";
 import { Button } from "@/components/ui/button";
 import { AIAnalysisStrengths } from "@/features/profile/components/AIAnalysisStrengths";
-import { useMemo } from "react";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
-import { getArrayLength } from "@/utils/arrayUtils";
 
 interface PublicProfileData {
   profile: any;
@@ -26,16 +24,7 @@ export function PublicProfileContent({
   data,
   userId,
 }: PublicProfileContentProps) {
-  console.log("PublicProfileContent: データ受信", {
-    hasData: !!data,
-    hasProfile: !!data?.profile,
-    worksCount: getArrayLength(data?.works),
-    inputsCount: getArrayLength(data?.inputs),
-    rawData: data,
-    userId,
-  });
-
-  const { profile, works, inputs, inputAnalysis: _inputAnalysis } = data;
+  const { profile, works, inputs: _inputs } = data;
   const [activeTab, setActiveTab] = useState<"profile" | "works" | "details">(
     "profile",
   );
@@ -44,17 +33,6 @@ export function PublicProfileContent({
   const strengthsAnalysis = useMemo(() => {
     return analyzeStrengthsFromWorks(works);
   }, [works]);
-
-  console.log("PublicProfileContent: プロフィール情報", {
-    displayName: profile?.display_name,
-    bio: profile?.bio,
-    skills: profile?.skills,
-    career: profile?.career,
-    worksLength: getArrayLength(works),
-    inputsLength: getArrayLength(inputs),
-    worksData: works,
-    inputsData: inputs,
-  });
 
   // プロフィール情報の整理
   const displayName = profile?.display_name || "ユーザー";
@@ -67,55 +45,25 @@ export function PublicProfileContent({
   const career = profile?.career || [];
   const professions = profile?.professions || [];
 
-  console.log("PublicProfileContent: 整理後データ", {
-    displayName,
-    bio,
-    skills,
-    career,
-    professions,
-    finalWorksCount: getArrayLength(works),
-  });
-
   // 画像の存在チェック
   const hasCustomBackground =
     backgroundImageUrl && backgroundImageUrl.trim() !== "";
   const hasCustomAvatar = avatarImageUrl && avatarImageUrl.trim() !== "";
 
-  console.log("PublicProfileContent: 画像設定確認", {
-    backgroundImageUrl,
-    avatarImageUrl,
-    hasCustomBackground,
-    hasCustomAvatar,
-  });
-
-  console.log("PublicProfileContent: HeaderPropsに渡すデータ", {
-    userId,
-    displayName,
-    bio,
-    location,
-    websiteUrl,
-    backgroundImageUrl,
-    avatarImageUrl,
-    isProfileEmpty: !bio && skills.length === 0 && career.length === 0,
-    hasCustomBackground,
-    hasCustomAvatar,
-    professions,
-  });
-
   // プロフィールが空かどうかの判定
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-visible">
-      <main className="relative px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
-        <div className="w-full">
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="w-full space-y-8">
           {/* 戻るリンク */}
-          <div className="mb-4">
+          <div>
             <Link href="/">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
               >
                 <svg
                   className="w-4 h-4"
@@ -152,12 +100,14 @@ export function PublicProfileContent({
 
           {/* AI分析による強み (共有ビュー) */}
           {strengthsAnalysis.strengths.length > 0 && (
-            <AIAnalysisStrengths
-              strengths={strengthsAnalysis.strengths}
-              showDetails={false}
-              jobMatchingHints={strengthsAnalysis.jobMatchingHints}
-              works={works}
-            />
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+              <AIAnalysisStrengths
+                strengths={strengthsAnalysis.strengths}
+                showDetails={false}
+                works={works}
+                compact={false}
+              />
+            </div>
           )}
 
           {/* 公開プロフィールタブ */}
@@ -169,6 +119,7 @@ export function PublicProfileContent({
             skills={skills}
             career={career}
             isProfileEmpty={isProfileEmpty}
+            jobMatchingHints={strengthsAnalysis.jobMatchingHints}
           />
         </div>
       </main>

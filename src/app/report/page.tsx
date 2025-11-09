@@ -703,12 +703,12 @@ function ReportContent() {
         <CardContent className="space-y-8">
           {/* 総合評価 */}
           <div className="grid md:grid-cols-3 gap-6 items-center">
-            <div className="col-span-1 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-200 flex items-center justify-center">
+            <div className="col-span-1 bg-gradient-to-r from-blue-50 to-blue-50/80 rounded-xl p-4 border border-blue-200 flex items-center justify-center">
               {/* <OverallScoreGauge score={comprehensiveAnalysis.overall.comprehensiveScore} /> */}
             </div>
-            <div className="col-span-2 text-sm text-indigo-800">
+            <div className="col-span-2 text-sm text-blue-800">
               <p className="mb-1 font-semibold text-gray-900">総合スコア</p>
-              <p className="text-3xl font-bold text-indigo-700 mb-2">
+              <p className="text-3xl font-bold text-blue-700 mb-2">
                 {comprehensiveAnalysis.overall.comprehensiveScore}
               </p>
               <p>

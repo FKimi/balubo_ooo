@@ -67,21 +67,21 @@ export default function FinalCTASection() {
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl leading-tight mb-8">
             その専門知識は、
             <br />
-            <span className="text-[#0A66C2]">高く評価されるべき資産です。</span>
+            <span className="text-blue-600">高く評価されるべき資産です。</span>
           </h2>
           
           <div className="mx-auto max-w-3xl space-y-6 mb-12">
             <p className="text-xl md:text-2xl leading-relaxed text-gray-800 font-medium">
-              <span className="text-[#0A66C2] font-bold">balubo</span>で、あなたの専門性を正しく、高く、伝えませんか？
+              <span className="text-blue-600 font-bold">balubo</span>で、あなたの専門性を正しく、高く、伝えませんか？
             </p>
             <p className="text-lg md:text-xl leading-relaxed text-gray-700">
               新しい評価、新しい仕事、新しいキャリアが、あなたを待っています。
             </p>
           </div>
 
-          <div className="mx-auto max-w-3xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-8 md:p-10 mb-12">
+          <div className="mx-auto max-w-3xl bg-gradient-to-br from-blue-50 via-blue-50/80 to-blue-50/60 border-2 border-blue-200 rounded-2xl p-8 md:p-10 mb-12">
             <p className="text-3xl md:text-4xl text-gray-900 font-bold leading-tight mb-6">
-              今すぐ無料で<span className="text-[#0A66C2]">「専門性」</span>を証明する
+              今すぐ無料で<span className="text-blue-600">「専門性」</span>を証明する
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-base text-gray-700">
               <span className="flex items-center">
@@ -108,7 +108,7 @@ export default function FinalCTASection() {
           <div className="flex items-center justify-center mb-8">
             <Button
               size="lg"
-              className="w-full max-w-md rounded-lg bg-gradient-to-r from-[#0A66C2] to-[#004182] px-12 py-6 text-xl font-bold text-white transition-all duration-200 hover:shadow-2xl hover:scale-105 sm:w-auto disabled:opacity-60"
+              className="w-full max-w-md rounded-xl bg-blue-600 px-12 py-6 text-xl font-bold text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:bg-blue-700 hover:scale-105 sm:w-auto disabled:opacity-60"
               disabled={isRedirecting}
               onClick={() => {
                 setIsRedirecting(true);
@@ -160,7 +160,7 @@ export default function FinalCTASection() {
               <p className="text-xl md:text-2xl text-gray-700 mb-4">
                 — 今日から、それを変えてみませんか？
               </p>
-              <p className="text-xl md:text-2xl text-[#0A66C2] font-bold">
+              <p className="text-xl md:text-2xl text-blue-600 font-bold">
                 専門性を伝えるなら、balubo
               </p>
             </blockquote>

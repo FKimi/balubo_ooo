@@ -509,9 +509,9 @@ export async function exportToPDF(data: ExportData, fileName?: string) {
 
     // インプット統計（データがある場合）
     if (data.inputs.length > 0) {
-      pdf.setFillColor(245, 243, 255); // purple-50
+      pdf.setFillColor(243, 244, 246); // gray-100
       pdf.rect(margin, currentY, statBoxWidth, statBoxHeight, "F");
-      pdf.setTextColor(168, 85, 247); // purple-500
+      pdf.setTextColor(75, 85, 99); // gray-600
       pdf.setFontSize(20);
       addJapaneseText(data.inputs.length.toString(), margin + 5, currentY + 12);
       pdf.setFontSize(10);

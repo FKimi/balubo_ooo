@@ -97,10 +97,10 @@ export const DiscoverySection = ({
   useEffect(() => {
     fetchDiscoveryData();
 
-    // 30秒ごとにポーリングして最新ランキングを取得
+    // 60秒ごとにポーリングして最新ランキングを取得（パフォーマンス向上のため30秒→60秒に延長）
     const intervalId = setInterval(() => {
       fetchDiscoveryData();
-    }, 30000);
+    }, 60000);
 
     // フォーカス時にも更新（デバウンス適用）
     const debouncedFetch = debounce(fetchDiscoveryData, 1000);
@@ -194,7 +194,7 @@ export const DiscoverySection = ({
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-[#5570F3]" />
+                  <TrendingUp className="h-5 w-5 text-gray-600" />
                   <h3 className="text-lg font-semibold text-gray-900">
                     今日の注目コンテンツ
                   </h3>
@@ -230,12 +230,12 @@ export const DiscoverySection = ({
                 {data.featured.map((work, index) => (
                   <Card
                     key={work.id}
-                    className="flex-shrink-0 w-80 hover:shadow-lg transition-all duration-300 cursor-pointer group border border-gray-200 hover:border-[#5570F3]/30"
+                    className="flex-shrink-0 w-80 hover:shadow-lg transition-all duration-300 cursor-pointer group border border-gray-200 hover:border-gray-300"
                     onClick={() => _onWorkClick?.(work)}
                   >
                     <CardContent className="p-0">
                       {/* 画像とランキングバッジ */}
-                      <div className="relative aspect-video bg-gradient-to-br from-[#5570F3]/5 to-[#5570F3]/10 rounded-t-xl overflow-hidden">
+                      <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl overflow-hidden">
                         {work.banner_image_url ? (
                           <Image
                             src={work.banner_image_url}
@@ -254,11 +254,11 @@ export const DiscoverySection = ({
                           <div
                             className={`px-2 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
                               index === 0
-                                ? "bg-[#5570F3]"
+                                ? "bg-gray-900"
                                 : index === 1
-                                  ? "bg-[#4461E8]"
+                                  ? "bg-gray-700"
                                   : index === 2
-                                    ? "bg-[#3D51DD]"
+                                    ? "bg-gray-600"
                                     : "bg-gray-500"
                             }`}
                           >
@@ -269,7 +269,7 @@ export const DiscoverySection = ({
 
                       {/* コンテンツ */}
                       <div className="p-4">
-                        <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-[#5570F3] transition-colors">
+                        <h4 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
                           {work.title}
                         </h4>
 
@@ -286,7 +286,7 @@ export const DiscoverySection = ({
                               <Badge
                                 key={idx}
                                 variant="secondary"
-                                className="text-xs bg-[#5570F3]/10 text-[#5570F3] hover:bg-[#5570F3]/20 cursor-pointer"
+                                className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   _onTagClick?.(tag);
@@ -318,8 +318,8 @@ export const DiscoverySection = ({
                                 className="rounded-full object-cover"
                               />
                             ) : (
-                              <div className="w-5 h-5 rounded-full bg-[#5570F3]/20 flex items-center justify-center">
-                                <span className="text-[#5570F3] text-xs font-medium">
+                              <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center">
+                                <span className="text-gray-700 text-xs font-medium">
                                   {work.user.display_name
                                     .charAt(0)
                                     .toUpperCase()}
@@ -371,7 +371,7 @@ export const DiscoverySection = ({
                     onClick={() => _onTagClick?.(tagItem.tag)}
                     className={`rounded-full px-4 py-2 transition-all duration-200 ${
                       index < 3
-                        ? "bg-[#5570F3]/10 text-[#5570F3] hover:bg-[#5570F3]/20 border border-[#5570F3]/20"
+                        ? "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
@@ -380,7 +380,7 @@ export const DiscoverySection = ({
                     <span
                       className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
                         index < 3
-                          ? "bg-[#5570F3]/20 text-[#5570F3]"
+                          ? "bg-gray-200 text-gray-700"
                           : "bg-gray-200 text-gray-600"
                       }`}
                     >

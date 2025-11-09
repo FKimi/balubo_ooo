@@ -39,7 +39,7 @@ function ScrollProgressBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-transparent pointer-events-none">
       <div
-        className="h-full bg-[#0A66C2] transition-all duration-300 ease-out"
+        className="h-full bg-blue-600 transition-all duration-300 ease-out"
         style={{ width: `${scrollProgress}%` }}
       />
     </div>
@@ -110,7 +110,7 @@ export default function HomePage() {
           >
             <Link
               href="#recommended"
-              className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium"
+              className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('recommended')?.scrollIntoView({ behavior: 'smooth' });
@@ -121,13 +121,13 @@ export default function HomePage() {
             <Link
               href="/enterprise"
               prefetch={false}
-              className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium"
+              className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
               企業の方はこちら
             </Link>
             <Link
               href="#features"
-              className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium"
+              className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
@@ -137,7 +137,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="#analysis"
-              className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium"
+              className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('analysis')?.scrollIntoView({ behavior: 'smooth' });
@@ -147,7 +147,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="#voices"
-              className="text-sm text-gray-700 hover:text-[#0A66C2] transition-colors font-medium"
+              className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('voices')?.scrollIntoView({ behavior: 'smooth' });
@@ -164,7 +164,7 @@ export default function HomePage() {
             </Button>
             <Button
               asChild
-              className="rounded-lg bg-[#0A66C2] text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#004182]"
+              className="rounded-xl bg-blue-600 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
               <Link href="/register">無料で「専門性スコア」を見る</Link>
             </Button>
@@ -184,7 +184,7 @@ export default function HomePage() {
         <FeaturesSection />
         <SectionDivider colorClass="text-white" heightClass="h-8" />
         <MidCallToAction />
-        <SectionDivider colorClass="text-[#0A66C2]" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-600" heightClass="h-8" />
         <VoicesSection />
         <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
         <FAQSection />

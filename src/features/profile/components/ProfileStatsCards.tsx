@@ -78,8 +78,8 @@ export function ProfileStatsCards({
             />
           </svg>
         ),
-        color: "text-purple-600",
-        bgColor: "bg-purple-50",
+        color: "text-gray-700",
+        bgColor: "bg-gray-50",
       },
       ...(followerCount !== undefined
         ? [

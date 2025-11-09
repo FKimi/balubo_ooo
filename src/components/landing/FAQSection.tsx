@@ -90,7 +90,7 @@ export default function FAQSection() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-[#0A66C2] transition-all duration-300"
+              className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-600 transition-all duration-300"
             >
               <button
                 className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors duration-200"
@@ -102,7 +102,7 @@ export default function FAQSection() {
                   {faq.question}
                 </span>
                 <svg
-                  className={`w-6 h-6 text-[#0A66C2] flex-shrink-0 transition-transform duration-300 ${
+                  className={`w-6 h-6 text-blue-600 flex-shrink-0 transition-transform duration-300 ${
                     openIndex === index ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -128,7 +128,7 @@ export default function FAQSection() {
                 }`}
               >
                 <div className="px-6 pb-5 pt-2">
-                  <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-[#0A66C2]">
+                  <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
                     {faq.answer}
                   </p>
                 </div>
@@ -144,7 +144,7 @@ export default function FAQSection() {
           </p>
           <a
             href="mailto:support@balubo.jp"
-            className="inline-flex items-center gap-2 text-[#0A66C2] hover:text-[#004182] font-semibold transition-colors duration-200"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
           >
             <svg
               className="w-5 h-5"

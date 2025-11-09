@@ -8,22 +8,20 @@ interface Voice {
   avatarBg: string;
   avatarText: string;
   catchCopy: string;
-  quantitativeResult?: string;
-  emotionalChange?: string;
   comment: string;
+  strengths: string[];
 }
 
 const voices: Voice[] = [
   {
     name: "田中 美咲",
     role: "ビジネスコンテンツライター",
-    avatarBg: "from-blue-500 to-indigo-600",
+    avatarBg: "from-blue-600 to-blue-700",
     avatarText: "田",
     catchCopy: "感覚的だった強みが「データ」になり、単価UPに繋がりました",
-    quantitativeResult: "",
-    emotionalChange: "",
     comment:
       "これまで感覚的に伝えていた自分の強みが、「SaaS業界への解像度」といった客観的なデータで可視化されて驚きました。クライアントへの提案でも説得力が格段に上がり、専門家として認識され、単価アップにも繋がっています。",
+    strengths: ["SaaS業界の深い理解", "経営層向けインタビュー設計"],
   },
   {
     name: "佐藤 健太",
@@ -31,21 +29,19 @@ const voices: Voice[] = [
     avatarBg: "from-green-500 to-emerald-600",
     avatarText: "佐",
     catchCopy: "AI分析で「得意分野」が明確になり、専門領域の依頼が増えました",
-    quantitativeResult: "",
-    emotionalChange: "",
     comment:
       "AIによる記事分析で、自分では気づかなかった得意分野が明らかになりました。今では特化した領域での案件依頼が増え、より充実した仕事ができています。",
+    strengths: ["BtoBマーケの課題整理", "専門領域への深いリサーチ"],
   },
   {
     name: "山田 雅子",
     role: "専門領域ライター・編集者",
-    avatarBg: "from-purple-500 to-pink-600",
+    avatarBg: "from-gray-400 to-gray-500",
     avatarText: "山",
     catchCopy: "ポートフォリオ作成の時間が激減。AI分析も信頼できます",
-    quantitativeResult: "",
-    emotionalChange: "",
     comment:
       "ポートフォリオ作成にかかる時間が大幅に短縮され、制作活動に集中できるように。AI分析の結果も実感とマッチしていて、信頼して活用しています。",
+    strengths: ["専門領域ライティング", "読者体験を意識した構成"],
   },
 ];
 
@@ -61,7 +57,7 @@ export default function VoicesSection() {
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight tracking-tight">
             すでに多くのプロが、
             <br />
-            baluboで<span className="text-[#0A66C2]">「価値の証明」</span>を始めています。
+            baluboで<span className="text-blue-600">「価値の証明」</span>を始めています。
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             具体的な成果と、働き方の変化
@@ -72,7 +68,7 @@ export default function VoicesSection() {
           {voices.map((voice) => (
             <article
               key={voice.name}
-              className="relative flex flex-col rounded-2xl border-2 border-gray-200 bg-white p-8 hover:border-[#0A66C2] hover:shadow-2xl transition-all duration-500"
+              className="relative flex flex-col rounded-2xl border-2 border-gray-200 bg-white p-8 hover:border-blue-600 hover:shadow-2xl transition-all duration-500"
               aria-label={`${voice.name}さんの事例`}
             >
               <div>
@@ -108,42 +104,25 @@ export default function VoicesSection() {
                       <div className="text-sm text-gray-600">{voice.name} 様（{voice.role}）</div>
                     </div>
                   </div>
-                  
-                  {/* 専門性スコア表示 */}
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-[#0A66C2]">
-                      {voice.name === "田中 美咲" && "92%"}
-                      {voice.name === "佐藤 健太" && "88%"}
-                      {voice.name === "山田 雅子" && "85%"}
+                </div>
+
+                {voice.strengths.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                      得意領域
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {voice.strengths.map((strength) => (
+                        <span
+                          key={strength}
+                          className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+                        >
+                          #{strength}
+                        </span>
+                      ))}
                     </div>
-                    <div className="text-xs text-gray-500">専門性スコア</div>
                   </div>
-                </div>
-                
-                {/* 専門性バー */}
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-600">
-                      {voice.name === "田中 美咲" && "SaaS業界への解像度"}
-                      {voice.name === "佐藤 健太" && "ビジネスマーケティング領域の専門性"}
-                      {voice.name === "山田 雅子" && "コンテンツ制作力"}
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {voice.name === "田中 美咲" && "95%"}
-                      {voice.name === "佐藤 健太" && "90%"}
-                      {voice.name === "山田 雅子" && "87%"}
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-200 rounded-full">
-                    <div 
-                      className="h-1.5 bg-gradient-to-r from-[#0A66C2] to-[#004182] rounded-full transition-all duration-1000 ease-out"
-                      style={{
-                        width: voice.name === "田中 美咲" ? "95%" : 
-                               voice.name === "佐藤 健太" ? "90%" : "87%"
-                      }}
-                    ></div>
-                  </div>
-                </div>
+                )}
               </div>
             </article>
           ))}

@@ -49,7 +49,7 @@ export function ArticleForm({
       {/* 役割セクション */}
       <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
             <svg
               className="w-5 h-5 text-white"
               fill="none"
@@ -92,7 +92,7 @@ export function ArticleForm({
             placeholder="カスタム役割"
             value={newRole}
             onChange={(e) => setNewRole(e.target.value)}
-            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
           />
           <Button
             type="button"
@@ -259,7 +259,7 @@ export function DesignForm({
       {/* 役割セクション */}
       <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 bg-gray-500 rounded-xl flex items-center justify-center shadow-sm">
             <svg
               className="w-5 h-5 text-white"
               fill="none"
@@ -288,8 +288,8 @@ export function DesignForm({
               onClick={() => addRole(role)}
               className={`p-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 formData.roles.includes(role)
-                  ? "bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-300 text-purple-800 shadow-sm"
-                  : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700"
+                  ? "bg-gradient-to-r from-gray-50 to-gray-50/80 border border-gray-300 text-gray-800 shadow-sm"
+                  : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-800"
               }`}
             >
               {role}
@@ -302,7 +302,7 @@ export function DesignForm({
             placeholder="カスタム役割"
             value={newRole}
             onChange={(e) => setNewRole(e.target.value)}
-            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-200"
           />
           <Button
             type="button"
@@ -323,13 +323,13 @@ export function DesignForm({
             {formData.roles.map((role: string, index: number) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium border border-purple-200"
+                className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium border border-gray-200"
               >
                 {role}
                 <button
                   type="button"
                   onClick={() => removeRole(role)}
-                  className="ml-2 text-purple-600 hover:text-purple-800"
+                  className="ml-2 text-gray-600 hover:text-gray-800"
                 >
                   <svg
                     className="w-3 h-3"

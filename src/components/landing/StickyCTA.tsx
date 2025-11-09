@@ -45,7 +45,7 @@ export default function StickyCTA() {
     >
       <div className="container mx-auto max-w-lg">
         <Button
-          className="w-full bg-gradient-to-r from-[#0A66C2] to-[#004182] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60"
+          className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:bg-blue-700 disabled:opacity-60"
           disabled={isRedirecting}
           onClick={() => {
             setIsRedirecting(true);

@@ -140,7 +140,7 @@ export function FollowModal({
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   {/* アバター */}
-                  <div className="relative w-12 h-12 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="relative w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center flex-shrink-0">
                     {user.avatar_image_url ? (
                       <Image
                         src={user.avatar_image_url}

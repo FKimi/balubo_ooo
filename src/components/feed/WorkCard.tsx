@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, memo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ interface WorkCardProps {
   onOpenComments: (_workId: string) => void;
 }
 
-export function WorkCard({
+export const WorkCard = memo(function WorkCard({
   work: _work,
   currentUser,
   isAuthenticated: _isAuthenticated,
@@ -66,8 +66,9 @@ export function WorkCard({
     router.push(`/works/${_work.id}`);
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  // formatTimeAgoをメモ化して再計算を防ぐ
+  const timeAgo = useMemo(() => {
+    const date = new Date(_work.created_at);
     const now = new Date();
     const diffInMs = now.getTime() - date.getTime();
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
@@ -77,11 +78,11 @@ export function WorkCard({
     if (diffInHours < 24) return `${diffInHours}時間前`;
     if (diffInDays < 7) return `${diffInDays}日前`;
     return date.toLocaleDateString("ja-JP");
-  };
+  }, [_work.created_at]);
 
   return (
     <div
-      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+      className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border border-gray-100 hover:border-gray-200"
       onClick={handleWorkClick}
       role="button"
       tabIndex={0}
@@ -94,7 +95,7 @@ export function WorkCard({
       aria-label={`${_work.title} の詳細を開く`}
     >
       {/* 作品画像 */}
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+      <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
         {_work.banner_image_url && !imageError ? (
           <>
             <Image
@@ -107,15 +108,23 @@ export function WorkCard({
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              loading="lazy"
+              quality={85}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             />
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 animate-pulse">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+                </div>
+              </div>
             )}
           </>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
             <div className="text-center text-gray-500">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 mx-auto">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 mx-auto shadow-sm">
                 <span className="text-2xl">🎨</span>
               </div>
               <p className="text-sm font-medium">{_work.title}</p>
@@ -124,13 +133,13 @@ export function WorkCard({
         )}
 
         {/* ホバー時のオーバーレイ */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300">
-          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
             <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="bg-white bg-opacity-90 hover:bg-white rounded-full shadow-lg"
+                className="h-9 w-9 bg-white/95 hover:bg-white rounded-full shadow-lg backdrop-blur-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   onShare(_work);
@@ -142,7 +151,7 @@ export function WorkCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="bg-white bg-opacity-90 hover:bg-white rounded-full shadow-lg"
+                  className="h-9 w-9 bg-white/95 hover:bg-white rounded-full shadow-lg backdrop-blur-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(_work.external_url, "_blank");
@@ -158,7 +167,7 @@ export function WorkCard({
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
             <Button
               variant="ghost"
-              className="bg-white bg-opacity-90 hover:bg-white rounded-full px-6 py-2 shadow-lg"
+              className="bg-white/95 hover:bg-white rounded-full px-6 py-2.5 shadow-xl backdrop-blur-sm font-medium text-gray-900 hover:text-blue-600 transition-colors"
               onClick={handleWorkClick}
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -169,18 +178,18 @@ export function WorkCard({
 
         {/* タグ表示（左下） */}
         {_work.tags && _work.tags.length > 0 && (
-          <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <div className="flex flex-wrap gap-1">
+          <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <div className="flex flex-wrap gap-1.5">
               {takeFirst(_work.tags, 2).map((tag, index) => (
                 <span
                   key={index}
-                  className="bg-white bg-opacity-90 text-gray-700 text-xs px-2 py-1 rounded-full"
+                  className="bg-white/95 backdrop-blur-sm text-gray-800 text-xs px-2.5 py-1 rounded-full font-medium shadow-lg"
                 >
                   #{tag}
                 </span>
               ))}
               {_work.tags.length > 2 && (
-                <span className="bg-white bg-opacity-90 text-gray-700 text-xs px-2 py-1 rounded-full">
+                <span className="bg-white/95 backdrop-blur-sm text-gray-800 text-xs px-2.5 py-1 rounded-full font-medium shadow-lg">
                   +{_work.tags.length - 2}
                 </span>
               )}
@@ -190,10 +199,10 @@ export function WorkCard({
       </div>
 
       {/* カード下部の情報 */}
-      <div className="p-4">
+      <div className="p-5 space-y-3">
         {/* 作品タイトル */}
         <h3
-          className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+          className="font-semibold text-gray-900 text-base leading-snug line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
           onClick={handleWorkClick}
         >
           {_work.title}
@@ -201,18 +210,18 @@ export function WorkCard({
 
         {/* 作品の説明 */}
         {_work.description && (
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
             {_work.description}
           </p>
         )}
 
         {/* 役割 */}
         {_work.roles && _work.roles.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="flex flex-wrap gap-1.5">
             {takeFirst(_work.roles, 3).map((role, index) => (
               <span
                 key={index}
-                className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-full font-medium"
+                className="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-md font-medium border border-blue-100"
               >
                 {role}
               </span>
@@ -221,44 +230,44 @@ export function WorkCard({
         )}
 
         {/* ユーザー情報と統計 */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
           {/* ユーザー情報 */}
           <div
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity flex-1 min-w-0"
             onClick={handleUserClick}
           >
             {_work.user.avatar_image_url ? (
               <Image
                 src={_work.user.avatar_image_url}
                 alt={_work.user.display_name}
-                width={32}
-                height={32}
-                className="rounded-full object-cover"
+                width={36}
+                height={36}
+                className="rounded-full object-cover flex-shrink-0 ring-2 ring-gray-100"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 ring-2 ring-gray-100">
                 <User className="h-4 w-4 text-white" />
               </div>
             )}
-            <div>
-              <p className="text-sm font-medium text-gray-900">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-gray-900 truncate">
                 {_work.user.display_name}
               </p>
               <p className="text-xs text-gray-500">
-                {formatTimeAgo(_work.created_at)}
+                {timeAgo}
               </p>
             </div>
           </div>
 
           {/* アクション統計 */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
-              className={`p-1 transition-colors ${
+              className={`h-8 px-2 transition-colors ${
                 _work.user_has_liked
-                  ? "text-red-500 hover:text-red-600"
-                  : "text-gray-400 hover:text-red-500"
+                  ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                  : "text-gray-500 hover:text-red-500 hover:bg-red-50"
               }`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -268,24 +277,38 @@ export function WorkCard({
               <Heart
                 className={`h-4 w-4 ${_work.user_has_liked ? "fill-current" : ""}`}
               />
-              <span className="ml-1 text-xs">{_work.likes_count || 0}</span>
+              <span className="ml-1 text-xs font-medium">
+                {_work.likes_count || 0}
+              </span>
             </Button>
 
             <Button
               variant="ghost"
               size="sm"
-              className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+              className="h-8 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 onOpenComments(_work.id);
               }}
             >
               <MessageCircle className="h-4 w-4" />
-              <span className="ml-1 text-xs">{_work.comments_count || 0}</span>
+              <span className="ml-1 text-xs font-medium">
+                {_work.comments_count || 0}
+              </span>
             </Button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // カスタム比較関数：必要なプロパティのみを比較
+  return (
+    prevProps.work.id === nextProps.work.id &&
+    prevProps.work.likes_count === nextProps.work.likes_count &&
+    prevProps.work.comments_count === nextProps.work.comments_count &&
+    prevProps.work.user_has_liked === nextProps.work.user_has_liked &&
+    prevProps.currentUser?.id === nextProps.currentUser?.id &&
+    prevProps.isAuthenticated === nextProps.isAuthenticated
+  );
+});

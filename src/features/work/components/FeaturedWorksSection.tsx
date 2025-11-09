@@ -176,8 +176,8 @@ export function FeaturedWorksSection({
             代表作を設定
           </Button>
         </div>
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 text-center">
-          <div className="w-12 h-12 mx-auto mb-3 bg-blue-600 rounded-full flex items-center justify-center">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 rounded-2xl p-6 text-center">
+          <div className="w-12 h-12 mx-auto mb-3 bg-blue-600 rounded-full flex items-center justify-center shadow-md shadow-blue-500/25">
             <svg
               className="w-6 h-6 text-white"
               fill="none"
@@ -202,7 +202,7 @@ export function FeaturedWorksSection({
           </p>
           <Button
             onClick={() => setIsEditMode(true)}
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
           >
             代表作を選択
           </Button>
@@ -233,7 +233,7 @@ export function FeaturedWorksSection({
               </Button>
               <Button
                 onClick={handleSaveEditMode}
-                className="text-sm bg-blue-600 hover:bg-blue-700 text-white"
+                className="text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
                 disabled={isUpdating}
               >
                 {isUpdating ? "保存中..." : "保存"}

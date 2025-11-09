@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as cheerio from "cheerio";
 
 // 複数のGemini APIキーを管理
 const GEMINI_API_KEYS = [
@@ -726,4 +727,111 @@ ${imageFiles
 export function processToolsInfo(designTools?: string[]) {
   if (!designTools || designTools.length === 0) return "";
   return `使用ツール: ${designTools.join(", ")}`;
+}
+
+// URLから記事本文を取得する関数
+export async function fetchArticleContentFromUrl(url: string): Promise<string> {
+  try {
+    console.log("記事本文の取得を開始:", url);
+
+    // URLの妥当性をチェック
+    try {
+      new URL(url);
+    } catch (error) {
+      throw new Error("無効なURL形式です");
+    }
+
+    // HTMLを取得（タイムアウト10秒）
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(
+        `記事の取得に失敗しました: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // 一般的な記事本文のセレクタを試行
+    const contentSelectors = [
+      'article',
+      '[role="article"]',
+      '.article-content',
+      '.article-body',
+      '.post-content',
+      '.entry-content',
+      '.content',
+      'main article',
+      'main .content',
+      '.main-content',
+      '#article-body',
+      '#content',
+    ];
+
+    let articleText = "";
+
+    // セレクタを順番に試行
+    for (const selector of contentSelectors) {
+      const element = $(selector).first();
+      if (element.length > 0) {
+        // スクリプト、スタイル、広告などを除外
+        element.find("script, style, nav, header, footer, aside, .ad, .advertisement, .social-share").remove();
+        articleText = element.text().trim();
+        if (articleText.length > 200) {
+          // 200文字以上あれば有効な記事本文とみなす
+          break;
+        }
+      }
+    }
+
+    // セレクタで見つからない場合、body全体から主要なテキストを抽出
+    if (articleText.length < 200) {
+      const body = $("body");
+      body.find("script, style, nav, header, footer, aside, .ad, .advertisement").remove();
+      articleText = body.text().trim();
+    }
+
+    // テキストをクリーンアップ（余分な空白や改行を整理）
+    articleText = articleText
+      .replace(/\s+/g, " ")
+      .replace(/\n\s*\n/g, "\n")
+      .trim();
+
+    if (articleText.length < 100) {
+      throw new Error("記事本文を取得できませんでした。ページの構造が対応していない可能性があります。");
+    }
+
+    // 長すぎる場合は最初の5000文字に制限（トークン数削減のため）
+    const maxLength = 5000;
+    if (articleText.length > maxLength) {
+      articleText = articleText.substring(0, maxLength) + "...(本文が長いため一部省略)";
+    }
+
+    console.log(`記事本文の取得に成功: ${articleText.length}文字`);
+    return articleText;
+  } catch (error: any) {
+    console.error("記事本文の取得エラー:", error);
+    if (error.name === "AbortError") {
+      throw new Error("記事の取得がタイムアウトしました。しばらく待ってから再度お試しください。");
+    }
+    throw new Error(
+      error.message || "記事本文の取得に失敗しました。URLが正しいか、ページがアクセス可能か確認してください。",
+    );
+  }
 }

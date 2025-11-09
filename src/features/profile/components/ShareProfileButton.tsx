@@ -98,10 +98,10 @@ export function ShareProfileButton({
     <>
       <Button
         onClick={() => setIsModalOpen(true)}
-        className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 shadow-lg text-xs sm:text-sm transition-all duration-200"
+        className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 text-xs px-3 py-1.5 rounded-lg transition-colors"
       >
         <svg
-          className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2"
+          className="w-3 h-3 mr-1.5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -142,7 +142,7 @@ export function ShareProfileButton({
 
             {/* ヘッダー */}
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-8 h-8 text-white"
                   fill="none"

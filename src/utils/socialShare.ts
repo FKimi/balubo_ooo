@@ -17,40 +17,71 @@ function generateContentAnalysisSummary(work: WorkData, maxLength: number = 100)
 
   const parts: string[] = [];
 
-  // 課題を簡潔に（最大30文字）
+  // 課題を簡潔に（箇条書きから最初の1項目を取得し、末尾の「。」を削除）
   if (contentAnalysis.problem) {
-    const problem = contentAnalysis.problem.length > 30
-      ? contentAnalysis.problem.substring(0, 27) + "..."
-      : contentAnalysis.problem;
-    parts.push(`🎯${problem}`);
-  }
-
-  // 解決策を簡潔に（最大35文字）
-  if (contentAnalysis.solution) {
-    const solution = contentAnalysis.solution.length > 35
-      ? contentAnalysis.solution.substring(0, 32) + "..."
-      : contentAnalysis.solution;
-    parts.push(`💡${solution}`);
-  }
-
-  // 成果を強調（数値があれば強調、最大35文字）
-  if (contentAnalysis.result) {
-    let result = contentAnalysis.result;
-    if (result.length > 35) {
-      result = result.substring(0, 32) + "...";
+    const problemLines = contentAnalysis.problem.split('\n')
+      .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+      .filter((line: string) => line.length > 0);
+    if (problemLines.length > 0) {
+      let problem = problemLines[0].replace(/。+$/, ''); // 末尾の「。」を削除
+      // 絵文字を含めて最大30文字に制限
+      if (problem.length > 28) {
+        problem = problem.substring(0, 25) + "...";
+      }
+      parts.push(`🎯${problem}`);
     }
-    parts.push(`✨${result}`);
+  }
+
+  // 解決策を簡潔に（箇条書きから最初の1項目を取得し、末尾の「。」を削除）
+  if (contentAnalysis.solution) {
+    const solutionLines = contentAnalysis.solution.split('\n')
+      .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+      .filter((line: string) => line.length > 0);
+    if (solutionLines.length > 0) {
+      let solution = solutionLines[0].replace(/。+$/, ''); // 末尾の「。」を削除
+      // 絵文字を含めて最大30文字に制限
+      if (solution.length > 28) {
+        solution = solution.substring(0, 25) + "...";
+      }
+      parts.push(`💡${solution}`);
+    }
+  }
+
+  // 成果を強調（数値があれば強調、箇条書きから最初の1項目を取得し、末尾の「。」を削除）
+  if (contentAnalysis.result) {
+    const resultLines = contentAnalysis.result.split('\n')
+      .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+      .filter((line: string) => line.length > 0);
+    if (resultLines.length > 0) {
+      let result = resultLines[0].replace(/。+$/, ''); // 末尾の「。」を削除
+      // 絵文字を含めて最大30文字に制限
+      if (result.length > 28) {
+        result = result.substring(0, 25) + "...";
+      }
+      parts.push(`✨${result}`);
+    }
   }
 
   const summary = parts.join(" ");
   
-  // 最大文字数を超える場合はさらに短縮
+  // 最大文字数を超える場合は、各項目を均等に短縮
   if (summary.length > maxLength) {
-    const ratio = maxLength / summary.length;
-    return parts.map(part => {
-      const targetLength = Math.floor(part.length * ratio);
-      return part.length > targetLength ? part.substring(0, targetLength - 1) + "..." : part;
-    }).join(" ").substring(0, maxLength);
+    const excess = summary.length - maxLength;
+    const partCount = parts.length;
+    const reducePerPart = Math.ceil(excess / partCount);
+    
+    const shortenedParts = parts.map(part => {
+      // 絵文字を除いたテキスト部分を取得
+      const emoji = part[0];
+      const text = part.substring(1);
+      const targetLength = Math.max(5, text.length - reducePerPart); // 最低5文字は残す
+      const shortenedText = text.length > targetLength 
+        ? text.substring(0, targetLength - 1) + "..."
+        : text;
+      return emoji + shortenedText;
+    });
+    
+    return shortenedParts.join(" ").substring(0, maxLength);
   }
 
   return summary;
@@ -77,21 +108,58 @@ export function generateWorkShareMessage(
 
   // フック（興味を引く冒頭）
   if (analysisSummary) {
-    message = `【${shortTitle}】\n${analysisSummary}\n\n詳細👇`;
+    // タイトル部分と「詳細👇」の文字数を計算
+    const titlePart = `【${shortTitle}】\n`;
+    const footerPart = `\n\n詳細👇`;
+    const fixedLength = titlePart.length + footerPart.length;
+    const availableForSummary = 140 - fixedLength;
+    
+    // 分析要約が利用可能文字数を超える場合は短縮
+    let finalSummary = analysisSummary;
+    if (analysisSummary.length > availableForSummary) {
+      // 各項目を均等に短縮
+      const parts = analysisSummary.split(" ");
+      const excess = analysisSummary.length - availableForSummary;
+      const reducePerPart = Math.ceil(excess / parts.length);
+      
+      finalSummary = parts.map(part => {
+        if (part.length <= reducePerPart + 3) return part; // 短すぎる場合はそのまま
+        return part.substring(0, part.length - reducePerPart - 1) + "...";
+      }).join(" ").substring(0, availableForSummary);
+    }
+    
+    message = `${titlePart}${finalSummary}${footerPart}`;
   } else {
     // AI分析がない場合は従来の形式
+    const titlePart = `【${shortTitle}】\n`;
+    const footerPart = `\n\n詳細👇`;
+    const fixedLength = titlePart.length + footerPart.length;
+    const availableForDesc = 140 - fixedLength;
+    
     const desc = work.description && work.description.length > 0
-      ? (work.description.length > 60
-          ? work.description.substring(0, 57) + "..."
+      ? (work.description.length > availableForDesc
+          ? work.description.substring(0, availableForDesc - 3) + "..."
           : work.description)
       : "";
     
-    message = `【${shortTitle}】\n${desc}\n\n詳細👇`;
+    message = `${titlePart}${desc}${footerPart}`;
   }
 
-  // 140文字を超える場合は強制的に短縮
+  // 念のため140文字を超える場合は強制的に短縮（最後の安全策）
   if (message.length > 140) {
-    message = message.substring(0, 137) + "...";
+    const titlePart = `【${shortTitle}】\n`;
+    const footerPart = `\n\n詳細👇`;
+    const fixedLength = titlePart.length + footerPart.length;
+    const availableLength = 140 - fixedLength;
+    
+    if (analysisSummary) {
+      const summaryOnly = analysisSummary.substring(0, availableLength);
+      message = `${titlePart}${summaryOnly}${footerPart}`;
+    } else {
+      const desc = work.description || "";
+      const descOnly = desc.substring(0, availableLength);
+      message = `${titlePart}${descOnly}${footerPart}`;
+    }
   }
 
   // ハッシュタグ生成（バイラル重視）

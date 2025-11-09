@@ -8,7 +8,7 @@ export default function MidCallToAction() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   return (
-    <section className="relative bg-gradient-to-r from-[#0A66C2] to-[#004182] py-16 px-4">
+    <section className="relative bg-gradient-to-r from-blue-600 to-blue-700 py-16 px-4">
       <div className="container mx-auto max-w-4xl text-center">
         <div className="space-y-6">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">
@@ -24,7 +24,7 @@ export default function MidCallToAction() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button
               size="lg"
-              className="w-full sm:w-auto bg-white text-[#0A66C2] hover:bg-gray-50 px-10 py-4 text-lg font-semibold rounded-lg transition-all duration-200"
+              className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-50 px-10 py-4 text-lg font-semibold rounded-xl shadow-md shadow-gray-900/10 hover:shadow-lg transition-all duration-200"
               disabled={isRedirecting}
               onClick={() => {
                 setIsRedirecting(true);

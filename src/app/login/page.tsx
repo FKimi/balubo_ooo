@@ -322,7 +322,7 @@ function LoginForm() {
                     type="checkbox"
                     checked={formData.rememberMe}
                     onChange={handleInputChange}
-                    className="w-4 h-4 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    className="w-4 h-4 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:border-blue-600 transition-colors duration-200"
                   />
                   <Label
                     htmlFor="rememberMe"

@@ -1374,7 +1374,7 @@ ${errorDetailSection}
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-gray-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* ヘッダー */}
         <div className="mb-10">
@@ -1426,7 +1426,7 @@ ${errorDetailSection}
           <div className="mt-8 mb-6 max-w-3xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-2xl px-8 py-6 text-slate-700 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -1493,7 +1493,7 @@ ${errorDetailSection}
           <div className="space-y-6">
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
@@ -1539,7 +1539,7 @@ ${errorDetailSection}
                     placeholder="https://example.com/your-article"
                     value={formData.externalUrl}
                     onChange={(e) => handleUrlChange(e.target.value)}
-                    className="h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 text-base border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded-xl transition-colors"
                   />
                 </div>
 
@@ -1627,7 +1627,7 @@ ${errorDetailSection}
             {/* 制作時期 */}
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-xl flex items-center justify-center flex-shrink-0">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -1659,9 +1659,9 @@ ${errorDetailSection}
 
                 {/* ドラッグ&ドロップエリア */}
                 <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
                     isDragging
-                      ? "border-blue-500 bg-blue-50"
+                      ? "border-blue-600 bg-blue-50"
                       : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
                   }`}
                   onDragOver={handleDragOver}
@@ -1669,7 +1669,7 @@ ${errorDetailSection}
                   onDrop={handleDrop}
                 >
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
                       <svg
                         className="w-6 h-6 text-blue-600"
                         fill="none"
@@ -1702,7 +1702,7 @@ ${errorDetailSection}
                     />
                     <label
                       htmlFor="file-upload"
-                      className={`px-4 py-2 rounded-lg transition-colors text-white ${uploadedFiles.length >= 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 cursor-pointer"}`}
+                      className={`px-4 py-2 rounded-xl transition-colors text-white ${uploadedFiles.length >= 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 cursor-pointer shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"}`}
                     >
                       {uploadedFiles.length >= 1
                         ? "アップロード済み"
@@ -1896,7 +1896,7 @@ ${errorDetailSection}
                     onChange={(e) =>
                       handleInputChange("description", e.target.value)
                     }
-                    className="min-h-[140px] resize-none text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="min-h-[140px] resize-none text-base border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 rounded-xl transition-colors"
                   />
                 </div>
               )}
@@ -1938,7 +1938,7 @@ ${errorDetailSection}
                         id="useFullContent"
                         checked={useFullContent}
                         onChange={(e) => setUseFullContent(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-600 focus:ring-2 focus:ring-offset-2"
                       />
                       <label
                         htmlFor="useFullContent"
@@ -1949,14 +1949,14 @@ ${errorDetailSection}
                     </div>
                   </div>
 
-                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mb-3 p-3 bg-blue-50/80 border border-blue-200/60 rounded-xl">
                     <div className="flex items-start gap-2">
                       <span className="text-blue-600 text-sm">💡</span>
                       <div>
-                        <p className="text-blue-800 text-sm font-medium">
+                        <p className="text-blue-900 text-sm font-medium">
                           記事本文の活用について
                         </p>
-                        <p className="text-blue-700 text-xs leading-relaxed mt-1">
+                        <p className="text-blue-800 text-xs leading-relaxed mt-1">
                           記事の本文をここに貼り付けることで、より詳細で正確なAI分析が可能になります。
                           文章構成、表現力、専門知識の活用度など、より深い観点から分析できます。
                           <br />
@@ -2053,7 +2053,7 @@ ${errorDetailSection}
                     {formData.roles.map((role, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200"
                       >
                         {role}
                         <Button
@@ -2062,7 +2062,7 @@ ${errorDetailSection}
                           size="icon"
                           aria-label="役割削除"
                           onClick={() => removeRole(role)}
-                          className="h-4 w-4 p-0 hover:bg-blue-200 rounded-full"
+                          className="h-4 w-4 p-0 hover:bg-blue-100 rounded-full transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </Button>
@@ -2118,7 +2118,7 @@ ${errorDetailSection}
                         {formData.designTools.map((tool) => (
                           <span
                             key={tool}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"
                           >
                             {tool}
                             <button
@@ -2141,7 +2141,7 @@ ${errorDetailSection}
         {/* AI分析エンジン - フル幅で下部に配置 */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-lg overflow-hidden">
           {/* ヘッダーセクション */}
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-7">
+          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-8 py-7">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
@@ -2224,9 +2224,9 @@ ${errorDetailSection}
           <div className="p-8 lg:p-10">
             {/* AI分析の説明（分析結果がない場合のみ表示） */}
             {!analysisResult && !isAnalyzing && (
-              <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 rounded-2xl p-8 mb-8 shadow-sm">
+              <div className="bg-gradient-to-br from-blue-50 via-blue-50/80 to-blue-50/60 border border-blue-200/80 rounded-2xl p-8 mb-8 shadow-sm">
                 <div className="flex items-start gap-5">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
                     <svg
                       className="w-6 h-6 text-white"
                       fill="none"
@@ -2248,7 +2248,7 @@ ${errorDetailSection}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       <div className="bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-blue-100/80 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-lg flex items-center justify-center flex-shrink-0">
                             <svg
                               className="w-5 h-5 text-white"
                               fill="none"
@@ -2327,7 +2327,7 @@ ${errorDetailSection}
                         <div className="bg-white/80 rounded-xl p-4 border border-blue-100 shadow-sm">
                           <div className="flex items-center gap-2 mb-2">
                             <svg
-                              className="w-5 h-5 text-purple-600"
+                              className="w-5 h-5 text-blue-600"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -2419,30 +2419,39 @@ ${errorDetailSection}
                       // パターン1: 数値成果 + 課題解決 + 専門性（最も魅力的）
                       if (hasNumbers && numberMatch && problemItems.length > 0 && industryTag) {
                         const expertiseText = expertiseTags[0] || expertise || "専門的な知識";
-                        const problemText = truncateText(problemItems[0], 60);
-                        return `${industryTag}の${problemText}という課題に取り組み、${numberMatch[0]}の成果を出している点が素晴らしいです。${expertiseText}を活かしたアプローチで、単なる情報提供を超えた業界への貢献を実現しています。この作品は、あなたの専門性と実践力の高さを証明するものと言えるでしょう。`;
+                        let problemText = truncateText(problemItems[0], 60);
+                        // 末尾の「。」を削除（自然な文章にするため）
+                        problemText = problemText.replace(/。+$/, '');
+                        return `${industryTag}の${problemText}という課題に取り組み、${numberMatch[0]}の成果を出しています。${expertiseText}を活かしたアプローチで、単なる情報提供を超えた業界への貢献を実現している点が、この作品の魅力です。`;
                       }
                       
                       // パターン2: 課題 + 解決策 + 専門性（具体的なアプローチを評価）
                       if (problemItems.length > 0 && solutionItems.length > 0) {
-                        const problemText = truncateText(problemItems[0], 55);
-                        const solutionText = truncateText(solutionItems[0], 55);
+                        let problemText = truncateText(problemItems[0], 55);
+                        let solutionText = truncateText(solutionItems[0], 55);
+                        // 末尾の「。」を削除（自然な文章にするため）
+                        problemText = problemText.replace(/。+$/, '');
+                        solutionText = solutionText.replace(/。+$/, '');
                         const expertiseText = expertiseTags[0] || industryTag || "専門知識";
-                        return `${problemText}という課題に対して、${solutionText}というアプローチで解決している点が評価できます。${expertiseText}を活かしながら、業界への貢献と読者への価値提供を両立させているこの作品は、あなたのプロフェッショナルなスキルを示すものです。`;
+                        return `${problemText}という課題に、${solutionText}というアプローチで取り組んでいます。${expertiseText}を活かしながら、業界への貢献と読者への価値提供を両立させている点が、この作品の魅力です。`;
                       }
                       
                       // パターン3: 創造性 + 専門性 + 影響力（総合的な評価）
                       if (creativity && expertise && industryTag) {
-                        const creativityShort = truncateText(creativity, 50);
+                        let creativityShort = truncateText(creativity, 50);
+                        // 末尾の「。」を削除（自然な文章にするため）
+                        creativityShort = creativityShort.replace(/。+$/, '');
                         const expertiseText = expertiseTags[0] || expertise;
-                        return `${industryTag}の${expertiseText}を活かしながら、${creativityShort}という視点で作品を仕上げている点が素晴らしいです。この作品は、あなたの専門性と創造性の両方が発揮された、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
+                        return `${industryTag}の${expertiseText}を活かしながら、${creativityShort}という視点で作品を仕上げています。この作品は、あなたの専門性と創造性の両方が発揮された、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
                       }
                       
                       // パターン4: 成果 + 専門性（成果を強調）
                       if (resultItems.length > 0 && industryTag) {
-                        const resultText = truncateText(resultItems[0], 60);
+                        let resultText = truncateText(resultItems[0], 60);
+                        // 末尾の「。」を削除（自然な文章にするため）
+                        resultText = resultText.replace(/。+$/, '');
                         const expertiseText = expertiseTags[0] || "専門的な知識";
-                        return `${industryTag}の課題を解決し、${resultText}という成果を出している点が評価できます。${expertiseText}を活かしたこの作品は、あなたの実践力と専門性の高さを示すものです。`;
+                        return `${industryTag}の課題を解決し、${resultText}という成果を出しています。${expertiseText}を活かしたこの作品は、あなたの実践力と専門性の高さを示すものです。`;
                       }
                       
                       // パターン5: 業界 + 専門性 + 創造性（総合的な魅力）
@@ -2455,15 +2464,15 @@ ${errorDetailSection}
                       // パターン6: 業界 + 専門性（フォールバック）
                       if (industryTag) {
                         const expertiseText = expertiseTags[0] || tags[0] || "専門性";
-                        return `${industryTag}の課題を解決する${contentType === "article" ? "記事" : "作品"}です。${expertiseText}を活かしながら、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、この作品の魅力として評価できます。`;
+                        return `${industryTag}の課題を解決する${contentType === "article" ? "記事" : "作品"}です。${expertiseText}を活かしながら、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、この作品の魅力です。`;
                       }
                       
                       // パターン7: 最終フォールバック
                       if (tags.length > 0) {
-                        return `${tags[0]}${tags[1] ? `と${tags[1]}` : ""}の専門知識を活かした${contentType === "article" ? "記事" : "作品"}です。この作品は、あなたの専門性と実践力の高さを示すものとして評価できます。`;
+                        return `${tags[0]}${tags[1] ? `と${tags[1]}` : ""}の専門知識を活かした${contentType === "article" ? "記事" : "作品"}です。この作品は、あなたの専門性と実践力の高さを示すものです。`;
                       }
                       
-                      return `この${contentType === "article" ? "記事" : "作品"}は、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、魅力として評価できます。`;
+                      return `この${contentType === "article" ? "記事" : "作品"}は、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が魅力です。`;
                     };
                     
                     const comment = generateHighlightComment();
@@ -2517,7 +2526,7 @@ ${errorDetailSection}
                   })()}
 
                   {/* 分析概要 */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-50/80 border border-blue-200 rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <svg
@@ -2565,10 +2574,10 @@ ${errorDetailSection}
                         {analysisResult.strengths.creativity &&
                           analysisResult.strengths.creativity.length > 0 && (
                             <div>
-                              <div className="font-medium text-purple-700 mb-1">
+                              <div className="font-medium text-blue-700 mb-1">
                                 創造性
                               </div>
-                              <div className="text-purple-600">
+                              <div className="text-blue-600">
                                 {analysisResult.strengths.creativity[0]}
                               </div>
                             </div>
@@ -2696,7 +2705,7 @@ ${errorDetailSection}
             {/* 手動タグ追加セクション（AI分析結果の外側） */}
             <div className="mt-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
@@ -2718,7 +2727,7 @@ ${errorDetailSection}
                 <Button
                   onClick={addTag}
                   disabled={!newTag.trim()}
-                  className="px-6 h-12 font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  className="px-6 h-12 font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-xl"
                 >
                   追加
                 </Button>
@@ -2730,12 +2739,12 @@ ${errorDetailSection}
                   {formData.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 rounded-full text-sm font-semibold border border-indigo-200"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold border border-blue-200"
                     >
                       #{tag}
                       <button
                         onClick={() => removeTag(tag)}
-                        className="text-indigo-500 hover:text-red-500 transition-colors"
+                        className="text-blue-600 hover:text-red-500 transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -2769,7 +2778,7 @@ ${errorDetailSection}
             <Button
               onClick={handleSubmit}
               disabled={isSaving || !formData.title}
-              className="flex-1 px-8 py-4 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all"
+              className="flex-1 px-8 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all rounded-xl"
             >
               {isSaving ? "保存中..." : "作品を保存"}
             </Button>

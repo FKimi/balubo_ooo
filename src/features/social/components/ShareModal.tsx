@@ -80,7 +80,7 @@ export function ShareModal({
         {/* ヘッダー */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
               <svg
                 className="w-5 h-5 text-white"
                 fill="currentColor"
@@ -162,7 +162,7 @@ export function ShareModal({
           </div>
 
           {/* プレビュー情報 */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-50/80 rounded-xl p-4 border border-blue-200">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@ export function ShareModal({
             <Button
               onClick={handleShare}
               disabled={editedText.length > 140 || editedText.trim().length === 0}
-              className="flex-1 bg-black hover:bg-gray-800 text-white font-semibold h-12 text-base shadow-lg hover:shadow-xl transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 text-base shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 mr-2"

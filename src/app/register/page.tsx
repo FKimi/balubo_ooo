@@ -342,7 +342,7 @@ export default function RegisterPage() {
                     type="checkbox"
                     checked={formData.agreeToTerms}
                     onChange={handleInputChange}
-                    className="w-5 h-5 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:border-blue-500 mt-0.5 transition-colors duration-200"
+                    className="w-5 h-5 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:border-blue-600 mt-0.5 transition-colors duration-200"
                     required
                   />
                   <Label

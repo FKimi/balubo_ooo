@@ -119,7 +119,7 @@ export function EnhancedPreviewCard({
 
         {/* 強化された情報 */}
         {hasEnhancedData && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-50/80 rounded-lg p-4 border border-blue-200">
             <h4 className="font-medium text-sm text-blue-900 mb-3 flex items-center gap-2">
               <span className="text-blue-600">✨</span>
               強化された情報
@@ -207,7 +207,7 @@ export function EnhancedPreviewCard({
                 {previewData.genre.map((genre, index) => (
                   <Badge
                     key={index}
-                    className="bg-purple-100 text-purple-800 text-xs"
+                    className="bg-gray-100 text-gray-800 text-xs"
                   >
                     {genre}
                   </Badge>

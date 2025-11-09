@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-gray-50 flex items-center justify-center">
       <div className="text-center max-w-md mx-auto px-6">
         <div className="mb-8">
           <div className="text-8xl mb-4">🔍</div>
@@ -17,7 +17,7 @@ export default function NotFound() {
 
         <div className="space-y-4">
           <Link href="/">
-            <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white w-full">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white w-full shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-xl">
               ホームに戻る
             </Button>
           </Link>

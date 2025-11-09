@@ -45,7 +45,7 @@ export default function WhyBaluboSection() {
           {/* メインメッセージ */}
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-              その課題、<span className="text-[#0A66C2]">balubo</span>が
+              その課題、<span className="text-blue-600">balubo</span>が
               <br />
               「AIの客観性」で解決します。
             </h2>
@@ -73,11 +73,11 @@ export default function WhyBaluboSection() {
             {solutions.map((solution) => (
               <div
                 key={solution.title}
-                className="relative bg-white border-2 border-gray-200 rounded-2xl p-8 hover:border-[#0A66C2] hover:shadow-2xl transition-all duration-500"
+                className="relative bg-white border-2 border-gray-200 rounded-2xl p-8 hover:border-blue-600 hover:shadow-2xl transition-all duration-500"
               >
                 {/* アイコン */}
                 <div className="mb-6">
-                  <div className="w-14 h-14 bg-gradient-to-br from-[#0A66C2] to-[#004182] rounded-xl flex items-center justify-center text-white">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white">
                     {solution.icon}
                   </div>
                 </div>

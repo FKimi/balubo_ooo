@@ -8,6 +8,7 @@ import React, {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -17,7 +18,6 @@ import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfileTabs } from "@/features/profile/components/ProfileTabs";
 import { ProfileModals } from "@/features/profile/components/ProfileModals";
 import { ProfileStatsCards } from "@/features/profile/components/ProfileStatsCards";
-import { ProfileSidebar } from "@/features/profile/components/ProfileSidebar";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
 
 // 完全なデフォルトプロフィールデータ
@@ -623,74 +623,193 @@ function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white relative overflow-visible">
-      <main className="relative px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
-        <div className="max-w-[1920px] mx-auto flex gap-6">
-          {/* 左サイドバー - デスクトップで表示 */}
-          <ProfileSidebar
-            displayName={displayName}
-            title={title}
-            bio={bio}
-            location={location}
-            avatarImageUrl={avatarImageUrl}
-            userId={user?.id}
-            slug={slug}
-            portfolioVisibility={profileData?.portfolioVisibility}
-            worksCount={savedWorks.length}
-            skillsCount={profileData?.skills?.length || 0}
-            careerCount={profileData?.career?.length || 0}
-            followerCount={followerCount}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+    <div className="min-h-screen bg-gray-50 w-full">
+      <main className="w-full">
+        <div className="max-w-[1920px] mx-auto flex flex-col lg:flex-row w-full">
+          {/* 左サイドバー - ナビゲーションのみ */}
+          <div className="hidden lg:block lg:w-80 lg:flex-shrink-0">
+            <div className="sticky top-0 h-screen bg-white border-r border-gray-200">
+              <div className="flex flex-col h-full">
+                {/* ナビゲーションセクション */}
+                <div className="flex-1 overflow-y-auto px-5 py-6">
+                  <nav className="space-y-1">
+                    {[
+                      {
+                        key: "profile" as const,
+                        label: "プロフィール",
+                        icon: (
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                        ),
+                      },
+                      {
+                        key: "works" as const,
+                        label: "作品",
+                        icon: (
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                        ),
+                      },
+                      {
+                        key: "details" as const,
+                        label: "クリエイター詳細",
+                        icon: (
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                            />
+                          </svg>
+                        ),
+                      },
+                    ].map((tab) => (
+                      <button
+                        key={tab.key}
+                        onClick={() => setActiveTab(tab.key)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          activeTab === tab.key
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{tab.label}</span>
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* メインコンテンツエリア */}
-          <div className="flex-1 min-w-0">
-            {/* モバイル・タブレット用: プロフィールヘッダーと統計カード */}
-            <div className="lg:hidden space-y-6 mb-6">
-              <ProfileHeader
-                displayName={displayName}
-                title={title}
-                bio={bio}
-                location={location}
-                websiteUrl={websiteUrl}
-                backgroundImageUrl={backgroundImageUrl}
-                avatarImageUrl={avatarImageUrl}
-                isProfileEmpty={isProfileEmpty}
-                hasCustomBackground={hasCustomBackground}
-                hasCustomAvatar={hasCustomAvatar}
-                userId={user?.id}
-                slug={slug}
-                portfolioVisibility={profileData?.portfolioVisibility}
-              />
-              <ProfileStatsCards
-                worksCount={savedWorks.length}
-                skillsCount={profileData?.skills?.length || 0}
-                careerCount={profileData?.career?.length || 0}
-                followerCount={followerCount}
-              />
+          <div className="flex-1 min-w-0 bg-gray-50 flex flex-col">
+            {/* デスクトップ用ヘッダー */}
+            <div className="hidden lg:block flex-shrink-0 border-b border-gray-200 bg-white px-8 py-6">
+              <div className="mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                  {activeTab === "profile"
+                    ? "プロフィール"
+                    : activeTab === "works"
+                      ? "マイダッシュボード"
+                      : "クリエイター詳細"}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {activeTab === "profile"
+                    ? "あなたの経験とスキル"
+                    : activeTab === "works"
+                      ? "あなたの専門性とパフォーマンス"
+                      : "あなたの専門性とパフォーマンス"}
+                </p>
+              </div>
             </div>
 
-            {/* タブコンテンツ */}
-            <div>
-              <ProfileTabs
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                profileData={profileData}
-                savedWorks={savedWorks}
-                setSavedWorks={setSavedWorks}
-                deleteWork={deleteWork}
-                onAddSkill={() => setIsSkillModalOpen(true)}
-                onRemoveSkill={handleRemoveSkill}
-                setIsSkillModalOpen={setIsSkillModalOpen}
-                onEditCareer={handleEditCareer}
-                onDeleteCareerConfirm={handleDeleteCareerConfirm}
-                setIsCareerModalOpen={setIsCareerModalOpen}
-                onUpdateIntroduction={handleUpdateIntroduction}
-                setIsIntroductionModalOpen={setIsIntroductionModalOpen}
-                strengthsAnalysis={strengthsAnalysis}
-                getTabsInfo={setTabsInfo}
-              />
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 lg:py-8">
+              {/* プロフィールタブの時のみプロフィールヘッダーと統計カードを表示 */}
+              {activeTab === "profile" && (
+                <>
+                  {/* デスクトップ用: プロフィールヘッダーと統計カード */}
+                  <div className="hidden lg:block space-y-6 mt-6 mb-8">
+                    <ProfileHeader
+                      displayName={displayName}
+                      title={title}
+                      bio={bio}
+                      location={location}
+                      websiteUrl={websiteUrl}
+                      backgroundImageUrl={backgroundImageUrl}
+                      avatarImageUrl={avatarImageUrl}
+                      isProfileEmpty={isProfileEmpty}
+                      hasCustomBackground={hasCustomBackground}
+                      hasCustomAvatar={hasCustomAvatar}
+                      userId={user?.id}
+                      slug={slug}
+                      portfolioVisibility={profileData?.portfolioVisibility}
+                    />
+                    <ProfileStatsCards
+                      worksCount={savedWorks.length}
+                      skillsCount={profileData?.skills?.length || 0}
+                      careerCount={profileData?.career?.length || 0}
+                      followerCount={followerCount}
+                    />
+                  </div>
+
+                  {/* モバイル・タブレット用: プロフィールヘッダーと統計カード */}
+                  <div className="lg:hidden space-y-6 mb-6">
+                    <ProfileHeader
+                      displayName={displayName}
+                      title={title}
+                      bio={bio}
+                      location={location}
+                      websiteUrl={websiteUrl}
+                      backgroundImageUrl={backgroundImageUrl}
+                      avatarImageUrl={avatarImageUrl}
+                      isProfileEmpty={isProfileEmpty}
+                      hasCustomBackground={hasCustomBackground}
+                      hasCustomAvatar={hasCustomAvatar}
+                      userId={user?.id}
+                      slug={slug}
+                      portfolioVisibility={profileData?.portfolioVisibility}
+                    />
+                    <ProfileStatsCards
+                      worksCount={savedWorks.length}
+                      skillsCount={profileData?.skills?.length || 0}
+                      careerCount={profileData?.career?.length || 0}
+                      followerCount={followerCount}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* タブコンテンツ */}
+              <div>
+                <ProfileTabs
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  profileData={profileData}
+                  savedWorks={savedWorks}
+                  setSavedWorks={setSavedWorks}
+                  deleteWork={deleteWork}
+                  onAddSkill={() => setIsSkillModalOpen(true)}
+                  onRemoveSkill={handleRemoveSkill}
+                  setIsSkillModalOpen={setIsSkillModalOpen}
+                  onEditCareer={handleEditCareer}
+                  onDeleteCareerConfirm={handleDeleteCareerConfirm}
+                  setIsCareerModalOpen={setIsCareerModalOpen}
+                  onUpdateIntroduction={handleUpdateIntroduction}
+                  setIsIntroductionModalOpen={setIsIntroductionModalOpen}
+                  strengthsAnalysis={strengthsAnalysis}
+                  getTabsInfo={setTabsInfo}
+                />
+              </div>
             </div>
           </div>
         </div>

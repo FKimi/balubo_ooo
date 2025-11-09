@@ -69,8 +69,8 @@ function DraggableWorkCard({
 
       {/* ドラッグ中の補助表示 */}
       {isDragging && (
-        <div className="absolute inset-0 bg-blue-100/50 border-2 border-blue-400 border-dashed rounded-lg flex items-center justify-center">
-          <div className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium shadow-lg">
+        <div className="absolute inset-0 bg-blue-50/50 border-2 border-blue-300 border-dashed rounded-lg flex items-center justify-center">
+          <div className="bg-blue-600 text-white px-3 py-1 rounded-xl text-sm font-medium shadow-lg">
             ドロップして移動
           </div>
         </div>
@@ -108,72 +108,44 @@ function DroppableCategoryTab({
         : category.name || "カテゴリ";
 
   return (
-    <div
+    <button
       ref={setNodeRef}
       onClick={() => onSelect(category.id)}
       role="tab"
       aria-selected={isSelected}
-      className={`
-        relative inline-flex items-center justify-center px-4 py-1.5 rounded-full border transition-colors cursor-pointer text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 gap-2 min-w-[90px]
-        ${
-          isSelected
-            ? "bg-[#1e3a8a] text-white border-[#1e3a8a] shadow-sm"
-            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-        }
-        ${
-          isOver
-            ? "ring-2 ring-blue-300"
-            : isDragActive
-              ? "border-dashed border-blue-400 bg-blue-50"
-              : ""
-        }
-      `}
+      className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${
+        isSelected
+          ? "bg-white text-blue-600 shadow-sm border border-blue-100"
+          : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+      } ${
+        isOver
+          ? "ring-2 ring-blue-300"
+          : isDragActive
+            ? "border-dashed border-blue-400 bg-blue-50"
+            : ""
+      }`}
     >
-      {/* カテゴリ色のドット */}
-      <span
-        className={`w-2.5 h-2.5 rounded-full ${isSelected ? "ring-2 ring-white/60" : "ring-1 ring-black/0"}`}
-        style={{ backgroundColor: category.color || "#9CA3AF" }}
-        aria-hidden
-      />
-
-      {/* 強化されたドロップゾーンの視覚的表現 */}
-      {isDragActive && (
-        <div className="absolute inset-2 border-3 border-dashed border-blue-400 rounded-lg opacity-80 animate-pulse pointer-events-none"></div>
-      )}
-
-      {/* より目立つドロップアニメーション */}
-      {isOver && (
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/30 to-blue-500/30 animate-pulse pointer-events-none">
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-lg">
-              📂 ここにドロップ
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* カテゴリ名と件数（括弧付き表記） */}
-      <div
-        className={`text-sm font-bold ${isSelected ? "text-white" : "text-gray-900"} ${isDragActive ? "opacity-70" : ""} whitespace-nowrap flex items-center gap-1`}
-      >
+      <span className="flex items-center gap-2">
+        <span
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: category.color || "#9CA3AF" }}
+        />
         <span>{displayLabel}</span>
-        <span className={`${isSelected ? "text-white/80" : "text-gray-500"}`}>
-          ({count})
+        <span
+          className={`text-xs font-normal ${
+            isSelected ? "text-blue-600/70" : "text-gray-400"
+          }`}
+        >
+          {count}
         </span>
-      </div>
-
-      {/* より目立つドラッグアクティブ時のインジケーター */}
-      {isDragActive && !isOver && (
-        <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-ping border-2 border-white"></div>
+      </span>
+      {isOver && (
+        <div className="absolute inset-0 rounded-lg bg-blue-100/50 border-2 border-blue-300 border-dashed"></div>
       )}
-
-      {/* ドロップ可能エリアの説明 */}
       {isDragActive && !isOver && (
-        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-          ドロップ可能
-        </div>
+        <div className="absolute inset-0 rounded-lg border-2 border-dashed border-blue-400 bg-blue-50/50"></div>
       )}
-    </div>
+    </button>
   );
 }
 
@@ -483,50 +455,32 @@ export function WorksCategoryManager({
         )}
 
         {/* カテゴリタブ */}
-        <div className="mb-1">
-          {/* タイトルを削除し、よりコンパクトに */}
-          {/* 余白を削減するためヒントバナーを削除 */}
-
-          {/* カテゴリボックス（横一列） */}
-          <div className="flex flex-wrap gap-3 mb-6">
-            {/* ALL ボタン（絶対に表示される） */}
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={
-                selectedCategory === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "6px 16px",
-                borderRadius: "9999px",
-                border: "1px solid",
-                borderColor: selectedCategory === "all" ? "#2563eb" : "#d1d5db",
-                fontSize: "14px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                minWidth: "80px",
-                gap: "8px",
-                backgroundColor:
-                  selectedCategory === "all" ? "#2563eb" : "#f3f4f6",
-                color: selectedCategory === "all" ? "white" : "#374151",
-              }}
-            >
-              <span
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  backgroundColor:
-                    selectedCategory === "all" ? "white" : "#6b7280",
-                  display: "inline-block",
-                }}
-              />
-              ALL ({savedWorks.length})
-            </button>
+        <div className="mb-6">
+          {/* カテゴリタブ（統一されたデザイン） */}
+          <div className="bg-gray-50 rounded-xl p-1.5 mb-4">
+            <div className="flex flex-wrap gap-1.5">
+              {/* ALL ボタン */}
+              <button
+                onClick={() => setSelectedCategory("all")}
+                className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${
+                  selectedCategory === "all"
+                    ? "bg-white text-blue-600 shadow-sm border border-blue-100"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="font-semibold">すべて</span>
+                  <span
+                    className={`text-xs font-normal ${
+                      selectedCategory === "all"
+                        ? "text-blue-600/70"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {savedWorks.length}
+                  </span>
+                </span>
+              </button>
 
             {/* その他のカテゴリ */}
             {categories
@@ -673,68 +627,15 @@ export function WorksCategoryManager({
                 </div>
               ))}
 
-            {/* カテゴリ追加ボタン */}
-            <button
-              onClick={handleAddCategory}
-              className="inline-flex items-center justify-center gap-2 px-4 py-1.5 border-2 border-dashed border-blue-300 rounded-full text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 text-sm font-medium min-h-[40px]"
-              title="新しいカテゴリを追加"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              {/* カテゴリ追加ボタン */}
+              <button
+                onClick={handleAddCategory}
+                className="px-5 py-2.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-white/50 rounded-lg transition-all duration-200 border-2 border-dashed border-blue-200 hover:border-blue-300"
+                title="新しいカテゴリを追加"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              追加
-            </button>
-          </div>
-
-          {/* 月別フィルタ */}
-          {availableMonths.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 text-sm">
-                    <svg
-                      className="w-4 h-4 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="font-medium text-gray-700">
-                      掲載月で絞り込み
-                    </span>
-                  </div>
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                  >
-                    <option value="all">すべての月</option>
-                    {availableMonths.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 px-3 py-1.5 rounded-full">
+                <span className="flex items-center gap-2">
                   <svg
-                    className="w-4 h-4 text-blue-600"
+                    className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -743,16 +644,68 @@ export function WorksCategoryManager({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  <span className="font-medium">
-                    {filteredWorks.length}件の作品が表示されています
-                  </span>
-                </div>
-              </div>
+                  <span>カテゴリを追加</span>
+                </span>
+              </button>
             </div>
-          )}
+          </div>
+
+          {/* 月別フィルタと作品数表示 */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-gray-200">
+            {availableMonths.length > 0 && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span className="font-medium">掲載月:</span>
+                </div>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all shadow-sm"
+                >
+                  <option value="all">すべての月</option>
+                  {availableMonths.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <svg
+                className="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              <span className="font-medium">
+                {filteredWorks.length}件表示中
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* 作品グリッド */}

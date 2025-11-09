@@ -21,7 +21,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
         variantClasses = "border-red-500 bg-red-500 text-white";
         break;
       default:
-        variantClasses = "border-blue-600 bg-blue-600 text-white";
+        variantClasses = "border-gray-300 bg-gray-100 text-gray-800";
     }
 
     return (

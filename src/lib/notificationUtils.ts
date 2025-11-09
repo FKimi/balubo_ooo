@@ -214,7 +214,7 @@ export function getNotificationColor(type: string): string {
     case "new_comment":
       return "text-blue-600 bg-blue-50 border-blue-200";
     case "new_review":
-      return "text-purple-600 bg-purple-50 border-purple-200";
+      return "text-gray-700 bg-gray-50 border-gray-200";
     default:
       return "text-gray-600 bg-gray-50 border-gray-200";
   }

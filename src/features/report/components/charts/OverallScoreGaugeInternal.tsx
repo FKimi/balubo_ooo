@@ -35,7 +35,7 @@ export default function OverallScoreGaugeInternal({
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
-          className="text-4xl font-bold fill-indigo-700"
+          className="text-4xl font-bold fill-blue-700"
         >
           {score}
         </text>

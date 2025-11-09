@@ -22,9 +22,9 @@ interface Props {
 const colorMap: Record<string, string> = {
   technology: "from-gray-500 to-gray-600",
   expertise: "from-blue-500 to-blue-600",
-  creativity: "from-purple-500 to-purple-600",
+  creativity: "from-gray-400 to-gray-500",
   impact: "from-orange-500 to-orange-600",
-  overall: "from-indigo-500 to-indigo-600",
+  overall: "from-blue-600 to-blue-700",
 };
 
 export default function AdvancedMetricsGrid({ metrics }: Props) {

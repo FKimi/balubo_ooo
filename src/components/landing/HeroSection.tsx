@@ -40,7 +40,7 @@ export default function HeroSection() {
               <div className="space-y-4">
                 <div className="flex flex-wrap justify-center lg:justify-start gap-3">
                   <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
-                    <svg className="w-4 h-4 text-[#0A66C2]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span className="text-sm font-medium text-gray-700">ライター・編集者</span>
@@ -53,8 +53,8 @@ export default function HeroSection() {
 
               {/* 社会的証明バッジ */}
               <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200 shadow-sm">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0A66C2]">
+                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-50/80 rounded-full border border-blue-200 shadow-sm">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600">
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
@@ -67,7 +67,7 @@ export default function HeroSection() {
                 <div className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
                   <Button
                     size="lg"
-                    className="w-full rounded-lg bg-[#0A66C2] px-10 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-[#004182] sm:w-auto disabled:opacity-60"
+                    className="w-full rounded-xl bg-blue-600 px-10 py-4 text-base font-semibold text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:bg-blue-700 sm:w-auto disabled:opacity-60"
                     disabled={isRedirecting}
                     onClick={() => {
                       setIsRedirecting(true);

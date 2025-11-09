@@ -32,7 +32,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
           {
-            "bg-primary text-primary-foreground hover:bg-primary/90":
+            "bg-gray-900 text-white hover:bg-gray-800 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30":
               variant === "default",
             "bg-destructive text-destructive-foreground hover:bg-destructive/90":
               variant === "destructive",
@@ -41,7 +41,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             "bg-secondary text-secondary-foreground hover:bg-secondary/80":
               variant === "secondary",
             "hover:bg-accent hover:text-accent-foreground": variant === "ghost",
-            "underline-offset-4 hover:underline text-primary":
+            "underline-offset-4 hover:underline text-gray-900":
               variant === "link",
           },
           {

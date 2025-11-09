@@ -21,7 +21,7 @@ export function PerformanceMetrics({ metrics }: PerformanceMetricsProps) {
       label: "取引社数",
       value: metrics.uniqueClients || 0,
       icon: "🏢",
-      color: "bg-purple-100 text-purple-700",
+      color: "bg-gray-100 text-gray-700",
       description: "協業したクライアント数",
     },
     {

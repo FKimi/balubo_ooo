@@ -471,7 +471,7 @@ export function AIAnalysisDetailModal({
               </div>
 
               {/* AI分析の特徴 */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-50/80 rounded-xl p-6 border border-blue-200">
                 <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center space-x-2">
                   <svg
                     className="w-5 h-5 text-blue-600"

@@ -235,7 +235,7 @@ export function InsightsSection({
   return (
     <div className="space-y-6">
       {/* クリエイター傾向まとめ */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-blue-50 to-blue-50/80 border-blue-200">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">

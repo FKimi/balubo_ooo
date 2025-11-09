@@ -425,7 +425,7 @@ export function ThoughtProcessSection({ works }: ThoughtProcessProps) {
         <p className="text-xs text-gray-500 mt-1">制作アプローチの要点</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="bg-blue-50/60 p-4 rounded border border-blue-100">
+        <div className="bg-blue-50/80 p-4 rounded-xl border border-blue-200/60">
           <p className="text-sm text-blue-900 leading-relaxed">{summary}</p>
         </div>
 

@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import { ErrorFilter } from "@/components/utils/ErrorFilter";
 import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "@/components/common/ErrorFallback";
 import { Toaster } from "react-hot-toast";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
@@ -155,8 +156,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${notoSansJP.variable} font-sans`}>
+        <ErrorFilter />
         <Toaster position="top-right" />
-        <ErrorBoundary FallbackComponent={ErrorFilter}>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
           <AuthProvider>
             <NuqsAdapter>{children}</NuqsAdapter>
           </AuthProvider>

@@ -94,7 +94,7 @@ export default function CreatorPainSection() {
           {problems.map((problem) => (
             <div
               key={problem.title}
-              className="relative border-2 border-gray-200 bg-white rounded-2xl p-8 hover:border-[#0A66C2] hover:shadow-xl transition-all duration-500"
+              className="relative border-2 border-gray-200 bg-white rounded-2xl p-8 hover:border-blue-600 hover:shadow-xl transition-all duration-500"
             >
               {/* アイコン */}
               <div className="mb-6 flex items-center justify-center">

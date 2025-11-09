@@ -6,9 +6,7 @@ import Link from "next/link";
 // ブラウザでクッキー保存された Supabase セッションを取得するため `@supabase/ssr` のヘルパーを利用
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/layout/header";
-import { LayoutProvider } from "@/contexts/LayoutContext";
-import { GlobalModalManager } from "@/components/common/GlobalModalManager";
+import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { Button } from "@/components/ui/button";
 import { RecommendedUsers } from "@/features/feed";
 import { Share, ExternalLink, User, RefreshCw } from "lucide-react";
@@ -151,13 +149,28 @@ function FeedPageContent() {
           ...(params.feedMode === "following" && { followingOnly: "true" }),
         });
 
-        const response = await fetch(`/api/feed?${searchParams}`, {
+        // キャッシュを活用してパフォーマンス向上
+        const cacheKey = `feed-${searchParams.toString()}`;
+        const cacheOptions: RequestInit = {
           method: "GET",
           headers,
-        });
+          // Next.jsのfetchキャッシュを活用（30秒間）
+          next: { revalidate: 30 },
+        };
+
+        const response = await fetch(`/api/feed?${searchParams}`, cacheOptions);
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage =
+            errorData.errorMessage ||
+            errorData.error ||
+            `HTTP error! status: ${response.status}`;
+          console.error("フィード画面: APIエラー", {
+            status: response.status,
+            errorData,
+          });
+          throw new Error(errorMessage);
         }
 
         const feedData = await response.json();
@@ -236,10 +249,10 @@ function FeedPageContent() {
         setRefreshing(false);
       }
     },
-    [],
+    [], // 依存配列を空にして、関数を安定化
   );
 
-  // 初回データ取得
+  // 初回データ取得（検索条件変更時にも再取得）
   useEffect(() => {
     if (isAuthenticated !== null) {
       // 認証状態が確定してから実行
@@ -250,13 +263,14 @@ function FeedPageContent() {
         feedMode,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isAuthenticated,
     feedMode,
-    fetchFeedData,
     filterTag,
     filterType,
     searchQuery,
+    // fetchFeedDataは依存配列から除外（useCallbackでメモ化済み）
   ]);
 
   // 無限スクロール
@@ -616,35 +630,38 @@ function FeedPageContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <div className="max-w-full">
           {/* スケルトンヘッダー */}
           <div className="bg-white border-b border-gray-200">
             <Skeleton className="h-16 w-full" />
           </div>
           {/* スケルトングリッドアイテム */}
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-            {[...Array(20)].map((_, idx) => (
+          <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 max-w-[1920px] mx-auto">
+            {[...Array(10)].map((_, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm"
+                className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 animate-pulse"
               >
-                <Skeleton className="aspect-[4/3] w-full" />
-                <div className="p-4 space-y-3">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="w-8 h-8 rounded-full" />
+                <Skeleton className="aspect-[4/3] w-full bg-gray-200" />
+                <div className="p-5 space-y-3">
+                  <Skeleton className="h-4 w-3/4 bg-gray-200" />
+                  <Skeleton className="h-3 w-full bg-gray-200" />
+                  <Skeleton className="h-3 w-2/3 bg-gray-200" />
+                  <div className="flex gap-1.5 pt-2">
+                    <Skeleton className="h-5 w-16 rounded-md bg-gray-200" />
+                    <Skeleton className="h-5 w-20 rounded-md bg-gray-200" />
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-2.5">
+                      <Skeleton className="w-9 h-9 rounded-full bg-gray-200" />
                       <div>
-                        <Skeleton className="h-3 w-16" />
-                        <Skeleton className="h-3 w-12 mt-1" />
+                        <Skeleton className="h-3 w-20 bg-gray-200 mb-1" />
+                        <Skeleton className="h-2.5 w-12 bg-gray-200" />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Skeleton className="h-6 w-8" />
-                      <Skeleton className="h-6 w-8" />
+                      <Skeleton className="h-8 w-12 bg-gray-200 rounded" />
+                      <Skeleton className="h-8 w-12 bg-gray-200 rounded" />
                     </div>
                   </div>
                 </div>
@@ -658,7 +675,6 @@ function FeedPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <div className="max-w-full">
         <div className="flex">
           {/* メインフィード - フル幅対応 */}
@@ -772,7 +788,7 @@ function FeedPageContent() {
             {filteredItems.length > 0 ? (
               <div className="bg-gray-50 min-h-screen">
                 {/* グリッドコンテナ */}
-                <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 auto-rows-max">
+                <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 auto-rows-max max-w-[1920px] mx-auto">
                   {filteredItems.map((item) => (
                     <WorkCard
                       key={`${item.id}-${item.type}`}
@@ -788,11 +804,14 @@ function FeedPageContent() {
 
                 {/* 無限スクロール用のセンチネル要素 */}
                 {hasMore && (
-                  <div ref={sentinelRef} className="py-8">
+                  <div ref={sentinelRef} className="py-12 px-4">
                     {loadingMore && (
-                      <div className="flex items-center justify-center space-x-2">
-                        <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-200 border-t-blue-600"></div>
-                        <span className="text-gray-600">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="relative">
+                          <div className="animate-spin rounded-full h-10 w-10 border-3 border-blue-100 border-t-blue-600"></div>
+                          <div className="absolute inset-0 animate-ping rounded-full h-10 w-10 border-2 border-blue-200 opacity-20"></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-600">
                           さらに読み込み中...
                         </span>
                       </div>
@@ -802,14 +821,14 @@ function FeedPageContent() {
 
                 {/* 全て読み込み完了メッセージ */}
                 {!hasMore && filteredItems.length > 0 && (
-                  <div className="text-center py-12 text-gray-500 bg-white mx-4 rounded-xl shadow-sm">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl">✨</span>
+                  <div className="text-center py-16 px-4">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full mb-6">
+                      <span className="text-3xl">✨</span>
                     </div>
-                    <p className="text-lg font-medium">
+                    <p className="text-lg font-semibold text-gray-900 mb-2">
                       全ての作品を表示しました
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500">
                       新しい作品をお楽しみに！
                     </p>
                   </div>
@@ -919,7 +938,7 @@ function FeedPageContent() {
                             : () => router.push("/works/new")
                     }
                   >
-                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
+                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-6">
                       <span className="text-3xl">
                         {error ? "⚠️" : feedMode === "following" ? "👥" : "🎨"}
                       </span>
@@ -1114,11 +1133,11 @@ function FeedPageContent() {
                     variant="ghost"
                     size="sm"
                     aria-label={isAuthenticated ? "フォロー" : "ログイン"}
-                    className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
-                      isAuthenticated
-                        ? "bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
-                        : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
-                    }`}
+                      className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
+                        isAuthenticated
+                          ? "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+                          : "bg-gray-900 text-white hover:bg-gray-800 border border-gray-900 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30"
+                      }`}
                     onClick={() => {
                       if (!isAuthenticated) router.push("/auth");
                     }}
@@ -1130,7 +1149,7 @@ function FeedPageContent() {
                       href={selectedItem.external_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-gray-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-700 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                      className="bg-gray-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 transition-all duration-200 flex items-center gap-2 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30"
                     >
                       <ExternalLink className="h-5 w-5" />
                       外部リンク
@@ -1311,15 +1330,14 @@ function FeedPageContent() {
           </div>
         </div>
       )}
-      <GlobalModalManager />
     </div>
   );
 }
 
 export default function FeedPage() {
   return (
-    <LayoutProvider>
+    <AuthenticatedLayout>
       <FeedPageContent />
-    </LayoutProvider>
+    </AuthenticatedLayout>
   );
 }
