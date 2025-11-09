@@ -36,6 +36,14 @@ interface Work {
   id: string;
   user_id: string;
   title: string;
+  description?: string;
+  external_url?: string;
+  tags?: string[];
+  roles?: string[];
+  banner_image_url?: string;
+  created_at: string;
+}
+
 type WorksQueryResult = {
   data: Work[] | null;
   error: PostgrestError | null;
@@ -48,14 +56,6 @@ function isWorksQueryResult(value: unknown): value is WorksQueryResult {
 
   const record = value as Record<string, unknown>;
   return "data" in record && "error" in record;
-}
-
-  description?: string;
-  external_url?: string;
-  tags?: string[];
-  roles?: string[];
-  banner_image_url?: string;
-  created_at: string;
 }
 
 export async function GET(request: NextRequest) {
