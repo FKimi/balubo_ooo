@@ -75,8 +75,16 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/favicon.svg",
-        type: "image/svg+xml",
+        url: "/icon_b_high_res.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+    apple: [
+      {
+        url: "/icon_b_high_res.png",
+        type: "image/png",
+        sizes: "512x512",
       },
     ],
   },
@@ -149,7 +157,13 @@ export default function RootLayout({
           href="/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default"
           as="image"
         />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" href="/icon_b_high_res.png" />
+        <link
+          rel="apple-touch-icon"
+          type="image/png"
+          href="/icon_b_high_res.png"
+          sizes="512x512"
+        />
 
         {/* クリティカルCSSのインライン化 */}
         <style
