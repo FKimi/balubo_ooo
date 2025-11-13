@@ -42,12 +42,31 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session?.access_token);
+        const authToken = session?.access_token;
+        setIsAuthenticated(!!authToken);
 
-        // コメント一覧を取得
+        if (!authToken) {
+          try {
+            const data = await fetcher<{ comments: Comment[]; count: number }>(
+              `/api/comments/public?workId=${workId}`,
+              { cache: "no-store" },
+              { requireAuth: false },
+            );
+            setComments(data.comments || []);
+            setCommentCount(data.count || 0);
+          } catch (err) {
+            console.error("コメント取得エラー(公開API):", err);
+            setComments([]);
+            setCommentCount(0);
+          }
+          return;
+        }
+
         try {
           const data = await fetcher<{ comments: Comment[]; count: number }>(
             `/api/comments?workId=${workId}`,
+            {},
+            { requireAuth: true },
           );
           setComments(data.comments || []);
           setCommentCount(data.count || 0);
@@ -93,14 +112,18 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
       }
 
       try {
-        const data = await fetcher<{ comment: Comment }>("/api/comments", {
-          method: "POST",
-          body: JSON.stringify({
-            workId,
-            content: newComment.trim(),
-            targetType: "work",
-          }),
-        });
+        const data = await fetcher<{ comment: Comment }>(
+          "/api/comments",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              workId,
+              content: newComment.trim(),
+              targetType: "work",
+            }),
+          },
+          { requireAuth: true },
+        );
         // 新しいコメントを先頭に追加
         setComments((prev) => [data.comment, ...prev]);
         setCommentCount((prev) => prev + 1);

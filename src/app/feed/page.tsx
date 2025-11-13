@@ -750,24 +750,65 @@ function FeedPageContent() {
               </div>
             </div>
 
-            {/* 未ログインユーザー向けバナー */}
+            {/* 未ログインユーザー向け登録CTA */}
             {!isAuthenticated && (
-              <div className="bg-blue-50 border-b border-blue-200 p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-blue-900">
-                      Baluboへようこそ！
-                    </p>
-                    <p className="text-sm text-blue-700">
-                      クリエイターのポートフォリオを発見しよう
-                    </p>
+              <div className="px-4 py-6 sm:px-6">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 text-white shadow-lg">
+                  <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_top,_#fff,_transparent_55%)]" />
+                  <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
+                    <div className="max-w-2xl space-y-4">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+                        無料ではじめられます
+                      </span>
+                      <h2 className="text-2xl font-bold leading-snug sm:text-3xl md:text-4xl">
+                        「専門性スコア」を見て、自分だけの強みを言語化しよう
+                      </h2>
+                      <ul className="space-y-2 text-sm sm:text-base text-blue-50/90">
+                        <li className="flex items-start gap-2">
+                          <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
+                            1
+                          </span>
+                          <span>
+                            最新のポートフォリオから、BtoBライティングのトレンドや構成を学べます
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
+                            2
+                          </span>
+                          <span>
+                            AIがあなたの実績を分析して専門性を可視化。営業資料としても使いやすいサマリーを生成
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-xs font-semibold">
+                            3
+                          </span>
+                          <span>
+                            作品ページには執筆背景メモや成果を添付でき、企業担当者にスムーズに伝えられます
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="flex flex-col items-stretch gap-3 rounded-2xl bg-white/10 p-6 backdrop-blur">
+                      <p className="text-sm font-medium text-blue-50">
+                        3分で無料登録。あとから作品を追加してもOKです。
+                      </p>
+                      <Button
+                        onClick={() => router.push("/register")}
+                        className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-blue-600 shadow-md transition-transform hover:-translate-y-0.5 hover:bg-blue-50"
+                      >
+                        無料で専門性スコアを見る
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="rounded-xl border border-white/30 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                        onClick={() => router.push("/auth")}
+                      >
+                        ログインはこちら
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    onClick={() => router.push("/auth")}
-                    className="rounded-full px-4 py-2 font-semibold text-sm text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    ログイン
-                  </Button>
                 </div>
               </div>
             )}

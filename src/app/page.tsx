@@ -14,11 +14,13 @@ import {
   VoicesSection,
   MidCallToAction,
   FinalCTASection,
+  RecommendedSection,
+  SectionDivider,
+  StickyCTA,
+  FAQSection,
+  RecentWorksSection,
 } from "@/components/landing";
-import SectionDivider from "@/components/landing/SectionDivider";
-import StickyCTA from "@/components/landing/StickyCTA";
-import FAQSection from "@/components/landing/FAQSection";
-import RecommendedSection from "@/components/landing/RecommendedSection";
+import { recentWorks } from "@/data/recentWorks";
 import { Footer as SharedFooter } from "@/components/layout/Footer";
 
 // Footer moved to shared component
@@ -183,6 +185,8 @@ export default function HomePage() {
         <SectionDivider colorClass="text-white" heightClass="h-8" />
         <FeaturesSection />
         <SectionDivider colorClass="text-white" heightClass="h-8" />
+        <RecentWorksSection initialWorks={recentWorks} />
+        <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
         <MidCallToAction />
         <SectionDivider colorClass="text-blue-600" heightClass="h-8" />
         <VoicesSection />

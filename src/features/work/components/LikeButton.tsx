@@ -37,9 +37,18 @@ export default function LikeButton({
         setIsAuthenticated(!!authToken);
 
         // いいね数と状態を取得
+        if (!authToken) {
+          setIsAuthenticated(false);
+          setLikeCount(0);
+          setIsLiked(false);
+          return;
+        }
+
         try {
           const data = await fetcher<{ count: number; isLiked: boolean }>(
             `/api/likes?workId=${workId}`,
+            {},
+            { requireAuth: true },
           );
           setLikeCount(data.count || 0);
           setIsLiked(data.isLiked || false);
@@ -95,7 +104,7 @@ export default function LikeButton({
       }
 
       try {
-        await fetcher(url, fetchOptions);
+        await fetcher(url, fetchOptions, { requireAuth: true });
         // 楽観的更新
         setIsLiked(!isLiked);
         setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));

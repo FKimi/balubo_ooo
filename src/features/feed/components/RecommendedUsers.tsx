@@ -72,6 +72,7 @@ export function RecommendedUsers({
         const data = await fetcher<{ users: RecommendedUser[] }>(
           "/api/users/recommended?limit=3",
           { signal: controller.signal },
+          { requireAuth: isAuthenticated },
         );
 
         setUsers(data.users || []);

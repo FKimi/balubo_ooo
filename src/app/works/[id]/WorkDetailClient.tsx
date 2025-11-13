@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,8 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [description, setDescription] = useState("");
   const [isSavingDescription, setIsSavingDescription] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // 閲覧数をインクリメントする非同期関数
@@ -76,10 +79,13 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
       try {
         setLoading(true);
         setError(null);
+        setIsAuthenticated(false);
 
         if (process.env.NODE_ENV === "development") {
           console.log(`WorkDetailClient: 作品取得開始 - ID = ${workId}`);
         }
+
+        let workData: any | null = null;
 
         // 認証トークンを取得
         const {
@@ -87,60 +93,100 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
         } = await supabase.auth.getSession();
         const token = session?.access_token;
 
-        // 作品データを取得
-        const { data: workData, error: workError } = await supabase
-          .from("works")
-          .select("*")
-          .eq("id", workId)
-          .single();
+        try {
+          const { data, error: workError } = await supabase
+            .from("works")
+            .select("*")
+            .eq("id", workId)
+            .single();
 
-        if (workError) {
-          // 開発環境でのみ詳細エラー情報を出力
-          if (process.env.NODE_ENV === "development") {
-            console.error("WorkDetailClient: 作品取得エラー - 詳細情報:", {
-              id: workId,
-              error: workError.message,
-              code: workError.code,
-              details: workError.details,
-              hint: workError.hint,
-              // エラーオブジェクト全体も出力
-              fullError: workError,
-              // エラーオブジェクトのプロパティ一覧
-              errorKeys: Object.keys(workError),
-              // エラーオブジェクトの型情報
-              errorType: typeof workError,
-              errorConstructor: workError.constructor.name,
-              // スタックトレース（利用可能な場合）
-              stack: workError.stack,
-            });
+          if (workError) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn("WorkDetailClient: Supabase取得エラー (フォールバックへ)", {
+                id: workId,
+                error: workError.message,
+                code: workError.code,
+              });
+            }
           } else {
-            console.error(
-              "WorkDetailClient: 作品取得エラー:",
-              workError.message,
+            workData = data;
+          }
+        } catch (supabaseError) {
+          console.warn(
+            "WorkDetailClient: Supabase取得で例外が発生、フォールバックします",
+            supabaseError,
+          );
+        }
+
+        // Supabaseでデータが取得できない場合は公開APIにフォールバック
+        if (!workData) {
+          try {
+            const publicResponse = await fetch(`/api/works/public/${workId}`, {
+              cache: "no-store",
+            });
+
+            if (publicResponse.ok) {
+              const publicJson = await publicResponse.json();
+              workData = publicJson.work;
+
+              if (publicJson.profile) {
+                setAuthorProfile(publicJson.profile);
+              }
+
+              if (process.env.NODE_ENV === "development") {
+                console.log(
+                  "WorkDetailClient: 公開APIから作品データを取得しました",
+                  { id: workId },
+                );
+              }
+            } else if (process.env.NODE_ENV === "development") {
+              const body = await publicResponse.json().catch(() => ({}));
+              console.warn("WorkDetailClient: 公開APIの取得に失敗しました", {
+                id: workId,
+                status: publicResponse.status,
+                body,
+              });
+            }
+          } catch (publicError) {
+            console.warn(
+              "WorkDetailClient: 公開APIの取得でエラーが発生しました",
+              publicError,
             );
           }
+        }
 
-          // エラータイプに応じてメッセージを設定
-          let errorMessage = "作品の取得に失敗しました";
+        // 公開APIでもデータが取得できない場合はローカルバックアップを試行
+        if (!workData) {
+          try {
+            const fallbackResponse = await fetch(`/api/local-works/${workId}`);
 
-          if (workError.code === "PGRST116") {
-            errorMessage = "指定された作品が見つかりません";
-          } else if (workError.code === "PGRST301") {
-            errorMessage = "無効な作品IDです";
-          } else if (workError.code?.startsWith("PGRST")) {
-            errorMessage = "データベースエラーが発生しました";
+            if (fallbackResponse.ok) {
+              const fallbackJson = await fallbackResponse.json();
+              workData = fallbackJson.work;
+
+              if (process.env.NODE_ENV === "development") {
+                console.log(
+                  "WorkDetailClient: ローカル作品データを使用して表示します",
+                  { id: workId },
+                );
+              }
+            } else if (process.env.NODE_ENV === "development") {
+              const errorBody = await fallbackResponse.json().catch(() => null);
+              console.warn("WorkDetailClient: ローカル作品取得エラー:", {
+                id: workId,
+                status: fallbackResponse.status,
+                message: errorBody?.error,
+              });
+            }
+          } catch (fallbackError) {
+            console.warn(
+              "WorkDetailClient: ローカル作品データの取得でエラーが発生:",
+              fallbackError,
+            );
           }
-
-          setError(errorMessage);
-          return;
         }
 
         if (!workData) {
-          if (process.env.NODE_ENV === "development") {
-            console.log(
-              `WorkDetailClient: 作品が見つかりません - ID = ${workId}`,
-            );
-          }
           setError("作品が見つかりません");
           return;
         }
@@ -151,29 +197,38 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           );
         }
 
-        // データを整形
         const formattedWork: WorkDetailData = {
           ...workData,
-          externalUrl: workData.external_url,
-          productionDate: workData.production_date,
-          previewData: workData.preview_data,
-          createdAt: workData.created_at,
-          updatedAt: workData.updated_at,
+          externalUrl:
+            workData.external_url ?? workData.externalUrl ?? undefined,
+          productionDate:
+            workData.production_date ?? workData.productionDate ?? undefined,
+          previewData:
+            workData.preview_data ?? workData.previewData ?? undefined,
+          createdAt:
+            workData.created_at ?? workData.createdAt ?? new Date().toISOString(),
+          updatedAt:
+            workData.updated_at ??
+            workData.updatedAt ??
+            workData.created_at ??
+            workData.createdAt ??
+            new Date().toISOString(),
         };
 
         setWork(formattedWork);
         setProductionNotes(formattedWork.production_notes || "");
         setDescription(formattedWork.description || "");
 
-        // 現在のユーザー情報を取得
         if (token) {
+          setIsAuthenticated(true);
           const {
             data: { user },
           } = await supabase.auth.getUser();
           setCurrentUser(user);
+        } else {
+          setIsAuthenticated(false);
         }
 
-        // 作品の作者のプロフィール情報を取得
         try {
           const profileResponse = await fetch(
             `/api/profile?userId=${formattedWork.user_id}`,
@@ -186,7 +241,6 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           }
         } catch (profileError) {
           console.error("作者プロフィール取得エラー:", profileError);
-          // プロフィール取得に失敗しても作品表示は続行
         }
       } catch (err) {
         console.error(
@@ -197,13 +251,9 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
             errorType: typeof err,
             errorConstructor:
               err instanceof Error ? err.constructor.name : "Unknown",
-            // エラーオブジェクト全体
             fullError: err,
-            // エラーオブジェクトのプロパティ一覧
             errorKeys: err && typeof err === "object" ? Object.keys(err) : [],
-            // スタックトレース（利用可能な場合）
             stack: err instanceof Error ? err.stack : undefined,
-            // 追加のデバッグ情報
             timestamp: new Date().toISOString(),
             environment: process.env.NODE_ENV,
           },
@@ -273,11 +323,14 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               <p className="text-gray-600 mb-6">
                 指定された作品は存在しないか、削除された可能性があります。
               </p>
-              <Link href="/profile">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  ポートフォリオに戻る
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button asChild variant="default" className="px-6">
+                  <Link href="/feed">フィードへ戻る</Link>
                 </Button>
-              </Link>
+                <Button asChild variant="outline" className="px-6">
+                  <Link href="/">トップページへ</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -481,6 +534,42 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
       <Header />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {!isAuthenticated && (
+          <div className="mb-8">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-500 text-white shadow-lg">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_55%)] opacity-70" />
+              <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
+                <div className="max-w-2xl space-y-3">
+                  <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide">
+                    baluboで作品管理
+                  </p>
+                  <h2 className="text-2xl font-bold leading-snug sm:text-3xl">
+                    自分の作品も追加して、専門性スコアを自動分析しよう
+                  </h2>
+                  <p className="text-sm text-blue-50/90 sm:text-base">
+                    作品をアップロードすると、AIが強みと実績を整理。提案書にも使える紹介文を数分で作成できます。
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 rounded-2xl bg-white/10 p-6 backdrop-blur">
+                  <Button
+                    onClick={() => router.push("/register")}
+                    className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-blue-600 shadow-md transition-transform hover:-translate-y-0.5 hover:bg-blue-50"
+                  >
+                    無料で作品を追加する
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="rounded-xl border border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                    onClick={() => router.push("/auth")}
+                  >
+                    ログインはこちら
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
           <div className="flex items-center justify-between mb-8">
