@@ -72,6 +72,14 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     type: "website",
   },
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+  },
   twitter: {
     card: "summary_large_image",
     title: "balubo - クリエイターのためのポートフォリオプラットフォーム",
@@ -141,6 +149,7 @@ export default function RootLayout({
           href="/api/og?title=balubo&description=クリエイターのためのポートフォリオプラットフォーム&type=default"
           as="image"
         />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
         {/* クリティカルCSSのインライン化 */}
         <style
