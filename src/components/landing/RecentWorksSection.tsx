@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { RecentWork } from "@/data/recentWorks";
 
 interface RecentWorksSectionProps {
@@ -37,8 +38,25 @@ const mapToRecentWork = (work: any): RecentWork | null => {
         ? work.banner_image_url
         : null;
 
+  const authorSource = work.user || work.author;
+  const author =
+    authorSource && (authorSource.id || authorSource.displayName || authorSource.display_name)
+      ? {
+          id: String(authorSource.id ?? authorSource.user_id ?? "unknown"),
+          displayName:
+            authorSource.displayName ??
+            authorSource.display_name ??
+            authorSource.name ??
+            "ユーザー",
+          avatarImageUrl:
+            authorSource.avatarImageUrl ??
+            authorSource.avatar_image_url ??
+            null,
+        }
+      : undefined;
+
   return {
-    id: work.id,
+    id: String(work.id),
     title: work.title ?? "作品タイトル未設定",
     description:
       work.description ??
@@ -52,26 +70,8 @@ const mapToRecentWork = (work: any): RecentWork | null => {
       work.preview_data?.image ??
       undefined,
     tags: Array.isArray(work.tags) ? work.tags : [],
-    createdAt:
-      work.created_at ?? work.createdAt ?? new Date().toISOString(),
-    author:
-      work.user || work.author
-        ? {
-            id: work.user?.id ?? work.author?.id ?? "unknown",
-            displayName:
-              work.user?.displayName ??
-              work.user?.display_name ??
-              work.author?.displayName ??
-              work.author?.name ??
-              "ユーザー",
-            avatarImageUrl:
-              work.user?.avatarImageUrl ??
-              work.user?.avatar_image_url ??
-              work.author?.avatarImageUrl ??
-              work.author?.avatar_image_url ??
-              null,
-          }
-        : undefined,
+    createdAt: work.created_at ?? work.createdAt ?? new Date().toISOString(),
+    ...(author ? { author } : {}),
   };
 };
 
@@ -211,11 +211,14 @@ export default function RecentWorksSection({
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-blue-50">
                 {work.previewImage ? (
-                  <img
+                  <Image
                     src={work.previewImage}
                     alt={work.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    priority={false}
+                    unoptimized
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-4xl text-blue-400">
@@ -228,11 +231,13 @@ export default function RecentWorksSection({
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-200">
                       {work.author.avatarImageUrl ? (
-                        <img
+                        <Image
                           src={work.author.avatarImageUrl}
                           alt={`${work.author.displayName}のプロフィール画像`}
+                          width={40}
+                          height={40}
                           className="h-full w-full object-cover"
-                          loading="lazy"
+                          unoptimized
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
