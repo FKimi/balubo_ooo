@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { MobileBottomNavigation } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -911,7 +911,9 @@ export default function HelpPage() {
         </div>
       </div>
 
-      <MobileBottomNavigation />
+      <Suspense fallback={null}>
+        <MobileBottomNavigation />
+      </Suspense>
     </div>
   );
 }
