@@ -72,10 +72,17 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="relative bg-gradient-to-b from-white to-gray-50 py-24 px-4 md:py-32"
+      className="relative isolate overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white py-24 px-4 md:py-32"
     >
-      <div className="container mx-auto max-w-4xl">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.35),_transparent_65%)]"
+        aria-hidden="true"
+      />
+      <div className="container relative mx-auto max-w-4xl">
         <div className="text-center mb-16">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-4">
+            FAQ
+          </p>
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
             よくある質問
           </h2>
@@ -90,19 +97,19 @@ export default function FAQSection() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-blue-600 transition-all duration-300"
+              className="overflow-hidden rounded-2xl border border-gray-100 bg-white hover:border-blue-400 transition-all duration-300"
             >
               <button
-                className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors duration-200"
+                className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left text-gray-900 transition-colors duration-200 hover:bg-gray-50"
                 onClick={() => toggleFAQ(index)}
                 aria-expanded={openIndex === index}
                 aria-controls={`faq-answer-${index}`}
               >
-                <span className="text-base md:text-lg font-semibold text-gray-900 flex-1">
+                <span className="flex-1 text-base font-semibold md:text-lg">
                   {faq.question}
                 </span>
                 <svg
-                  className={`w-6 h-6 text-blue-600 flex-shrink-0 transition-transform duration-300 ${
+                  className={`h-6 w-6 flex-shrink-0 text-blue-600 transition-transform duration-300 ${
                     openIndex === index ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -128,7 +135,7 @@ export default function FAQSection() {
                 }`}
               >
                 <div className="px-6 pb-5 pt-2">
-                  <p className="text-sm md:text-base text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
+                  <p className="text-sm md:text-base leading-relaxed text-gray-700 rounded-lg border border-blue-100 bg-blue-50 p-4">
                     {faq.answer}
                   </p>
                 </div>
@@ -139,12 +146,12 @@ export default function FAQSection() {
 
         {/* お問い合わせリンク */}
         <div className="mt-12 text-center">
-          <p className="text-gray-600 mb-4">
+          <p className="mb-4 text-gray-600">
             その他のご質問がありますか？
           </p>
           <a
             href="mailto:support@balubo.jp"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-200"
+            className="inline-flex items-center gap-2 font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-800"
           >
             <svg
               className="w-5 h-5"

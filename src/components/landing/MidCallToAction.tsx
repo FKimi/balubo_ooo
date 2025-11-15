@@ -8,8 +8,12 @@ export default function MidCallToAction() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   return (
-    <section className="relative bg-gradient-to-r from-blue-600 to-blue-700 py-16 px-4">
-      <div className="container mx-auto max-w-4xl text-center">
+    <section className="relative isolate overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-sky-500 py-16 px-4">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_55%)]"
+        aria-hidden="true"
+      />
+      <div className="container relative mx-auto max-w-4xl text-center">
         <div className="space-y-6">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">
             専門性を証明し、価値を最大化する

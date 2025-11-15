@@ -60,110 +60,56 @@ export default function FinalCTASection() {
   const router = useRouter();
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white py-24 px-4 sm:py-32">
-      <div className="container relative z-10 mx-auto max-w-5xl">
-        {/* CTA部分 */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl leading-tight mb-8">
-            その専門知識は、
-            <br />
-            <span className="text-blue-600">高く評価されるべき資産です。</span>
+    <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-blue-50/40 to-white py-20 px-4 sm:py-28">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_65%)]"
+        aria-hidden="true"
+      />
+      <div className="container relative z-10 mx-auto max-w-4xl">
+        <div className="text-center space-y-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">
+            Final step
+          </p>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl leading-tight">
+            その専門知識をシンプルに証明しましょう
           </h2>
-          
-          <div className="mx-auto max-w-3xl space-y-6 mb-12">
-            <p className="text-xl md:text-2xl leading-relaxed text-gray-800 font-medium">
-              <span className="text-blue-600 font-bold">balubo</span>で、あなたの専門性を正しく、高く、伝えませんか？
-            </p>
-            <p className="text-lg md:text-xl leading-relaxed text-gray-700">
-              新しい評価、新しい仕事、新しいキャリアが、あなたを待っています。
-            </p>
-          </div>
+          <p className="text-lg text-gray-600">
+            baluboなら、記事URLを登録するだけ。AIが専門性スコアと提案に使えるサマリを整えてくれます。
+          </p>
+        </div>
 
-          <div className="mx-auto max-w-3xl bg-gradient-to-br from-blue-50 via-blue-50/80 to-blue-50/60 border-2 border-blue-200 rounded-2xl p-8 md:p-10 mb-12">
-            <p className="text-3xl md:text-4xl text-gray-900 font-bold leading-tight mb-6">
-              今すぐ無料で<span className="text-blue-600">「専門性」</span>を証明する
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-base text-gray-700">
-              <span className="flex items-center">
-                <svg className="w-5 h-5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                完全無料
-              </span>
-              <span className="flex items-center">
-                <svg className="w-5 h-5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                1分で登録完了
-              </span>
-              <span className="flex items-center">
-                <svg className="w-5 h-5 mr-1.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                すぐにAI分析開始
-              </span>
+        <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-blue-100 bg-white/90 p-8 shadow-lg shadow-blue-500/10">
+          <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
+            <div className="space-y-2 md:flex-1">
+              <p className="text-2xl font-semibold text-gray-900">
+                今すぐ無料で専門性スコアを確認
+              </p>
+              <p className="text-sm text-gray-600">
+                登録は1分。クレジットカード不要です。
+              </p>
             </div>
-          </div>
-
-          <div className="flex items-center justify-center mb-8">
             <Button
               size="lg"
-              className="w-full max-w-md rounded-xl bg-blue-600 px-12 py-6 text-xl font-bold text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:bg-blue-700 hover:scale-105 sm:w-auto disabled:opacity-60"
+              className="w-full rounded-xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-md shadow-blue-500/20 transition-all duration-200 hover:bg-blue-700 hover:shadow-blue-500/30 md:w-auto"
               disabled={isRedirecting}
               onClick={() => {
                 setIsRedirecting(true);
                 router.push("/register");
               }}
             >
-              {isRedirecting ? (
-                "読み込み中…"
-              ) : (
-                <span className="inline-flex items-center">
-                  今すぐ無料で「専門性スコア」を見る
-                  <svg
-                    className="ml-2 h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </span>
-              )}
+              {isRedirecting ? "読み込み中…" : "無料で始める"}
             </Button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-gray-600">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
             {trustFeatures.map((feature) => (
-              <div key={feature.text} className="flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-white">
+              <div key={feature.text} className="inline-flex items-center gap-2 rounded-full border border-blue-100/80 bg-blue-50/50 px-3 py-1">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
                   {feature.icon}
                 </div>
-                <span className="font-medium">
-                  {feature.text}
-                </span>
+                <span className="font-medium">{feature.text}</span>
               </div>
             ))}
-          </div>
-
-          {/* 最終メッセージ */}
-          <div className="mt-16 pt-8 border-t border-gray-200">
-            <blockquote className="text-center">
-              <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">
-                &quot;あなたの本当の価値を、世界はまだ知らない&quot;
-              </p>
-              <p className="text-xl md:text-2xl text-gray-700 mb-4">
-                — 今日から、それを変えてみませんか？
-              </p>
-              <p className="text-xl md:text-2xl text-blue-600 font-bold">
-                専門性を伝えるなら、balubo
-              </p>
-            </blockquote>
           </div>
         </div>
       </div>

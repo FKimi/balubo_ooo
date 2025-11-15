@@ -163,10 +163,14 @@ export default function RecentWorksSection({
   return (
     <section
       id="recent-works"
-      className="bg-white py-20 px-4 md:py-24"
+      className="relative isolate bg-gradient-to-b from-white via-blue-50/40 to-white py-20 px-4 md:py-24"
       aria-labelledby="recent-works-heading"
     >
-      <div className="container mx-auto max-w-6xl">
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-blue-100/50 to-transparent"
+        aria-hidden="true"
+      />
+      <div className="container relative mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
@@ -180,6 +184,13 @@ export default function RecentWorksSection({
             </h2>
             <p className="mt-3 max-w-2xl text-sm text-gray-600 md:text-base">
               baluboに最近追加された作品のハイライトです。直近のアウトプットから専門性の幅をのぞいてみましょう。
+            </p>
+            <p className="mt-2 text-xs md:text-sm text-gray-500">
+              表示されているのは実際の公開ポートフォリオです。自分の実績も掲載したい方は{" "}
+              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-700 underline decoration-blue-200">
+                無料登録
+              </Link>
+              からどうぞ。
             </p>
           </div>
           <Link
@@ -207,7 +218,7 @@ export default function RecentWorksSection({
           {sortedWorks.map((work) => (
             <article
               key={work.id}
-              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:border-blue-100 hover:shadow-lg"
+              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100/60 bg-white/95 shadow-lg shadow-blue-500/5 transition-all hover:-translate-y-1 hover:border-blue-400/60 hover:shadow-xl"
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-blue-50">
                 {work.previewImage ? (

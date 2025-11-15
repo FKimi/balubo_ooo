@@ -12,7 +12,7 @@ const analysisHighlights = [
     ),
     title: "業界タグ",
     subtitle: "Industry Tags",
-    description: "AIが記事内の業界・企業・キーパーソンを抽出し、クライアントに響くタグとして提示します。例えば「製造DX」「BtoB SaaS」「経営層インタビュー」といったキーワードが一目で分かります。",
+    description: "記事に登場する業界や企業、人名を抽出し、クライアントが探しているタグとして整理します。",
     chips: ["製造DX", "BtoB SaaS", "経営層インタビュー", "企業変革"],
   },
   {
@@ -23,7 +23,7 @@ const analysisHighlights = [
     ),
     title: "専門性タグ",
     subtitle: "Expertise Tags",
-    description: "ビジネス戦略や国際情勢など、専門性を言語化したタグも自動生成。専門領域の深さを第三者視点で証明します。",
+    description: "分析力・戦略思考・調査設計などの抽象的な強みをタグ化し、専門領域を短い言葉で伝えます。",
     chips: ["市場分析", "ビジネス戦略", "リサーチ設計", "課題解決プロセス"],
   },
   {
@@ -34,7 +34,7 @@ const analysisHighlights = [
     ),
     title: "成果物と概要",
     subtitle: "Content Summary",
-    description: "作品の種類や概要もAIが補足。記事なら「BtoB企業の成長戦略をテーマにした経営層インタビュー」といった紹介文を自動生成します。",
+    description: "成果物の種類や狙いを要約し、商談資料に転用できる紹介文を生成します。",
     highlight: "成果物: 記事",
   },
   {
@@ -45,7 +45,7 @@ const analysisHighlights = [
     ),
     title: "課題・解決策・成果",
     subtitle: "Problem / Solution / Result",
-    description: "AIが取材の意図や成果を要約し、商談で使える骨子をそのまま提供します。",
+    description: "課題・解決策・得られた結果を分解し、提案の骨子にそのまま使える形で出力します。",
     lists: [
       {
         title: "課題",
@@ -73,28 +73,37 @@ const analysisHighlights = [
 ];
 
 export default function FeaturesSection() {
-
   return (
-    <section id="analysis" className="relative bg-white py-24 px-4 md:py-32">
-      <div className="container mx-auto max-w-7xl">
+    <section
+      id="analysis"
+      className="relative isolate overflow-hidden bg-white py-24 px-4 text-gray-900 md:py-32"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.3),_transparent_65%)]"
+        aria-hidden="true"
+      />
+      <div className="container relative mx-auto max-w-7xl">
         <div className="text-center mb-16">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-4">
+            Analysis
+          </p>
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-            baluboが証明する<span className="text-blue-600">「4つの価値」</span>
+            baluboが可視化する<span className="text-blue-600">4つの価値</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            AIが作品の魅力や概要、解決した課題、提示した解決策、そしてもたらした成果を分析し、従来の指標では測れなかった「ビジネス貢献度」を可視化します。
+            AIが作品を多角的に分析し、業界適性・専門性・成果までをビジネス視点で説明します。
           </p>
           
           {/* 小さなサービス画面プレビュー */}
           <div className="mt-12 flex justify-center">
             <div className="relative max-w-sm">
-              <div className="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+              <div className="overflow-hidden rounded-xl border border-blue-100 bg-white shadow-2xl">
                 <Image 
                   src="/balubo_profile.png" 
                   alt="baluboライター・編集者プロフィール画面のイメージ" 
                   width={400}
                   height={300}
-                  className="w-full h-auto opacity-90"
+                  className="w-full h-auto opacity-95"
                 />
                 
                 {/* イメージ画面の注釈 */}
@@ -106,31 +115,31 @@ export default function FeaturesSection() {
           </div>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
           {analysisHighlights.map((highlight) => (
             <div
               key={highlight.title}
-              className="relative bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-blue-600 hover:shadow-2xl transition-all duration-500"
+                className="relative rounded-2xl border border-gray-100 bg-white/95 p-6 shadow-lg shadow-blue-500/5 transition-all duration-500 hover:-translate-y-1 hover:border-blue-400"
             >
               {/* アイコン */}
-              <div className="mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white">
+                <div className="mb-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                   {highlight.icon}
                 </div>
               </div>
 
               {/* タイトル */}
-              <h3 className="mb-2 text-lg font-bold text-gray-900 leading-tight">
+                <h3 className="mb-2 text-lg font-bold text-gray-900 leading-tight">
                 {highlight.title}
               </h3>
 
               {/* サブタイトル */}
-              <p className="mb-3 text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
                 {highlight.subtitle}
               </p>
 
               {/* 説明 */}
-              <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                <p className="text-sm text-gray-700 leading-relaxed mb-4">
                 {highlight.description}
               </p>
 
@@ -140,7 +149,7 @@ export default function FeaturesSection() {
                   {highlight.chips.map((chip) => (
                     <span
                       key={chip}
-                      className="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-200"
+                      className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700"
                     >
                       #{chip}
                     </span>
@@ -148,8 +157,8 @@ export default function FeaturesSection() {
                 </div>
               )}
 
-              {highlight.highlight && (
-                <div className="mt-4 p-3 bg-gray-900 text-white text-sm font-semibold rounded-lg border border-gray-700">
+                {highlight.highlight && (
+                  <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-sm font-semibold text-gray-900">
                   {highlight.highlight}
                 </div>
               )}
@@ -158,7 +167,7 @@ export default function FeaturesSection() {
                 <div className="mt-4 space-y-4">
                   {highlight.lists.map((list) => (
                     <div key={list.title}>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
                         {list.title}
                       </p>
                       <ul className="space-y-2">
@@ -179,7 +188,7 @@ export default function FeaturesSection() {
 
         {/* CTAセクション */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-br from-blue-50 via-blue-50/80 to-blue-50/60 border-2 border-blue-200 rounded-2xl p-8 md:p-10 max-w-4xl mx-auto">
+          <div className="mx-auto max-w-4xl rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-blue-50/80 p-8 md:p-10 shadow-sm">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
               あなたも、専門性を証明しませんか？
             </h3>
@@ -191,14 +200,14 @@ export default function FeaturesSection() {
                 href="/register"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105"
               >
-                まずは無料で「専門性スコア」を見る
+                無料で専門性スコアを見る
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
             </div>
-            <p className="text-sm text-gray-600 mt-4">
-              登録無料・3分で完了
+              <p className="text-sm text-gray-600 mt-4">
+                登録無料・3分で完了
             </p>
           </div>
         </div>

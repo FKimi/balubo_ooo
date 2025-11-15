@@ -11,7 +11,18 @@ export default function HeroSection() {
   const router = useRouter();
 
   return (
-    <section id="hero" className="relative bg-white pt-8 pb-16 md:pt-12 md:pb-24 lg:pt-16 lg:pb-32">
+    <section
+      id="hero"
+      className="relative isolate overflow-hidden bg-white pt-8 pb-16 md:pt-12 md:pb-24 lg:pt-16 lg:pb-32"
+    >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-48 bg-gradient-to-b from-blue-50/80 to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -right-16 top-20 -z-10 h-64 w-64 rounded-full bg-blue-100 blur-3xl"
+        aria-hidden="true"
+      />
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <div className="grid w-full grid-cols-1 items-center gap-12 md:gap-16 lg:grid-cols-2 lg:gap-24 xl:gap-32">
@@ -19,20 +30,18 @@ export default function HeroSection() {
             <div className="space-y-8 md:space-y-12 text-center lg:text-left">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
                 <span className="block leading-[1.05]">
-                  その専門性、
+                  専門性を証明して
                   <br />
-                  証明できますか？
+                  正しく評価されるポートフォリオへ
                 </span>
               </h1>
 
               <div className="mx-auto max-w-2xl space-y-6 lg:mx-0">
                 <p className="text-xl md:text-2xl text-gray-900 leading-relaxed font-bold">
-                  AIがあなたの「書いた記事」を分析し、
-                  <br />
-                  言語化できなかった「本当の価値」を客観的に証明。
+                  AIが記事を読み解き、業界知識や思考プロセスまで可視化します。
                 </p>
                 <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-                  balubo（バルボ）は、ビジネスコンテンツに強いプロのライター・編集者のためのAIポートフォリオプラットフォームです。
+                  baluboはBtoB領域のライター・編集者向けAIポートフォリオ。記事URLを登録するだけで専門性スコアと提案に使える要約が自動生成されます。
                 </p>
               </div>
 
@@ -47,7 +56,7 @@ export default function HeroSection() {
                   </div>
                 </div>
                 <p className="text-center lg:text-left text-sm text-gray-600 font-medium">
-                  ビジネスコンテンツで戦う、プロのライター・編集者へ
+                  BtoB記事・金融IR・SaaS事例など専門領域を扱うプロに最適
                 </p>
               </div>
 
@@ -59,7 +68,7 @@ export default function HeroSection() {
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-semibold text-gray-700">β版参加者募集中</span>
+                  <span className="text-sm font-semibold text-gray-700">β版 / 完全無料で利用可能</span>
                 </div>
               </div>
 
@@ -78,7 +87,7 @@ export default function HeroSection() {
                       "読み込み中…"
                     ) : (
                       <span className="inline-flex items-center">
-                        今すぐ無料で「専門性スコア」を見る
+                        無料登録して専門性スコアを確認する
                         <svg
                           className="ml-2 h-4 w-4"
                           fill="none"
@@ -108,7 +117,7 @@ export default function HeroSection() {
                 {/* CTA補足 */}
                 <div className="flex justify-center lg:justify-start">
                   <p className="text-sm text-gray-600 font-medium">
-                    （β版・完全無料）
+                    登録3分、作品は後から追加できます。
                   </p>
                 </div>
                 {/* 信頼性表示の強化 */}
@@ -117,7 +126,7 @@ export default function HeroSection() {
                     <svg className="mr-2 h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-label="確認済み" role="img">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    多くのプロライター・編集者が、すでに価値証明を始めています
+                    β版は無料。すでに多くのプロがAI分析を試しています。
                   </p>
                 </div>
               </div>

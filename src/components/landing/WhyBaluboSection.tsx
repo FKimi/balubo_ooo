@@ -12,7 +12,7 @@ const solutions = [
     ),
     title: "URL入力だけで楽々記事登録",
     description:
-      "WebサイトやnoteなどのURLを入力するだけで、AIが自動で記事情報を抽出。手間なくポートフォリオが完成します。",
+      "URLを貼るだけで記事情報を取得し、必要な項目を自動入力。面倒な整備なしでポートフォリオが整います。",
   },
   {
     icon: (
@@ -22,7 +22,7 @@ const solutions = [
     ),
     title: "AIがあなたの「価値」を言語化",
     description:
-      "AIが記事を深く分析し、「SaaS業界のビジネスモデルへの深い理解」「複雑な情報の整理力」など、あなたの思考プロセスまで踏み込んで専門性を可視化します。",
+      "AIが業界知識・分析力・構成力といった思考プロセスを抽出し、専門性スコアや要点サマリに変換します。",
   },
   {
     icon: (
@@ -32,48 +32,46 @@ const solutions = [
     ),
     title: "価値がわかるクライアントと出会える",
     description:
-      "（※マッチング機能は開発中です）分析データを基に、専門性を求めるクライアントと高精度でマッチング。不毛な価格競争から脱却し、あなたの価値を正当に評価するクライアントと繋がります。",
+      "分析データを基に、専門性を求めるクライアントとマッチング予定（開発中）。文字単価交渉から脱却できます。",
   },
 ];
 
 export default function WhyBaluboSection() {
-
   return (
-    <section className="relative bg-gradient-to-b from-gray-50 to-white py-20 px-4 md:py-28">
-      <div className="container mx-auto max-w-7xl relative">
+    <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-blue-50/40 to-white py-20 px-4 md:py-28">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-60 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.7),_transparent_60%)]"
+        aria-hidden="true"
+      />
+      <div className="container relative mx-auto max-w-7xl">
         <div>
           {/* メインメッセージ */}
           <div className="text-center mb-16">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 mb-4">
+              Why balubo?
+            </p>
             <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-              その課題、<span className="text-blue-600">balubo</span>が
-              <br />
-              「AIの客観性」で解決します。
+              <span className="text-blue-600">balubo</span>で専門性をデータ化
             </h2>
             <p className="text-xl md:text-2xl text-gray-900 font-bold mb-4 leading-relaxed">
-              AIがあなたの「第三者の目」となり、
-              <br />
-              記事に隠された「真の価値」を分析・言語化。
+              AIが第三者視点で記事を分解し、強み・思考・成果をレポート化します。
             </p>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              baluboは、あなたの実績を「AI分析レポート」へと変換します。
-              <br />
-              これまで言語化が難しかったあなたの本当の価値を、客観的なデータとして証明し、誰にでも伝わる「専門性の証明書」を作成します。
+              手作業で説明していた価値を、客観的なスコアと文章で提示。商談や提案の土台になる「専門性の証明書」を作るプラットフォームです。
             </p>
           </div>
 
           {/* 3つのソリューション */}
           <div className="mb-12 text-center">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
-              あなたの「専門性」が、
-              <br />
-              このように可視化されます
+              専門性可視化までの3ステップ
             </h3>
           </div>
           <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto mb-16">
             {solutions.map((solution) => (
               <div
                 key={solution.title}
-                className="relative bg-white border-2 border-gray-200 rounded-2xl p-8 hover:border-blue-600 hover:shadow-2xl transition-all duration-500"
+                className="relative rounded-2xl border border-blue-100/80 bg-white/95 p-8 shadow-lg shadow-blue-500/5 hover:border-blue-500/70 hover:shadow-xl transition-all duration-500"
               >
                 {/* アイコン */}
                 <div className="mb-6">
@@ -103,12 +101,12 @@ export default function WhyBaluboSection() {
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 サービスのイメージ
               </h3>
-              <p className="text-gray-600">
-                あなたの専門性が、このように詳細に分析・可視化される予定です
-              </p>
+                <p className="text-gray-600">
+                  分析画面のイメージ。β版の機能拡張に合わせて随時アップデート予定です。
+                </p>
             </div>
             
-            <div className="relative rounded-2xl border border-gray-200 bg-white shadow-2xl overflow-hidden">
+            <div className="relative rounded-2xl border border-gray-100 bg-white/95 shadow-2xl overflow-hidden backdrop-blur">
               <Image 
                 src="/balubo_analysis.png" 
                 alt="balubo AIライター・編集者専門性分析画面のイメージ" 

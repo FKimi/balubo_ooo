@@ -168,7 +168,7 @@ export default function HomePage() {
               asChild
               className="rounded-xl bg-blue-600 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
-              <Link href="/register">無料で「専門性スコア」を見る</Link>
+              <Link href="/register">無料で登録する</Link>
             </Button>
           </nav>
         </div>
@@ -176,23 +176,23 @@ export default function HomePage() {
 
       <main id="main">
         <HeroSection />
-        <SectionDivider colorClass="text-white" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-50" heightClass="h-10" />
         <RecommendedSection />
-        <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-100" heightClass="h-12" flip />
         <CreatorPainSection />
-        <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-100" heightClass="h-12" />
         <WhyBaluboSection />
-        <SectionDivider colorClass="text-white" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-50" heightClass="h-10" flip />
         <FeaturesSection />
-        <SectionDivider colorClass="text-white" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-100" heightClass="h-12" />
         <RecentWorksSection initialWorks={recentWorks} />
-        <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-100" heightClass="h-10" flip />
         <MidCallToAction />
-        <SectionDivider colorClass="text-blue-600" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-200" heightClass="h-12" />
         <VoicesSection />
-        <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-50" heightClass="h-10" flip />
         <FAQSection />
-        <SectionDivider colorClass="text-gray-50" heightClass="h-8" />
+        <SectionDivider colorClass="text-blue-100" heightClass="h-12" />
         <FinalCTASection />
       </main>
 

@@ -46,14 +46,20 @@ const voices: Voice[] = [
 ];
 
 export default function VoicesSection() {
-
   return (
     <section
       id="voices"
-      className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-24 px-4 md:py-32"
+      className="relative isolate overflow-hidden bg-gradient-to-b from-white via-slate-50 to-white py-24 px-4 md:py-32"
     >
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.4),_transparent_55%)]"
+        aria-hidden="true"
+      />
       <div className="container relative z-10 mx-auto max-w-7xl">
         <div className="text-center mb-16">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600 mb-4">
+            Voices
+          </p>
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight tracking-tight">
             すでに多くのプロが、
             <br />
@@ -68,20 +74,19 @@ export default function VoicesSection() {
           {voices.map((voice) => (
             <article
               key={voice.name}
-              className="relative flex flex-col rounded-2xl border-2 border-gray-200 bg-white p-8 hover:border-blue-600 hover:shadow-2xl transition-all duration-500"
+              className="relative flex flex-col rounded-2xl border border-blue-100 bg-white/95 p-8 shadow-lg shadow-blue-500/10 transition-all duration-500 hover:-translate-y-1 hover:border-blue-500/70 hover:shadow-2xl"
               aria-label={`${voice.name}さんの事例`}
             >
               <div>
                 {/* キャッチコピー */}
                 <div className="mb-4">
                   <p className="text-lg font-bold text-gray-900 leading-tight">
-                    &quot;{voice.catchCopy}&quot;
+                    {voice.catchCopy}
                   </p>
                 </div>
                 {/* コメント */}
                 <div className="flex-grow mb-6">
                   <p className="text-base leading-relaxed text-gray-700">
-                    <span className="text-4xl font-bold text-gray-200 opacity-50">&quot;</span>
                     {voice.comment}
                   </p>
                 </div>
@@ -97,9 +102,6 @@ export default function VoicesSection() {
                         <div className="font-bold text-gray-900 text-base">
                           {voice.name}
                         </div>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          認証済
-                        </span>
                       </div>
                       <div className="text-sm text-gray-600">{voice.name} 様（{voice.role}）</div>
                     </div>
