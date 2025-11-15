@@ -61,7 +61,7 @@ export function Header() {
                 <Link
                   href="/feed"
                   aria-current={pathname === "/feed" ? "page" : undefined}
-                  aria-label="Feed"
+                aria-label="フィード"
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
                     pathname === "/feed"
                       ? "bg-white text-slate-900 shadow-sm shadow-blue-100"
@@ -69,12 +69,12 @@ export function Header() {
                   }`}
                 >
                   <Home className="w-4 h-4" />
-                  <span className="hidden sm:inline">Feed</span>
+                  <span className="hidden sm:inline">フィード</span>
                 </Link>
                 <Link
                   href="/profile"
                   aria-current={pathname.startsWith("/profile") ? "page" : undefined}
-                  aria-label="Profile"
+                aria-label="プロフィール"
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
                     pathname.startsWith("/profile")
                       ? "bg-white text-slate-900 shadow-sm shadow-blue-100"
@@ -82,7 +82,7 @@ export function Header() {
                   }`}
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">Profile</span>
+                  <span className="hidden sm:inline">プロフィール</span>
                 </Link>
               </nav>
             )}
@@ -106,7 +106,7 @@ export function Header() {
                   size="sm"
                 >
                   <Plus className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Add Work</span>
+                  <span className="hidden sm:inline">作品を追加</span>
                 </Button>
 
                 <div className="relative" ref={profileMenuRef}>
@@ -222,19 +222,19 @@ export function MobileBottomNavigation() {
     {
       key: "profile",
       href: "/profile?tab=profile",
-      label: "Profile",
+      label: "プロフィール",
       icon: <User className="w-5 h-5" />,
     },
     {
       key: "works",
       href: "/profile?tab=works",
-      label: "Works",
+      label: "作品",
       icon: <Layers className="w-5 h-5" />,
     },
     {
       key: "details",
       href: "/profile?tab=details",
-      label: "Analytics",
+      label: "クリエイター詳細",
       icon: <BarChart2 className="w-5 h-5" />,
     },
   ];

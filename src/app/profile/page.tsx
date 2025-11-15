@@ -717,17 +717,17 @@ function ProfileContent() {
               <div className="mb-2">
                 <h2 className="text-2xl font-bold text-gray-900 mb-1">
                   {activeTab === "profile"
-                    ? "Profile Overview"
+                    ? "プロフィール概要"
                     : activeTab === "works"
-                      ? "Works Dashboard"
-                      : "Creator Analytics"}
+                      ? "作品ダッシュボード"
+                      : "クリエイター分析"}
                 </h2>
                 <p className="text-sm text-gray-500">
                   {activeTab === "profile"
-                    ? "Your expertise and experience"
+                    ? "経験やスキルの整理"
                     : activeTab === "works"
-                      ? "Visualize your work performance"
-                      : "Insight into your expertise and performance"}
+                      ? "作品の成果を可視化"
+                      : "専門性とパフォーマンスを分析"}
                 </p>
               </div>
             </div>

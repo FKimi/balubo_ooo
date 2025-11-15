@@ -18,7 +18,10 @@ interface MetricCard {
 
 export function DashboardMetrics({ works }: DashboardMetricsProps) {
   const metrics = useMemo(() => {
-    // 公開記事数（content_typeがarticleのもの）
+    const formatNumber = (value: number) =>
+      value.toLocaleString("ja-JP");
+
+    // 公開記事数
     const publishedArticles = works.filter(
       (work) => work.content_type === "article",
     ).length;
@@ -29,13 +32,13 @@ export function DashboardMetrics({ works }: DashboardMetricsProps) {
       0,
     );
 
-    // 累計いいね数
+    // 累計いいね
     const totalLikes = works.reduce(
       (sum, work) => sum + (work.likes_count || work.likes?.[0]?.count || 0),
       0,
     );
 
-    // 累計コメント数
+    // 累計コメント
     const totalComments = works.reduce(
       (sum, work) =>
         sum + (work.comments_count || work.comments?.[0]?.count || 0),
@@ -45,7 +48,7 @@ export function DashboardMetrics({ works }: DashboardMetricsProps) {
     const metricsData: MetricCard[] = [
       {
         title: "公開記事数",
-        value: publishedArticles,
+        value: formatNumber(publishedArticles),
         icon: (
           <svg
             className="w-6 h-6"
@@ -64,10 +67,7 @@ export function DashboardMetrics({ works }: DashboardMetricsProps) {
       },
       {
         title: "累計ビュー",
-        value:
-          totalViews >= 1000
-            ? `${(totalViews / 1000).toFixed(1)}K`
-            : totalViews,
+        value: formatNumber(totalViews),
         icon: (
           <svg
             className="w-6 h-6"
@@ -92,7 +92,7 @@ export function DashboardMetrics({ works }: DashboardMetricsProps) {
       },
       {
         title: "累計いいね",
-        value: totalLikes,
+        value: formatNumber(totalLikes),
         icon: (
           <svg
             className="w-6 h-6"
@@ -111,7 +111,7 @@ export function DashboardMetrics({ works }: DashboardMetricsProps) {
       },
       {
         title: "累計コメント",
-        value: totalComments,
+        value: formatNumber(totalComments),
         icon: (
           <svg
             className="w-6 h-6"

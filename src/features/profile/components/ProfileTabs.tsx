@@ -187,10 +187,10 @@ export function ProfileTabs({
     topTags.length === 0
       ? ""
       : topTags.length === 1
-        ? `${topTags[0]?.[0] ?? ""}が特に多く使われています。`
+        ? `${topTags[0]?.[0] ?? ""} に関する作品が最も多く制作されています。`
         : topTags.length === 2
-          ? `${topTags[0]?.[0] ?? ""}・${topTags[1]?.[0] ?? ""}が特に多く使われています。`
-          : `${topTags[0]?.[0] ?? ""}・${topTags[1]?.[0] ?? ""}・${topTags[2]?.[0] ?? ""}が特に多く使われています。`;
+          ? `${topTags[0]?.[0] ?? ""} と ${topTags[1]?.[0] ?? ""} に関する作品が多く制作されています。`
+          : `${topTags[0]?.[0] ?? ""}、${topTags[1]?.[0] ?? ""}、${topTags[2]?.[0] ?? ""} といった分野で多く制作されています。`;
 
   // タブ情報を外部に提供する関数
   useEffect(() => {
@@ -213,14 +213,14 @@ export function ProfileTabs({
           <nav
             className="grid grid-cols-3 gap-2"
             role="tablist"
-            aria-label="プロフィールセクション切り替え"
+            aria-label="プロフィールセクションナビゲーション"
           >
             {tabs.map((tab) => {
               const isActive = activeTab === tab.key;
               let label = tab.label;
-              if (tab.key === "profile") label = "Profile";
-              if (tab.key === "works") label = "Works";
-              if (tab.key === "details") label = "Analytics";
+            if (tab.key === "profile") label = "プロフィール";
+            if (tab.key === "works") label = "作品";
+            if (tab.key === "details") label = "クリエイター詳細";
 
               return (
                 <button
@@ -258,23 +258,23 @@ export function ProfileTabs({
                   (!profileData?.skills || profileData.skills.length === 0) &&
                   (!profileData?.career || profileData.career.length === 0) && (
                     <div className="border border-dashed border-gray-300 bg-gray-50 rounded-lg p-6 text-center">
-                      <h3 className="text-base font-semibold text-gray-900 mb-2">
-                        プロフィールを充実させましょう
+                    <h3 className="text-base font-semibold text-gray-900 mb-2">
+                      プロフィールを完成させましょう
                       </h3>
                       <p className="text-sm text-gray-600 mb-4">
-                        あなたの経験やスキルを追加して、他のクリエイターとのつながりを深めましょう。
+                        経験やスキルを追加して、他のクリエイターとの繋がりを強化しましょう。
                       </p>
                       <div className="flex flex-col sm:flex-row gap-2 justify-center">
                         <Button
                           onClick={() => setIsSkillModalOpen(true)}
-                          className="bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
                         >
                           スキルを追加
                         </Button>
                         <Button
                           onClick={() => setIsCareerModalOpen(true)}
                           variant="outline"
-                          className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm"
+                          className="border-blue-200 text-blue-600 hover:bg-blue-50 rounded-lg text-sm"
                         >
                           キャリアを追加
                         </Button>
@@ -291,9 +291,9 @@ export function ProfileTabs({
                     <Button
                       onClick={() => setIsIntroductionModalOpen(true)}
                       size="sm"
-                      className="bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs px-3 py-1.5"
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs px-3 py-1.5 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
                     >
-                      編集
+                      Edit
                     </Button>
                   </div>
 
@@ -304,12 +304,12 @@ export function ProfileTabs({
                   ) : (
                     <div className="text-center py-6">
                       <p className="text-sm text-gray-500 mb-3">
-                        まだ詳細な自己紹介が登録されていません
+                        詳細な自己紹介はまだありません。経歴や得意分野を記載してみましょう。
                       </p>
                       <Button
                         onClick={() => setIsIntroductionModalOpen(true)}
                         variant="outline"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm"
+                        className="border-blue-200 text-blue-600 hover:bg-blue-50 rounded-lg text-sm"
                       >
                         自己紹介を追加
                       </Button>
@@ -321,12 +321,12 @@ export function ProfileTabs({
                 <div className="border border-gray-200 rounded-lg bg-white p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-base font-semibold text-gray-900">
-                      経験・スキル
+                      できること・スキル
                     </h3>
                     <Button
                       onClick={() => setIsSkillModalOpen(true)}
                       size="sm"
-                      className="bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs px-3 py-1.5"
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs px-3 py-1.5 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
                     >
                       追加
                     </Button>
@@ -365,12 +365,12 @@ export function ProfileTabs({
                   ) : (
                     <div className="text-center py-6">
                       <p className="text-sm text-gray-500 mb-3">
-                        まだスキルが登録されていません
+                        まだスキルが登録されていません。
                       </p>
                       <Button
                         onClick={() => setIsSkillModalOpen(true)}
                         variant="outline"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm"
+                        className="border-blue-200 text-blue-600 hover:bg-blue-50 rounded-lg text-sm"
                       >
                         最初のスキルを追加
                       </Button>
@@ -387,7 +387,7 @@ export function ProfileTabs({
                     <Button
                       onClick={() => setIsCareerModalOpen(true)}
                       size="sm"
-                      className="bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-xs px-3 py-1.5"
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs px-3 py-1.5 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30"
                     >
                       追加
                     </Button>
@@ -426,7 +426,7 @@ export function ProfileTabs({
                                   </h4>
                                   {careerItem.isCurrent && (
                                     <span className="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full">
-                                      現職
+                                      Current
                                     </span>
                                   )}
                                 </div>
@@ -441,8 +441,8 @@ export function ProfileTabs({
                                 <p className="text-xs text-gray-500 mb-2">
                                   {careerItem.startDate} -{" "}
                                   {careerItem.isCurrent
-                                    ? "現在"
-                                    : careerItem.endDate || "不明"}
+                                    ? "Present"
+                                    : careerItem.endDate || "Unknown"}
                                 </p>
                                 {careerItem.description && (
                                   <p className="text-sm text-gray-700">
@@ -497,12 +497,12 @@ export function ProfileTabs({
                   ) : (
                     <div className="text-center py-6">
                       <p className="text-sm text-gray-500 mb-3">
-                        まだキャリア情報が登録されていません
+                        まだキャリア情報が登録されていません。
                       </p>
                       <Button
                         onClick={() => setIsCareerModalOpen(true)}
                         variant="outline"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm"
+                        className="border-blue-200 text-blue-600 hover:bg-blue-50 rounded-lg text-sm"
                       >
                         最初のキャリアを追加
                       </Button>
@@ -531,7 +531,7 @@ export function ProfileTabs({
                 {/* 作品一覧セクション */}
                 {savedWorks.length > 0 ? (
                   <div className="space-y-8">
-                    {/* 主な作品セクション */}
+                    {/* 注目作品セクション */}
                     {savedWorks.filter((work) => work.is_featured).length >
                       0 && (
                       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -539,10 +539,10 @@ export function ProfileTabs({
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                主な作品
+                                注目の作品
                               </h3>
                               <p className="text-sm text-gray-600">
-                                あなたの代表的な作品を紹介
+                                代表的な作品をアピールできます
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
@@ -669,7 +669,7 @@ export function ProfileTabs({
                               すべての作品
                             </h3>
                             <p className="text-sm text-gray-600">
-                              {savedWorks.length}件の作品
+                              合計{savedWorks.length}件
                             </p>
                           </div>
                           <Button
@@ -710,7 +710,7 @@ export function ProfileTabs({
                 ) : (
                   <EmptyState
                     title="まだ作品がありません"
-                    message="最初の作品を追加して、ポートフォリオを始めましょう"
+                    message="最初の作品を追加してポートフォリオを始めましょう"
                     ctaLabel="最初の作品を追加"
                     onCtaClick={openContentTypeSelector}
                   />
@@ -718,7 +718,7 @@ export function ProfileTabs({
               </div>
             )}
 
-            {/* クリエイター詳細タブ */}
+                    {/* Creator Details Tab */}
             {activeTab === "details" && (
               <div className="space-y-8">
                 {/* AI分析による強み */}
@@ -728,10 +728,10 @@ export function ProfileTabs({
                     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                       <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          AI分析による強み
+                          AIによるインサイト
                         </h3>
                         <p className="text-sm text-gray-600">
-                          あなたの作品から分析された専門性と強み
+                          作品履歴から検出した主な強み
                         </p>
                       </div>
                       <div className="p-6">
@@ -755,7 +755,7 @@ export function ProfileTabs({
                           活動分析
                         </h3>
                         <p className="text-sm text-gray-600">
-                          最近6ヶ月の作品制作活動
+                          直近6か月の制作状況
                         </p>
                       </div>
                       <div className="p-6">
@@ -803,11 +803,11 @@ export function ProfileTabs({
                                 />
                               </svg>
                               <span>
-                                最も活動的だった月は
-                                <span className="font-semibold text-gray-900 mx-1">
+                                最も制作した月:&nbsp;
+                                <span className="font-semibold text-gray-900">
                                   {workStats.mostActiveMonth.displayMonth}
                                 </span>
-                                で{workStats.mostActiveMonth.count}件の作品を制作しました
+                                &nbsp;制作数 {workStats.mostActiveMonth.count}件
                               </span>
                             </div>
                           </div>
@@ -820,10 +820,10 @@ export function ProfileTabs({
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      作品統計・役割分析
+                      作品統計と役割内訳
                     </h3>
                     <p className="text-sm text-gray-600">
-                      あなたの作品の傾向と専門性を分析
+                      作品構成と専門性のバランスを確認できます
                     </p>
                   </div>
 
@@ -880,7 +880,7 @@ export function ProfileTabs({
                                 </svg>
                               </div>
                               <h5 className="font-semibold text-gray-900 text-sm">
-                                基本統計
+                                主要指標
                               </h5>
                             </div>
                             <div className="space-y-3">
@@ -898,7 +898,7 @@ export function ProfileTabs({
                               <div className="h-px bg-blue-100"></div>
                               <div className="flex justify-between items-center">
                                 <span className="text-sm text-gray-600">
-                                  役割種類
+                                  役割タイプ数
                                 </span>
                                 <span className="text-xl font-bold text-gray-900">
                                   {workStats.roleDistribution.length}
@@ -929,7 +929,7 @@ export function ProfileTabs({
                                 </svg>
                               </div>
                               <h5 className="font-semibold text-gray-900 text-sm">
-                                専門性分析
+                                専門性の分析
                               </h5>
                             </div>
                             <p className="text-sm text-gray-700 leading-relaxed">
@@ -939,7 +939,7 @@ export function ProfileTabs({
                                     <span className="font-semibold text-gray-900">
                                       {workStats.roleDistribution[0].role}
                                     </span>
-                                    が
+                                    が全体の
                                     <span className="font-bold text-purple-600 mx-1">
                                       {Math.round(
                                         (workStats.roleDistribution[0].count /
@@ -947,17 +947,17 @@ export function ProfileTabs({
                                           100,
                                       )}%
                                     </span>
-                                    を占め、あなたの主要な専門分野となっています。
+                                    を占め、メインの専門領域になっています。
                                     {workStats.roleDistribution.length > 1 &&
                                       workStats.roleDistribution[1] && (
                                         <>
                                           <br className="mt-2" />
                                           <br />
-                                          また、
+                                          さらに
                                           <span className="font-semibold text-gray-900">
                                             {workStats.roleDistribution[1].role}
                                           </span>
-                                          も重要なスキルとして活用されています。
+                                          も多くの案件で活用されています。
                                         </>
                                       )}
                                   </>
@@ -965,11 +965,11 @@ export function ProfileTabs({
                             </p>
                           </div>
 
-                          {/* 役割詳細リスト */}
+                          {/* Role detail list */}
                           {workStats.roleDistribution.length > 0 && (
                             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
                               <h5 className="font-semibold text-gray-900 text-sm mb-4">
-                                役割別内訳
+                                役割の内訳
                               </h5>
                               <div className="space-y-2">
                                 {workStats.roleDistribution.slice(0, 5).map(
@@ -1008,7 +1008,7 @@ export function ProfileTabs({
                     <div className="p-8">
                       <EmptyState
                         title="まだ作品がありません"
-                        message="最初の作品を追加して、統計情報を表示しましょう"
+                        message="作品を追加すると統計とインサイトが表示されます"
                         ctaLabel="作品を追加"
                         onCtaClick={openContentTypeSelector}
                       />

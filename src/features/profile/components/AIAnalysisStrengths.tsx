@@ -59,7 +59,7 @@ export function AIAnalysisStrengths({
                   d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                 />
               </svg>
-              <span>あなたのタグ</span>
+              <span>あなたの主要タグ</span>
             </h2>
             <div className="text-sm text-gray-500">
               {yourTags.length}個のタグ
@@ -101,8 +101,8 @@ export function AIAnalysisStrengths({
           {/* 説明文 */}
           <div className="mt-3 pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500 leading-relaxed">
-              これらのタグは、あなたの作品に含まれるキーワードから自動抽出されたものです。
-              作品を追加するほど、あなたの専門性がより正確に表現されます。
+              これらのタグは公開済みの作品から自動抽出されています。
+              作品を追加するほど、あなたの専門性がより正確に伝わります。
             </p>
           </div>
         </div>
@@ -137,8 +137,16 @@ export function AIAnalysisStrengths({
         {/* 強みカード */}
         <div className="space-y-4">
           {strengths.slice(0, 3).map((s, idx) => {
-            // 説明文からタグを抽出
             const tags = s.description.split(" / ").filter(Boolean);
+            const formatTagSentence = (list: string[]) => {
+              if (list.length === 1) return list[0];
+              if (list.length === 2) return `${list[0]}と${list[1]}`;
+              return `${list.slice(0, -1).join("、")}、${list[list.length - 1]}`;
+            };
+            const summaryText =
+              tags.length > 0
+                ? `${formatTagSentence(tags.slice(0, 3))}などのテーマで実績があり、${s.title}の専門性を証明しています。`
+                : s.description || "この分野に関連する作品を追加すると、より深い分析が可能になります。";
             return (
               <div
                 key={idx}
@@ -170,11 +178,7 @@ export function AIAnalysisStrengths({
                       </div>
                     )}
                     <p className="text-sm text-slate-600 leading-relaxed">
-                      {tags.length > 0
-                        ? `${tags[0]}を中心に、${tags.slice(1, 3).join("、")}${
-                            tags.length > 3 ? `など` : ""
-                          }の専門性を発揮しています。この分野での実績と経験が豊富です。`
-                        : s.description}
+                      {summaryText}
                     </p>
                   </div>
                 </div>
@@ -201,7 +205,7 @@ export function AIAnalysisStrengths({
                 />
               </svg>
               <h3 className="text-lg font-semibold text-gray-900">
-                こんな仕事が向いているかも
+                おすすめの活躍領域
               </h3>
             </div>
             <div className="space-y-4">
@@ -237,7 +241,7 @@ export function AIAnalysisStrengths({
                         <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
                           <div className="flex items-start gap-2">
                             <span className="text-xs font-semibold text-blue-700 flex-shrink-0">
-                              理由:
+                              マッチする理由:
                             </span>
                             <p className="text-xs text-gray-700 leading-relaxed">
                               {hint.reason}
@@ -247,7 +251,7 @@ export function AIAnalysisStrengths({
                         <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
                           <div className="flex items-start gap-2">
                             <span className="text-xs font-semibold text-blue-700 flex-shrink-0">
-                              おすすめの理由:
+                              期待できる効果:
                             </span>
                             <p className="text-xs text-gray-700 leading-relaxed">
                               {hint.whyRecommended}
@@ -267,8 +271,8 @@ export function AIAnalysisStrengths({
         {showDetails && (
           <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-sm text-gray-600 leading-relaxed">
-              この分析は、あなたの作品に含まれるタグデータを基にAIが自動生成しています。
-              作品を追加するほど分析精度が向上し、より適切な仕事マッチングが可能になります。
+              これらのインサイトは作品に含まれるタグをもとに算出されています。
+              作品が増えるほど分析の精度が高まり、より適切な提案が行えます。
             </p>
           </div>
         )}

@@ -51,7 +51,7 @@ export function RecentActivity({ works }: RecentActivityProps) {
             />
           </svg>
         ),
-        title: "新しい記事が公開されました",
+        title: "新しい作品を公開しました",
         detail: `「${work.title}」`,
         date: formattedDate,
       });
@@ -89,7 +89,7 @@ export function RecentActivity({ works }: RecentActivityProps) {
             />
           </svg>
         ),
-        title: "スコア改善",
+        title: "スコアを改善",
         detail: "課題解決力スコア: 85 → 88",
         date: formattedDate,
       });

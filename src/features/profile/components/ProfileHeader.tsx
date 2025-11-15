@@ -158,7 +158,7 @@ export function ProfileHeader({
               )}
               <Link href="/profile/edit" className="w-full sm:w-auto">
                 <Button className="w-full sm:w-auto px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/25">
-                  編集
+                  プロフィールを編集
                 </Button>
               </Link>
             </div>

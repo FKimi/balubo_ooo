@@ -193,11 +193,12 @@ export default function RolePieChartInternal({
               </>
             ) : (
               <>
-                <div className="text-sm font-semibold text-gray-500">合計</div>
+                <div className="text-sm font-semibold text-gray-500">
+                  総作品数
+                </div>
                 <div className="text-2xl font-bold text-gray-700">
                   {totalValue}
                 </div>
-                <div className="text-sm font-semibold text-gray-500">件</div>
               </>
             )}
           </div>

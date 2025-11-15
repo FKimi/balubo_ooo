@@ -44,37 +44,33 @@ export function ExpertiseScores({ strengths, works = [] }: ExpertiseScoresProps)
       });
     });
 
+    const formatTagList = (tags: string[]) => {
+      if (tags.length === 1) return tags[0];
+      if (tags.length === 2) return `${tags[0]}と${tags[1]}`;
+      return `${tags.slice(0, -1).join("、")}、${tags[tags.length - 1]}`;
+    };
+
     return strengths.map((strength, index) => {
       const categoryData = categoryWorks.get(strength.title);
       const workCount = categoryData?.works.length || 0;
       const tags = categoryData?.tags || [];
       const topTags = tags.slice(0, 5);
 
-      // タイトルに適切な表現を追加（重複を避けるため、バリエーションを持たせる）
+      // タイトルに日本語の接尾辞を付与
       const getTitleSuffix = (index: number): string => {
-        const suffixes = [
-          "の専門性",
-          "への深い理解",
-          "での実績",
-        ];
+        const suffixes = ["の専門性", "の深い洞察", "の実績"];
         return suffixes[index % suffixes.length] || "の専門性";
       };
 
-      // より具体的な説明文を生成
-      let description = strength.description;
-      if (workCount > 0) {
-        // 元の説明がタグのリスト形式（" / "区切り）の場合
-        if (strength.description.includes(" / ")) {
-          const originalTags = strength.description.split(" / ");
-          const mainTag = originalTags[0];
-          description = `${mainTag}を中心とした専門性を発揮しています。${topTags.length > 0 && topTags.length <= 3 ? `特に「${topTags.join("」「")}」などの分野で実績があります。` : "この分野での実績と経験が豊富です。"}`;
-        } else {
-          // 説明文が既にある場合は、タグ情報を追加
-          const tagList = topTags.length > 0 && topTags.length <= 3
-            ? `「${topTags.join("」「")}」`
-            : "";
-          description = `${tagList ? tagList + "を中心に" : ""}${strength.title}の専門性を発揮しています。${tagList ? "この分野での実績と経験が豊富です。" : strength.description}`;
-        }
+      // 読みやすい説明文を生成
+      let description: string;
+      if (workCount === 0) {
+        description = `${strength.title}に関連する作品を追加すると、この強みをより明確に示せます。`;
+      } else if (topTags.length > 0) {
+        const tagList = formatTagList(topTags.slice(0, 3));
+        description = `${tagList}といったテーマで成果を出しており、${strength.title}の強みを確かなものにしています。`;
+      } else {
+        description = `${strength.title}において安定して成果を出しており、信頼できる専門性となっています。`;
       }
 
       return {
