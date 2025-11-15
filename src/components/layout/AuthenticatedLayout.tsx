@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Header, MobileBottomNavigation } from "./header";
 import { LayoutProvider } from "@/contexts/LayoutContext";
 import { Footer } from "@/components/layout/Footer";
@@ -11,7 +12,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <Header />
       <main className="flex-grow pb-20 md:pb-0">{children}</main>
       <Footer />
-      <MobileBottomNavigation />
+      <Suspense fallback={null}>
+        <MobileBottomNavigation />
+      </Suspense>
     </>
   );
 }
