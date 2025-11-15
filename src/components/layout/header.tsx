@@ -42,19 +42,19 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white/85 supports-[backdrop-filter]:backdrop-blur-xl border-b border-white/40 shadow-[0_12px_30px_-22px_rgba(15,23,42,0.55)]">
       <div className="w-full px-3 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center gap-3 max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="flex-shrink-0">
-              <Link href={user ? "/feed" : "/"} className="group">
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                  balubo
-                </h1>
-              </Link>
-            </div>
+        <div className="grid grid-cols-[auto_1fr_auto] items-center h-16 w-full gap-3">
+          <div className="flex items-center">
+            <Link href={user ? "/feed" : "/"} className="group">
+              <h1 className="text-xl sm:text-2xl font-bold text-blue-600 tracking-tight">
+                balubo
+              </h1>
+            </Link>
+          </div>
 
+          <div className="flex justify-center px-3 w-full max-w-5xl mx-auto">
             {user && (
               <nav
-                className="flex items-center gap-1 bg-slate-50/90 border border-slate-100 rounded-full px-1 py-1 shadow-inner shadow-white/60 overflow-x-auto scrollbar-hide flex-1 min-w-0"
+                className="flex items-center gap-1 bg-slate-50/90 border border-slate-100 rounded-full px-1 py-1 shadow-inner shadow-white/60 overflow-x-auto scrollbar-hide"
                 role="navigation"
                 aria-label="サイト内メニュー"
               >
@@ -88,7 +88,7 @@ export function Header() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 justify-end">
             {user ? (
               <>
                 <div className="hidden sm:block">
