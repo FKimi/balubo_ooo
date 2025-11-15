@@ -84,27 +84,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ users: [] });
     }
 
-    let followedUserIds: string[] = [];
-
-    // 現在のユーザーがフォロー中のユーザーIDを取得
-    if (currentUserId) {
-      const { data: follows } = await supabaseAdmin
-        .from("follows")
-        .select("following_id")
-        .eq("follower_id", currentUserId);
-
-      if (follows) {
-        followedUserIds = follows.map((follow) => follow.following_id);
-      }
-    }
-
-    // フィルタリング: display_nameが有効で、フォロー済みでないユーザーのみ
+    // フィルタリング: display_nameが有効なユーザーのみ
     const validProfiles = profiles.filter(
       (profile) =>
         profile.display_name &&
         profile.display_name.trim() !== "" &&
-        profile.display_name !== "ユーザー" &&
-        !followedUserIds.includes(profile.user_id),
+        profile.display_name !== "ユーザー",
     );
 
     // ランダムにシャッフルして制限数まで返す

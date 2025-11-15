@@ -58,9 +58,9 @@ export default function HelpPage() {
     },
     {
       id: "social",
-      title: "フォロー・フィード",
+      title: "フィード活用",
       icon: <Users className="w-5 h-5" />,
-      description: "フォロー機能とフィード画面の使い方",
+      description: "フィード画面の使い方と作品探索のコツ",
     },
     {
       id: "analysis",
@@ -114,10 +114,10 @@ export default function HelpPage() {
                     <div className="w-12 h-12 bg-[#5570F3]/10 rounded-full flex items-center justify-center">
                       <Users className="w-6 h-6 text-[#5570F3]" />
                     </div>
-                    <h3 className="text-xl font-semibold">仲間と繋がる</h3>
+                    <h3 className="text-xl font-semibold">仲間の作品から学ぶ</h3>
                   </div>
                   <p className="text-gray-600">
-                    同じ分野のクリエイターをフォローして、インスピレーションを得ましょう。
+                    同じ分野のクリエイターの作品をチェックして、構成や表現の引き出しを増やしましょう。
                   </p>
                 </CardContent>
               </Card>
@@ -174,7 +174,7 @@ export default function HelpPage() {
                   <div className="w-8 h-8 bg-[#5570F3] text-white rounded-full flex items-center justify-center text-sm font-bold">
                     3
                   </div>
-                  <span>他のクリエイターをフォローする</span>
+                  <span>他のクリエイターの作品をチェックする</span>
                 </div>
               </div>
             </div>
@@ -547,10 +547,10 @@ export default function HelpPage() {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                フォロー・フィード機能
+                フィード活用ガイド
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                他のクリエイターとつながり、インスピレーションを得ましょう。
+                最新の作品を効率的に見つけてインスピレーションを得る方法をご紹介します。
               </p>
             </div>
 
@@ -563,28 +563,28 @@ export default function HelpPage() {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold mb-2">
-                        フォロー機能
+                        作品探索のコツ
                       </h3>
                       <p className="text-gray-600 mb-4">
-                        気になるクリエイターをフォローして、最新の作品をフィードで確認できます。
+                        気になる業界やテーマの作品を素早く見つけるためのヒントです。
                       </p>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <div className="w-2 h-2 bg-[#5570F3] rounded-full"></div>
                           <span className="text-sm">
-                            プロフィールページの「フォロー」ボタンをクリック
+                            フィード上部の「見つける」セクションから、注目のタグや作品をチェック
                           </span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-2 h-2 bg-[#5570F3] rounded-full"></div>
                           <span className="text-sm">
-                            フォロー中のユーザー一覧はプロフィールページで確認
+                            気になるタグをクリックして、同じテーマの作品をまとめて閲覧
                           </span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-2 h-2 bg-[#5570F3] rounded-full"></div>
                           <span className="text-sm">
-                            相互フォローでより深いつながりを築けます
+                            作品カードの「共有」ボタンで、気になるクリエイターをすぐに紹介
                           </span>
                         </div>
                       </div>
@@ -604,27 +604,27 @@ export default function HelpPage() {
                         フィード画面の使い方
                       </h3>
                       <p className="text-gray-600 mb-4">
-                        フィード画面では、様々な作品を発見し、検索・フィルタリングが可能です。
+                        フィード画面では、検索やタグフィルタを組み合わせて最適な作品を探せます。
                       </p>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <h4 className="font-medium text-[#5570F3]">
-                            「すべて」タブ
+                            検索・タグ絞り込み
                           </h4>
                           <ul className="space-y-1 text-sm text-gray-600">
-                            <li>• 全ユーザーの最新作品</li>
-                            <li>• 検索・タグ絞り込み可能</li>
-                            <li>• 新しい発見がある</li>
+                            <li>• キーワード検索で目的のテーマを素早く発見</li>
+                            <li>• タグを複数組み合わせて条件を細かく調整</li>
+                            <li>• 人気タグから業界のトレンドを把握</li>
                           </ul>
                         </div>
                         <div className="space-y-2">
                           <h4 className="font-medium text-[#5570F3]">
-                            「フォロー中」タブ
+                            おすすめの使い方
                           </h4>
                           <ul className="space-y-1 text-sm text-gray-600">
-                            <li>• フォロー中のユーザーの作品のみ</li>
-                            <li>• よりパーソナライズされた体験</li>
-                            <li>• 見逃したくない作品をチェック</li>
+                            <li>• プロジェクト種別ごとに作品を比較</li>
+                            <li>• 共通の課題や指標をメモして学習ノート化</li>
+                            <li>• 気になった作品はお気に入りのタグで再検索</li>
                           </ul>
                         </div>
                       </div>
@@ -774,7 +774,7 @@ export default function HelpPage() {
                 {
                   question: "無料で利用できますか？",
                   answer:
-                    "はい、baluboは基本機能を無料でご利用いただけます。作品投稿、プロフィール作成、フォロー機能、AI分析など主要機能をすべて無料でお使いいただけます。",
+                    "はい、baluboは基本機能を無料でご利用いただけます。作品投稿、プロフィール作成、AI分析など主要機能をすべて無料でお使いいただけます。",
                 },
                 {
                   question: "投稿できる作品の数に制限はありますか？",

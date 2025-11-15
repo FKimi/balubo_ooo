@@ -16,6 +16,7 @@ interface AIAnalysisStrengthsProps {
   showDetails?: boolean;
   jobMatchingHints?: JobMatchingHint[];
   works?: any[]; // タグ表示用に作品データを追加
+  framed?: boolean; // true: 従来のカードレイアウト, false: シンプル表示
 }
 
 /**
@@ -29,19 +30,24 @@ export function AIAnalysisStrengths({
   showDetails = false,
   jobMatchingHints,
   works = [],
+  framed = true,
 }: AIAnalysisStrengthsProps) {
   // あなたのタグデータを取得
   const yourTags = getYourTagsFromWorks(works, compact ? 10 : 15);
 
   if (!strengths || strengths.length === 0) return null;
 
+  const baseSectionSpacing = compact ? "space-y-5" : "space-y-6";
+  const framedBoxClass = (extraSpacing = "") =>
+    framed
+      ? `${compact ? "p-5 sm:p-6" : "p-6"} border border-gray-200 rounded-2xl shadow-sm bg-white ${extraSpacing}`
+      : `${extraSpacing}`;
+
   return (
     <section className={`${compact ? "mt-4" : "mt-8 mb-8"} ${className}`}>
       {/* あなたのタグセクション */}
       {yourTags.length > 0 && (
-        <div
-          className={`${compact ? "border border-gray-200 rounded-lg p-5 sm:p-6 mb-5 shadow-sm bg-white" : "border border-gray-200 rounded-lg p-6 mb-6 shadow-sm bg-white"}`}
-        >
+        <div className={`${framedBoxClass(compact ? "mb-4" : "mb-5")} ${framed ? "" : baseSectionSpacing}`}>
           <div className="flex items-center justify-between mb-4">
             <h2
               className={`${compact ? "text-base" : "text-lg"} font-semibold flex items-center gap-2`}
@@ -66,36 +72,44 @@ export function AIAnalysisStrengths({
             </div>
           </div>
 
-          {/* タグクラウド */}
-          <div className="flex flex-wrap gap-2">
-            {yourTags.map((tagData, index) => (
-              <div key={tagData.tag} className="group relative">
-                <Badge
-                  variant="outline"
-                  className={`
-                    px-3 py-1.5 rounded-lg border transition-colors cursor-pointer
-                    ${
-                      index < 3
-                        ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
-                        : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300"
-                    }
-                  `}
-                >
-                  <span className="font-medium">{tagData.tag}</span>
-                  <span className="ml-2 text-xs text-gray-500 font-medium">
-                    {tagData.count}
-                  </span>
-                </Badge>
+          {/* タグカード */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {yourTags.map((tagData, index) => {
+              const tierClass =
+                index === 0
+                  ? "border-blue-300 bg-blue-50/60 text-blue-800"
+                  : index === 1
+                    ? "border-indigo-200 bg-indigo-50/70 text-indigo-800"
+                    : index === 2
+                      ? "border-sky-200 bg-sky-50 text-sky-800"
+                      : "border-gray-200 bg-white text-gray-800";
 
-                {/* ツールチップ（ホバー時にカテゴリ表示） */}
-                {tagData.category && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                    {tagData.category}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+              return (
+                <div
+                  key={tagData.tag}
+                  className={`rounded-2xl border p-4 shadow-sm hover:shadow-md transition-all duration-200 ${tierClass}`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500/80">
+                      <span>TAG</span>
+                      <span className="w-1 h-1 rounded-full bg-gray-400"></span>
+                      <span>{index + 1}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-600">
+                      {tagData.count}件
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="text-lg font-bold leading-tight">
+                    {tagData.tag}
+                  </div>
+                  {tagData.category && (
+                    <div className="mt-2 inline-flex items-center text-xs font-medium text-gray-600 bg-white/70 px-2 py-1 rounded-full border border-white/80">
+                      {tagData.category}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* 説明文 */}
@@ -109,9 +123,7 @@ export function AIAnalysisStrengths({
       )}
 
       {/* AI分析による強みセクション */}
-      <div
-        className={`${compact ? "border border-gray-200 rounded-lg p-5 sm:p-6 shadow-sm bg-white" : "border border-gray-200 rounded-lg p-6 shadow-sm bg-white"}`}
-      >
+      <div className={`${framedBoxClass()} ${framed ? "" : baseSectionSpacing}`}>
         {/* ヘッダーセクション */}
         <div className="flex items-center justify-between mb-4">
           <h2
@@ -189,7 +201,7 @@ export function AIAnalysisStrengths({
 
         {/* 仕事マッチングのヒント */}
         {jobMatchingHints && jobMatchingHints.length > 0 && (
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className={`mt-8 ${framed ? "pt-6 border-t border-gray-200" : "pt-0"}`}>
             <div className="flex items-center gap-2 mb-4">
               <svg
                 className="w-5 h-5 text-blue-600"

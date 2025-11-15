@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 
 const solutions = [
   {
@@ -95,35 +94,6 @@ export default function WhyBaluboSection() {
             ))}
           </div>
 
-          {/* AI分析画面のプレビュー */}
-          <div className="relative max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                サービスのイメージ
-              </h3>
-                <p className="text-gray-600">
-                  分析画面のイメージ。β版の機能拡張に合わせて随時アップデート予定です。
-                </p>
-            </div>
-            
-            <div className="relative rounded-2xl border border-gray-100 bg-white/95 shadow-2xl overflow-hidden backdrop-blur">
-              <Image 
-                src="/balubo_analysis.png" 
-                alt="balubo AIライター・編集者専門性分析画面のイメージ" 
-                width={800}
-                height={600}
-                className="w-full h-auto"
-              />
-              {/* Overlay for interactive elements */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
-              
-              {/* イメージ画面の注釈 */}
-              <div className="absolute bottom-4 right-4 bg-black/70 text-white text-sm px-3 py-1.5 rounded-full">
-                イメージ画面
-              </div>
-            </div>
-            
-          </div>
         </div>
       </div>
     </section>

@@ -100,7 +100,6 @@ async function processFeedRequest(request: NextRequest) {
   const searchQuery = searchParams.get("q"); // 検索クエリ
   const filterType = searchParams.get("type") as "work" | null; // タイプフィルター
   const filterTag = searchParams.get("tag"); // タグフィルター
-  const followingOnly = searchParams.get("followingOnly") === "true"; // フォロー中のみ
 
   // フィード用にService roleクライアントを作成（全ユーザーのパブリックデータにアクセス）
   const supabase = createClient(
@@ -142,44 +141,8 @@ async function processFeedRequest(request: NextRequest) {
     searchQuery,
     filterType,
     filterTag,
-    followingOnly,
     currentUserId,
   });
-
-  // フォロー中のユーザーIDを取得（フォロー中フィルターが有効な場合）
-  let followingUserIds: string[] = [];
-  if (followingOnly && currentUserId) {
-    try {
-      const { data: followData } = await supabase
-        .from("follows")
-        .select("following_id")
-        .eq("follower_id", currentUserId);
-
-      followingUserIds = followData?.map((f) => f.following_id) || [];
-
-      // フォロー中のユーザーがいない場合は空の結果を返す
-      if (followingUserIds.length === 0) {
-        console.log("フォロー中のユーザーがいません");
-        return NextResponse.json({
-          items: [],
-          stats: { total: 0, works: 0, inputs: 0, unique_users: 0 },
-          total: 0,
-          pagination: { hasMore: false, nextCursor: null, limit },
-          debug: {
-            message: "フォロー中のユーザーがいません",
-            followingOnly: true,
-            followingCount: 0,
-            timestamp: new Date().toISOString(),
-          },
-        });
-      }
-
-      console.log("フォロー中のユーザー数:", followingUserIds.length);
-    } catch (followError) {
-      console.error("フォロー関係取得エラー:", followError);
-      // エラーの場合はフォローフィルターを無効化
-    }
-  }
 
   // 作品のみを取得（インプット機能は削除済み）
   let worksQuery = supabase
@@ -188,11 +151,6 @@ async function processFeedRequest(request: NextRequest) {
       "id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at",
     )
     .order("created_at", { ascending: false });
-
-  // フォロー中フィルタリング
-  if (followingOnly && followingUserIds.length > 0) {
-    worksQuery = worksQuery.in("user_id", followingUserIds);
-  }
 
   // 検索クエリがある場合のフィルタリング
   if (searchQuery) {
@@ -546,8 +504,6 @@ async function processFeedRequest(request: NextRequest) {
         searchQuery,
         filterType,
         filterTag,
-        followingOnly,
-        followingCount: followingOnly ? followingUserIds.length : undefined,
         processingTime: `${processingTime}ms`,
         timestamp: new Date().toISOString(),
       };

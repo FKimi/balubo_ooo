@@ -7,6 +7,8 @@ import { PublicProfileTabs } from "@/features/profile/components/PublicProfileTa
 import { Button } from "@/components/ui/button";
 import { AIAnalysisStrengths } from "@/features/profile/components/AIAnalysisStrengths";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
+import { ShareProfileButton } from "@/features/profile/components/ShareProfileButton";
+import { ProfileStatsCards } from "@/features/profile/components/ProfileStatsCards";
 
 interface PublicProfileData {
   profile: any;
@@ -44,6 +46,12 @@ export function PublicProfileContent({
   const skills = profile?.skills || [];
   const career = profile?.career || [];
   const professions = profile?.professions || [];
+  const slug = profile?.slug || "";
+  const shareSlug = slug.trim() ? slug : undefined;
+  const worksCount = works?.length || 0;
+  const skillsCount = skills.length;
+  const careerCount = career.length;
+  const profileUserId = profile?.user_id || userId;
 
   // 画像の存在チェック
   const hasCustomBackground =
@@ -85,7 +93,6 @@ export function PublicProfileContent({
 
           {/* 公開プロフィールヘッダー */}
           <PublicProfileHeader
-            userId={userId}
             displayName={displayName}
             bio={bio}
             location={location}
@@ -96,18 +103,31 @@ export function PublicProfileContent({
             hasCustomBackground={hasCustomBackground}
             hasCustomAvatar={hasCustomAvatar}
             professions={professions}
+            rightSlot={
+              <ShareProfileButton
+                userId={profileUserId}
+                slug={shareSlug}
+                displayName={displayName}
+              />
+            }
+          />
+
+          <ProfileStatsCards
+            worksCount={worksCount}
+            skillsCount={skillsCount}
+            careerCount={careerCount}
           />
 
           {/* AI分析による強み (共有ビュー) */}
           {strengthsAnalysis.strengths.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-              <AIAnalysisStrengths
-                strengths={strengthsAnalysis.strengths}
-                showDetails={false}
-                works={works}
-                compact={false}
-              />
-            </div>
+            <AIAnalysisStrengths
+              strengths={strengthsAnalysis.strengths}
+              showDetails={false}
+              works={works}
+              compact={false}
+              framed={false}
+              className="bg-transparent"
+            />
           )}
 
           {/* 公開プロフィールタブ */}

@@ -77,9 +77,6 @@ function FeedPageContent() {
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  // フォローフィード用の状態
-  const [feedMode, setFeedMode] = useState<"all" | "following">("all");
-
   const router = useRouter();
 
   // 認証状態確認
@@ -114,7 +111,6 @@ function FeedPageContent() {
         filterType?: "all" | "work";
         filterTag?: string;
         cursor?: string | null;
-        feedMode?: "all" | "following";
       } = {},
     ) => {
       const startTime = Date.now();
@@ -146,7 +142,6 @@ function FeedPageContent() {
           ...(params.filterType &&
             params.filterType !== "all" && { type: params.filterType }),
           ...(params.filterTag && { tag: params.filterTag }),
-          ...(params.feedMode === "following" && { followingOnly: "true" }),
         });
 
         const cacheOptions: RequestInit = {
@@ -258,13 +253,11 @@ function FeedPageContent() {
         searchQuery,
         filterType,
         filterTag,
-        feedMode,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isAuthenticated,
-    feedMode,
     filterTag,
     filterType,
     searchQuery,
@@ -278,7 +271,6 @@ function FeedPageContent() {
         searchQuery,
         filterType,
         filterTag,
-        feedMode,
         cursor: nextCursor,
       });
     }
@@ -289,7 +281,6 @@ function FeedPageContent() {
     searchQuery,
     filterType,
     filterTag,
-    feedMode,
     fetchFeedData,
   ]);
 
@@ -305,12 +296,11 @@ function FeedPageContent() {
       searchQuery,
       filterType,
       filterTag,
-      feedMode,
     });
     setHasMore(true);
     setNextCursor(null);
-    fetchFeedData(false, { searchQuery, filterType, filterTag, feedMode });
-  }, [searchQuery, filterType, filterTag, feedMode, fetchFeedData]);
+    fetchFeedData(false, { searchQuery, filterType, filterTag });
+  }, [searchQuery, filterType, filterTag, fetchFeedData]);
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery("");
@@ -318,31 +308,15 @@ function FeedPageContent() {
     setFilterTag("");
     setHasMore(true);
     setNextCursor(null);
-    fetchFeedData(false, { feedMode });
-  }, [feedMode, fetchFeedData]);
+    fetchFeedData(false);
+  }, [fetchFeedData]);
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
     setHasMore(true);
     setNextCursor(null);
-    fetchFeedData(false, { searchQuery, filterType, filterTag, feedMode });
-  }, [searchQuery, filterType, filterTag, feedMode, fetchFeedData]);
-
-  // フィードモード切り替えハンドラー
-  const handleFeedModeChange = useCallback(
-    (mode: "all" | "following") => {
-      setFeedMode(mode);
-      setHasMore(true);
-      setNextCursor(null);
-      fetchFeedData(false, {
-        searchQuery,
-        filterType,
-        filterTag,
-        feedMode: mode,
-      });
-    },
-    [searchQuery, filterType, filterTag, fetchFeedData],
-  );
+    fetchFeedData(false, { searchQuery, filterType, filterTag });
+  }, [searchQuery, filterType, filterTag, fetchFeedData]);
 
   // 作品のみをフィルタリング（インプットは削除済み）
   const filteredItems = useMemo(() => {
@@ -702,7 +676,6 @@ function FeedPageContent() {
                   searchQuery: "",
                   filterType: "all",
                   filterTag: tag,
-                  feedMode,
                 });
               }}
               onWorkClick={(work) => {
@@ -727,27 +700,6 @@ function FeedPageContent() {
                 </Button>
               </div>
 
-              {/* フィードモード切り替えタブ */}
-              <div className="flex gap-1">
-                <Button
-                  variant={feedMode === "all" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleFeedModeChange("all")}
-                  className="rounded-full px-4 text-sm"
-                >
-                  すべて
-                </Button>
-                {isAuthenticated && (
-                  <Button
-                    variant={feedMode === "following" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => handleFeedModeChange("following")}
-                    className="rounded-full px-4 text-sm"
-                  >
-                    フォロー中
-                  </Button>
-                )}
-              </div>
             </div>
 
             {/* 未ログインユーザー向け登録CTA */}
@@ -945,41 +897,33 @@ function FeedPageContent() {
                     title={
                       error
                         ? "データの取得に失敗しました"
-                        : feedMode === "following"
-                          ? "フォロー中の作品がありません"
-                          : "作品がまだありません"
+                        : "作品がまだありません"
                     }
                     message={
                       error
                         ? "サーバーに接続できませんでした。しばらくしてから再度お試しください。"
-                        : feedMode === "following"
-                          ? "フォロー中のユーザーの作品がまだありません。気になるクリエイターをフォローしてみましょう。"
-                          : !isAuthenticated
-                            ? "ログインすると、クリエイターのポートフォリオを閲覧できます。"
-                            : "クリエイターの作品が投稿されるとここに表示されます。"
+                        : !isAuthenticated
+                          ? "ログインすると、クリエイターのポートフォリオを閲覧できます。"
+                          : "クリエイターの作品が投稿されるとここに表示されます。"
                     }
                     ctaLabel={
                       error
                         ? "再読み込み"
-                        : feedMode === "following"
-                          ? "おすすめユーザーを見る"
-                          : !isAuthenticated
-                            ? "ログイン"
-                            : "作品を投稿"
+                        : !isAuthenticated
+                          ? "ログイン"
+                          : "作品を投稿"
                     }
                     onCtaClick={
                       error
                         ? () => window.location.reload()
-                        : feedMode === "following"
-                          ? () => handleFeedModeChange("all")
-                          : !isAuthenticated
-                            ? () => router.push("/auth")
-                            : () => router.push("/works/new")
+                        : !isAuthenticated
+                          ? () => router.push("/auth")
+                          : () => router.push("/works/new")
                     }
                   >
                     <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-6">
                       <span className="text-3xl">
-                        {error ? "⚠️" : feedMode === "following" ? "👥" : "🎨"}
+                        {error ? "⚠️" : "🎨"}
                       </span>
                     </div>
                   </EmptyState>
@@ -1171,17 +1115,21 @@ function FeedPageContent() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    aria-label={isAuthenticated ? "フォロー" : "ログイン"}
-                      className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
-                        isAuthenticated
-                          ? "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
-                          : "bg-gray-900 text-white hover:bg-gray-800 border border-gray-900 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30"
-                      }`}
+                    aria-label={isAuthenticated ? "プロフィールを見る" : "ログイン"}
+                    className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
+                      isAuthenticated
+                        ? "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+                        : "bg-gray-900 text-white hover:bg-gray-800 border border-gray-900 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30"
+                    }`}
                     onClick={() => {
-                      if (!isAuthenticated) router.push("/auth");
+                      if (!isAuthenticated) {
+                        router.push("/auth");
+                        return;
+                      }
+                      router.push(`/share/profile/${selectedItem.user.id}`);
                     }}
                   >
-                    {isAuthenticated ? "フォロー" : "ログイン"}
+                    {isAuthenticated ? "プロフィールを見る" : "ログイン"}
                   </Button>
                   {selectedItem.external_url && (
                     <a

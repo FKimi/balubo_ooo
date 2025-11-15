@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 
 const analysisHighlights = [
   {
@@ -94,25 +93,6 @@ export default function FeaturesSection() {
             AIが作品を多角的に分析し、業界適性・専門性・成果までをビジネス視点で説明します。
           </p>
           
-          {/* 小さなサービス画面プレビュー */}
-          <div className="mt-12 flex justify-center">
-            <div className="relative max-w-sm">
-              <div className="overflow-hidden rounded-xl border border-blue-100 bg-white shadow-2xl">
-                <Image 
-                  src="/balubo_profile.png" 
-                  alt="baluboライター・編集者プロフィール画面のイメージ" 
-                  width={400}
-                  height={300}
-                  className="w-full h-auto opacity-95"
-                />
-                
-                {/* イメージ画面の注釈 */}
-                <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-                  イメージ
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">

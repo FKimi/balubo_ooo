@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ShareProfileButton } from "./ShareProfileButton";
-import { FollowStats } from "@/features/follow/components/FollowStats";
 import React from "react";
 
 interface ProfileHeaderProps {
@@ -171,12 +170,6 @@ export function ProfileHeader({
             </p>
           )}
 
-          {/* フォロー統計 */}
-          {userId && (
-            <div className="border-t border-gray-100 pt-4 mt-4">
-              <FollowStats userId={userId} />
-            </div>
-          )}
         </div>
       </div>
     </div>

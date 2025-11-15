@@ -1,11 +1,8 @@
 "use client";
 
-import FollowButton from "@/features/follow/components/FollowButton";
-import { FollowStats } from "@/features/follow/components/FollowStats";
 import Image from "next/image";
 
 interface PublicProfileHeaderProps {
-  userId: string;
   displayName: string;
   bio: string;
   location: string;
@@ -21,7 +18,6 @@ interface PublicProfileHeaderProps {
 
 export function PublicProfileHeader(props: PublicProfileHeaderProps) {
   const {
-    userId,
     displayName,
     bio,
     location,
@@ -86,7 +82,7 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
                 </div>
               </div>
 
-              {/* 共有ビューなので右側はフォロー等のアクションに限定 */}
+              {/* 共有ビューなので右側は補助アクションに限定 */}
               {rightSlot && (
                 <div className="flex items-center gap-3">{rightSlot}</div>
               )}
@@ -112,7 +108,6 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
               )}
 
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 mb-4">
-                <FollowStats userId={userId} />
                 {location && (
                   <div className="flex items-center gap-1.5">
                     <svg
@@ -164,9 +159,6 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <FollowButton targetUserId={userId} />
-              </div>
             </div>
           </div>
         </div>

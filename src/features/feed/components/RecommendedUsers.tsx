@@ -5,7 +5,6 @@ import Image from "next/image";
 import { fetcher } from "@/utils/fetcher";
 import { useRouter } from "next/navigation";
 import { User, UserPlus } from "lucide-react";
-import FollowButton from "@/features/follow/components/FollowButton";
 
 interface RecommendedUser {
   id: string;
@@ -127,7 +126,7 @@ export function RecommendedUsers({
       <div className="bg-gray-50 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-4">
           <UserPlus className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
+          <h3 className="text-lg font-bold text-gray-900">注目のクリエイター</h3>
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -150,7 +149,7 @@ export function RecommendedUsers({
       <div className="bg-gray-50 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-4">
           <UserPlus className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
+          <h3 className="text-lg font-bold text-gray-900">注目のクリエイター</h3>
         </div>
         <div className="text-center py-4">
           <p className="text-sm text-gray-500 mb-3">{error}</p>
@@ -170,7 +169,7 @@ export function RecommendedUsers({
       <div className="bg-gray-50 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-4">
           <UserPlus className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
+          <h3 className="text-lg font-bold text-gray-900">注目のクリエイター</h3>
         </div>
         <div className="text-center py-4">
           <p className="text-sm text-gray-500">
@@ -185,7 +184,7 @@ export function RecommendedUsers({
     <div className="bg-gray-50 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-4">
         <UserPlus className="w-5 h-5 text-gray-600" />
-        <h3 className="text-lg font-bold text-gray-900">Who to follow</h3>
+        <h3 className="text-lg font-bold text-gray-900">注目のクリエイター</h3>
       </div>
 
       <div className="space-y-3">
@@ -235,9 +234,13 @@ export function RecommendedUsers({
               </div>
             </div>
 
-            {/* フォローボタン */}
             <div className="flex-shrink-0">
-              <FollowButton targetUserId={user.id} compact={true} />
+              <button
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                onClick={() => handleUserClick(user.id)}
+              >
+                プロフィールを見る
+              </button>
             </div>
           </div>
         ))}

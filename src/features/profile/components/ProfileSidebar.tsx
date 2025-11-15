@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ShareProfileButton } from "./ShareProfileButton";
-import { FollowStats } from "@/features/follow/components/FollowStats";
 
 interface ProfileSidebarProps {
   displayName: string;
@@ -19,7 +18,6 @@ interface ProfileSidebarProps {
   worksCount: number;
   skillsCount: number;
   careerCount: number;
-  followerCount?: number | undefined;
   activeTab: "profile" | "works" | "details";
   onTabChange: (_tab: "profile" | "works" | "details") => void;
 }
@@ -36,7 +34,6 @@ export function ProfileSidebar({
   worksCount,
   skillsCount,
   careerCount,
-  followerCount,
   activeTab,
   onTabChange,
 }: ProfileSidebarProps) {
@@ -221,13 +218,6 @@ export function ProfileSidebar({
                   </p>
                 </div>
               )}
-
-              {/* フォロー統計 */}
-              {userId && (
-                <div className="pt-4 border-t border-gray-200">
-                  <FollowStats userId={userId} />
-                </div>
-              )}
             </div>
 
             {/* 統計セクション */}
@@ -254,14 +244,6 @@ export function ProfileSidebar({
                   </div>
                   <div className="text-xs text-gray-500">キャリア</div>
                 </div>
-                {followerCount !== undefined && (
-                  <div className="text-center py-2.5 px-2 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="text-lg font-semibold text-gray-900 mb-0.5">
-                      {followerCount}
-                    </div>
-                    <div className="text-xs text-gray-500">フォロワー</div>
-                  </div>
-                )}
               </div>
             </div>
           </div>

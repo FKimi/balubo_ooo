@@ -188,19 +188,6 @@ export const apiEndpoints = {
     },
   },
 
-  // 接続関連
-  connections: {
-    stats: (userId?: string): Promise<ApiResponse<any>> => {
-      const params = userId ? { userId } : undefined;
-      return api.get("/api/connections/stats", params);
-    },
-    follow: (targetUserId: string): Promise<ApiResponse<any>> => {
-      return api.post("/api/connections", { targetUserId, action: "follow" });
-    },
-    unfollow: (targetUserId: string): Promise<ApiResponse<any>> => {
-      return api.post("/api/connections", { targetUserId, action: "unfollow" });
-    },
-  },
 };
 
 /**

@@ -16,7 +16,6 @@ import { ProfileData, CareerItem } from "@/features/profile/types";
 import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfileTabs } from "@/features/profile/components/ProfileTabs";
 import { ProfileModals } from "@/features/profile/components/ProfileModals";
-import { ProfileStatsCards } from "@/features/profile/components/ProfileStatsCards";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
 
 // 完全なデフォルトプロフィールデータ
@@ -111,9 +110,6 @@ function ProfileContent() {
 
   const [savedWorks, setSavedWorks] = useState<any[]>([]);
   const [_isLoadingWorks, setIsLoadingWorks] = useState(false);
-  const [followerCount, setFollowerCount] = useState<number | undefined>(
-    undefined,
-  );
 
   // インプット関連のstate（一時的に未使用）
   // const [_inputs, _setInputs] = useState<InputData[]>([])
@@ -205,13 +201,9 @@ function ProfileContent() {
         };
 
         // 並列でデータを取得（パフォーマンス改善）
-        const [profileResponse, worksResponse, statsResponse] =
-          await Promise.all([
+        const [profileResponse, worksResponse] = await Promise.all([
           fetch(`/api/profile`, { headers }),
           fetch(`/api/works?userId=${user.id}`, { headers }),
-            fetch(`/api/connections/stats?userId=${user.id}`, { headers }).catch(
-              () => null,
-            ),
         ]);
 
         // プロフィールデータの処理
@@ -283,18 +275,6 @@ function ProfileContent() {
           setSavedWorks([]);
         }
 
-        // フォロワー統計の処理
-        if (statsResponse?.ok) {
-          try {
-            const statsData = await statsResponse.json();
-            setFollowerCount(statsData.followerCount || 0);
-          } catch (error) {
-            console.error("フォロワー統計の取得エラー:", error);
-            setFollowerCount(undefined);
-          }
-        } else {
-          setFollowerCount(undefined);
-        }
       } catch (error) {
         console.error("データ読み込みエラー:", error);
         setProfileData(completeDefaultProfileData);
@@ -736,8 +716,8 @@ function ProfileContent() {
               {/* プロフィールタブの時のみプロフィールヘッダーと統計カードを表示 */}
               {activeTab === "profile" && (
                 <>
-                  {/* デスクトップ用: プロフィールヘッダーと統計カード */}
-                  <div className="hidden lg:block space-y-6 mt-6 mb-8">
+                  {/* デスクトップ用: プロフィールヘッダー */}
+                  <div className="hidden lg:block mt-6 mb-8">
                     <ProfileHeader
                       displayName={displayName}
                       title={title}
@@ -752,17 +732,11 @@ function ProfileContent() {
                       userId={user?.id}
                       slug={slug}
                       portfolioVisibility={profileData?.portfolioVisibility}
-                    />
-                    <ProfileStatsCards
-                      worksCount={savedWorks.length}
-                      skillsCount={profileData?.skills?.length || 0}
-                      careerCount={profileData?.career?.length || 0}
-                      followerCount={followerCount}
                     />
                   </div>
 
-                  {/* モバイル・タブレット用: プロフィールヘッダーと統計カード */}
-                  <div className="lg:hidden space-y-6 mb-6">
+                  {/* モバイル・タブレット用: プロフィールヘッダー */}
+                  <div className="lg:hidden mb-6">
                     <ProfileHeader
                       displayName={displayName}
                       title={title}
@@ -777,12 +751,6 @@ function ProfileContent() {
                       userId={user?.id}
                       slug={slug}
                       portfolioVisibility={profileData?.portfolioVisibility}
-                    />
-                    <ProfileStatsCards
-                      worksCount={savedWorks.length}
-                      skillsCount={profileData?.skills?.length || 0}
-                      careerCount={profileData?.career?.length || 0}
-                      followerCount={followerCount}
                     />
                   </div>
                 </>
