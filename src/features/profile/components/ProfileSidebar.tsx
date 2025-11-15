@@ -57,7 +57,7 @@ export function ProfileSidebar({
   const tabs = [
     {
       key: "profile" as const,
-      label: "プロフィール",
+      label: "Profile",
       icon: (
         <svg
           className="w-5 h-5"
@@ -76,7 +76,7 @@ export function ProfileSidebar({
     },
     {
       key: "works" as const,
-      label: "作品",
+      label: "Works",
       icon: (
         <svg
           className="w-5 h-5"
@@ -95,7 +95,7 @@ export function ProfileSidebar({
     },
     {
       key: "details" as const,
-      label: "クリエイター詳細",
+      label: "Analytics",
       icon: (
         <svg
           className="w-5 h-5"

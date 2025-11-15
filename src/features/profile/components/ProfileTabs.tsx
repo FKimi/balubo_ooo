@@ -15,7 +15,7 @@ import { WorksCategoryManager } from "@/features/work/components/WorksCategoryMa
 import { calculateTopTags } from "@/features/profile/lib/profileUtils";
 import type { JobMatchingHint } from "@/features/profile/lib/profileUtils";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { RolePieChart } from "./RolePieChart";
 import { EmptyState } from "@/components/common";
 // useTagStatisticsは使用されていないため削除（パフォーマンス改善）
@@ -110,6 +110,8 @@ export function ProfileTabs({
   const topTags = useMemo(() => calculateTopTags(savedWorks), [savedWorks]);
 
   // タブ設定
+  const worksCount = savedWorks.length;
+
   const tabs = useMemo(
     () => [
       {
@@ -173,6 +175,13 @@ export function ProfileTabs({
     [],
   );
 
+  const handleTabChange = useCallback(
+    (tabKey: "profile" | "works" | "details") => {
+      setActiveTab(tabKey);
+    },
+    [setActiveTab],
+  );
+
   // タグランキングサマリー生成
   const summary =
     topTags.length === 0
@@ -197,30 +206,46 @@ export function ProfileTabs({
 
   return (
     <div>
-      {/* モバイル用タブナビゲーション */}
-      <div className="lg:hidden mb-5">
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-4">
-            <div className="flex space-x-6 overflow-x-auto scrollbar-hide">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() =>
-                      setActiveTab(tab.key as "profile" | "works" | "details")
-                    }
-                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200 whitespace-nowrap ${
-                      activeTab === tab.key
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-            </div>
-              </div>
-            </div>
-          </div>
+      {/* タブナビゲーション（全画面共通） */}
+      {/* モバイル・タブレット用ナビゲーション（デスクトップでは左ナビを使用） */}
+      <div className="mb-6 md:mb-8 px-2 sm:px-0 lg:hidden">
+        <div className="bg-white/95 backdrop-blur border border-gray-200/80 rounded-2xl shadow-[0_12px_35px_-25px_rgba(15,23,42,0.35)] px-2 sm:px-4 py-3">
+          <nav
+            className="grid grid-cols-3 gap-2"
+            role="tablist"
+            aria-label="プロフィールセクション切り替え"
+          >
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.key;
+              let label = tab.label;
+              if (tab.key === "profile") label = "Profile";
+              if (tab.key === "works") label = "Works";
+              if (tab.key === "details") label = "Analytics";
+
+              return (
+                <button
+                  key={tab.key}
+                  role="tab"
+                  type="button"
+                  aria-selected={isActive}
+                  aria-label={label}
+                  onClick={() =>
+                    handleTabChange(tab.key as "profile" | "works" | "details")
+                  }
+                  className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-2xl border text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                    isActive
+                      ? "bg-blue-50 border-blue-200 text-blue-700 shadow-sm"
+                      : "bg-white border-transparent text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <span className="text-base">{tab.icon}</span>
+                  <span className="tracking-wide uppercase">{label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
 
       {/* タブコンテンツのみ（ナビゲーションはサイドバーに移動） */}
       <div className="lg:border-0">

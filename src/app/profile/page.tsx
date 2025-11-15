@@ -635,7 +635,7 @@ function ProfileContent() {
                     {[
                       {
                         key: "profile" as const,
-                        label: "プロフィール",
+                        label: "Profile",
                         icon: (
                           <svg
                             className="w-5 h-5"
@@ -654,7 +654,7 @@ function ProfileContent() {
                       },
                       {
                         key: "works" as const,
-                        label: "作品",
+                        label: "Works",
                         icon: (
                           <svg
                             className="w-5 h-5"
@@ -673,7 +673,7 @@ function ProfileContent() {
                       },
                       {
                         key: "details" as const,
-                        label: "クリエイター詳細",
+                        label: "Analytics",
                         icon: (
                           <svg
                             className="w-5 h-5"
@@ -717,17 +717,17 @@ function ProfileContent() {
               <div className="mb-2">
                 <h2 className="text-2xl font-bold text-gray-900 mb-1">
                   {activeTab === "profile"
-                    ? "プロフィール"
+                    ? "Profile Overview"
                     : activeTab === "works"
-                      ? "マイダッシュボード"
-                      : "クリエイター詳細"}
+                      ? "Works Dashboard"
+                      : "Creator Analytics"}
                 </h2>
                 <p className="text-sm text-gray-500">
                   {activeTab === "profile"
-                    ? "あなたの経験とスキル"
+                    ? "Your expertise and experience"
                     : activeTab === "works"
-                      ? "あなたの専門性とパフォーマンス"
-                      : "あなたの専門性とパフォーマンス"}
+                      ? "Visualize your work performance"
+                      : "Insight into your expertise and performance"}
                 </p>
               </div>
             </div>
