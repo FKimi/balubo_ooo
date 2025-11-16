@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_JP } from "next/font/google";
+import { Inter, Noto_Sans_JP, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Analytics } from "@vercel/analytics/react";
@@ -26,6 +26,15 @@ const notoSansJP = Noto_Sans_JP({
   preload: true,
   fallback: ["system-ui", "arial"],
   weight: ["400", "500", "600", "700"], // 必要な重みのみ読み込み
+});
+
+const mPlusRounded = M_PLUS_Rounded_1c({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-m-plus-rounded",
+  preload: true,
+  weight: ["400", "500", "700"],
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -170,15 +179,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
             /* クリティカルCSS - ファーストビューのみ */
-            body { font-family: var(--font-inter), system-ui, sans-serif; }
-            .font-sans { font-family: var(--font-inter), var(--font-noto-sans-jp), system-ui, sans-serif; }
+            body { font-family: var(--font-m-plus-rounded), var(--font-inter), system-ui, sans-serif; }
+            .font-sans { font-family: var(--font-m-plus-rounded), var(--font-inter), var(--font-noto-sans-jp), system-ui, sans-serif; }
             .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
             @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
           `,
           }}
         />
       </head>
-      <body className={`${inter.variable} ${notoSansJP.variable} font-sans`}>
+      <body className={`${inter.variable} ${notoSansJP.variable} ${mPlusRounded.variable} font-sans`}>
         <ErrorFilter />
         <Toaster position="top-right" />
         <ErrorBoundary FallbackComponent={ErrorFallback}>

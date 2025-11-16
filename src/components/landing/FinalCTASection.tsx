@@ -60,37 +60,32 @@ export default function FinalCTASection() {
   const router = useRouter();
 
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-blue-50/40 to-white py-20 px-4 sm:py-28">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_65%)]"
-        aria-hidden="true"
-      />
+    <section className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 sm:py-28">
       <div className="container relative z-10 mx-auto max-w-4xl">
-        <div className="text-center space-y-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">
-            Final step
-          </p>
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl leading-tight">
-            その専門知識をシンプルに証明しましょう
-          </h2>
-          <p className="text-lg text-gray-600">
-            baluboなら、記事URLを登録するだけ。AIが専門性スコアと提案に使えるサマリを整えてくれます。
-          </p>
+        <div className="mb-12">
+          <div className="mx-auto max-w-3xl text-left">
+            <h2 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl">
+              次の一歩を、baluboと一緒に踏み出しませんか？
+            </h2>
+            <p className="text-lg leading-relaxed text-gray-600">
+              いまある実績をそのまま活かして、専門性を「伝わる形」に整えるお手伝いをします。URLを登録するだけで、AIが専門性スコアと提案に使えるサマリをつくります。
+            </p>
+          </div>
         </div>
 
-        <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-blue-100 bg-white/90 p-8 shadow-lg shadow-blue-500/10">
+        <div className="mx-auto mt-4 max-w-3xl rounded-[32px] border border-blue-50/90 bg-white/95 p-8 shadow-[0_22px_60px_rgba(37,99,235,0.16)] backdrop-blur-sm">
           <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
             <div className="space-y-2 md:flex-1">
               <p className="text-2xl font-semibold text-gray-900">
-                今すぐ無料で専門性スコアを確認
+                まずは無料で専門性スコアを確認
               </p>
               <p className="text-sm text-gray-600">
-                登録は1分。クレジットカード不要です。
+                登録は1分、クレジットカード登録は不要です。あとから作品を少しずつ追加していくこともできます。
               </p>
             </div>
             <Button
               size="lg"
-              className="w-full rounded-xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-md shadow-blue-500/20 transition-all duration-200 hover:bg-blue-700 hover:shadow-blue-500/30 md:w-auto"
+              className="w-full rounded-full bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-md shadow-blue-500/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-[0_20px_50px_rgba(37,99,235,0.35)] md:w-auto"
               disabled={isRedirecting}
               onClick={() => {
                 setIsRedirecting(true);
@@ -103,7 +98,10 @@ export default function FinalCTASection() {
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
             {trustFeatures.map((feature) => (
-              <div key={feature.text} className="inline-flex items-center gap-2 rounded-full border border-blue-100/80 bg-blue-50/50 px-3 py-1">
+              <div
+                key={feature.text}
+                className="inline-flex items-center gap-2 rounded-full border border-blue-50/80 bg-blue-50/70 px-3 py-1.5"
+              >
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
                   {feature.icon}
                 </div>

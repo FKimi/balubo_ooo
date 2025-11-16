@@ -31,69 +31,59 @@ const solutions = [
     ),
     title: "価値がわかるクライアントと出会える",
     description:
-      "分析データを基に、専門性を求めるクライアントとマッチング予定（開発中）。文字単価交渉から脱却できます。",
+      "分析データを基に、専門性を求めるクライアントとマッチング予定（開発中）。単なる工数ではなく、思考や専門性そのものを評価してくれる出会いをつくります。",
   },
 ];
 
 export default function WhyBaluboSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-blue-50/40 to-white py-20 px-4 md:py-28">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-60 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.7),_transparent_60%)]"
-        aria-hidden="true"
-      />
+    <section
+      id="features"
+      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 md:py-32"
+    >
       <div className="container relative mx-auto max-w-7xl">
-        <div>
-          {/* メインメッセージ */}
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 mb-4">
-              Why balubo?
-            </p>
-            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-              <span className="text-blue-600">balubo</span>で専門性をデータ化
+        {/* セクションヘッダー */}
+        <div className="mb-12">
+          <div className="mx-auto max-w-5xl text-left">
+            <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
+              baluboで専門性をデータ化
             </h2>
-            <p className="text-xl md:text-2xl text-gray-900 font-bold mb-4 leading-relaxed">
+            <p className="mb-3 text-xl font-bold leading-relaxed text-gray-900 md:text-2xl">
               AIが第三者視点で記事を分解し、強み・思考・成果をレポート化します。
             </p>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg leading-relaxed text-gray-600">
               手作業で説明していた価値を、客観的なスコアと文章で提示。商談や提案の土台になる「専門性の証明書」を作るプラットフォームです。
             </p>
           </div>
+        </div>
 
-          {/* 3つのソリューション */}
-          <div className="mb-12 text-center">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">
-              専門性可視化までの3ステップ
-            </h3>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto mb-16">
-            {solutions.map((solution) => (
-              <div
-                key={solution.title}
-                className="relative rounded-2xl border border-blue-100/80 bg-white/95 p-8 shadow-lg shadow-blue-500/5 hover:border-blue-500/70 hover:shadow-xl transition-all duration-500"
-              >
-                {/* アイコン */}
-                <div className="mb-6">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white">
-                    {solution.icon}
+        {/* 3つのソリューション */}
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
+          {solutions.map((solution, index) => (
+            <div
+              key={solution.title}
+              className="relative flex flex-col rounded-[32px] border border-blue-50/90 bg-white/95 p-7 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(37,99,235,0.18)]"
+            >
+              {/* クレイ風アイコン */}
+              <div className="mb-5 flex items-center justify-start">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-400 text-white shadow-[0_10px_26px_rgba(37,99,235,0.45)]">
+                    <span className="flex items-center justify-center">{solution.icon}</span>
                   </div>
                 </div>
-
-                {/* タイトル */}
-                <h3 className="mb-4 text-xl font-bold text-gray-900 leading-tight">
-                  {solution.title === "URL入力だけで楽々記事登録" && "1. URL入力だけで記事を登録"}
-                  {solution.title === "AIがあなたの「価値」を言語化" && "2. AIがあなたの「価値」を言語化"}
-                  {solution.title === "価値がわかるクライアントと出会える" && "3. 価値がわかるクライアントと出会える"}
-                </h3>
-
-                {/* 説明 */}
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {solution.description}
-                </p>
               </div>
-            ))}
-          </div>
 
+              {/* タイトル */}
+              <h3 className="mb-3 text-left text-lg font-bold leading-snug text-gray-900">
+                {`0${index + 1}. ${solution.title}`}
+              </h3>
+
+              {/* 説明 */}
+              <p className="text-left text-sm leading-relaxed text-gray-700">
+                {solution.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

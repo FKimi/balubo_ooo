@@ -72,32 +72,25 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="relative isolate overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white py-24 px-4 md:py-32"
+      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 md:py-32"
     >
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.35),_transparent_65%)]"
-        aria-hidden="true"
-      />
       <div className="container relative mx-auto max-w-4xl">
-        <div className="text-center mb-16">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-4">
-            FAQ
-          </p>
-          <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-            よくある質問
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            baluboに関するよくある質問にお答えします。
-            <br />
-            その他のご質問は、お気軽にお問い合わせください。
-          </p>
+        <div className="mb-16">
+          <div className="mx-auto max-w-3xl text-left">
+            <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
+              よくあるご質問
+            </h2>
+            <p className="text-lg leading-relaxed text-gray-600">
+              baluboの料金や使い方、安全性について、よくいただくポイントをまとめました。ここにない内容については、お気軽にお問い合わせください。
+            </p>
+          </div>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="overflow-hidden rounded-2xl border border-gray-100 bg-white hover:border-blue-400 transition-all duration-300"
+              className="overflow-hidden rounded-[28px] border border-blue-50/90 bg-white/95 shadow-[0_14px_36px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(37,99,235,0.16)]"
             >
               <button
                 className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left text-gray-900 transition-colors duration-200 hover:bg-gray-50"

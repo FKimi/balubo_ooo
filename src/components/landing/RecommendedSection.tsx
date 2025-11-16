@@ -31,55 +31,43 @@ interface RecommendedPersona {
 const personas: RecommendedPersona[] = [
   {
     title: "フリーランス・個人事業主のライター・編集者",
-    description: "独立して数年、実績は積んできたものの、価格競争から抜け出せずにいる",
-    painPoints: [
-      "単価交渉で「相場はこのくらい」と言われる",
-      "記事を見ても「何ができるライターか」が伝わらない",
-      "継続的な案件獲得に苦労している"
-    ],
+    description: "独立して数年、実績は積んできたものの、自分の専門性が十分に伝わっていないと感じている",
+    painPoints: ["提案や交渉の場で、自分の価値を裏付ける根拠を示しづらい", "記事を見ても「何ができるライターか」が伝わらない", "継続的な案件獲得に苦労している"],
     icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
     ),
     color: "text-blue-600",
-    bgColor: "from-blue-50 to-blue-50/80",
-    borderColor: "border-blue-200"
+    bgColor: "from-blue-500 to-blue-400",
+    borderColor: "border-blue-50/80",
   },
   {
     title: "企業で働くライター・編集者",
     description: "社内での評価は高いが、転職や副業で自分の価値を証明したい",
-    painPoints: [
-      "「社内では評価されているが、外部では分からない」",
-      "転職活動で「具体的にどんな記事が書けるか」を説明できない",
-      "副業案件で単価を上げたいが根拠を示せない"
-    ],
+    painPoints: ["「社内では評価されているが、外部では分からない」", "転職活動で「具体的にどんな記事が書けるか」を説明できない", "副業や次のステップに向けて、専門性を客観的に証明する材料が足りない"],
     icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
-    color: "text-green-600",
-    bgColor: "from-green-50 to-emerald-50",
-    borderColor: "border-green-200"
+    color: "text-emerald-600",
+    bgColor: "from-emerald-500 to-teal-400",
+    borderColor: "border-emerald-50/80",
   },
   {
     title: "コンテンツチームのリーダー・マネージャー",
     description: "チームメンバーの専門性を可視化し、適切な案件配分をしたい",
-    painPoints: [
-      "メンバーの得意分野が把握できていない",
-      "案件に最適なライターを選定するのが難しい",
-      "メンバーの成長領域が分からない"
-    ],
+    painPoints: ["メンバーの得意分野が把握できていない", "案件に最適なライターを選定するのが難しい", "メンバーの成長領域が分からない"],
     icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
     color: "text-orange-600",
-    bgColor: "from-orange-50 to-amber-50",
-    borderColor: "border-orange-200"
-  }
+    bgColor: "from-orange-500 to-amber-400",
+    borderColor: "border-orange-50/80",
+  },
 ];
 
 export default function RecommendedSection() {
@@ -88,28 +76,23 @@ export default function RecommendedSection() {
   return (
     <section
       id="recommended"
-      className="relative isolate overflow-hidden bg-gradient-to-b from-blue-50 via-white to-white py-24 px-4 md:py-32"
+      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 md:py-32"
     >
-      <div
-        className="pointer-events-none absolute inset-x-4 top-8 -z-10 h-48 rounded-3xl border border-blue-100/60"
-        aria-hidden="true"
-      />
       <div
         className="pointer-events-none absolute -bottom-24 right-12 -z-10 h-64 w-64 rounded-full bg-blue-100/70 blur-3xl"
         aria-hidden="true"
       />
       <div className="container mx-auto max-w-6xl">
         {/* セクションヘッダー */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-            このようなプロフェッショナルに
-            <span className="text-blue-600">最適です</span>
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            baluboは、あなたの専門性を客観的に証明し、
-            <br className="hidden sm:block" />
-            価値の高い仕事につながるためのツールです。
-          </p>
+        <div className="mb-12">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
+              このようなプロフェッショナルに最適です
+            </h2>
+            <p className="text-lg leading-relaxed text-gray-600">
+              baluboは、あなたの専門性を客観的に証明し、価値の高い仕事につながるためのツールです。
+            </p>
+          </div>
         </div>
 
         {/* ペルソナカード */}
@@ -117,12 +100,18 @@ export default function RecommendedSection() {
           {personas.map((persona) => (
             <div
               key={persona.title}
-              className={`relative flex flex-col border ${persona.borderColor} bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500`}
+              className={`relative flex flex-col rounded-[32px] border ${persona.borderColor} bg-white/95 p-7 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(37,99,235,0.18)]`}
             >
               {/* アイコンとタイトル */}
-              <div className="mb-6">
-                <div className={`w-16 h-16 bg-gradient-to-br ${persona.bgColor} rounded-xl flex items-center justify-center ${persona.color} mb-4`}>
-                  {persona.icon}
+              <div className="mb-6 min-h-[150px] flex flex-col justify-start">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)]">
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${persona.bgColor} text-white shadow-[0_10px_26px_rgba(37,99,235,0.45)]`}
+                    >
+                      <span className="flex items-center justify-center">{persona.icon}</span>
+                    </div>
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">
                   {persona.title}
@@ -156,7 +145,7 @@ export default function RecommendedSection() {
 
         {/* 下部CTA */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-br from-blue-50 via-blue-50/80 to-blue-50/60 border-2 border-blue-200 rounded-2xl p-8 md:p-10 shadow-sm">
+          <div className="rounded-[32px] border border-blue-100/80 bg-white/95 p-8 shadow-[0_22px_60px_rgba(37,99,235,0.12)] md:p-10">
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
               あなたも、専門性を証明しませんか？
             </h3>
@@ -165,11 +154,11 @@ export default function RecommendedSection() {
               <br className="hidden sm:block" />
               クライアントに伝わる「証明書」を作成します。
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <span className="text-sm text-gray-600">まずは無料で</span>
               <button
                 onClick={() => router.push("/register")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105"
+                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/25 transition-all duration-200 hover:scale-105 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30"
               >
                 専門性スコアを見る（無料・3分）
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

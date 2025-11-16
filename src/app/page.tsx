@@ -166,7 +166,7 @@ export default function HomePage() {
             </Button>
             <Button
               asChild
-              className="rounded-xl bg-blue-600 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+              className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
               <Link href="/register">無料で登録する</Link>
             </Button>

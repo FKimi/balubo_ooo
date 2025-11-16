@@ -10,7 +10,7 @@ const analysisHighlights = [
       </svg>
     ),
     title: "業界タグ",
-    subtitle: "Industry Tags",
+    subtitle: "",
     description: "記事に登場する業界や企業、人名を抽出し、クライアントが探しているタグとして整理します。",
     chips: ["製造DX", "BtoB SaaS", "経営層インタビュー", "企業変革"],
   },
@@ -21,20 +21,9 @@ const analysisHighlights = [
       </svg>
     ),
     title: "専門性タグ",
-    subtitle: "Expertise Tags",
+    subtitle: "",
     description: "分析力・戦略思考・調査設計などの抽象的な強みをタグ化し、専門領域を短い言葉で伝えます。",
     chips: ["市場分析", "ビジネス戦略", "リサーチ設計", "課題解決プロセス"],
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-      </svg>
-    ),
-    title: "成果物と概要",
-    subtitle: "Content Summary",
-    description: "成果物の種類や狙いを要約し、商談資料に転用できる紹介文を生成します。",
-    highlight: "成果物: 記事",
   },
   {
     icon: (
@@ -43,29 +32,20 @@ const analysisHighlights = [
       </svg>
     ),
     title: "課題・解決策・成果",
-    subtitle: "Problem / Solution / Result",
-    description: "課題・解決策・得られた結果を分解し、提案の骨子にそのまま使える形で出力します。",
+    subtitle: "",
+    description: "課題・解決策・得られた結果をコンパクトに整理し、提案や実績紹介の骨子にそのまま使える形で提示します。",
     lists: [
       {
         title: "課題",
-        items: [
-          "業界特有の課題や商習慣に関する最新情報が断片的で共有しづらい",
-          "競合動向や市場変化を体系的に整理した一次情報が不足していた",
-        ],
+        items: ["業界特有の課題や商習慣など、前提となる状況が整理されていない"],
       },
       {
         title: "解決策",
-        items: [
-          "経営層への取材を通じて一次情報を確保し、戦略や意思決定の背景を言語化",
-          "定量・定性データを組み合わせ、課題の全体像が分かるストーリー構成を設計",
-        ],
+        items: ["取材やリサーチで一次情報を確保し、意思決定の背景をストーリーとして構造化"],
       },
       {
         title: "成果",
-        items: [
-          "業界の課題と解決策を体系化したレポートとして、クライアント提案に活用",
-          "意思決定者の理解を深め、次のアクション設計につながる洞察を提供",
-        ],
+        items: ["課題・解決策・成果が一枚で伝わるレポートとして、提案や振り返りに活用"],
       },
     ],
   },
@@ -75,122 +55,89 @@ export default function FeaturesSection() {
   return (
     <section
       id="analysis"
-      className="relative isolate overflow-hidden bg-white py-24 px-4 text-gray-900 md:py-32"
+      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 text-gray-900 md:py-32"
     >
       <div
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.3),_transparent_65%)]"
         aria-hidden="true"
       />
       <div className="container relative mx-auto max-w-7xl">
-        <div className="text-center mb-16">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-4">
-            Analysis
-          </p>
-          <h2 className="text-3xl font-bold text-gray-900 md:text-4xl lg:text-5xl mb-6 leading-tight">
-            baluboが可視化する<span className="text-blue-600">4つの価値</span>
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            AIが作品を多角的に分析し、業界適性・専門性・成果までをビジネス視点で説明します。
-          </p>
-          
+        <div className="mb-16">
+          <div className="mx-auto max-w-3xl text-left">
+            <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
+              baluboが可視化する3つの価値
+            </h2>
+            <p className="text-lg leading-relaxed text-gray-600">
+              AIが作品を多角的に分析し、業界適性・専門性・成果までをビジネス視点で説明します。
+            </p>
+          </div>
         </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+        {/* フィーチャーリスト形式で3つの価値を縦に配置 */}
+        <div className="mx-auto max-w-5xl space-y-8">
           {analysisHighlights.map((highlight) => (
             <div
               key={highlight.title}
-                className="relative rounded-2xl border border-gray-100 bg-white/95 p-6 shadow-lg shadow-blue-500/5 transition-all duration-500 hover:-translate-y-1 hover:border-blue-400"
+              className="flex gap-5 rounded-[32px] border border-blue-50/90 bg-white/95 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm"
             >
-              {/* アイコン */}
-                <div className="mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                  {highlight.icon}
+              {/* クレイ風アイコン（左） */}
+              <div className="flex flex-shrink-0 items-start pt-1">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-400 text-white shadow-[0_10px_26px_rgba(37,99,235,0.45)]">
+                    <span className="flex items-center justify-center">{highlight.icon}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* タイトル */}
-                <h3 className="mb-2 text-lg font-bold text-gray-900 leading-tight">
-                {highlight.title}
-              </h3>
+              {/* テキストブロック（右） */}
+              <div className="flex-1">
+                <h3 className="mb-2 text-lg font-bold leading-snug text-gray-900">
+                  {highlight.title}
+                </h3>
+                <p className="mb-3 text-sm leading-relaxed text-gray-700">
+                  {highlight.description}
+                </p>
 
-              {/* サブタイトル */}
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
-                {highlight.subtitle}
-              </p>
+                {/* 業界タグ / 専門性タグのチップ */}
+                {highlight.chips && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {highlight.chips.map((chip) => (
+                      <span
+                        key={chip}
+                        className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700"
+                      >
+                        #{chip}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-              {/* 説明 */}
-                <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                {highlight.description}
-              </p>
-
-              {/* タグやハイライト */}
-              {highlight.chips && (
-                <div className="flex flex-wrap gap-2">
-                  {highlight.chips.map((chip) => (
-                    <span
-                      key={chip}
-                      className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700"
-                    >
-                      #{chip}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-                {highlight.highlight && (
-                  <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-sm font-semibold text-gray-900">
-                  {highlight.highlight}
-                </div>
-              )}
-
-              {highlight.lists && (
-                <div className="mt-4 space-y-4">
-                  {highlight.lists.map((list) => (
-                    <div key={list.title}>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
-                        {list.title}
-                      </p>
-                      <ul className="space-y-2">
-                        {list.items.map((item) => (
-                          <li key={item} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
-                            <span className="mt-[6px] inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
+                {/* 課題・解決策・成果の3カラムリスト */}
+                {highlight.lists && (
+                  <div className="mt-4 grid gap-6 md:grid-cols-3">
+                    {highlight.lists.map((list) => (
+                      <div key={list.title}>
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          {list.title}
+                        </p>
+                        <ul className="space-y-1.5">
+                          {list.items.map((item) => (
+                            <li key={item} className="flex items-start gap-2 text-sm leading-relaxed text-gray-700">
+                              <span className="mt-[6px] inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* CTAセクション */}
-        <div className="mt-16 text-center">
-          <div className="mx-auto max-w-4xl rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-blue-50/80 p-8 md:p-10 shadow-sm">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              あなたも、専門性を証明しませんか？
-            </h3>
-            <p className="text-lg text-gray-700 mb-6">
-              baluboがあなたの専門性を客観的に分析し、クライアントに伝わる「証明書」を作成します。
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="/register"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105"
-              >
-                無料で専門性スコアを見る
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </a>
-            </div>
-              <p className="text-sm text-gray-600 mt-4">
-                登録無料・3分で完了
-            </p>
-          </div>
-        </div>
+        {/* 中間CTAはストーリー上少し後に任せるため、このセクションでは説明に集中 */}
       </div>
     </section>
   );

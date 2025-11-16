@@ -163,31 +163,27 @@ export default function RecentWorksSection({
   return (
     <section
       id="recent-works"
-      className="relative isolate bg-gradient-to-b from-white via-blue-50/40 to-white py-20 px-4 md:py-24"
+      className="relative isolate bg-[#F4F7FF] py-24 px-4 md:py-28"
       aria-labelledby="recent-works-heading"
     >
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-blue-100/50 to-transparent"
-        aria-hidden="true"
-      />
       <div className="container relative mx-auto max-w-6xl">
-        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
-              Recently Added
-            </p>
+        <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-3xl text-left">
             <h2
               id="recent-works-heading"
-              className="mt-2 text-3xl font-bold text-gray-900 md:text-4xl"
+              className="text-3xl font-bold text-gray-900 md:text-4xl"
             >
               最近追加された作品
             </h2>
-            <p className="mt-3 max-w-2xl text-sm text-gray-600 md:text-base">
-              baluboに最近追加された作品のハイライトです。直近のアウトプットから専門性の幅をのぞいてみましょう。
+            <p className="mt-3 text-sm text-gray-600 md:text-base">
+              baluboに最近追加された作品のハイライトです。直近のアウトプットから、プロの専門性や得意領域の「今」をのぞいてみましょう。
             </p>
-            <p className="mt-2 text-xs md:text-sm text-gray-500">
+            <p className="mt-2 text-xs text-gray-500 md:text-sm">
               表示されているのは実際の公開ポートフォリオです。自分の実績も掲載したい方は{" "}
-              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-700 underline decoration-blue-200">
+              <Link
+                href="/register"
+                className="font-semibold text-blue-600 underline decoration-blue-200 hover:text-blue-700"
+              >
                 無料登録
               </Link>
               からどうぞ。
@@ -214,11 +210,11 @@ export default function RecentWorksSection({
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {sortedWorks.map((work) => (
             <article
               key={work.id}
-              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100/60 bg-white/95 shadow-lg shadow-blue-500/5 transition-all hover:-translate-y-1 hover:border-blue-400/60 hover:shadow-xl"
+              className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-blue-50/90 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(37,99,235,0.18)]"
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-blue-50">
                 {work.previewImage ? (
