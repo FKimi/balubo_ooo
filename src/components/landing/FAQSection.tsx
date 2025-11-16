@@ -136,32 +136,6 @@ export default function FAQSection() {
             </div>
           ))}
         </div>
-
-        {/* お問い合わせリンク */}
-        <div className="mt-12 text-center">
-          <p className="mb-4 text-gray-600">
-            その他のご質問がありますか？
-          </p>
-          <a
-            href="mailto:support@balubo.jp"
-            className="inline-flex items-center gap-2 font-semibold text-blue-600 transition-colors duration-200 hover:text-blue-800"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-            お問い合わせはこちら
-          </a>
-        </div>
       </div>
     </section>
   );
