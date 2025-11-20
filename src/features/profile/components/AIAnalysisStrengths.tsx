@@ -244,13 +244,11 @@ export function AIAnalysisStrengths({
 
 function SolutionCard({
   hint,
-  index,
+  index: _index,
 }: {
   hint: JobMatchingHint;
   index: number;
 }) {
-  const matchScore = Math.max(78, 94 - index * 4);
-
   return (
     <div className="rounded-[32px] border border-blue-100 bg-gradient-to-br from-blue-50/90 via-white to-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] transition-all">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">

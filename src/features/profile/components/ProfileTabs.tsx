@@ -93,16 +93,7 @@ export function ProfileTabs({
   const [isClient, setIsClient] = useState(false);
   const { openContentTypeSelector } = useLayout();
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (isLoading) {
-    return <ProfileSkeleton />;
-  }
-
-
-  // カスタムフックからデータを取得
+  // カスタムフックからデータを取得（すべてのフックは早期リターンの前に呼び出す必要がある）
   const workStats = useWorkStatistics(savedWorks);
   const {
     categories,
@@ -212,6 +203,15 @@ export function ProfileTabs({
       }));
     }
   }, [getTabsInfo, tabs, activeTab, setActiveTab]);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // ローディング状態のチェックはすべてのフックの後に実行
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
 
   return (
     <div>

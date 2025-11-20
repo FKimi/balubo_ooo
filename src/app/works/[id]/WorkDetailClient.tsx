@@ -384,7 +384,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
     }
 
     return `この${contentLabel}は、業界課題を的確に捉えながら価値提供へとつなげている点が魅力です。`;
-  }, [aiAnalysis, work?.content_type]);
+  }, [aiAnalysis, work?.content_type, parseBulletItems, truncateText]);
 
   const contentSummary = useMemo(() => {
     if (!aiAnalysis) return null;

@@ -226,7 +226,7 @@ export function aggregateCreatorContentAnalysis(
   if (targetWorks.length === 0) return null;
 
   const collectFieldItems = (
-    extractor: (work: WorkData) => string | undefined,
+    extractor: (_work: WorkData) => string | undefined,
   ) => {
     const seen = new Set<string>();
     const items: string[] = [];

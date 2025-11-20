@@ -3,58 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-interface RecommendedPersona {
-  title: string;
-  subtitle: string;
-  painPoints: string[];
-  icon: React.ReactNode;
-  colorClass: string;
-  bgClass: string;
-  accentClass: string;
-}
-
-const personas: RecommendedPersona[] = [
-  {
-    title: "フリーランス",
-    subtitle: "ライター・編集者",
-    painPoints: ["提案で「価値」を証明しづらい", "実績が整理できていない", "単価交渉の材料がほしい"],
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    ),
-    colorClass: "text-blue-600",
-    bgClass: "bg-blue-50/50",
-    accentClass: "bg-blue-100",
-  },
-  {
-    title: "会社員",
-    subtitle: "ライター・編集者",
-    painPoints: ["社外での市場価値を知りたい", "転職・副業で実績を示したい", "専門性を客観視したい"],
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    ),
-    colorClass: "text-emerald-600",
-    bgClass: "bg-emerald-50/50",
-    accentClass: "bg-emerald-100",
-  },
-  {
-    title: "チームリーダー",
-    subtitle: "コンテンツマネージャー",
-    painPoints: ["メンバーの強みを把握したい", "案件への適材適所を進めたい", "評価の客観的指標がほしい"],
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    ),
-    colorClass: "text-orange-600",
-    bgClass: "bg-orange-50/50",
-    accentClass: "bg-orange-100",
-  },
-];
-
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 export default function RecommendedSection() {
