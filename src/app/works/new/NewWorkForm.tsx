@@ -874,7 +874,7 @@ function NewWorkForm({
         }
 
         console.log("最終エラーメッセージ:", errorMessage);
-        
+
         // エラー詳細を保持したエラーオブジェクトを作成
         const errorObj: any = new Error(errorMessage);
         errorObj.status = response.status;
@@ -1078,7 +1078,7 @@ function NewWorkForm({
 
       // エラー詳細メッセージの構築
       let errorDetailSection = `ステータスコード: ${statusCode || "不明"}\nエラーメッセージ: ${actualErrorMessage}`;
-      
+
       if (errorDetails) {
         errorDetailSection += `\n\n【APIエラー詳細】`;
         if (errorDetails.status) {
@@ -1284,31 +1284,31 @@ ${errorDetailSection}
         banner_image_url: newBannerImageUrl || previewData?.image || null,
         preview_data: previewData
           ? {
-              title: previewData.title,
-              description: previewData.description,
-              image: previewData.image,
-              siteName: previewData.siteName,
-            }
+            title: previewData.title,
+            description: previewData.description,
+            image: previewData.image,
+            siteName: previewData.siteName,
+          }
           : null,
         ai_analysis_result: analysisResult
           ? {
-              ...analysisResult,
-              analysis_metadata: {
-                analysis_date: new Date().toISOString(),
-                analysis_version: "v1.0",
-                creativity_score: getArrayLength(
-                  analysisResult.strengths?.creativity,
-                ),
-                expertise_score: getArrayLength(
-                  analysisResult.strengths?.expertise,
-                ),
-                impact_score: getArrayLength(
-                  analysisResult.strengths?.impact,
-                ),
-                total_tags: getArrayLength(analysisResult.tags),
-                total_keywords: getArrayLength(analysisResult.keywords),
-              },
-            }
+            ...analysisResult,
+            analysis_metadata: {
+              analysis_date: new Date().toISOString(),
+              analysis_version: "v1.0",
+              creativity_score: getArrayLength(
+                analysisResult.strengths?.creativity,
+              ),
+              expertise_score: getArrayLength(
+                analysisResult.strengths?.expertise,
+              ),
+              impact_score: getArrayLength(
+                analysisResult.strengths?.impact,
+              ),
+              total_tags: getArrayLength(analysisResult.tags),
+              total_keywords: getArrayLength(analysisResult.keywords),
+            },
+          }
           : null,
         // デザイン用フィールド
         design_tools: formData.designTools,
@@ -1659,11 +1659,10 @@ ${errorDetailSection}
 
                 {/* ドラッグ&ドロップエリア */}
                 <div
-                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                    isDragging
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging
                       ? "border-blue-600 bg-blue-50"
                       : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
-                  }`}
+                    }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -1712,21 +1711,21 @@ ${errorDetailSection}
                     {/* 画像プレビュー */}
                     {uploadedFiles.filter((f) => f.type.startsWith("image/"))
                       .length > 0 && (
-                      <div className="mt-6 flex flex-wrap justify-center gap-4">
-                        {uploadedFiles
-                          .filter((f) => f.type.startsWith("image/"))
-                          .map((file, idx) => (
-                            <Image
-                              key={idx}
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              width={192}
-                              height={192}
-                              className="w-48 h-48 object-cover rounded-lg shadow"
-                            />
-                          ))}
-                      </div>
-                    )}
+                        <div className="mt-6 flex flex-wrap justify-center gap-4">
+                          {uploadedFiles
+                            .filter((f) => f.type.startsWith("image/"))
+                            .map((file, idx) => (
+                              <Image
+                                key={idx}
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                width={192}
+                                height={192}
+                                className="w-48 h-48 object-cover rounded-lg shadow"
+                              />
+                            ))}
+                        </div>
+                      )}
                   </div>
                 </div>
 
@@ -1850,32 +1849,29 @@ ${errorDetailSection}
               <div className="flex border-b border-slate-200 mb-6">
                 <button
                   onClick={() => setActiveTab("description")}
-                  className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                    activeTab === "description"
+                  className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === "description"
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   作品概要
                 </button>
                 <button
                   onClick={() => setActiveTab("productionNotes")}
-                  className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                    activeTab === "productionNotes"
+                  className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === "productionNotes"
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-slate-500 hover:text-slate-700"
-                  }`}
+                    }`}
                 >
                   制作メモ（任意）
                 </button>
                 {contentType === "article" && (
                   <button
                     onClick={() => setActiveTab("articleContent")}
-                    className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === "articleContent"
+                    className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === "articleContent"
                         ? "border-blue-600 text-blue-600"
                         : "border-transparent text-slate-500 hover:text-slate-700"
-                    }`}
+                      }`}
                   >
                     記事本文（任意）
                   </button>
@@ -2092,11 +2088,10 @@ ${errorDetailSection}
                           key={tool}
                           onClick={() => addDesignTool(tool)}
                           disabled={formData.designTools.includes(tool)}
-                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                            formData.designTools.includes(tool)
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${formData.designTools.includes(tool)
                               ? "bg-blue-100 text-blue-700 cursor-not-allowed"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
+                            }`}
                         >
                           {tool}
                         </button>
@@ -2381,14 +2376,14 @@ ${errorDetailSection}
                       const strengths = analysisResult.strengths;
                       const contentAnalysis = analysisResult.contentAnalysis;
                       const tags = analysisResult.tags || [];
-                      
+
                       // 専門性タグから特徴を抽出
                       const expertiseTags = analysisResult.tagClassification?.technique || [];
                       const genreTags = analysisResult.tagClassification?.genre || [];
-                      const industryTag = genreTags[0] || tags.find((tag: string) => 
+                      const industryTag = genreTags[0] || tags.find((tag: string) =>
                         ["医療", "金融", "IT", "SaaS", "BtoB", "教育", "不動産", "製造", "小売", "サービス"].some(industry => tag.includes(industry))
                       ) || "";
-                      
+
                       // 課題・目的を抽出（箇条書きから複数の項目を取得）
                       const problemPurpose =
                         contentAnalysis?.problemPurpose ||
@@ -2398,7 +2393,7 @@ ${errorDetailSection}
                         .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
                         .filter((item: string) => item.length > 0)
                         .slice(0, 2);
-                      
+
                       // 想定読者
                       const targetAudienceText =
                         contentAnalysis?.targetAudience ||
@@ -2409,7 +2404,7 @@ ${errorDetailSection}
                         .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
                         .filter((item: string) => item.length > 0)
                         .slice(0, 2);
-                      
+
                       // 解決策（切り口や構成）
                       const solutionApproach =
                         contentAnalysis?.solutionApproach ||
@@ -2419,7 +2414,7 @@ ${errorDetailSection}
                         .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
                         .filter((item: string) => item.length > 0)
                         .slice(0, 2);
-                      
+
                       // 成果を抽出（数値があれば強調、箇条書きから複数の項目を取得）
                       const resultText = contentAnalysis?.result || "";
                       const resultItems = resultText.split('\n')
@@ -2428,11 +2423,11 @@ ${errorDetailSection}
                         .slice(0, 2);
                       const hasNumbers = /\d+/.test(resultText);
                       const numberMatch = resultText.match(/\d+[%％]?/);
-                      
+
                       // 創造性・専門性・影響力を抽出
                       const creativity = strengths?.creativity?.[0] || "";
                       const expertise = strengths?.expertise?.[0] || "";
-                      
+
                       // パターン1: 数値成果 + 課題解決 + 専門性（最も魅力的）
                       if (hasNumbers && numberMatch && problemItems.length > 0 && industryTag) {
                         const expertiseText = expertiseTags[0] || expertise || "専門的な知識";
@@ -2441,7 +2436,7 @@ ${errorDetailSection}
                         problemText = problemText.replace(/。+$/, '');
                         return `${industryTag}の${problemText}という課題に取り組み、${numberMatch[0]}の成果を出しています。${expertiseText}を活かしたアプローチで、単なる情報提供を超えた業界への貢献を実現している点が、この作品の魅力です。`;
                       }
-                      
+
                       // パターン2: 課題 + 解決策 + 専門性（具体的なアプローチを評価）
                       if (problemItems.length > 0 && solutionItems.length > 0) {
                         let problemText = truncateText(problemItems[0], 55);
@@ -2452,14 +2447,14 @@ ${errorDetailSection}
                         const expertiseText = expertiseTags[0] || industryTag || "専門知識";
                         return `${problemText}という課題に、${solutionText}というアプローチで取り組んでいます。${expertiseText}を活かしながら、業界への貢献と読者への価値提供を両立させている点が、この作品の魅力です。`;
                       }
-                      
+
                       // パターン3: 想定読者 + 解決策（読者理解を評価）
                       if (targetAudienceItems.length > 0 && solutionItems.length > 0) {
-                        let audienceText = truncateText(targetAudienceItems[0], 50).replace(/。+$/, '');
-                        let solutionText = truncateText(solutionItems[0], 50).replace(/。+$/, '');
+                        const audienceText = truncateText(targetAudienceItems[0], 50).replace(/。+$/, '');
+                        const solutionText = truncateText(solutionItems[0], 50).replace(/。+$/, '');
                         return `${audienceText}を想定読者に定め、${solutionText}という切り口で課題を解決しています。誰の意思決定を支援するかまで描けている点が、この作品のビジネス価値を高めています。`;
                       }
-                      
+
                       // パターン4: 創造性 + 専門性 + 影響力（総合的な評価）
                       if (creativity && expertise && industryTag) {
                         let creativityShort = truncateText(creativity, 50);
@@ -2468,7 +2463,7 @@ ${errorDetailSection}
                         const expertiseText = expertiseTags[0] || expertise;
                         return `${industryTag}の${expertiseText}を活かしながら、${creativityShort}という視点で作品を仕上げています。この作品は、あなたの専門性と創造性の両方が発揮された、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
                       }
-                      
+
                       // パターン5: 成果 + 専門性（成果を強調）
                       if (resultItems.length > 0 && industryTag) {
                         let resultText = truncateText(resultItems[0], 60);
@@ -2477,30 +2472,30 @@ ${errorDetailSection}
                         const expertiseText = expertiseTags[0] || "専門的な知識";
                         return `${industryTag}の課題を解決し、${resultText}という成果を出しています。${expertiseText}を活かしたこの作品は、あなたの実践力と専門性の高さを示すものです。`;
                       }
-                      
+
                       // パターン6: 業界 + 専門性 + 創造性（総合的な魅力）
                       if (industryTag && expertiseTags.length > 0) {
                         const expertiseText = expertiseTags[0];
                         const creativityText = creativity || "創造的な視点";
                         return `${industryTag}の${expertiseText}を活かしながら、${creativityText}で作品を仕上げている点が素晴らしいです。この作品は、あなたの専門性と創造性が融合した、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
                       }
-                      
+
                       // パターン7: 業界 + 専門性（フォールバック）
                       if (industryTag) {
                         const expertiseText = expertiseTags[0] || tags[0] || "専門性";
                         return `${industryTag}の課題を解決する${contentType === "article" ? "記事" : "作品"}です。${expertiseText}を活かしながら、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、この作品の魅力です。`;
                       }
-                      
+
                       // パターン8: 最終フォールバック
                       if (tags.length > 0) {
                         return `${tags[0]}${tags[1] ? `と${tags[1]}` : ""}の専門知識を活かした${contentType === "article" ? "記事" : "作品"}です。この作品は、あなたの専門性と実践力の高さを示すものです。`;
                       }
-                      
+
                       return `この${contentType === "article" ? "記事" : "作品"}は、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が魅力です。`;
                     };
-                    
+
                     const comment = generateHighlightComment();
-                    
+
                     return (
                       <div className="relative">
                         {/* 吹き出しコメント */}
@@ -2524,7 +2519,7 @@ ${errorDetailSection}
                                   />
                                 </svg>
                               </div>
-                              
+
                               {/* テキスト */}
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-2">
@@ -2538,7 +2533,7 @@ ${errorDetailSection}
                               </div>
                             </div>
                           </div>
-                          
+
                           {/* 吹き出しのしっぽ（左下、白背景に合わせて） */}
                           <div className="absolute -bottom-3 left-6 w-0 h-0">
                             <div className="w-0 h-0 border-l-[16px] border-l-transparent border-t-[16px] border-t-gray-300"></div>
@@ -2684,23 +2679,23 @@ ${errorDetailSection}
                           {/* ターゲット層分析 */}
                           {analysisResult.detailedAnalysis
                             ?.targetAndPurpose && (
-                            <div className="bg-white/70 rounded-lg p-3">
-                              <h6 className="font-semibold text-emerald-800 mb-2 text-sm">
-                                対象者・用途
-                              </h6>
-                              <div className="text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded leading-relaxed">
-                                {
-                                  analysisResult.detailedAnalysis
-                                    .targetAndPurpose
-                                }
+                              <div className="bg-white/70 rounded-lg p-3">
+                                <h6 className="font-semibold text-emerald-800 mb-2 text-sm">
+                                  対象者・用途
+                                </h6>
+                                <div className="text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded leading-relaxed">
+                                  {
+                                    analysisResult.detailedAnalysis
+                                      .targetAndPurpose
+                                  }
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
                           {/* ジャンル・専門分野タグ */}
                           {analysisResult.tagClassification?.genre &&
                             analysisResult.tagClassification.genre.length >
-                              0 && (
+                            0 && (
                               <div className="bg-white/70 rounded-lg p-3">
                                 <h6 className="font-semibold text-emerald-800 mb-2 text-sm">
                                   興味分野
