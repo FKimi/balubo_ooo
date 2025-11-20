@@ -77,21 +77,22 @@ export default function HeroSection() {
           {/* Right Column: Visual Representation */}
           <FadeIn delay={0.2} className="relative mx-auto w-full max-w-lg lg:max-w-none">
             <div className="relative group">
-              {/* Background Decor */}
+              {/* Background Decor - More subtle and premium */}
               <div className="absolute -top-12 -right-12 h-64 w-64 rounded-full bg-blue-100/50 blur-3xl opacity-50 mix-blend-multiply animate-pulse-slow"></div>
               <div className="absolute -bottom-12 -left-12 h-64 w-64 rounded-full bg-indigo-100/50 blur-3xl opacity-50 mix-blend-multiply animate-pulse-slow delay-1000"></div>
 
-              {/* Main Profile Mockup */}
+              {/* Main Profile Page Mockup */}
               <div className="relative rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 overflow-hidden transition-transform duration-700 hover:scale-[1.01]">
-                {/* Window Controls */}
+                {/* Window Controls - Sleeker */}
                 <div className="h-8 bg-white border-b border-gray-50 flex items-center px-4 gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
                 </div>
 
-                {/* Profile Header */}
+                {/* Profile Header Section */}
                 <div className="relative">
+                  {/* Banner - High quality gradient overlay */}
                   <div className="h-32 w-full relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-gray-900/10 to-gray-900/30 z-10"></div>
                     <img
@@ -101,7 +102,8 @@ export default function HeroSection() {
                     />
                   </div>
 
-                  <div className="px-6 pb-5 relative">
+                  {/* Profile Info */}
+                  <div className="px-6 pb-6 relative">
                     <div className="flex justify-between items-end -mt-10 mb-4 relative z-20">
                       <div className="h-20 w-20 rounded-full border-[3px] border-white overflow-hidden bg-white shadow-md">
                         <img
@@ -117,39 +119,45 @@ export default function HeroSection() {
                       </div>
                     </div>
 
-                    <div className="space-y-1 mb-4">
+                    <div className="space-y-1 mb-5">
                       <div className="flex items-center gap-2">
                         <h3 className="text-xl font-bold text-gray-900 tracking-tight">高野 将也</h3>
                         <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                           <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.491 4.491 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
                         </svg>
                       </div>
-                      <p className="text-sm text-gray-600 font-medium">BtoBライター / 編集者</p>
+                      <p className="text-sm text-gray-600 font-medium">SaaSライター / 編集者</p>
+                      <div className="flex items-center text-xs text-gray-400 gap-1.5 pt-1">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        東京都 渋谷区
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#経営者インタビュー</span>
-                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#半導体</span>
-                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#製造業</span>
+                    {/* User Defined Tags - Minimalist */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#インタビュー</span>
+                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#導入事例</span>
+                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#ホワイトペーパー</span>
                     </div>
                   </div>
                 </div>
 
-                {/* AI Analysis Section - Simplified */}
-                <div className="relative overflow-hidden border-t border-gray-100">
-                  <div className="absolute inset-0 bg-gradient-to-b from-blue-50/30 to-white/50 z-0"></div>
+                {/* AI Analysis Section (The "Value" Part) - Premium Glassmorphism */}
+                <div className="relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white/80 backdrop-blur-sm z-0"></div>
 
                   <div className="p-6 relative z-10">
-                    <div className="flex items-center justify-between mb-4">
+                    {/* AI Label - Premium Badge */}
+                    <div className="flex items-center justify-between mb-5">
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-sm">
+                        <div className="p-1.5 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg shadow-blue-500/30 shadow-lg">
                           <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
                         </div>
-                        <span className="font-bold text-gray-900 text-sm">AI分析による強み</span>
+                        <span className="font-bold text-gray-900 text-sm tracking-tight">AI分析による強み</span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white border border-blue-100 shadow-sm">
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/80 border border-blue-100 shadow-sm">
                         <svg className="w-3 h-3 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
                           <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
                         </svg>
@@ -157,38 +165,27 @@ export default function HeroSection() {
                       </div>
                     </div>
 
-                    <div className="space-y-2.5">
-                      {/* 課題・目的 */}
-                      <div className="bg-white/90 p-3 rounded-lg border border-gray-100 shadow-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs text-gray-400 mt-0.5">🎯</span>
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-500 font-medium mb-0.5">課題・目的</p>
-                            <p className="text-xs text-gray-700">半導体業界の優秀なエンジニア確保における採用戦略の課題</p>
-                          </div>
+                    <div className="space-y-3">
+                      {/* Analysis Item 1 */}
+                      <div className="bg-white/80 p-3.5 rounded-xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <span className="flex items-center justify-center w-5 h-5 rounded bg-blue-50 text-blue-600 font-bold text-[10px]">1</span>
+                          <h4 className="font-bold text-gray-800 text-sm">スタートアップ・IPO</h4>
                         </div>
+                        <p className="text-xs text-gray-500 leading-relaxed pl-7.5">
+                          <span className="font-bold text-gray-800">15本の記事を分析。</span>「資金調達」「PMF」「IPO戦略」に関する深い洞察が検出されました。
+                        </p>
                       </div>
 
-                      {/* 想定読者 */}
-                      <div className="bg-white/90 p-3 rounded-lg border border-gray-100 shadow-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs text-gray-400 mt-0.5">👤</span>
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-500 font-medium mb-0.5">想定読者</p>
-                            <p className="text-xs text-gray-700">製造業のDX推進担当者や採用責任者</p>
-                          </div>
+                      {/* Analysis Item 2 */}
+                      <div className="bg-white/80 p-3.5 rounded-xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div className="flex items-center gap-2.5 mb-2">
+                          <span className="flex items-center justify-center w-5 h-5 rounded bg-blue-50 text-blue-600 font-bold text-[10px]">2</span>
+                          <h4 className="font-bold text-gray-800 text-sm">BtoBマーケティング</h4>
                         </div>
-                      </div>
-
-                      {/* 成果 */}
-                      <div className="bg-white/90 p-3 rounded-lg border border-gray-100 shadow-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs text-gray-400 mt-0.5">✨</span>
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-500 font-medium mb-0.5">成果</p>
-                            <p className="text-xs text-gray-700">218PVを獲得し、専門性の高さが評価された</p>
-                          </div>
-                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed pl-7.5">
+                          <span className="font-bold text-gray-800">8本の記事を分析。</span>「リード獲得」「ナーチャリング」の手法において高い専門性が示されています。
+                        </p>
                       </div>
                     </div>
                   </div>
