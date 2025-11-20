@@ -176,23 +176,23 @@ export default function HomePage() {
 
       <main id="main">
         <HeroSection />
-        <SectionDivider colorClass="text-blue-50" heightClass="h-10" />
+        {/* Hero(White) -> Recommended(White): No Divider */}
         <RecommendedSection />
-        <SectionDivider colorClass="text-blue-100" heightClass="h-12" flip />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
         <CreatorPainSection />
-        <SectionDivider colorClass="text-blue-100" heightClass="h-12" />
+        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
         <WhyBaluboSection />
-        <SectionDivider colorClass="text-blue-50" heightClass="h-10" flip />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
         <FeaturesSection />
-        <SectionDivider colorClass="text-blue-100" heightClass="h-12" />
+        {/* Features(Blue) -> RecentWorks(Blue): No Divider */}
         <RecentWorksSection initialWorks={recentWorks} />
-        <SectionDivider colorClass="text-blue-100" heightClass="h-10" flip />
+        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
         <MidCallToAction />
-        <SectionDivider colorClass="text-blue-200" heightClass="h-12" />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
         <VoicesSection />
-        <SectionDivider colorClass="text-blue-50" heightClass="h-10" flip />
+        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
         <FAQSection />
-        <SectionDivider colorClass="text-blue-100" heightClass="h-12" />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
         <FinalCTASection />
       </main>
 

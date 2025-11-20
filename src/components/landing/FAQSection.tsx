@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 /**
  * FAQ（よくある質問）セクション
@@ -72,10 +73,10 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 md:py-32"
+      className="bg-white py-24 sm:py-32"
     >
       <div className="container relative mx-auto max-w-4xl">
-        <div className="mb-16">
+        <FadeIn className="mb-16">
           <div className="mx-auto max-w-3xl text-left">
             <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
               よくあるご質問
@@ -84,13 +85,13 @@ export default function FAQSection() {
               baluboの料金や使い方、安全性について、よくいただくポイントをまとめました。ここにない内容については、お気軽にお問い合わせください。
             </p>
           </div>
-        </div>
+        </FadeIn>
 
-        <div className="space-y-4">
+        <StaggerContainer className="space-y-4">
           {faqs.map((faq, index) => (
-            <div
+            <StaggerItem
               key={index}
-              className="overflow-hidden rounded-[28px] border border-blue-50/90 bg-white/95 shadow-[0_14px_36px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(37,99,235,0.16)]"
+              className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-soft-lg"
             >
               <button
                 className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left text-gray-900 transition-colors duration-200 hover:bg-gray-50"
@@ -102,9 +103,8 @@ export default function FAQSection() {
                   {faq.question}
                 </span>
                 <svg
-                  className={`h-6 w-6 flex-shrink-0 text-blue-600 transition-transform duration-300 ${
-                    openIndex === index ? "rotate-180" : ""
-                  }`}
+                  className={`h-6 w-6 flex-shrink-0 text-blue-600 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -121,11 +121,10 @@ export default function FAQSection() {
 
               <div
                 id={`faq-answer-${index}`}
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  openIndex === index
-                    ? "max-h-96 opacity-100"
-                    : "max-h-0 opacity-0"
-                }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
+                  ? "max-h-96 opacity-100"
+                  : "max-h-0 opacity-0"
+                  }`}
               >
                 <div className="px-6 pb-5 pt-2">
                   <p className="text-sm md:text-base leading-relaxed text-gray-700 rounded-lg border border-blue-100 bg-blue-50 p-4">
@@ -133,9 +132,9 @@ export default function FAQSection() {
                   </p>
                 </div>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

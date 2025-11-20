@@ -131,11 +131,20 @@ export interface AIAnalysisResult {
       btobContextUnderstanding: string;
     };
   };
-  // コンテンツ分析（課題・解決策・成果）
+  // コンテンツ分析（課題・目的 / 想定読者 / 解決策 / 成果）
   contentAnalysis?: {
-    problem: string;
-    solution: string;
-    result: string;
+    /** 課題・目的 */
+    problemPurpose?: string;
+    /** 想定読者 */
+    targetAudience?: string;
+    /** 解決策（切り口や構成） */
+    solutionApproach?: string;
+    /** 成果 */
+    result?: string;
+    /** @deprecated 後方互換用 */
+    problem?: string;
+    /** @deprecated 後方互換用 */
+    solution?: string;
   };
   // 古い形式のAI評価スコア（後方互換性のため）
   legacyEvaluation?: {

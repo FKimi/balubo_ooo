@@ -8,7 +8,7 @@ interface ShareData {
   hashtags?: string[];
 }
 
-// AI分析の課題・解決策・成果を要約して投稿文に含める（140文字以内に収める）
+// AI分析の課題・目的／想定読者／解決策／成果を要約して投稿文に含める（140文字以内に収める）
 function generateContentAnalysisSummary(work: WorkData, maxLength: number = 100): string {
   const analysis = work.ai_analysis_result as any;
   const contentAnalysis = analysis?.contentAnalysis;
@@ -16,50 +16,47 @@ function generateContentAnalysisSummary(work: WorkData, maxLength: number = 100)
   if (!contentAnalysis) return "";
 
   const parts: string[] = [];
-
-  // 課題を簡潔に（箇条書きから最初の1項目を取得し、末尾の「。」を削除）
-  if (contentAnalysis.problem) {
-    const problemLines = contentAnalysis.problem.split('\n')
-      .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+  const sanitizeLines = (value?: string) =>
+    (value || "")
+      .split("\n")
+      .map((line: string) => line.replace(/^[・\-\*]\s*/, "").trim())
       .filter((line: string) => line.length > 0);
-    if (problemLines.length > 0) {
-      let problem = problemLines[0].replace(/。+$/, ''); // 末尾の「。」を削除
-      // 絵文字を含めて最大30文字に制限
-      if (problem.length > 28) {
-        problem = problem.substring(0, 25) + "...";
-      }
-      parts.push(`🎯${problem}`);
+  const formatPart = (emoji: string, text: string, limit = 28) => {
+    let trimmed = text.replace(/。+$/, "");
+    if (trimmed.length > limit) {
+      trimmed = trimmed.substring(0, limit - 3) + "...";
     }
+    return `${emoji}${trimmed}`;
+  };
+
+  // 課題・目的
+  const problemLines = sanitizeLines(
+    contentAnalysis.problemPurpose || contentAnalysis.problem,
+  );
+  if (problemLines.length > 0) {
+    parts.push(formatPart("🎯", problemLines[0]));
   }
 
-  // 解決策を簡潔に（箇条書きから最初の1項目を取得し、末尾の「。」を削除）
-  if (contentAnalysis.solution) {
-    const solutionLines = contentAnalysis.solution.split('\n')
-      .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
-      .filter((line: string) => line.length > 0);
-    if (solutionLines.length > 0) {
-      let solution = solutionLines[0].replace(/。+$/, ''); // 末尾の「。」を削除
-      // 絵文字を含めて最大30文字に制限
-      if (solution.length > 28) {
-        solution = solution.substring(0, 25) + "...";
-      }
-      parts.push(`💡${solution}`);
-    }
+  // 想定読者
+  const targetLines = sanitizeLines(
+    contentAnalysis.targetAudience || analysis?.targetAudience,
+  );
+  if (targetLines.length > 0) {
+    parts.push(formatPart("👤", targetLines[0]));
+  }
+
+  // 解決策（切り口や構成）
+  const solutionLines = sanitizeLines(
+    contentAnalysis.solutionApproach || contentAnalysis.solution,
+  );
+  if (solutionLines.length > 0) {
+    parts.push(formatPart("💡", solutionLines[0]));
   }
 
   // 成果を強調（数値があれば強調、箇条書きから最初の1項目を取得し、末尾の「。」を削除）
-  if (contentAnalysis.result) {
-    const resultLines = contentAnalysis.result.split('\n')
-      .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
-      .filter((line: string) => line.length > 0);
-    if (resultLines.length > 0) {
-      let result = resultLines[0].replace(/。+$/, ''); // 末尾の「。」を削除
-      // 絵文字を含めて最大30文字に制限
-      if (result.length > 28) {
-        result = result.substring(0, 25) + "...";
-      }
-      parts.push(`✨${result}`);
-    }
+  const resultLines = sanitizeLines(contentAnalysis.result);
+  if (resultLines.length > 0) {
+    parts.push(formatPart("✨", resultLines[0]));
   }
 
   const summary = parts.join(" ");

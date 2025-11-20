@@ -169,6 +169,117 @@ export function summarizeTopTags(topTags: [string, number][]): string {
   return `${tagNames[0]}、${tagNames[1]}、${tagNames[2]}などの分野で多くの作品を制作しています。`;
 }
 
+function splitBulletLines(text: string) {
+  if (!text) return [];
+  return text
+    .split("\n")
+    .map((line) => line.replace(/^[・*-\s]+/, "").trim())
+    .filter((line) => line.length > 0);
+}
+
+function formatBulletString(items: string[]) {
+  if (!items || items.length === 0) return "";
+  return items
+    .map((item) => (item.startsWith("・") ? item : `・${item}`))
+    .join("\n");
+}
+
+export interface CreatorContentAnalysisSummary {
+  problemPurpose?: string;
+  targetAudience?: string;
+  solutionApproach?: string;
+  result?: string;
+  sourceCount: number;
+}
+
+export function aggregateCreatorContentAnalysis(
+  works: WorkData[],
+  {
+    maxWorks = 8,
+    maxItemsPerField = 4,
+  }: { maxWorks?: number; maxItemsPerField?: number } = {},
+): CreatorContentAnalysisSummary | null {
+  if (!works || works.length === 0) return null;
+
+  const sortedWorks = [...works].sort((a, b) => {
+    const dateA = new Date(a.updated_at || a.created_at || 0).getTime();
+    const dateB = new Date(b.updated_at || b.created_at || 0).getTime();
+    return dateB - dateA;
+  });
+
+  const targetWorks = sortedWorks
+    .filter((work) => {
+      const content = work.ai_analysis_result?.contentAnalysis;
+      return Boolean(
+        content?.problemPurpose ||
+          content?.problem ||
+          content?.targetAudience ||
+          content?.solutionApproach ||
+          content?.solution ||
+          content?.result ||
+          work.ai_analysis_result?.targetAudience ||
+          work.ai_analysis_result?.detailedAnalysis?.targetReaderProfile,
+      );
+    })
+    .slice(0, maxWorks);
+
+  if (targetWorks.length === 0) return null;
+
+  const collectFieldItems = (
+    extractor: (work: WorkData) => string | undefined,
+  ) => {
+    const seen = new Set<string>();
+    const items: string[] = [];
+    targetWorks.forEach((work) => {
+      const raw = extractor(work);
+      if (!raw) return;
+      splitBulletLines(raw).forEach((line) => {
+        if (!line || seen.has(line)) return;
+        seen.add(line);
+        items.push(line);
+      });
+    });
+    return items.slice(0, maxItemsPerField);
+  };
+
+  const problemItems = collectFieldItems(
+    (work) =>
+      work.ai_analysis_result?.contentAnalysis?.problemPurpose ||
+      work.ai_analysis_result?.contentAnalysis?.problem,
+  );
+  const targetItems = collectFieldItems(
+    (work) =>
+      work.ai_analysis_result?.contentAnalysis?.targetAudience ||
+      work.ai_analysis_result?.targetAudience ||
+      work.ai_analysis_result?.detailedAnalysis?.targetReaderProfile,
+  );
+  const solutionItems = collectFieldItems(
+    (work) =>
+      work.ai_analysis_result?.contentAnalysis?.solutionApproach ||
+      work.ai_analysis_result?.contentAnalysis?.solution,
+  );
+  const resultItems = collectFieldItems(
+    (work) => work.ai_analysis_result?.contentAnalysis?.result,
+  );
+
+  if (
+    problemItems.length === 0 &&
+    targetItems.length === 0 &&
+    solutionItems.length === 0 &&
+    resultItems.length === 0
+  ) {
+    return null;
+  }
+
+  return {
+    problemPurpose: formatBulletString(problemItems),
+    targetAudience: formatBulletString(targetItems),
+    solutionApproach: formatBulletString(solutionItems),
+    result: formatBulletString(resultItems),
+    sourceCount: targetWorks.length,
+  };
+}
+
 /**
  * 作品データから詳細な強み分析を行う
  */

@@ -4,89 +4,90 @@ import React from "react";
 
 const solutions = [
   {
+    title: "URLを入力",
+    description: "記事のURLを貼り付けるだけ。タイトルや画像、本文を自動で取得します。",
     icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
       </svg>
     ),
-    title: "URL入力だけで楽々記事登録",
-    description:
-      "URLを貼るだけで記事情報を取得し、必要な項目を自動入力。面倒な整備なしでポートフォリオが整います。",
   },
   {
+    title: "AIが分析・抽出",
+    description: "独自AIが記事を読み込み、業界知識・専門スキル・思考プロセスを抽出します。",
     icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
-    title: "AIがあなたの「価値」を言語化",
-    description:
-      "AIが業界知識・分析力・構成力といった思考プロセスを抽出し、専門性スコアや要点サマリに変換します。",
   },
   {
+    title: "専門性を証明",
+    description: "分析結果を「証明書」として可視化。ポートフォリオや提案資料として活用できます。",
     icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    title: "価値がわかるクライアントと出会える",
-    description:
-      "分析データを基に、専門性を求めるクライアントとマッチング予定（開発中）。単なる工数ではなく、思考や専門性そのものを評価してくれる出会いをつくります。",
   },
 ];
+
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 export default function WhyBaluboSection() {
   return (
     <section
       id="features"
-      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 md:py-32"
+      className="bg-white py-24 sm:py-32"
     >
-      <div className="container relative mx-auto max-w-7xl">
+      <div className="container mx-auto max-w-7xl px-4">
         {/* セクションヘッダー */}
-        <div className="mb-12">
-          <div className="mx-auto max-w-5xl text-left">
-            <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
-              baluboで専門性をデータ化
-            </h2>
-            <p className="mb-3 text-xl font-bold leading-relaxed text-gray-900 md:text-2xl">
-              AIが第三者視点で記事を分解し、強み・思考・成果をレポート化します。
-            </p>
-            <p className="text-lg leading-relaxed text-gray-600">
-              手作業で説明していた価値を、客観的なスコアと文章で提示。商談や提案の土台になる「専門性の証明書」を作るプラットフォームです。
-            </p>
-          </div>
-        </div>
+        <FadeIn className="mb-20 text-left">
+          <h2 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
+            なぜ、baluboなら<br className="hidden sm:block" />
+            「専門性」が伝わるのか？
+          </h2>
+          <p className="text-lg text-gray-600">
+            ただのポートフォリオ作成ツールではありません。<br className="hidden sm:block" />
+            あなたの実績を「データ」として解析し、ビジネス価値に変換するプロセスがあります。
+          </p>
+        </FadeIn>
 
-        {/* 3つのソリューション */}
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
+        {/* プロセスフロー */}
+        <StaggerContainer className="relative grid gap-8 md:grid-cols-3">
+          {/* 連結ライン (Desktop only) */}
+          <div className="absolute top-12 left-[16%] hidden h-0.5 w-[68%] bg-gradient-to-r from-blue-200 via-indigo-200 to-blue-200 md:block" aria-hidden="true" />
+
           {solutions.map((solution, index) => (
-            <div
+            <StaggerItem
               key={solution.title}
-              className="relative flex flex-col rounded-[32px] border border-blue-50/90 bg-white/95 p-7 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(37,99,235,0.18)]"
+              className="relative flex flex-col items-start text-left"
             >
-              {/* クレイ風アイコン */}
-              <div className="mb-5 flex items-center justify-start">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)]">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-400 text-white shadow-[0_10px_26px_rgba(37,99,235,0.45)]">
-                    <span className="flex items-center justify-center">{solution.icon}</span>
+              {/* ステップ番号とアイコン */}
+              <div className="mb-6 relative">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white border-4 border-blue-50 shadow-lg z-10 relative">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
+                    {solution.icon}
+                  </div>
+                  <div className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white border-2 border-white">
+                    {index + 1}
                   </div>
                 </div>
               </div>
 
-              {/* タイトル */}
-              <h3 className="mb-3 text-left text-lg font-bold leading-snug text-gray-900">
-                {`0${index + 1}. ${solution.title}`}
-              </h3>
-
-              {/* 説明 */}
-              <p className="text-left text-sm leading-relaxed text-gray-700">
-                {solution.description}
-              </p>
-            </div>
+              {/* コンテンツ */}
+              <div className="pr-4">
+                <h3 className="mb-4 text-xl font-bold text-gray-900">
+                  {solution.title}
+                </h3>
+                <p className="text-base leading-relaxed text-gray-600">
+                  {solution.description}
+                </p>
+              </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );
 }
-

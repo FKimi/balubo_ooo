@@ -2177,7 +2177,7 @@ ${errorDetailSection}
                   </h3>
                   <p className="text-blue-50 text-base mt-1 leading-relaxed">
                     {contentType === "article"
-                      ? "記事が解決する課題・解決策・成果を分析し、業界と専門性を可視化"
+                      ? "記事が解決する課題・目的や想定読者、解決策、成果を分析し、業界と専門性を可視化"
                       : contentType === "design"
                         ? "デザインの美的センス・技術力・ブランド価値向上を多角的に分析（画像ファイルの視覚的内容も詳細分析・作品名・概要も自動生成）"
                         : contentType === "photo"
@@ -2269,7 +2269,7 @@ ${errorDetailSection}
                         </div>
                         <div className="text-slate-700 text-sm leading-relaxed">
                           {contentType === "article"
-                            ? "課題・解決策・成果を分析し、あなたの価値を言語化"
+                            ? "課題・目的／想定読者／解決策／成果を分析し、あなたの価値を言語化"
                             : "作品が解決する課題と成果を詳細に分析"}
                         </div>
                       </div>
@@ -2389,28 +2389,45 @@ ${errorDetailSection}
                         ["医療", "金融", "IT", "SaaS", "BtoB", "教育", "不動産", "製造", "小売", "サービス"].some(industry => tag.includes(industry))
                       ) || "";
                       
-                      // 課題を抽出（箇条書きから複数の項目を取得）
-                      const problem = contentAnalysis?.problem || "";
-                      const problemItems = problem.split('\n')
+                      // 課題・目的を抽出（箇条書きから複数の項目を取得）
+                      const problemPurpose =
+                        contentAnalysis?.problemPurpose ||
+                        contentAnalysis?.problem ||
+                        "";
+                      const problemItems = problemPurpose.split('\n')
                         .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
                         .filter((item: string) => item.length > 0)
                         .slice(0, 2);
                       
-                      // 解決策を抽出（箇条書きから複数の項目を取得）
-                      const solution = contentAnalysis?.solution || "";
-                      const solutionItems = solution.split('\n')
+                      // 想定読者
+                      const targetAudienceText =
+                        contentAnalysis?.targetAudience ||
+                        analysisResult.targetAudience ||
+                        "";
+                      const targetAudienceItems = targetAudienceText
+                        .split('\n')
+                        .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
+                        .filter((item: string) => item.length > 0)
+                        .slice(0, 2);
+                      
+                      // 解決策（切り口や構成）
+                      const solutionApproach =
+                        contentAnalysis?.solutionApproach ||
+                        contentAnalysis?.solution ||
+                        "";
+                      const solutionItems = solutionApproach.split('\n')
                         .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
                         .filter((item: string) => item.length > 0)
                         .slice(0, 2);
                       
                       // 成果を抽出（数値があれば強調、箇条書きから複数の項目を取得）
-                      const result = contentAnalysis?.result || "";
-                      const resultItems = result.split('\n')
+                      const resultText = contentAnalysis?.result || "";
+                      const resultItems = resultText.split('\n')
                         .map((line: string) => line.replace(/^[・\-\*]\s*/, '').trim())
                         .filter((item: string) => item.length > 0)
                         .slice(0, 2);
-                      const hasNumbers = /\d+/.test(result);
-                      const numberMatch = result.match(/\d+[%％]?/);
+                      const hasNumbers = /\d+/.test(resultText);
+                      const numberMatch = resultText.match(/\d+[%％]?/);
                       
                       // 創造性・専門性・影響力を抽出
                       const creativity = strengths?.creativity?.[0] || "";
@@ -2436,7 +2453,14 @@ ${errorDetailSection}
                         return `${problemText}という課題に、${solutionText}というアプローチで取り組んでいます。${expertiseText}を活かしながら、業界への貢献と読者への価値提供を両立させている点が、この作品の魅力です。`;
                       }
                       
-                      // パターン3: 創造性 + 専門性 + 影響力（総合的な評価）
+                      // パターン3: 想定読者 + 解決策（読者理解を評価）
+                      if (targetAudienceItems.length > 0 && solutionItems.length > 0) {
+                        let audienceText = truncateText(targetAudienceItems[0], 50).replace(/。+$/, '');
+                        let solutionText = truncateText(solutionItems[0], 50).replace(/。+$/, '');
+                        return `${audienceText}を想定読者に定め、${solutionText}という切り口で課題を解決しています。誰の意思決定を支援するかまで描けている点が、この作品のビジネス価値を高めています。`;
+                      }
+                      
+                      // パターン4: 創造性 + 専門性 + 影響力（総合的な評価）
                       if (creativity && expertise && industryTag) {
                         let creativityShort = truncateText(creativity, 50);
                         // 末尾の「。」を削除（自然な文章にするため）
@@ -2445,7 +2469,7 @@ ${errorDetailSection}
                         return `${industryTag}の${expertiseText}を活かしながら、${creativityShort}という視点で作品を仕上げています。この作品は、あなたの専門性と創造性の両方が発揮された、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
                       }
                       
-                      // パターン4: 成果 + 専門性（成果を強調）
+                      // パターン5: 成果 + 専門性（成果を強調）
                       if (resultItems.length > 0 && industryTag) {
                         let resultText = truncateText(resultItems[0], 60);
                         // 末尾の「。」を削除（自然な文章にするため）
@@ -2454,20 +2478,20 @@ ${errorDetailSection}
                         return `${industryTag}の課題を解決し、${resultText}という成果を出しています。${expertiseText}を活かしたこの作品は、あなたの実践力と専門性の高さを示すものです。`;
                       }
                       
-                      // パターン5: 業界 + 専門性 + 創造性（総合的な魅力）
+                      // パターン6: 業界 + 専門性 + 創造性（総合的な魅力）
                       if (industryTag && expertiseTags.length > 0) {
                         const expertiseText = expertiseTags[0];
                         const creativityText = creativity || "創造的な視点";
                         return `${industryTag}の${expertiseText}を活かしながら、${creativityText}で作品を仕上げている点が素晴らしいです。この作品は、あなたの専門性と創造性が融合した、プロフェッショナルな${contentType === "article" ? "記事" : "作品"}と言えるでしょう。`;
                       }
                       
-                      // パターン6: 業界 + 専門性（フォールバック）
+                      // パターン7: 業界 + 専門性（フォールバック）
                       if (industryTag) {
                         const expertiseText = expertiseTags[0] || tags[0] || "専門性";
                         return `${industryTag}の課題を解決する${contentType === "article" ? "記事" : "作品"}です。${expertiseText}を活かしながら、単なる情報提供ではなく業界への貢献や読者への価値提供を実現している点が、この作品の魅力です。`;
                       }
                       
-                      // パターン7: 最終フォールバック
+                      // パターン8: 最終フォールバック
                       if (tags.length > 0) {
                         return `${tags[0]}${tags[1] ? `と${tags[1]}` : ""}の専門知識を活かした${contentType === "article" ? "記事" : "作品"}です。この作品は、あなたの専門性と実践力の高さを示すものです。`;
                       }

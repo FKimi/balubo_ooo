@@ -17,23 +17,21 @@ interface SectionDividerProps {
  * A lightweight SVG wave used to create a smooth visual transition between background colors of adjacent sections.
  * 単なる余白 div の代替として使用し、LP セクション間のメリハリを高める。
  */
-export default function SectionDivider({
+export function SectionDivider({
   colorClass = "text-white",
-  flip = false,
   heightClass = "h-16",
+  flip = false,
 }: SectionDividerProps) {
   return (
-    <div
-      className={`relative w-full overflow-hidden leading-none ${heightClass}`}
-    >
+    <div className={`w-full overflow-hidden leading-none ${heightClass} ${colorClass}`}>
       <svg
-        className={`absolute inset-0 w-full ${flip ? "rotate-180" : ""} ${colorClass}`}
-        viewBox="0 0 1440 100"
+        viewBox="0 0 1200 120"
         preserveAspectRatio="none"
+        className={`relative block w-full h-full ${flip ? "transform rotate-180" : ""}`}
+        style={{ width: "calc(100% + 1.3px)" }}
       >
-        {/* 波形パスは https://smooth.ie/blogs/news/svg-wavey-transitions 参照 */}
         <path
-          d="M0 67c47.6 0 95.3-5 142.9-10.7C238 48 333 29 428 21.3 523 13 618 17 713 25.3c95.1 8.3 190.1 21.3 285.2 21.4 95.1.2 190.2-12.8 285.3-20.7C1378.3 18 1439 13 1440 12V100H0V67z"
+          d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
           fill="currentColor"
         />
       </svg>

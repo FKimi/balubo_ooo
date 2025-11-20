@@ -17,9 +17,9 @@ const problems = [
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-        <path d="M2 17l10 5 10-5"/>
-        <path d="M2 12l10 5 10-5"/>
+        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+        <path d="M2 17l10 5 10-5" />
+        <path d="M2 12l10 5 10-5" />
       </svg>
     ),
     title: "ポートフォリオ作成に時間と手間がかかりすぎる",
@@ -62,8 +62,8 @@ const problems = [
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 6v6l4 2"/>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
       </svg>
     ),
     title: "もっと専門性を活かせる仕事と出会えていない",
@@ -72,16 +72,18 @@ const problems = [
   },
 ];
 
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
+
 export default function CreatorPainSection() {
   return (
-    <section className="relative isolate bg-[#F4F7FF] py-24 px-4 md:py-32">
+    <section className="bg-base-soft-blue py-24 sm:py-32">
       <div
         className="pointer-events-none absolute -bottom-24 left-8 -z-10 h-64 w-64 rounded-full bg-blue-100/70 blur-3xl"
         aria-hidden="true"
       />
       <div className="container relative mx-auto max-w-7xl">
         {/* セクションヘッダー */}
-        <div className="mb-12">
+        <FadeIn className="mb-12">
           <div className="mx-auto max-w-5xl text-left">
             <h2 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
               こんなお悩みはありませんか？
@@ -90,14 +92,14 @@ export default function CreatorPainSection() {
               ビジネスコンテンツに強いライターほど、専門性の見せ方に悩みが生まれます。その代表的な壁を３つにまとめました。
             </p>
           </div>
-        </div>
+        </FadeIn>
 
         {/* 課題カード */}
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
+        <StaggerContainer className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
           {problems.map((problem) => (
-            <div
+            <StaggerItem
               key={problem.title}
-              className="relative flex flex-col rounded-[32px] border border-blue-50/90 bg-white/95 p-7 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(37,99,235,0.18)]"
+              className="relative h-full overflow-hidden rounded-[32px] bg-white p-8 shadow-soft transition-all duration-300 hover:shadow-soft-lg"
             >
               {/* アイコン */}
               <div className="mb-5 flex items-center justify-start">
@@ -117,9 +119,9 @@ export default function CreatorPainSection() {
               <p className="text-left text-base leading-relaxed text-gray-700">
                 {problem.description}
               </p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

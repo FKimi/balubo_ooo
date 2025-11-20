@@ -138,9 +138,14 @@ export interface AnalysisResult {
   oneLinerSummary: string;
   tagCloud: string[];
   contentAnalysis: {
-    problem: string;
-    solution: string;
+    problemPurpose: string;
+    targetAudience: string;
+    solutionApproach: string;
     result: string;
+    /** @deprecated 後方互換用 */
+    problem?: string;
+    /** @deprecated 後方互換用 */
+    solution?: string;
   };
   learningPoints: string[];
   clientAppeal: string[];
@@ -540,9 +545,12 @@ export function parseAnalysisResult(generatedText: string): AnalysisResult {
       oneLinerSummary: "分析に失敗しました",
       tagCloud: ["#分析失敗"],
       contentAnalysis: {
+        problemPurpose: "分析に失敗しました",
+        targetAudience: "分析に失敗しました",
+        solutionApproach: "分析に失敗しました",
+        result: "分析に失敗しました",
         problem: "分析に失敗しました",
         solution: "分析に失敗しました",
-        result: "分析に失敗しました",
       },
       learningPoints: ["分析を再実行してください"],
       clientAppeal: ["分析を再実行してください"],

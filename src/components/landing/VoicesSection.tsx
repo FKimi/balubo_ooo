@@ -1,6 +1,8 @@
+
 "use client";
 
 import React from "react";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 interface Voice {
   name: string;
@@ -49,83 +51,64 @@ export default function VoicesSection() {
   return (
     <section
       id="voices"
-      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 md:py-32"
+      className="bg-base-soft-blue py-24 sm:py-32"
     >
-      <div className="container relative z-10 mx-auto max-w-7xl">
-        <div className="mb-16">
-          <div className="mx-auto max-w-3xl text-left">
-            <h2 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
-              すでに多くのプロが、baluboで「価値の証明」を始めています。
-            </h2>
-            <p className="text-lg text-gray-600">
-              導入後の変化や、専門性がどう伝わるようになったか。その具体的な声を一部ご紹介します。
-            </p>
-          </div>
-        </div>
+      <div className="container relative z-10 mx-auto max-w-7xl px-4">
+        <FadeIn className="mb-20 text-left">
+          <h2 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
+            すでに多くのプロが、<br className="hidden sm:block" />
+            baluboで「価値の証明」を始めています。
+          </h2>
+          <p className="text-lg text-gray-600">
+            導入後の変化や、専門性がどう伝わるようになったか。<br className="hidden sm:block" />
+            その具体的な声を一部ご紹介します。
+          </p>
+        </FadeIn>
 
-        <div className="mt-12 grid gap-8 md:mt-16 lg:grid-cols-3">
+        <StaggerContainer className="grid gap-8 md:grid-cols-3">
           {voices.map((voice) => (
-            <article
+            <StaggerItem
               key={voice.name}
-              className="relative flex flex-col rounded-[28px] border border-blue-50/90 bg-white/95 p-8 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(37,99,235,0.18)]"
-              aria-label={`${voice.name}さんの事例`}
+              className="flex flex-col rounded-[32px] border border-white/60 bg-white p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg"
             >
-              <div>
-                {/* キャッチコピー */}
-                <div className="mb-4">
-                  <p className="text-lg font-bold text-gray-900 leading-tight">
-                    {voice.catchCopy}
-                  </p>
+              {/* ユーザー情報 */}
+              <div className="mb-6 flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-xl font-bold text-white shadow-md">
+                  {voice.avatarText}
                 </div>
-                {/* コメント */}
-                <div className="flex-grow mb-6">
-                  <p className="text-base leading-relaxed text-gray-700">
-                    {voice.comment}
-                  </p>
+                <div>
+                  <p className="text-sm font-bold text-blue-600">{voice.role}</p>
+                  <h3 className="text-lg font-bold text-gray-900">{voice.name}</h3>
                 </div>
-
-                {/* プロフィール */}
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-                <div className="flex items-center">
-                  <div className="mr-3 flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)]">
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${voice.avatarBg} text-white text-base font-bold shadow-[0_10px_26px_rgba(37,99,235,0.45)]`}
-                    >
-                      {voice.avatarText}
-                    </div>
-                  </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <div className="font-bold text-gray-900 text-base">
-                          {voice.name}
-                        </div>
-                      </div>
-                      <div className="text-sm text-gray-600">{voice.name} 様（{voice.role}）</div>
-                    </div>
-                  </div>
-                </div>
-
-                {voice.strengths.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      得意領域
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {voice.strengths.map((strength) => (
-                        <span
-                          key={strength}
-                          className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
-                        >
-                          #{strength}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
-            </article>
+
+              {/* キャッチコピー */}
+              <p className="mb-4 text-lg font-bold leading-snug text-gray-900">
+                {voice.catchCopy}
+              </p>
+
+              {/* コメント */}
+              <p className="mb-6 flex-1 text-base leading-relaxed text-gray-600">
+                {voice.comment}
+              </p>
+
+              {/* 強みタグ */}
+              <div className="mt-auto">
+                <p className="mb-2 text-xs font-bold text-gray-400">DETECTED STRENGTHS</p>
+                <div className="flex flex-wrap gap-2">
+                  {voice.strengths.map((strength) => (
+                    <span
+                      key={strength}
+                      className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"
+                    >
+                      #{strength}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

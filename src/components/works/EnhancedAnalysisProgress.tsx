@@ -50,7 +50,7 @@ export function EnhancedAnalysisProgress({
     {
       id: "ai_processing",
       title: "AI分析実行中",
-      description: "課題・解決策・成果を分析し、業界と専門性を可視化しています",
+      description: "課題・目的や想定読者、解決策、成果を分析し、業界と専門性を可視化しています",
       duration: 12,
       icon: "🤖",
     },
@@ -154,7 +154,7 @@ export function EnhancedAnalysisProgress({
             </div>
             <div>
               <p className="text-white text-sm font-medium">
-                記事が解決する課題・解決策・成果を分析し、業界と専門性を可視化
+                記事が解決する課題・目的／想定読者／解決策／成果を分析し、業界と専門性を可視化
               </p>
             </div>
           </div>

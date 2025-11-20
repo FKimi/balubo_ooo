@@ -2,37 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Google FontsはNext.jsのフォント最適化機能を使用するため、ここでは削除 */
-
 @layer base {
   html {
     scroll-behavior: smooth;
   }
 
   :root {
-    /* 洗練されたプロフェッショナルカラーパレット */
+    /* Unified Design Rules 2025 */
     --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --foreground: 0 0% 7%; /* #111111 */
 
-    /* Primary Blue - baluboブランドカラー */
-    --primary: 212 100% 48%; /* #1976D2 */
+    /* Primary Blue #007AFF */
+    --primary: 211 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - 洗練されたグレー */
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    /* Soft Blue #F4F7FF */
+    --secondary: 224 100% 98%;
+    --secondary-foreground: 0 0% 20%;
 
-    /* Muted - より洗練されたニュートラル */
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
+    /* Muted */
+    --muted: 224 100% 98%;
+    --muted-foreground: 0 0% 40%;
 
-    /* Accent - プライマリブルーの淡いバージョン */
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 212 100% 48%;
+    /* Accent */
+    --accent: 224 100% 98%;
+    --accent-foreground: 0 0% 7%;
 
     /* Destructive */
     --destructive: 0 84.2% 60.2%;
@@ -41,28 +35,18 @@
     /* Border & Input */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 212 100% 48%;
+    --ring: 211 100% 50%;
 
-    /* 洗練された角丸 */
-    --radius: 0.75rem;
-
-    /* 洗練されたシャドウ */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-base:
-      0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-md:
-      0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg:
-      0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl:
-      0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-
-    /* チャートカラー - 洗練された色合い */
-    --chart-1: 212 100% 48%;
-    --chart-2: 220 13% 91%;
-    --chart-3: 220 8.9% 46.1%;
-    --chart-4: 220 14.3% 95.9%;
-    --chart-5: 220 13% 91%;
+    /* Radius */
+    --radius: 1.5rem; /* 24px */
+    
+    /* Card */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
   }
 
   .dark {
@@ -85,11 +69,6 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
 }
 
@@ -108,265 +87,27 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* 洗練されたHTML要素のデフォルトスタイル */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-text-primary;
   }
 
-  h1 {
-    font-size: 2.25rem;
-    font-weight: 700;
-  }
-
-  h2 {
-    font-size: 1.875rem;
-    font-weight: 600;
-  }
-
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  p {
-    margin-bottom: 1rem;
-    line-height: 1.7;
-  }
-
-  /* リンクの洗練されたスタイル */
-  a {
-    @apply text-primary transition-colors duration-200;
-    text-decoration: none;
-  }
-
-  a:hover {
-    @apply text-primary/80;
-  }
-
-  /* フォーカス状態の改善 */
-  *:focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-  }
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
 }
 
-/* 洗練されたプロフェッショナルユーティリティ */
 @layer utilities {
-  /* 洗練された背景色 */
-  .bg-surface {
-    background-color: hsl(0 0% 100%);
+  .text-balance {
+    text-wrap: balance;
   }
-
-  .bg-surface-secondary {
-    background-color: hsl(220 14.3% 95.9%);
+  
+  /* Claymorphism Utilities */
+  .clay-card {
+    @apply bg-white rounded-2xl shadow-soft border border-white/50 backdrop-blur-sm;
   }
-
-  .bg-surface-tertiary {
-    background-color: hsl(220 13% 91%);
-  }
-
-  /* ブランドカラー */
-  .bg-primary-brand {
-    background-color: hsl(212 100% 48%);
-  }
-
-  .bg-primary-light {
-    background-color: hsl(212 100% 65%);
-  }
-
-  .bg-accent-subtle {
-    background-color: hsl(220 14.3% 95.9%);
-  }
-
-  /* 洗練されたテキストカラー */
-  .text-content-primary {
-    color: hsl(224 71.4% 4.1%);
-  }
-
-  .text-content-secondary {
-    color: hsl(220 8.9% 46.1%);
-  }
-
-  .text-content-tertiary {
-    color: hsl(220 8.9% 46.1% / 0.7);
-  }
-
-  .text-brand-primary {
-    color: hsl(212 100% 48%);
-  }
-
-  .text-brand-light {
-    color: hsl(212 100% 65%);
-  }
-
-  /* 洗練されたボーダー */
-  .border-subtle {
-    border-color: hsl(220 13% 91%);
-  }
-
-  .border-brand {
-    border-color: hsl(212 100% 48%);
-  }
-
-  /* 洗練されたシャドウ */
-  .shadow-elegant {
-    box-shadow: var(--shadow-base);
-  }
-
-  .shadow-elegant-md {
-    box-shadow: var(--shadow-md);
-  }
-
-  .shadow-elegant-lg {
-    box-shadow: var(--shadow-lg);
-  }
-
-  .shadow-elegant-xl {
-    box-shadow: var(--shadow-xl);
-  }
-
-  /* 洗練されたホバー効果 */
-  .hover-lift {
-    transition: all 0.2s ease-in-out;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-  }
-
-  /* 洗練されたアニメーション */
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out;
-  }
-
-  /* 洗練されたスペーシング */
-  .space-elegant > * + * {
-    margin-top: 1.5rem;
-  }
-
-  .space-elegant-lg > * + * {
-    margin-top: 2rem;
+  
+  .clay-icon {
+    @apply bg-gradient-to-br from-white to-blue-50 shadow-inner rounded-2xl;
   }
 }
 
-/* Line clamp utilities - handled by @tailwindcss/line-clamp plugin */
-@layer utilities {
-  /* 横スクロール用のスタイル */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-    scrollbar-width: none; /* Firefox */
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
-  }
-}
-
-/* 洗練されたアニメーションキーフレーム */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUpBottom {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* 洗練されたローディングアニメーション */
-@keyframes pulse-elegant {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.animate-pulse-elegant {
-  animation: pulse-elegant 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* 洗練されたプログレスバーアニメーション */
-@keyframes progress {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
-}
-
-.animate-progress {
-  animation: progress 1.5s ease-in-out;
-}
-
-/* 作品追加モーダル専用 - 確実に最前面表示 */
-.modal-overlay-top {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 2147483647 !important;
-  pointer-events: auto !important;
-}

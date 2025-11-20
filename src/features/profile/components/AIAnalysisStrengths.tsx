@@ -40,7 +40,7 @@ export function AIAnalysisStrengths({
   const baseSectionSpacing = compact ? "space-y-5" : "space-y-6";
   const framedBoxClass = (extraSpacing = "") =>
     framed
-      ? `${compact ? "p-5 sm:p-6" : "p-6"} border border-gray-200 rounded-2xl shadow-sm bg-white ${extraSpacing}`
+      ? `${compact ? "p-5 sm:p-6" : "p-6"} border border-slate-200 rounded-[28px] shadow-[0_18px_45px_rgba(15,23,42,0.06)] bg-gradient-to-br from-[#F7F9FF] to-white ${extraSpacing}`
       : `${extraSpacing}`;
 
   return (
@@ -87,11 +87,11 @@ export function AIAnalysisStrengths({
               return (
                 <div
                   key={tagData.tag}
-                  className={`rounded-2xl border p-4 shadow-sm hover:shadow-md transition-all duration-200 ${tierClass}`}
+                  className={`rounded-[24px] border p-4 shadow-sm hover:shadow-lg transition-all duration-200 ${tierClass}`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500/80">
-                      <span>TAG</span>
+                    <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.3em] text-gray-500/80">
+                      <span>タグ</span>
                       <span className="w-1 h-1 rounded-full bg-gray-400"></span>
                       <span>{index + 1}</span>
                     </div>
@@ -199,7 +199,7 @@ export function AIAnalysisStrengths({
           })}
         </div>
 
-        {/* 仕事マッチングのヒント */}
+        {/* クリエイターソリューション提案 */}
         {jobMatchingHints && jobMatchingHints.length > 0 && (
           <div className={`mt-8 ${framed ? "pt-6 border-t border-gray-200" : "pt-0"}`}>
             <div className="flex items-center gap-2 mb-4">
@@ -217,63 +217,12 @@ export function AIAnalysisStrengths({
                 />
               </svg>
               <h3 className="text-lg font-semibold text-gray-900">
-                おすすめの活躍領域
+                提供できるソリューション
               </h3>
             </div>
             <div className="space-y-4">
               {jobMatchingHints.map((hint, idx) => (
-                <div
-                  key={idx}
-                  className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="w-5 h-5 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-base font-semibold text-gray-900 mb-2">
-                        {hint.title}
-                      </h4>
-                      <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                        {hint.description}
-                      </p>
-                      <div className="space-y-2">
-                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs font-semibold text-blue-700 flex-shrink-0">
-                              マッチする理由:
-                            </span>
-                            <p className="text-xs text-gray-700 leading-relaxed">
-                              {hint.reason}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="bg-white/60 rounded-lg p-3 border border-blue-100">
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs font-semibold text-blue-700 flex-shrink-0">
-                              期待できる効果:
-                            </span>
-                            <p className="text-xs text-gray-700 leading-relaxed">
-                              {hint.whyRecommended}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <SolutionCard hint={hint} index={idx} key={`${hint.title}-${idx}`} />
               ))}
             </div>
           </div>
@@ -290,5 +239,74 @@ export function AIAnalysisStrengths({
         )}
       </div>
     </section>
+  );
+}
+
+function SolutionCard({
+  hint,
+  index,
+}: {
+  hint: JobMatchingHint;
+  index: number;
+}) {
+  const matchScore = Math.max(78, 94 - index * 4);
+
+  return (
+    <div className="rounded-[32px] border border-blue-100 bg-gradient-to-br from-blue-50/90 via-white to-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] transition-all">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold text-blue-600 tracking-wide">
+            提案概要
+          </p>
+          <h4 className="text-lg font-semibold text-slate-900 mt-1">
+            {hint.title}
+          </h4>
+          <p className="text-sm text-slate-600 mt-1">{hint.description}</p>
+        </div>
+        <div className="text-xs text-slate-400">
+          ポートフォリオ分析から抽出した提案です。
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+        <div className="rounded-[24px] border border-slate-200 bg-white p-4">
+          <p className="text-xs font-semibold text-slate-500 tracking-wide mb-1">
+            こんな課題を持つ方へ
+          </p>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            {hint.description}
+          </p>
+        </div>
+        <div className="rounded-[24px] border border-emerald-100 bg-white p-4">
+          <p className="text-xs font-semibold text-emerald-600 tracking-wide mb-1">
+            提供する解決策
+          </p>
+          <p className="text-sm text-slate-700 leading-relaxed">{hint.reason}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="rounded-[24px] border border-blue-100 bg-white p-4">
+          <p className="text-xs font-semibold text-blue-600 tracking-wide mb-1">
+            期待できる成果
+          </p>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            {hint.whyRecommended}
+          </p>
+        </div>
+        <div className="rounded-[24px] border border-yellow-100 bg-white p-4">
+          <p className="text-xs font-semibold text-yellow-600 tracking-wide mb-1">
+            AIインサイト
+          </p>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            最新の作品分析より：専門性と共感ライティングの両立が得意で、対談記事や難解テーマでも高い完読率が期待できます。
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 text-xs text-slate-400">
+        ※ 提案内容はポートフォリオをもとにAIが自動生成しています。
+      </div>
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +55,11 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
+  const aiAnalysis =
+    work?.ai_analysis_result ||
+    work?.previewData?.analysis ||
+    work?.preview_data?.analysis;
+
   useEffect(() => {
     // 閲覧数をインクリメントする非同期関数
     const incrementViewCount = async () => {
@@ -73,6 +78,20 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
       incrementViewCount();
     }
   }, [workId]);
+
+  const parseBulletItems = useCallback((text?: string) => {
+    if (!text) return [];
+    return text
+      .split("\n")
+      .map((line) => line.replace(/^[・\-\*]\s*/, "").trim())
+      .filter((line) => line.length > 0);
+  }, []);
+
+  const truncateText = useCallback((text: string, limit: number) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return `${text.slice(0, limit)}…`;
+  }, []);
 
   useEffect(() => {
     const fetchWork = async () => {
@@ -267,6 +286,115 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
     fetchWork();
   }, [workId]);
 
+  const highlightComment = useMemo(() => {
+    if (!aiAnalysis) return null;
+    const strengths = aiAnalysis.strengths;
+    const contentAnalysis = aiAnalysis.contentAnalysis;
+    const tags = aiAnalysis.tags || [];
+    const expertiseTags = aiAnalysis.tagClassification?.technique || [];
+    const genreTags = aiAnalysis.tagClassification?.genre || [];
+    const industryTag =
+      genreTags[0] ||
+      tags.find((tag: string) =>
+        [
+          "医療",
+          "金融",
+          "IT",
+          "SaaS",
+          "BtoB",
+          "教育",
+          "不動産",
+          "製造",
+          "小売",
+          "サービス",
+        ].some((industry) => tag.includes(industry)),
+      ) ||
+      "";
+    const problemItems = parseBulletItems(
+      contentAnalysis?.problemPurpose || contentAnalysis?.problem,
+    ).slice(0, 2);
+    const solutionItems = parseBulletItems(
+      contentAnalysis?.solutionApproach || contentAnalysis?.solution,
+    ).slice(0, 2);
+    const targetAudienceItems = parseBulletItems(
+      contentAnalysis?.targetAudience ||
+        aiAnalysis.targetAudience ||
+        aiAnalysis.detailedAnalysis?.targetReaderProfile,
+    ).slice(0, 2);
+    const resultText = contentAnalysis?.result || "";
+    const resultItems = parseBulletItems(resultText).slice(0, 2);
+    const hasNumbers = /\d+/.test(resultText);
+    const numberMatch = resultText.match(/\d+[%％]?/);
+    const creativity = strengths?.creativity?.[0] || "";
+    const expertise = strengths?.expertise?.[0] || "";
+    const contentLabel = work?.content_type === "article" ? "記事" : "作品";
+
+    if (
+      hasNumbers &&
+      numberMatch &&
+      problemItems.length > 0 &&
+      industryTag
+    ) {
+      const expertiseText = expertiseTags[0] || expertise || "専門的な知識";
+      let problemText = truncateText(problemItems[0], 60).replace(/。+$/, "");
+      return `${industryTag}の${problemText}という課題に取り組み、${numberMatch[0]}の成果を出しています。${expertiseText}を活かしたアプローチで、業界への具体的な価値提供につながっている点が魅力です。`;
+    }
+
+    if (problemItems.length > 0 && solutionItems.length > 0) {
+      let problemText = truncateText(problemItems[0], 55).replace(/。+$/, "");
+      let solutionText = truncateText(solutionItems[0], 55).replace(/。+$/, "");
+      const expertiseText = expertiseTags[0] || industryTag || "専門知識";
+      return `${problemText}という課題に、${solutionText}というアプローチで応えています。${expertiseText}を活かし、業界への貢献と読者への価値提供を両立させている点が魅力です。`;
+    }
+
+    if (targetAudienceItems.length > 0 && solutionItems.length > 0) {
+      let audienceText = truncateText(targetAudienceItems[0], 50).replace(
+        /。+$/,
+        "",
+      );
+      let solutionText = truncateText(solutionItems[0], 50).replace(/。+$/, "");
+      return `${audienceText}を想定読者に設定し、${solutionText}という切り口で課題を解決しています。誰の意思決定を支援するかまで明確に描けている点が、この${contentLabel}のビジネス価値を高めています。`;
+    }
+
+    if (creativity && expertise && industryTag) {
+      let creativityShort = truncateText(creativity, 50).replace(/。+$/, "");
+      const expertiseText = expertiseTags[0] || expertise;
+      return `${industryTag}の${expertiseText}を活かしながら、${creativityShort}という視点でまとめられています。専門性と創造性の両立が際立つ${contentLabel}です。`;
+    }
+
+    if (resultItems.length > 0 && industryTag) {
+      let resultShort = truncateText(resultItems[0], 60).replace(/。+$/, "");
+      const expertiseText = expertiseTags[0] || "専門的な知識";
+      return `${industryTag}の課題を解決し、${resultShort}という成果につなげています。${expertiseText}を活かした実践力が伝わる${contentLabel}です。`;
+    }
+
+    if (industryTag && expertiseTags.length > 0) {
+      const expertiseText = expertiseTags[0];
+      const creativityText = creativity || "創造的な視点";
+      return `${industryTag}の${expertiseText}を軸にしつつ、${creativityText}で仕上げている点が印象的です。専門性と表現力が融合した${contentLabel}です。`;
+    }
+
+    if (industryTag) {
+      const expertiseText = expertiseTags[0] || tags[0] || "専門性";
+      return `${industryTag}の課題を解決する${contentLabel}です。${expertiseText}を活かし、情報提供を超えて業界への貢献や読者への価値提供を実現しています。`;
+    }
+
+    if (tags.length > 0) {
+      return `${tags[0]}${tags[1] ? `と${tags[1]}` : ""}の専門知識が活きた${contentLabel}です。あなたの実践力と専門性の高さが伝わります。`;
+    }
+
+    return `この${contentLabel}は、業界課題を的確に捉えながら価値提供へとつなげている点が魅力です。`;
+  }, [aiAnalysis, work?.content_type]);
+
+  const contentSummary = useMemo(() => {
+    if (!aiAnalysis) return null;
+    const summary =
+      aiAnalysis.contentTypeAnalysis ||
+      aiAnalysis.summary ||
+      aiAnalysis.oneLinerSummary;
+    return summary || work?.description || "";
+  }, [aiAnalysis, work?.description]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -338,11 +466,6 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
     );
   }
 
-  // AI分析データの取得（previewDataまたはpreview_dataまたはai_analysis_resultから）
-  const aiAnalysis =
-    work.ai_analysis_result ||
-    work.previewData?.analysis ||
-    work.preview_data?.analysis;
 
   // 制作メモ保存処理
   const handleSaveProductionNotes = async () => {
@@ -1145,6 +1268,79 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                         </div>
                       ) : null}
                     </div>
+                  </div>
+                )}
+
+                {(highlightComment || contentSummary) && (
+                  <div className="pt-8 border-t border-gray-200 space-y-6">
+                    {highlightComment && (
+                      <div className="relative">
+                        <div className="bg-white border-2 border-gray-200 rounded-2xl p-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 flex-shrink-0">
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12h.01M15 12h.01M12 12h.01M7 8h10a5 5 0 015 5v2a5 5 0 01-5 5h-1l-3 3-3-3H7a5 5 0 01-5-5v-2a5 5 0 015-5z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-blue-500">
+                                  作品の魅力
+                                </span>
+                                <span className="text-[11px] text-slate-400">
+                                  AIによるハイライト
+                                </span>
+                              </div>
+                              <p className="text-sm text-slate-900 leading-relaxed">
+                                {highlightComment}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {contentSummary && (
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-10 h-10 rounded-full bg-white text-blue-600 shadow flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 10h.01M12 14h.01M16 10h.01M9 16h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h4.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide">
+                              AIが整理した骨子
+                            </p>
+                            <h3 className="text-lg font-semibold text-blue-900">
+                              コンテンツ概要
+                            </h3>
+                          </div>
+                        </div>
+                        <p className="text-blue-900/90 leading-relaxed whitespace-pre-line">
+                          {contentSummary}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 

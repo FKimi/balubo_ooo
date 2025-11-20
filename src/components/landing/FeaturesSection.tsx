@@ -2,54 +2,7 @@
 
 import React from "react";
 
-const analysisHighlights = [
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    title: "業界タグ",
-    subtitle: "",
-    description: "記事に登場する業界や企業、人名を抽出し、クライアントが探しているタグとして整理します。",
-    chips: ["製造DX", "BtoB SaaS", "経営層インタビュー", "企業変革"],
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-    title: "専門性タグ",
-    subtitle: "",
-    description: "分析力・戦略思考・調査設計などの抽象的な強みをタグ化し、専門領域を短い言葉で伝えます。",
-    chips: ["市場分析", "ビジネス戦略", "リサーチ設計", "課題解決プロセス"],
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-      </svg>
-    ),
-    title: "課題・解決策・成果",
-    subtitle: "",
-    description: "課題・解決策・得られた結果をコンパクトに整理し、提案や実績紹介の骨子にそのまま使える形で提示します。",
-    lists: [
-      {
-        title: "課題",
-        items: ["業界特有の課題や商習慣など、前提となる状況が整理されていない"],
-      },
-      {
-        title: "解決策",
-        items: ["取材やリサーチで一次情報を確保し、意思決定の背景をストーリーとして構造化"],
-      },
-      {
-        title: "成果",
-        items: ["課題・解決策・成果が一枚で伝わるレポートとして、提案や振り返りに活用"],
-      },
-    ],
-  },
-];
+import { FadeIn } from "@/components/ui/motion";
 
 export default function FeaturesSection() {
   return (
@@ -62,83 +15,136 @@ export default function FeaturesSection() {
         aria-hidden="true"
       />
       <div className="container relative mx-auto max-w-7xl">
-        <div className="mb-16">
-          <div className="mx-auto max-w-3xl text-left">
+        <FadeIn className="mb-16">
+          <div className="mx-auto max-w-3xl text-center">
             <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
-              baluboが可視化する3つの価値
+              AIがあなたの記事を<br className="hidden sm:block" />
+              <span className="text-blue-600">「ビジネス資産」</span>に変える
             </h2>
             <p className="text-lg leading-relaxed text-gray-600">
-              AIが作品を多角的に分析し、業界適性・専門性・成果までをビジネス視点で説明します。
+              baluboの独自AIは、単なる要約ではありません。<br className="hidden sm:block" />
+              あなたの記事から「専門性」と「ビジネス価値」を抽出し、<br className="hidden sm:block" />
+              クライアントが即座に判断できるレポートを生成します。
             </p>
           </div>
-        </div>
+        </FadeIn>
 
-        {/* フィーチャーリスト形式で3つの価値を縦に配置 */}
-        <div className="mx-auto max-w-5xl space-y-8">
-          {analysisHighlights.map((highlight) => (
-            <div
-              key={highlight.title}
-              className="flex gap-5 rounded-[32px] border border-blue-50/90 bg-white/95 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)] backdrop-blur-sm"
-            >
-              {/* クレイ風アイコン（左） */}
-              <div className="flex flex-shrink-0 items-start pt-1">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)]">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-400 text-white shadow-[0_10px_26px_rgba(37,99,235,0.45)]">
-                    <span className="flex items-center justify-center">{highlight.icon}</span>
-                  </div>
-                </div>
+        {/* Feature 1: Tags Analysis */}
+        <FadeIn delay={0.2} className="mx-auto mb-20 grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+          <div className="order-2 lg:order-1">
+            <div className="relative rounded-3xl border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+              <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
               </div>
 
-              {/* テキストブロック（右） */}
-              <div className="flex-1">
-                <h3 className="mb-2 text-lg font-bold leading-snug text-gray-900">
-                  {highlight.title}
-                </h3>
-                <p className="mb-3 text-sm leading-relaxed text-gray-700">
-                  {highlight.description}
-                </p>
-
-                {/* 業界タグ / 専門性タグのチップ */}
-                {highlight.chips && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {highlight.chips.map((chip) => (
-                      <span
-                        key={chip}
-                        className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700"
-                      >
-                        #{chip}
+              {/* Mock UI for Tags */}
+              <div className="space-y-6">
+                <div>
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">INDUSTRY TAGS</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["製造DX", "BtoB SaaS", "サプライチェーン", "IoT"].map((tag) => (
+                      <span key={tag} className="rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700">
+                        #{tag}
                       </span>
                     ))}
                   </div>
-                )}
-
-                {/* 課題・解決策・成果の3カラムリスト */}
-                {highlight.lists && (
-                  <div className="mt-4 grid gap-6 md:grid-cols-3">
-                    {highlight.lists.map((list) => (
-                      <div key={list.title}>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          {list.title}
-                        </p>
-                        <ul className="space-y-1.5">
-                          {list.items.map((item) => (
-                            <li key={item} className="flex items-start gap-2 text-sm leading-relaxed text-gray-700">
-                              <span className="mt-[6px] inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                </div>
+                <div>
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">EXPERTISE TAGS</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["経営層インタビュー", "課題解決プロセス", "市場分析", "技術解説"].map((tag) => (
+                      <span key={tag} className="rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700">
+                        #{tag}
+                      </span>
                     ))}
                   </div>
-                )}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+          <div className="order-1 lg:order-2">
+            <h3 className="mb-4 text-2xl font-bold text-gray-900">
+              01. 業界・専門性をタグ化
+            </h3>
+            <p className="text-lg leading-relaxed text-gray-600">
+              記事に登場する業界用語や企業、テーマをAIが解析。「どの業界に詳しいか」「どんなスキルがあるか」をタグとして自動抽出します。
+            </p>
+            <ul className="mt-6 space-y-3">
+              <li className="flex items-start gap-3">
+                <svg className="mt-1 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-700">ニッチな業界用語も正確にキャッチ</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="mt-1 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-700">「取材」「分析」などのスキルもタグ化</span>
+              </li>
+            </ul>
+          </div>
+        </FadeIn>
 
-        {/* 中間CTAはストーリー上少し後に任せるため、このセクションでは説明に集中 */}
+        {/* Feature 2: Structured Summary */}
+        <FadeIn delay={0.4} className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+          <div>
+            <h3 className="mb-4 text-2xl font-bold text-gray-900">
+              02. 思考プロセスを構造化
+            </h3>
+            <p className="text-lg leading-relaxed text-gray-600">
+              「課題・目的」「想定読者」「解決策」「成果」の4項目で記事を再構成。あなたがどのように情報を整理し、誰に何を伝えたかったのか、その思考プロセスを言語化します。
+            </p>
+            <p className="mt-4 text-sm text-gray-500">
+              ※このサマリは、そのままポートフォリオの解説文や提案資料として活用できます。
+            </p>
+          </div>
+          <div>
+            <div className="relative rounded-3xl border border-indigo-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+              <div className="absolute -top-4 -right-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+
+              {/* Mock UI for Summary */}
+              <div className="space-y-5">
+                <div className="rounded-xl bg-gray-50 p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-red-400"></span>
+                    <span className="text-xs font-bold text-gray-500">課題・目的</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-800">
+                    業界特有のKPI設定が複雑で、現場が疲弊している現状を打破したい
+                  </p>
+                </div>
+                <div className="rounded-xl bg-gray-50 p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-blue-400"></span>
+                    <span className="text-xs font-bold text-gray-500">想定読者</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-800">
+                    製造業のDX推進担当者および経営企画室のメンバー
+                  </p>
+                </div>
+                <div className="rounded-xl bg-gray-50 p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-green-400"></span>
+                    <span className="text-xs font-bold text-gray-500">成果</span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-800">
+                    「なぜDXが必要か」のロジックが整理され、社内稟議の通過率が向上したとの声を獲得
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+
       </div>
     </section>
   );
 }
+
