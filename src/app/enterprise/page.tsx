@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Footer as SharedFooter } from "@/components/layout/Footer";
 import StickyCTA from "@/components/landing/StickyCTA";
-import SectionDivider from "@/components/landing/SectionDivider";
+import { SectionDivider } from "@/components/landing/SectionDivider";
 
 export default function EnterpriseLandingPage() {
   const [mounted, setMounted] = useState(false);
@@ -235,7 +235,7 @@ export default function EnterpriseLandingPage() {
                         <a href="#why">サービスを見る</a>
                       </Button>
                     </div>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start text-sm text-gray-600">
                       <span className="flex items-center justify-center lg:justify-start">
                         <svg className="mr-1.5 h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -794,9 +794,8 @@ export default function EnterpriseLandingPage() {
                     >
                       <span>{faq.question}</span>
                       <svg
-                        className={`w-6 h-6 flex-shrink-0 text-blue-600 transition-transform duration-300 ${
-                          openFaqIndex === index ? "rotate-180" : ""
-                        }`}
+                        className={`w-6 h-6 flex-shrink-0 text-blue-600 transition-transform duration-300 ${openFaqIndex === index ? "rotate-180" : ""
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -806,9 +805,8 @@ export default function EnterpriseLandingPage() {
                     </button>
                     <div
                       id={`faq-answer-${index}`}
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        openFaqIndex === index ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                      }`}
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === index ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                        }`}
                     >
                       <div className="px-6 md:px-8 pb-6 md:pb-8">
                         <p className="text-gray-700 leading-relaxed bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
@@ -842,7 +840,7 @@ export default function EnterpriseLandingPage() {
                 <br />
                 <span className="text-blue-600">今日で終わりにしませんか？</span>
               </h2>
-              
+
               <div className="mx-auto max-w-3xl space-y-6 mb-12">
                 <p className="text-xl md:text-2xl leading-relaxed text-gray-800 font-medium">
                   <span className="text-blue-600 font-bold">balubo</span>で、あなたの事業を深く理解したプロと出会う。
@@ -882,7 +880,7 @@ export default function EnterpriseLandingPage() {
                   size="lg"
                   className="w-full max-w-md rounded-full bg-gradient-to-r from-blue-600 to-blue-700 px-12 py-6 text-xl font-bold text-white transition-all duration-200 hover:shadow-2xl hover:scale-105 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
                 >
-                  <a 
+                  <a
                     href="https://docs.google.com/forms/d/e/1FAIpQLSc7UzTNUD-8Fs2BAoOuKNGlju5PX5qxneXmhvmN7pwGH6FtCg/viewform?usp=header"
                     target="_blank"
                     rel="noopener noreferrer"
