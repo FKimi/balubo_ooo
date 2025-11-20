@@ -336,23 +336,23 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
       industryTag
     ) {
       const expertiseText = expertiseTags[0] || expertise || "専門的な知識";
-      const problemText = truncateText(problemItems[0], 60).replace(/。+$/, "");
+      const problemText = truncateText(problemItems[0] || "", 60).replace(/。+$/, "");
       return `${industryTag}の${problemText}という課題に取り組み、${numberMatch[0]}の成果を出しています。${expertiseText}を活かしたアプローチで、業界への具体的な価値提供につながっている点が魅力です。`;
     }
 
     if (problemItems.length > 0 && solutionItems.length > 0) {
-      const problemText = truncateText(problemItems[0], 55).replace(/。+$/, "");
-      const solutionText = truncateText(solutionItems[0], 55).replace(/。+$/, "");
+      const problemText = truncateText(problemItems[0] || "", 55).replace(/。+$/, "");
+      const solutionText = truncateText(solutionItems[0] || "", 55).replace(/。+$/, "");
       const expertiseText = expertiseTags[0] || industryTag || "専門知識";
       return `${problemText}という課題に、${solutionText}というアプローチで応えています。${expertiseText}を活かし、業界への貢献と読者への価値提供を両立させている点が魅力です。`;
     }
 
     if (targetAudienceItems.length > 0 && solutionItems.length > 0) {
-      const audienceText = truncateText(targetAudienceItems[0], 50).replace(
+      const audienceText = truncateText(targetAudienceItems[0] || "", 50).replace(
         /。+$/,
         "",
       );
-      const solutionText = truncateText(solutionItems[0], 50).replace(/。+$/, "");
+      const solutionText = truncateText(solutionItems[0] || "", 50).replace(/。+$/, "");
       return `${audienceText}を想定読者に設定し、${solutionText}という切り口で課題を解決しています。誰の意思決定を支援するかまで明確に描けている点が、この${contentLabel}のビジネス価値を高めています。`;
     }
 
@@ -363,7 +363,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
     }
 
     if (resultItems.length > 0 && industryTag) {
-      const resultShort = truncateText(resultItems[0], 60).replace(/。+$/, "");
+      const resultShort = truncateText(resultItems[0] || "", 60).replace(/。+$/, "");
       const expertiseText = expertiseTags[0] || "専門的な知識";
       return `${industryTag}の課題を解決し、${resultShort}という成果につなげています。${expertiseText}を活かした実践力が伝わる${contentLabel}です。`;
     }

@@ -1660,8 +1660,8 @@ ${errorDetailSection}
                 {/* ドラッグ&ドロップエリア */}
                 <div
                   className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging
-                      ? "border-blue-600 bg-blue-50"
-                      : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                    ? "border-blue-600 bg-blue-50"
+                    : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
                     }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
@@ -1850,8 +1850,8 @@ ${errorDetailSection}
                 <button
                   onClick={() => setActiveTab("description")}
                   className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === "description"
-                      ? "border-blue-600 text-blue-600"
-                      : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                 >
                   作品概要
@@ -1859,8 +1859,8 @@ ${errorDetailSection}
                 <button
                   onClick={() => setActiveTab("productionNotes")}
                   className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === "productionNotes"
-                      ? "border-blue-600 text-blue-600"
-                      : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
                     }`}
                 >
                   制作メモ（任意）
@@ -1869,8 +1869,8 @@ ${errorDetailSection}
                   <button
                     onClick={() => setActiveTab("articleContent")}
                     className={`flex-1 px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === "articleContent"
-                        ? "border-blue-600 text-blue-600"
-                        : "border-transparent text-slate-500 hover:text-slate-700"
+                      ? "border-blue-600 text-blue-600"
+                      : "border-transparent text-slate-500 hover:text-slate-700"
                       }`}
                   >
                     記事本文（任意）
@@ -2089,8 +2089,8 @@ ${errorDetailSection}
                           onClick={() => addDesignTool(tool)}
                           disabled={formData.designTools.includes(tool)}
                           className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${formData.designTools.includes(tool)
-                              ? "bg-blue-100 text-blue-700 cursor-not-allowed"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            ? "bg-blue-100 text-blue-700 cursor-not-allowed"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                         >
                           {tool}
@@ -2450,8 +2450,8 @@ ${errorDetailSection}
 
                       // パターン3: 想定読者 + 解決策（読者理解を評価）
                       if (targetAudienceItems.length > 0 && solutionItems.length > 0) {
-                        const audienceText = truncateText(targetAudienceItems[0], 50).replace(/。+$/, '');
-                        const solutionText = truncateText(solutionItems[0], 50).replace(/。+$/, '');
+                        const audienceText = truncateText(targetAudienceItems[0] || '', 50).replace(/。+$/, '');
+                        const solutionText = truncateText(solutionItems[0] || '', 50).replace(/。+$/, '');
                         return `${audienceText}を想定読者に定め、${solutionText}という切り口で課題を解決しています。誰の意思決定を支援するかまで描けている点が、この作品のビジネス価値を高めています。`;
                       }
 
