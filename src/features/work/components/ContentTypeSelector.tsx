@@ -133,7 +133,7 @@ export function ContentTypeSelector({
 
   const modalContent = (
     <div
-      className="modal-overlay-top flex items-start justify-center bg-black/60 backdrop-blur-sm pt-12 pb-4 px-4 overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 backdrop-blur-sm pt-12 pb-4 px-4 overflow-y-auto"
       onClick={(e) => {
         // 背景クリック時にモーダルを閉じる
         if (e.target === e.currentTarget) {

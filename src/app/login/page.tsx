@@ -117,8 +117,8 @@ function LoginForm() {
         return;
       }
 
-      // 成功パス：最後にまとめる
-      router.push("/profile");
+      // 成功パス：プロフィールページのprofileタブに遷移
+      router.push("/profile?tab=profile");
     } catch (error) {
       console.error("Login error:", error);
       setErrors({ general: getErrorMessage(error) });

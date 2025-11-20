@@ -2,9 +2,7 @@
 
 import { Suspense } from "react";
 import { Header, MobileBottomNavigation } from "./header";
-import { LayoutProvider } from "@/contexts/LayoutContext";
 import { Footer } from "@/components/layout/Footer";
-import { GlobalModalManager } from "@/components/common/GlobalModalManager";
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
@@ -25,11 +23,8 @@ export function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <LayoutProvider>
-      <div className="flex flex-col min-h-screen">
-        <LayoutContent>{children}</LayoutContent>
-      </div>
-      <GlobalModalManager />
-    </LayoutProvider>
+    <div className="flex flex-col min-h-screen">
+      <LayoutContent>{children}</LayoutContent>
+    </div>
   );
 }

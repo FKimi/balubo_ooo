@@ -59,10 +59,10 @@ export default function HomePage() {
     setIsClient(true);
   }, []);
 
-  // ログイン済みユーザーはプロフィールページにリダイレクト
+  // ログイン済みユーザーはプロフィールページ（profileタブ）にリダイレクト
   useEffect(() => {
     if (isClient && !loading && user) {
-      router.push("/profile");
+      router.push("/profile?tab=profile");
     }
   }, [isClient, user, loading, router]);
 

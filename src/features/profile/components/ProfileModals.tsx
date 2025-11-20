@@ -79,13 +79,35 @@ function Modal({
   if (!mounted || !isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-xl shadow-gray-900/10 p-6 z-10 border border-gray-200/60">
-        <h2 className="text-lg font-semibold mb-4 text-gray-900">{title}</h2>
+      <div className="relative w-full max-w-lg bg-white rounded-[24px] shadow-[0_20px_50px_rgba(15,23,42,0.12)] p-6 sm:p-8 z-10 border border-white/60 animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
         {children}
       </div>
     </div>

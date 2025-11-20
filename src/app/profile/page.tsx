@@ -17,6 +17,7 @@ import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfileTabs } from "@/features/profile/components/ProfileTabs";
 import { ProfileModals } from "@/features/profile/components/ProfileModals";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
+import { ProfileSkeleton } from "@/features/profile/components/ProfileSkeleton";
 
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
@@ -597,12 +598,15 @@ function ProfileContent() {
     return analyzeStrengthsFromWorks(savedWorks);
   }, [savedWorks]);
 
-  if (!profileData) {
-    return <ProfileLoadingFallback />;
+  // ローディング状態の管理
+  const isLoading = !profileData || _isLoadingWorks;
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full">
+    <div className="min-h-screen bg-[#F4F7FF] w-full">
       <main className="w-full">
         <div className="max-w-[1920px] mx-auto flex flex-col lg:flex-row w-full">
           {/* 左サイドバー - ナビゲーションのみ */}

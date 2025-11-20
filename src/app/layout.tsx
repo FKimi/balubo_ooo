@@ -9,6 +9,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/components/common/ErrorFallback";
 import { Toaster } from "react-hot-toast";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { LayoutProvider } from "@/contexts/LayoutContext";
+import { GlobalModalManager } from "@/components/common/GlobalModalManager";
 
 // フォント最適化設定
 const inter = Inter({
@@ -192,7 +194,10 @@ export default function RootLayout({
         <Toaster position="top-right" />
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <AuthProvider>
-            <NuqsAdapter>{children}</NuqsAdapter>
+            <LayoutProvider>
+              <NuqsAdapter>{children}</NuqsAdapter>
+              <GlobalModalManager />
+            </LayoutProvider>
           </AuthProvider>
         </ErrorBoundary>
         <Analytics />

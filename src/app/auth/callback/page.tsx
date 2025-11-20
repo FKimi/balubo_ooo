@@ -78,9 +78,9 @@ export default function AuthCallbackPage() {
 
           // より確実なリダイレクト（router.pushよりもwindow.location.hrefの方が確実）
           if (typeof window !== "undefined") {
-            window.location.href = "/profile";
+            window.location.href = "/profile?tab=profile";
           } else {
-            router.push("/profile");
+            router.push("/profile?tab=profile");
           }
         } else {
           // セッションがない場合はログインページにリダイレクト

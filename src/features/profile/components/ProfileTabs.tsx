@@ -24,6 +24,8 @@ import { DashboardMetrics } from "./DashboardMetrics";
 import { ExpertiseScores } from "./ExpertiseScores";
 import { RecentActivity } from "./RecentActivity";
 
+import { ProfileSkeleton } from "./ProfileSkeleton";
+
 interface ProfileTabsProps {
   activeTab: string;
   // eslint-disable-next-line unused-imports/no-unused-vars
@@ -65,6 +67,7 @@ interface ProfileTabsProps {
       onTabChange: (tab: string) => void;
     },
   ) => void;
+  isLoading?: boolean;
 }
 
 export function ProfileTabs({
@@ -85,6 +88,7 @@ export function ProfileTabs({
   showTabHeader = true,
   strengthsAnalysis,
   getTabsInfo,
+  isLoading,
 }: ProfileTabsProps) {
   const [isClient, setIsClient] = useState(false);
   const { openContentTypeSelector } = useLayout();
@@ -92,6 +96,11 @@ export function ProfileTabs({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
+
 
   // カスタムフックからデータを取得
   const workStats = useWorkStatistics(savedWorks);

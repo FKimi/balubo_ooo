@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,14 @@ export default function ProfileEditPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  // 【UX原則】状態管理
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalData, setOriginalData] = useState<ProfileData | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // データベースからプロフィールデータを取得する関数
   const fetchProfileData = async () => {
@@ -72,6 +80,8 @@ export default function ProfileEditPage() {
           };
 
           setFormData(convertedProfile);
+          // 【Reversibility】元データを保存（変更の破棄用）
+          setOriginalData(convertedProfile);
         } else {
           // データベースにデータがない場合はローカルストレージから読み込み
           const savedProfile = localStorage.getItem(
@@ -79,13 +89,15 @@ export default function ProfileEditPage() {
           );
           if (savedProfile) {
             const parsedProfile = JSON.parse(savedProfile);
-            setFormData({
+            const profile = {
               ...parsedProfile,
               displayName:
                 parsedProfile.displayName ||
                 user?.user_metadata?.display_name ||
                 "",
-            });
+            };
+            setFormData(profile);
+            setOriginalData(profile);
           }
         }
       } catch (error) {
@@ -97,13 +109,15 @@ export default function ProfileEditPage() {
           );
           if (savedProfile) {
             const parsedProfile = JSON.parse(savedProfile);
-            setFormData({
+            const profile = {
               ...parsedProfile,
               displayName:
                 parsedProfile.displayName ||
                 user?.user_metadata?.display_name ||
                 "",
-            });
+            };
+            setFormData(profile);
+            setOriginalData(profile);
           }
         } catch (localError) {
           console.error("ローカルデータの読み込みにも失敗:", localError);
@@ -142,6 +156,72 @@ export default function ProfileEditPage() {
   const [_isDraggingBackground, setIsDraggingBackground] = useState(false);
   const [isDraggingAvatar, setIsDraggingAvatar] = useState(false);
 
+  // 【Immediate Feedback】バリデーション関数
+  const validateField = useCallback((name: string, value: string): string => {
+    switch (name) {
+      case "displayName":
+        if (!value.trim()) {
+          return "表示名を入力してください";
+        }
+        if (value.length > 50) {
+          return "表示名は50文字以内で入力してください";
+        }
+        return "";
+
+      case "bio":
+        if (value.length > 300) {
+          return "自己紹介は300文字以内で入力してください";
+        }
+        return "";
+
+      case "websiteUrl":
+        if (value && !value.match(/^https?:\/\/.+/)) {
+          return "有効なURLを入力してください（http://またはhttps://で始まる）";
+        }
+        return "";
+
+      default:
+        return "";
+    }
+  }, []);
+
+  // 【Reversibility】変更検知
+  useEffect(() => {
+    if (!originalData) return;
+
+    const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+    setHasUnsavedChanges(hasChanges);
+  }, [formData, originalData]);
+
+  // 【Reversibility】ドラフト自動保存（デバウンス）
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const timeoutId = setTimeout(() => {
+      const userId = user?.id || "anon";
+      localStorage.setItem(`profileDraft_${userId}`, JSON.stringify(formData));
+      console.log("ドラフトを自動保存しました");
+    }, 2000); // 2秒のデバウンス
+
+    return () => clearTimeout(timeoutId);
+  }, [formData, hasUnsavedChanges, user?.id]);
+
+  // 【Reversibility】変更を破棄
+  const handleDiscardChanges = useCallback(() => {
+    if (!originalData) return;
+
+    if (confirm("変更を破棄してもよろしいですか？")) {
+      setFormData(originalData);
+      setErrors({});
+      setTouchedFields(new Set());
+      setHasUnsavedChanges(false);
+
+      // ドラフトも削除
+      const userId = user?.id || "anon";
+      localStorage.removeItem(`profileDraft_${userId}`);
+    }
+  }, [originalData, user?.id]);
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -149,6 +229,22 @@ export default function ProfileEditPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // 【Immediate Feedback】タッチされたフィールドのみリアルタイムバリデーション
+    if (touchedFields.has(name)) {
+      const error = validateField(name, value);
+      setErrors((prev) => ({ ...prev, [name]: error }));
+    }
+  };
+
+  // 【Immediate Feedback】フィールドのblurイベント
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    setTouchedFields((prev) => new Set(prev).add(name));
+
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handleFileChange = (
@@ -270,6 +366,27 @@ export default function ProfileEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // バリデーションチェック
+    const newErrors: Record<string, string> = {};
+    Object.keys(formData).forEach((key) => {
+      const value = formData[key as keyof ProfileData];
+      if (typeof value === "string") {
+        const error = validateField(key, value);
+        if (error) {
+          newErrors[key] = error;
+        }
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setTouchedFields(new Set(Object.keys(formData)));
+      return;
+    }
+
+    // 【Non-blocking】AbortControllerで処理をキャンセル可能に
+    abortControllerRef.current = new AbortController();
     setIsLoading(true);
 
     try {
@@ -282,9 +399,10 @@ export default function ProfileEditPage() {
 
       if (error) {
         console.error("保存エラー:", error);
-        alert(`保存に失敗しました: ${error}
+        setErrors({
+          general: `保存に失敗しました: ${error}
 
-問題が続く場合は、ページを再読み込みしてもう一度お試しください。`);
+問題が続く場合は、ページを再読み込みしてもう一度お試しください。` });
         return;
       }
 
@@ -292,6 +410,9 @@ export default function ProfileEditPage() {
         // ローカルストレージにも保存（バックアップ用）
         const userId = user?.id || "anon";
         localStorage.setItem(`profileData_${userId}`, JSON.stringify(formData));
+
+        // ドラフトを削除
+        localStorage.removeItem(`profileDraft_${userId}`);
 
         // Supabase Auth 側の user_metadata も更新して表示名を同期
         try {
@@ -303,8 +424,15 @@ export default function ProfileEditPage() {
           console.warn("user_metadata 更新失敗:", metaErr);
         }
 
-        // 更新フラグを付けてプロフィール画面に遷移
-        router.push("/profile?updated=true");
+        // 【Immediate Feedback】成功アニメーション
+        setShowSuccess(true);
+        setHasUnsavedChanges(false);
+        setOriginalData(formData);
+
+        // 1.5秒後にプロフィールページに遷移
+        setTimeout(() => {
+          router.push("/profile?tab=profile&updated=true");
+        }, 1500);
       }
     } catch (error) {
       console.error("保存エラー（例外）:", error);
@@ -335,9 +463,19 @@ export default function ProfileEditPage() {
 開発者にお知らせください。`;
       }
 
-      alert(errorMessage);
+      setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  // 【Non-blocking】処理のキャンセル
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -346,12 +484,74 @@ export default function ProfileEditPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
         <Header />
 
+        {/* 【Immediate Feedback】成功アニメーション */}
+        {showSuccess && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in duration-500">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center animate-in zoom-in duration-700">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">保存完了！</h3>
+                  <p className="text-gray-600">プロフィールページに移動します...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="max-w-3xl mx-auto">
+            {/* 【Reversibility】未保存の変更があることを通知 */}
+            {hasUnsavedChanges && (
+              <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-xl animate-in slide-in-from-top duration-300">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-yellow-800">
+                      未保存の変更があります
+                    </p>
+                    <p className="text-xs text-yellow-700 mt-1">
+                      変更は自動的にドラフトとして保存されています
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 【Immediate Feedback】エラー表示 */}
+            {errors.general && (
+              <div className="mb-6 p-5 rounded-2xl bg-red-50/80 border border-red-200/50 animate-in slide-in-from-top duration-300">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-700 whitespace-pre-wrap">
+                      {errors.general}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setErrors((prev) => ({ ...prev, general: "" }))}
+                    className="text-red-400 hover:text-red-600 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* ページヘッダー - プロフェッショナルなデザイン */}
             <div className="mb-8">
               <div className="flex items-center space-x-4 mb-6">
-                <Link href="/profile">
+                <Link href="/profile?tab=profile">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -391,17 +591,17 @@ export default function ProfileEditPage() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md">
                       <svg
                         className="w-5 h-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
                     </div>
                     <div>
                       <div>基本情報</div>
@@ -416,8 +616,8 @@ export default function ProfileEditPage() {
                   <div className="space-y-4">
                     <div>
                       <Label className="text-sm font-semibold text-gray-900 mb-1 block">
-                      背景画像
-                    </Label>
+                        背景画像
+                      </Label>
                       <p className="text-xs text-gray-500">
                         プロフィールページの上部に表示される背景画像を設定できます
                       </p>
@@ -425,11 +625,10 @@ export default function ProfileEditPage() {
                     <div className="space-y-4">
                       {/* 背景画像プレビュー - プロフェッショナルなデザイン */}
                       <div
-                        className={`relative w-full h-48 sm:h-56 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden border-2 border-dashed transition-all duration-300 cursor-pointer group ${
-                          formData.backgroundImageUrl
-                            ? "border-gray-300 hover:border-blue-500 hover:shadow-lg"
-                            : "border-gray-300 hover:border-blue-600 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-50/50"
-                        }`}
+                        className={`relative w-full h-48 sm:h-56 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden border-2 border-dashed transition-all duration-300 cursor-pointer group ${formData.backgroundImageUrl
+                          ? "border-gray-300 hover:border-blue-500 hover:shadow-lg"
+                          : "border-gray-300 hover:border-blue-600 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-50/50"
+                          }`}
                         onDragOver={(e) => handleDragOver(e, "background")}
                         onDragLeave={(e) => handleDragLeave(e, "background")}
                         onDrop={(e) => handleDrop(e, "background")}
@@ -556,7 +755,7 @@ export default function ProfileEditPage() {
                           <span className="font-semibold">形式:</span> JPG, PNG
                           <span className="mx-2">•</span>
                           <span className="font-semibold">最大サイズ:</span> 5MB
-                      </p>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -569,21 +768,21 @@ export default function ProfileEditPage() {
                     <div className="flex items-start space-x-6">
                       <div className="relative group">
                         <div className="w-24 h-24 sm:w-28 sm:h-28 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center overflow-hidden ring-4 ring-white shadow-lg">
-                      {formData.avatarImageUrl ? (
-                        <Image
-                          src={formData.avatarImageUrl}
-                          alt="プロフィール画像"
+                          {formData.avatarImageUrl ? (
+                            <Image
+                              src={formData.avatarImageUrl}
+                              alt="プロフィール画像"
                               width={112}
                               height={112}
-                          className="rounded-full object-cover w-full h-full"
+                              className="rounded-full object-cover w-full h-full"
                               quality={90}
-                        />
-                      ) : (
+                            />
+                          ) : (
                             <span className="text-gray-500 font-bold text-3xl">
-                          {formData.displayName.charAt(0) || "U"}
-                        </span>
-                      )}
-                    </div>
+                              {formData.displayName.charAt(0) || "U"}
+                            </span>
+                          )}
+                        </div>
                         {formData.avatarImageUrl && (
                           <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -606,58 +805,58 @@ export default function ProfileEditPage() {
                       </div>
                       <div className="flex-1 space-y-3">
                         <div className="flex flex-wrap gap-3">
-                        <input
-                          type="file"
-                          id="avatarImage"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange(e, "avatar")}
-                          className="hidden"
-                        />
-                        <Button
-                          variant="outline"
-                          type="button"
-                          size="sm"
-                          asChild
-                            className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 transition-all shadow-sm rounded-xl"
-                        >
-                          <label
-                            htmlFor="avatarImage"
-                              className="cursor-pointer flex items-center"
-                          >
-                            <svg
-                              className="w-4 h-4 mr-2"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                            </svg>
-                            画像を変更
-                          </label>
-                        </Button>
-                        {formData.avatarImageUrl && (
+                          <input
+                            type="file"
+                            id="avatarImage"
+                            accept="image/*"
+                            onChange={(e) => handleFileChange(e, "avatar")}
+                            className="hidden"
+                          />
                           <Button
                             variant="outline"
                             type="button"
                             size="sm"
-                            aria-label="プロフィール画像削除"
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                avatarImageUrl: "",
-                              }))
-                            }
+                            asChild
+                            className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 transition-all shadow-sm rounded-xl"
+                          >
+                            <label
+                              htmlFor="avatarImage"
+                              className="cursor-pointer flex items-center"
+                            >
+                              <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                              </svg>
+                              画像を変更
+                            </label>
+                          </Button>
+                          {formData.avatarImageUrl && (
+                            <Button
+                              variant="outline"
+                              type="button"
+                              size="sm"
+                              aria-label="プロフィール画像削除"
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  avatarImageUrl: "",
+                                }))
+                              }
                               className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-all"
                             >
                               <svg
@@ -665,7 +864,7 @@ export default function ProfileEditPage() {
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
-                          >
+                              >
                                 <path
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
@@ -673,22 +872,21 @@ export default function ProfileEditPage() {
                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                 />
                               </svg>
-                            削除
-                          </Button>
-                        )}
-                      </div>
+                              削除
+                            </Button>
+                          )}
+                        </div>
                         <div className="bg-blue-50/80 border border-blue-200/60 rounded-xl p-3">
-                      <p
-                        className={`text-xs transition-colors ${
-                              isDraggingAvatar
-                                ? "text-orange-600 font-medium"
-                                : "text-gray-600"
-                        }`}
-                      >
-                        {isDraggingAvatar
+                          <p
+                            className={`text-xs transition-colors ${isDraggingAvatar
+                              ? "text-orange-600 font-medium"
+                              : "text-gray-600"
+                              }`}
+                          >
+                            {isDraggingAvatar
                               ? "📎 画像をドロップしてください"
                               : "推奨サイズ: 400×400px • 形式: JPG, PNG • 最大サイズ: 2MB"}
-                      </p>
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -708,10 +906,19 @@ export default function ProfileEditPage() {
                       name="displayName"
                       value={formData.displayName}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       placeholder="あなたの名前またはニックネーム"
                       required
-                      className="h-11 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl"
+                      className={`h-11 border-2 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl ${errors.displayName && touchedFields.has("displayName") ? "border-red-300 focus:border-red-400" : "border-gray-200 focus:border-blue-600"}`}
                     />
+                    {errors.displayName && touchedFields.has("displayName") && (
+                      <p className="text-sm text-red-600 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {errors.displayName}
+                      </p>
+                    )}
                   </div>
 
                   {/* 肩書き */}
@@ -748,25 +955,25 @@ export default function ProfileEditPage() {
                       name="bio"
                       value={formData.bio}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       placeholder="あなたの経歴、得意分野、価値観などを簡潔に記述してください"
-                      className="min-h-[140px] border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl resize-none"
+                      className={`min-h-[140px] border-2 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl resize-none ${errors.bio && touchedFields.has("bio") ? "border-red-300 focus:border-red-400" : "border-gray-200 focus:border-blue-600"}`}
                       maxLength={300}
                     />
                     <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500">
                         簡潔で魅力的な自己紹介を心がけましょう
                       </p>
                       <p
-                        className={`text-xs font-medium ${
-                          formData.bio.length > 280
-                            ? "text-orange-600"
-                            : formData.bio.length > 250
-                              ? "text-gray-600"
-                              : "text-gray-400"
-                        }`}
+                        className={`text-xs font-medium ${formData.bio.length > 280
+                          ? "text-orange-600"
+                          : formData.bio.length > 250
+                            ? "text-gray-600"
+                            : "text-gray-400"
+                          }`}
                       >
-                      {formData.bio.length}/300文字
-                    </p>
+                        {formData.bio.length}/300文字
+                      </p>
                     </div>
                   </div>
 
@@ -802,9 +1009,18 @@ export default function ProfileEditPage() {
                       type="url"
                       value={formData.websiteUrl}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       placeholder="https://your-portfolio.com"
-                      className="h-11 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl"
+                      className={`h-11 border-2 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all rounded-xl ${errors.websiteUrl && touchedFields.has("websiteUrl") ? "border-red-300 focus:border-red-400" : "border-gray-200 focus:border-blue-600"}`}
                     />
+                    {errors.websiteUrl && touchedFields.has("websiteUrl") && (
+                      <p className="text-sm text-red-600 flex items-center gap-1 animate-in slide-in-from-top duration-200">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {errors.websiteUrl}
+                      </p>
+                    )}
                     <p className="text-xs text-gray-500 mt-1">
                       あなたのポートフォリオサイトやブログのURLを入力してください
                     </p>
@@ -812,12 +1028,39 @@ export default function ProfileEditPage() {
                 </CardContent>
               </Card>
 
-              {/* 保存ボタン - プロフェッショナルなデザイン */}
+              {/* 保存ボタン - UX改善版 */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                {/* 【Non-blocking】処理中のキャンセルボタン */}
+                {isLoading && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    className="flex-1 sm:flex-initial sm:px-8 h-12 text-base font-medium border-2 border-gray-300 hover:bg-gray-50 rounded-xl transition-all"
+                  >
+                    キャンセル
+                  </Button>
+                )}
+
+                {/* 【Reversibility】変更を破棄ボタン */}
+                {!isLoading && hasUnsavedChanges && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleDiscardChanges}
+                    className="flex-1 sm:flex-initial sm:px-8 h-12 text-base font-medium border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-xl transition-all"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    変更を破棄
+                  </Button>
+                )}
+
                 <Button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 h-12 text-base font-semibold rounded-xl"
-                  disabled={isLoading}
+                  className={`bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 h-12 text-base font-semibold rounded-xl ${isLoading ? "flex-1" : hasUnsavedChanges ? "flex-1" : "flex-1"}`}
+                  disabled={isLoading || !hasUnsavedChanges}
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-3">
@@ -839,18 +1082,21 @@ export default function ProfileEditPage() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <span>変更を保存</span>
+                      <span>{hasUnsavedChanges ? "変更を保存" : "保存済み"}</span>
                     </div>
                   )}
                 </Button>
-                <Link href="/profile" className="flex-1 sm:flex-initial">
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-auto sm:px-8 h-12 text-base font-medium border-gray-300 hover:bg-gray-50 rounded-xl transition-all"
-                  >
-                    キャンセル
-                  </Button>
-                </Link>
+
+                {!isLoading && (
+                  <Link href="/profile?tab=profile" className="flex-1 sm:flex-initial">
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto sm:px-8 h-12 text-base font-medium border-2 border-gray-300 hover:bg-gray-50 rounded-xl transition-all"
+                    >
+                      戻る
+                    </Button>
+                  </Link>
+                )}
               </div>
             </form>
           </div>
