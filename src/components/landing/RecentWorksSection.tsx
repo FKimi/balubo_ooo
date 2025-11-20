@@ -161,7 +161,7 @@ export default function RecentWorksSection({
           {sortedWorks.map((work) => (
             <StaggerItem
               key={work.id}
-              className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+              className="group flex h-full flex-col overflow-hidden rounded-[32px] bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg"
             >
               {/* サムネイル画像 */}
               <div className="relative aspect-video w-full overflow-hidden bg-gray-100">

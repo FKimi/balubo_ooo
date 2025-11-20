@@ -61,7 +61,7 @@ export default function FinalCTASection() {
   const router = useRouter();
 
   return (
-    <section className="bg-base-soft-blue py-24 sm:py-32">
+    <section className="bg-white py-24 sm:py-32">
       <div className="container relative z-10 mx-auto max-w-4xl">
         <FadeIn>
           <div className="mb-12">

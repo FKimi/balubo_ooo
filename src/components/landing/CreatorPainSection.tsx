@@ -81,7 +81,7 @@ export default function CreatorPainSection() {
         className="pointer-events-none absolute -bottom-24 left-8 -z-10 h-64 w-64 rounded-full bg-blue-100/70 blur-3xl"
         aria-hidden="true"
       />
-      <div className="container relative mx-auto max-w-7xl">
+      <div className="container relative mx-auto max-w-7xl px-4">
         {/* セクションヘッダー */}
         <FadeIn className="mb-12">
           <div className="mx-auto max-w-5xl text-left">
@@ -89,7 +89,8 @@ export default function CreatorPainSection() {
               こんなお悩みはありませんか？
             </h2>
             <p className="text-lg leading-relaxed text-gray-600">
-              ビジネスコンテンツに強いライターほど、専門性の見せ方に悩みが生まれます。その代表的な壁を３つにまとめました。
+              ビジネスコンテンツに強いライターほど、専門性の見せ方に悩みが生まれます。<br className="hidden sm:block" />
+              その代表的な壁を３つにまとめました。
             </p>
           </div>
         </FadeIn>

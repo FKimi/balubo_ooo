@@ -175,24 +175,38 @@ export default function HomePage() {
       </header>
 
       <main id="main">
+        {/* 1. KV (Hero) - White */}
         <HeroSection />
-        {/* Hero(White) -> Recommended(White): No Divider */}
-        <RecommendedSection />
-        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" flip />
+
+        {/* 2. Problem (CreatorPain) - Light Blue */}
         <CreatorPainSection />
-        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
-        <WhyBaluboSection />
-        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
+
+        {/* 3. Concrete Details (Features) - Light Blue */}
         <FeaturesSection />
-        {/* Features(Blue) -> RecentWorks(Blue): No Divider */}
+        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
+
+        {/* 4. Solution (WhyBalubo) - White */}
+        <WhyBaluboSection />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" flip />
+
+        {/* 4.5. Recommended Users - Light Blue (Moved here) */}
+        <RecommendedSection />
+
+        {/* 5. Recent Works - Light Blue */}
         <RecentWorksSection initialWorks={recentWorks} />
         <SectionDivider colorClass="text-white" heightClass="h-16" flip />
+
+        {/* 6. Detailed Elements */}
         <MidCallToAction />
-        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
+        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" flip />
+
         <VoicesSection />
         <SectionDivider colorClass="text-white" heightClass="h-16" flip />
+
         <FAQSection />
-        <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" />
+        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
+
         <FinalCTASection />
       </main>
 

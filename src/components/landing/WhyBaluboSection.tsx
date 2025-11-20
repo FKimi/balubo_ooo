@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
 const solutions = [
   {
@@ -22,41 +23,39 @@ const solutions = [
     ),
   },
   {
-    title: "専門性を証明",
-    description: "分析結果を「証明書」として可視化。ポートフォリオや提案資料として活用できます。",
+    title: "専門性が蓄積・可視化される",
+    description: "記事を登録するたびに分析データが蓄積。あなたの得意領域やスキルが、客観的な「信頼」として可視化されていきます。",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
       </svg>
     ),
   },
 ];
 
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
-
 export default function WhyBaluboSection() {
   return (
     <section
-      id="features"
+      id="solution"
       className="bg-white py-24 sm:py-32"
     >
       <div className="container mx-auto max-w-7xl px-4">
         {/* セクションヘッダー */}
         <FadeIn className="mb-20 text-left">
           <h2 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
-            なぜ、baluboなら<br className="hidden sm:block" />
-            「専門性」が伝わるのか？
+            使い方は、<br className="hidden sm:block" />
+            驚くほどシンプル。
           </h2>
           <p className="text-lg text-gray-600">
-            ただのポートフォリオ作成ツールではありません。<br className="hidden sm:block" />
-            あなたの実績を「データ」として解析し、ビジネス価値に変換するプロセスがあります。
+            URLを貼るだけ。面倒な入力作業は一切不要です。<br className="hidden sm:block" />
+            あなたの専門性が、すぐに可視化されます。
           </p>
         </FadeIn>
 
         {/* プロセスフロー */}
         <StaggerContainer className="relative grid gap-8 md:grid-cols-3">
           {/* 連結ライン (Desktop only) */}
-          <div className="absolute top-12 left-[16%] hidden h-0.5 w-[68%] bg-gradient-to-r from-blue-200 via-indigo-200 to-blue-200 md:block" aria-hidden="true" />
+          <div className="absolute top-12 left-[16%] hidden h-0.5 w-[68%] bg-gradient-to-r from-blue-100 via-indigo-100 to-blue-100 md:block" aria-hidden="true" />
 
           {solutions.map((solution, index) => (
             <StaggerItem
@@ -65,11 +64,11 @@ export default function WhyBaluboSection() {
             >
               {/* ステップ番号とアイコン */}
               <div className="mb-6 relative">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white border-4 border-blue-50 shadow-lg z-10 relative">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-50 shadow-[0_12px_28px_rgba(191,219,254,0.95)] z-10 relative">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-400 text-white shadow-[0_10px_26px_rgba(37,99,235,0.45)]">
                     {solution.icon}
                   </div>
-                  <div className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white border-2 border-white">
+                  <div className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-bold text-blue-600 border-2 border-blue-100 shadow-sm">
                     {index + 1}
                   </div>
                 </div>

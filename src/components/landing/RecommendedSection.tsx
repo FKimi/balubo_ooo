@@ -60,58 +60,99 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 export default function RecommendedSection() {
   const router = useRouter();
 
+  const recommendations = [
+    {
+      title: "膨大な記事実績を「資産」に変える",
+      description: "過去に執筆した導入事例やインタビュー記事が散乱している。忙しくてポートフォリオを更新する時間がない。",
+      solution: "URLを貼るだけで、AIが自動で収集・整理。あなたの実績が、永続的なビジネス資産に変わります。",
+      icon: (
+        <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      ),
+      bgGradient: "from-blue-50 to-white",
+    },
+    {
+      title: "「得意分野」をデータで証明する",
+      description: "「ITも金融も書けます」では強みが伝わりにくい。自分の専門性を客観的な指標で示したい。",
+      solution: "AIが記事から専門知識やスキルを抽出。あなたの「得意領域」を客観的なデータとして可視化します。",
+      icon: (
+        <svg className="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      bgGradient: "from-indigo-50 to-white",
+    },
+    {
+      title: "専門性が活きる仕事に出会う",
+      description: "ミスマッチな案件相談を減らし、自分の強みを深く理解してくれるクライアントと仕事がしたい。",
+      solution: "可視化された「強み」が、信頼の証に。あなたの専門性を求める企業からのオファーを引き寄せます。",
+      icon: (
+        <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      bgGradient: "from-emerald-50 to-white",
+    },
+  ];
+
   return (
     <section
       id="recommended"
-      className="bg-white py-20 sm:py-32"
+      className="bg-base-soft-blue py-20 sm:py-32"
     >
       <div
         className="pointer-events-none absolute -bottom-24 right-12 -z-10 h-64 w-64 rounded-full bg-blue-100/70 blur-3xl"
         aria-hidden="true"
       />
-      <div className="container mx-auto max-w-6xl px-4">
+      <div className="container mx-auto max-w-7xl px-4">
         {/* セクションヘッダー */}
-        <FadeIn className="mb-16 text-left">
-          <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
-            このようなプロフェッショナルに最適です
+        <FadeIn className="mb-16 text-center">
+          <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
+            ビジネス領域で活躍する<br className="sm:hidden" />
+            ライター・編集者の方へ
           </h2>
-          <p className="max-w-2xl text-lg leading-relaxed text-gray-600">
-            baluboは、あなたの専門性を客観的に証明し、<br className="hidden sm:block" />
-            次のキャリアや案件獲得につなげるためのツールです。
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600">
+            baluboは、あなたの「取材力」や「構成力」をデータで可視化。<br className="hidden sm:block" />
+            専門性を武器に、キャリアを次のステージへ導きます。
           </p>
         </FadeIn>
 
-        {/* ペルソナカード */}
+        {/* バリューカード (Bento Grid Inspired) */}
         <StaggerContainer className="grid gap-6 md:grid-cols-3 lg:gap-8">
-          {personas.map((persona) => (
+          {recommendations.map((item, idx) => (
             <StaggerItem
-              key={persona.title}
-              className={`group relative flex flex-col overflow-hidden rounded-3xl border border-white/50 ${persona.bgClass} p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md`}
+              key={idx}
+              className={`group relative flex flex-col overflow-hidden rounded-[32px] border border-white/60 bg-gradient-to-b ${item.bgGradient} p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg`}
             >
-              {/* ヘッダー部分 */}
-              <div className="mb-6 flex items-center gap-4">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${persona.accentClass} ${persona.colorClass}`}>
-                  {persona.icon}
+              {/* アイコン & タイトル */}
+              <div className="mb-6">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-gray-900/5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  {item.icon}
                 </div>
-                <div>
-                  <p className={`text-sm font-bold ${persona.colorClass}`}>{persona.subtitle}</p>
-                  <h3 className="text-xl font-bold text-gray-900">{persona.title}</h3>
-                </div>
+                <h3 className="text-xl font-bold leading-tight text-gray-900">
+                  {item.title}
+                </h3>
               </div>
 
-              {/* 課題リスト */}
-              <div className="flex-1 rounded-2xl bg-white/60 p-5 backdrop-blur-sm">
-                <p className="mb-3 text-xs font-bold text-gray-500">こんな悩みはありませんか？</p>
-                <ul className="space-y-3">
-                  {persona.painPoints.map((point, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                      <svg className={`mt-0.5 h-4 w-4 flex-shrink-0 ${persona.colorClass}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="leading-snug">{point}</span>
-                    </li>
-                  ))}
-                </ul>
+              {/* 課題 (Pain) */}
+              <div className="mb-6 flex-1">
+                <p className="text-sm leading-relaxed text-gray-500">
+                  {item.description}
+                </p>
+              </div>
+
+              {/* 解決策 (Solution) - Highlighted */}
+              <div className="relative rounded-2xl bg-white/80 p-5 backdrop-blur-sm ring-1 ring-gray-900/5">
+                <div className="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-gray-900 px-3 py-1 text-[10px] font-bold text-white shadow-md">
+                  <svg className="h-3 w-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  BALUBO SOLUTION
+                </div>
+                <p className="text-sm font-medium leading-relaxed text-gray-900">
+                  {item.solution}
+                </p>
               </div>
             </StaggerItem>
           ))}

@@ -8,7 +8,7 @@ export default function FeaturesSection() {
   return (
     <section
       id="analysis"
-      className="relative isolate overflow-hidden bg-[#F4F7FF] py-24 px-4 text-gray-900 md:py-32"
+      className="relative isolate overflow-hidden bg-base-soft-blue py-24 px-4 text-gray-900 md:py-32"
     >
       <div
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.3),_transparent_65%)]"
@@ -18,13 +18,12 @@ export default function FeaturesSection() {
         <FadeIn className="mb-16">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
-              AIがあなたの記事を<br className="hidden sm:block" />
-              <span className="text-blue-600">「ビジネス資産」</span>に変える
+              baluboなら、その悩みを<br className="hidden sm:block" />
+              こう解決します。
             </h2>
             <p className="text-lg leading-relaxed text-gray-600">
-              baluboの独自AIは、単なる要約ではありません。<br className="hidden sm:block" />
-              あなたの記事から「専門性」と「ビジネス価値」を抽出し、<br className="hidden sm:block" />
-              クライアントが即座に判断できるレポートを生成します。
+              感覚的な強みを、客観的な指標へ。<br className="hidden sm:block" />
+              あなたの実績を「ビジネス資産」に変える仕組みをご紹介します。
             </p>
           </div>
         </FadeIn>
@@ -32,7 +31,7 @@ export default function FeaturesSection() {
         {/* Feature 1: Tags Analysis */}
         <FadeIn delay={0.2} className="mx-auto mb-20 grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <div className="relative rounded-3xl border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+            <div className="relative rounded-[32px] border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
               <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -89,7 +88,7 @@ export default function FeaturesSection() {
         </FadeIn>
 
         {/* Feature 2: Structured Summary */}
-        <FadeIn delay={0.4} className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+        <FadeIn delay={0.4} className="mx-auto mb-20 grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div>
             <h3 className="mb-4 text-2xl font-bold text-gray-900">
               02. 思考プロセスを構造化
@@ -102,7 +101,7 @@ export default function FeaturesSection() {
             </p>
           </div>
           <div>
-            <div className="relative rounded-3xl border border-indigo-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+            <div className="relative rounded-[32px] border border-indigo-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
               <div className="absolute -top-4 -right-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -143,8 +142,82 @@ export default function FeaturesSection() {
           </div>
         </FadeIn>
 
+        {/* Feature 3: Expertise Visualization (New) */}
+        <FadeIn delay={0.6} className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+          <div className="order-2 lg:order-1">
+            <div className="relative rounded-[32px] border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+              <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+
+              {/* Mock UI for Expertise Accumulation */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                  <div>
+                    <p className="text-xs font-bold text-gray-400">分析済み記事数</p>
+                    <p className="text-2xl font-bold text-gray-900">23本</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-gray-400">検出された強み</p>
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                      <p className="text-sm font-bold text-gray-900">主要2領域</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-xl bg-blue-50/50 p-4 border border-blue-100">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-blue-600 text-xs font-bold shadow-sm">1</span>
+                      <h4 className="font-bold text-gray-900 text-sm">SaaS / BtoBマーケティング</h4>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed pl-9">
+                      <span className="font-bold text-blue-700">15記事</span>から、リード獲得やナーチャリングに関する深い専門知識が検出されました。
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-blue-50/50 p-4 border border-blue-100">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-blue-600 text-xs font-bold shadow-sm">2</span>
+                      <h4 className="font-bold text-gray-900 text-sm">経営層インタビュー</h4>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed pl-9">
+                      <span className="font-bold text-blue-700">8記事</span>から、経営課題を引き出すヒアリング能力と構成力が評価されています。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="order-1 lg:order-2">
+            <h3 className="mb-4 text-2xl font-bold text-gray-900">
+              03. 専門性を可視化・蓄積
+            </h3>
+            <p className="text-lg leading-relaxed text-gray-600">
+              記事を分析するたびに、あなたの「得意領域」や「スキル」のデータが蓄積されます。
+              単発の実績ではなく、積み重ねた経験が客観的なグラフや数値として可視化され、信頼の証となります。
+            </p>
+            <ul className="mt-6 space-y-3">
+              <li className="flex items-start gap-3">
+                <svg className="mt-1 h-5 w-5 flex-shrink-0 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-700">得意なジャンルが一目でわかる</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <svg className="mt-1 h-5 w-5 flex-shrink-0 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-700">継続的な活動が「資産」として残る</span>
+              </li>
+            </ul>
+          </div>
+        </FadeIn>
+
       </div>
     </section>
   );
 }
-
