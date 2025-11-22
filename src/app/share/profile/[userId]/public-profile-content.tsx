@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { PublicProfileTabs } from "@/features/profile/components/PublicProfileTabs";
 import { Button } from "@/components/ui/button";
-import { AIAnalysisStrengths } from "@/features/profile/components/AIAnalysisStrengths";
+
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
 import { PublicProfileHeaderCentered } from "@/features/profile/components/PublicProfileHeaderCentered";
 
@@ -43,19 +43,19 @@ export function PublicProfileContent({
   const avatarImageUrl = profile?.avatar_image_url || "";
   const skills = profile?.skills || [];
   const career = profile?.career || [];
-  const professions = profile?.professions || [];
+  const _professions = profile?.professions || [];
   const slug = profile?.slug || "";
   const shareSlug = slug.trim() ? slug : undefined;
-  const worksCount = works?.length || 0;
-  const skillsCount = skills.length;
-  const careerCount = career.length;
+  const _worksCount = works?.length || 0;
+  const _skillsCount = skills.length;
+  const _careerCount = career.length;
   const profileUserId = profile?.user_id || userId;
   const title = profile?.title || "";
 
   // 画像の存在チェック
-  const hasCustomBackground =
+  const _hasCustomBackground =
     backgroundImageUrl && backgroundImageUrl.trim() !== "";
-  const hasCustomAvatar = avatarImageUrl && avatarImageUrl.trim() !== "";
+  const _hasCustomAvatar = avatarImageUrl && avatarImageUrl.trim() !== "";
 
   // プロフィールが空かどうかの判定
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0;

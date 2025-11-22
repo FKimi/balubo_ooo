@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 
+export const dynamic = 'force-dynamic';
+
 // メタデータの設定
 const FEED_METADATA = {
   title: "フィード - balubo",

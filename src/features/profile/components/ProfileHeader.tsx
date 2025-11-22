@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ShareProfileButton } from "./ShareProfileButton";
 import React from "react";
-import { MapPin, Link as LinkIcon, Twitter, Github, Instagram, Linkedin, Globe } from "lucide-react";
+import { MapPin, Link as LinkIcon, Twitter, Github, Instagram, Linkedin } from "lucide-react";
 
 interface ProfileHeaderProps {
   displayName: string;

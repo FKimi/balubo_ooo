@@ -8,7 +8,7 @@ import React, {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -58,7 +58,7 @@ function ProfileLoadingFallback() {
 
 function ProfileContent() {
   const { user } = useAuth();
-  const { showToast } = useToast();
+  const { showToast: _showToast } = useToast();
   const _router = useRouter();
   const searchParams = useSearchParams();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -121,7 +121,7 @@ function ProfileContent() {
   // インプット関連のstate
   const [inputs, setInputs] = useState<InputData[]>([]);
   // const [_inputAnalysis, _setInputAnalysis] = useState<InputAnalysis | null>(null)
-  const [_isLoadingInputs, setIsLoadingInputs] = useState(false);
+  const [_isLoadingInputs, _setIsLoadingInputs] = useState(false);
 
   // クエリパラメータからタブを設定
   useEffect(() => {

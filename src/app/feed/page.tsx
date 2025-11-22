@@ -9,10 +9,10 @@ import { useRouter } from "next/navigation";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { Button } from "@/components/ui/button";
 import { RecommendedUsers } from "@/features/feed";
-import { Share, ExternalLink, User, RefreshCw } from "lucide-react";
+import { Share, ExternalLink, User } from "lucide-react";
 import { EmptyState } from "@/components/common";
 // import { TabNavigation } from '@/components/ui/TabNavigation' // 未使用のため一時的にコメントアウト
-import { Skeleton } from "@/components/ui";
+
 import { SearchFilters } from "@/components/feed/SearchFilters";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { WorkCard } from "@/components/feed/WorkCard";
