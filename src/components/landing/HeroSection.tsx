@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
 
@@ -41,12 +43,12 @@ export default function HeroSection() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Button
+                asChild
+                variant="cta"
                 size="lg"
-                className="h-14 w-full sm:w-auto rounded-full bg-blue-600 px-8 text-lg font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-105 hover:shadow-blue-500/40"
-                disabled={isRedirecting}
-                onClick={handleStart}
+                className="w-full sm:w-auto"
               >
-                {isRedirecting ? "読み込み中..." : "無料で始める"}
+                <Link href="/register">無料で始める</Link>
               </Button>
               <Button
                 variant="ghost"
@@ -95,21 +97,25 @@ export default function HeroSection() {
                   {/* Banner - High quality gradient overlay */}
                   <div className="h-32 w-full relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-gray-900/10 to-gray-900/30 z-10"></div>
-                    <img
+                    <Image
                       src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop"
                       alt="Office Banner"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   </div>
 
                   {/* Profile Info */}
                   <div className="px-6 pb-6 relative">
                     <div className="flex justify-between items-end -mt-10 mb-4 relative z-20">
-                      <div className="h-20 w-20 rounded-full border-[3px] border-white overflow-hidden bg-white shadow-md">
-                        <img
+                      <div className="h-20 w-20 rounded-full border-[3px] border-white overflow-hidden bg-white shadow-md relative">
+                        <Image
                           src="/SdEXQsh.png"
                           alt="User Avatar"
-                          className="h-full w-full object-cover object-center"
+                          fill
+                          className="object-cover object-center"
+                          sizes="80px"
                         />
                       </div>
                       <div className="mb-1">

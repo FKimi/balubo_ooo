@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { RecentWork } from "@/data/recentWorks";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/motion";
 
@@ -166,10 +167,12 @@ export default function RecentWorksSection({
               {/* サムネイル画像 */}
               <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
                 {work.previewImage ? (
-                  <img
+                  <Image
                     src={work.previewImage}
                     alt={work.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gray-50 text-gray-400">

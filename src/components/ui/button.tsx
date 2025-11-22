@@ -2,16 +2,19 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
+export type ButtonVariant = 
+  | "default"
+  | "cta"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link";
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  variant?: ButtonVariant;
   size?: "default" | "sm" | "lg" | "icon";
 }
 
@@ -30,25 +33,35 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+          // Base styles - touch-target for accessibility
+          "inline-flex items-center justify-center text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background touch-target",
           {
-            "bg-gray-900 text-white hover:bg-gray-800 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30":
+            // Default: Pill-shaped primary button (Unified Design Rules 2025)
+            "bg-gray-900 text-white hover:bg-gray-800 rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.16)] hover:scale-[1.02]":
               variant === "default",
-            "bg-destructive text-destructive-foreground hover:bg-destructive/90":
+            // CTA: Blue pill-shaped button for main actions
+            "bg-blue-600 text-white hover:bg-blue-700 rounded-full shadow-[0_8px_24px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_32px_rgba(37,99,235,0.35)] hover:scale-[1.02]":
+              variant === "cta",
+            // Destructive: Red pill-shaped button
+            "bg-red-600 text-white hover:bg-red-700 rounded-full shadow-[0_8px_24px_rgba(220,38,38,0.25)] hover:shadow-[0_12px_32px_rgba(220,38,38,0.35)]":
               variant === "destructive",
-            "border border-input hover:bg-accent hover:text-accent-foreground":
+            // Outline: Rounded button with border
+            "border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-2xl":
               variant === "outline",
-            "bg-secondary text-secondary-foreground hover:bg-secondary/80":
+            // Secondary: Soft background
+            "bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-2xl":
               variant === "secondary",
-            "hover:bg-accent hover:text-accent-foreground": variant === "ghost",
+            // Ghost: Transparent with hover
+            "hover:bg-gray-100 rounded-2xl": variant === "ghost",
+            // Link: Text-only
             "underline-offset-4 hover:underline text-gray-900":
               variant === "link",
           },
           {
-            "h-10 py-2 px-4": size === "default",
-            "h-9 px-3 rounded-md": size === "sm",
-            "h-11 px-8 rounded-md": size === "lg",
-            "h-10 w-10": size === "icon",
+            "h-11 py-2.5 px-6": size === "default",
+            "h-9 px-4 text-xs": size === "sm",
+            "h-12 px-8 text-base": size === "lg",
+            "h-11 w-11 rounded-full": size === "icon",
           },
           className,
         )}
