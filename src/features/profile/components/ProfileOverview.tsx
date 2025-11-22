@@ -2,14 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { ProfileData, CareerItem } from "@/features/profile/types";
-import { Plus, Pencil, Trash2, Briefcase, GraduationCap, Award } from "lucide-react";
+import { Plus, Pencil, Trash2, Briefcase, Award } from "lucide-react";
 
 interface ProfileOverviewProps {
     profileData: ProfileData | null;
     onAddSkill: () => void;
-    onRemoveSkill?: ((index: number) => void) | undefined;
-    onEditCareer: (career: CareerItem) => void;
-    onDeleteCareerConfirm: (careerId: string) => void;
+    onRemoveSkill?: ((_index: number) => void) | undefined;
+    onEditCareer: (_career: CareerItem) => void;
+    onDeleteCareerConfirm: (_careerId: string) => void;
     onAddCareer: () => void;
     onUpdateIntroduction: () => void;
 }

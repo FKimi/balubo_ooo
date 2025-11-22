@@ -10,8 +10,8 @@ import { Plus } from "lucide-react";
 
 interface ProfileWorksProps {
     savedWorks: WorkData[];
-    setSavedWorks: (works: WorkData[]) => void;
-    deleteWork: (workId: string) => void;
+    setSavedWorks: (_works: WorkData[]) => void;
+    deleteWork: (_workId: string) => void;
     openContentTypeSelector: () => void;
 }
 
@@ -75,10 +75,10 @@ export function ProfileWorks({
                                         <div className="absolute top-3 left-3 z-10">
                                             <div
                                                 className={`px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-lg ${index === 0
-                                                        ? "bg-gradient-to-r from-yellow-400 to-orange-500"
-                                                        : index === 1
-                                                            ? "bg-gradient-to-r from-gray-400 to-gray-600"
-                                                            : "bg-gradient-to-r from-amber-500 to-orange-600"
+                                                    ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                                                    : index === 1
+                                                        ? "bg-gradient-to-r from-gray-400 to-gray-600"
+                                                        : "bg-gradient-to-r from-amber-500 to-orange-600"
                                                     }`}
                                             >
                                                 #{index + 1}
