@@ -92,16 +92,24 @@ export const analyzeGrowth = (works: Work[]): GrowthPhase[] => {
 
         if (phaseWorks.length === 0) continue;
 
-        const startDate = new Date(phaseWorks[0].date || phaseWorks[0].productionDate || "");
-        const endDate = new Date(phaseWorks[phaseWorks.length - 1].date || phaseWorks[phaseWorks.length - 1].productionDate || "");
+        const firstWork = phaseWorks[0];
+        const lastWork = phaseWorks[phaseWorks.length - 1];
+
+        if (!firstWork || !lastWork) continue;
+
+        const startDate = new Date(firstWork.date || firstWork.productionDate || "");
+        const endDate = new Date(lastWork.date || lastWork.productionDate || "");
 
         // このフェーズでの主なスキルを抽出
         const skills = Array.from(
             new Set(phaseWorks.flatMap((w) => w.roles || []))
         ).slice(0, 3);
 
+        const phaseName = phaseNames[i];
+        if (!phaseName) continue;
+
         phases.push({
-            phase: phaseNames[i],
+            phase: phaseName,
             period: `${startDate.getFullYear()}.${startDate.getMonth() + 1} - ${endDate.getFullYear()}.${endDate.getMonth() + 1}`,
             description: getDescriptionForPhase(i, skills),
             skills,
