@@ -11,9 +11,7 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
         const items = [];
 
         // 役割とタグの集計
-        const allRoles = works.flatMap((w) => w.roles || []);
         const allTags = works.flatMap((w) => w.tags || []);
-        const tagSet = new Set(allTags);
 
         // インプットタグ
         const inputTags = inputs?.flatMap(i => i.tags) || [];

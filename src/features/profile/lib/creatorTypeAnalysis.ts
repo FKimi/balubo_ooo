@@ -340,28 +340,14 @@ export const extractCreatorStrengths = (works: Work[], inputs?: InputData[]): Ar
 export const analyzeCareerFit = (works: Work[], inputs?: InputData[]): CareerFit[] => {
     if (!works || works.length === 0) return [];
 
-    const allRoles = works.flatMap((w) => w.roles || []);
-    const allTags = works.flatMap((w) => w.tags || []);
-
-    const roleSet = new Set(allRoles);
-    const tagSet = new Set(allTags);
-
     const fits: CareerFit[] = [];
 
-    // AIによる市場ポジショニング分析 (New)
-    const positioning = works
-        .map(w => w.aiAnalysisResult?.professionalInsights?.marketPositioning)
-        .filter(Boolean);
+    // 役割とタグの集計
+    const allTags = works.flatMap((w) => w.tags || []);
 
-    // AIによるBtoB業界分析 (New)
-    const industries = works
-        .map(w => w.aiAnalysisResult?.btobAnalysis?.summaries?.industryIdentification)
-        .filter(Boolean);
-
-    // インプット分析 (New)
+    // インプット分析
     const inputTags = inputs?.flatMap(i => i.tags) || [];
-    const hasTechInput = inputTags.some(t => ["Tech", "Technology", "AI", "Programming", "SaaS", "Engineering"].includes(t));
-    const hasBusinessInput = inputTags.some(t => ["Business", "Marketing", "Management", "Startup", "Finance"].includes(t));
+
 
     // 専門領域の特定（タグとインプットの両方から検出）
     const combinedTags = [...new Set([...allTags, ...inputTags])]; // Use Set to avoid duplicates
