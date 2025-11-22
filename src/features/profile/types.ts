@@ -13,9 +13,9 @@ export interface ProfileData {
   slug?: string;
   desiredRate?: string;
   jobChangeIntention:
-    | "not_considering"
-    | "good_opportunity"
-    | "actively_looking";
+  | "not_considering"
+  | "good_opportunity"
+  | "actively_looking";
   sideJobIntention: "not_considering" | "good_opportunity" | "actively_looking";
   projectRecruitmentStatus: "recruiting" | "paused" | "not_recruiting";
   experienceYears?: number;
@@ -34,6 +34,8 @@ export interface CareerItem {
   isCurrent: boolean;
 }
 
+import { AIAnalysisResult } from "@/features/work/types";
+
 export interface Work {
   id: string;
   title: string;
@@ -41,10 +43,11 @@ export interface Work {
   type: string;
   date: string;
   tags: string[];
-  imageUrl?: string;
+  imageUrl?: string | undefined;
   roles?: string[];
-  productionDate?: string;
-  externalUrl?: string;
+  productionDate?: string | undefined;
+  externalUrl?: string | undefined;
+  aiAnalysisResult?: AIAnalysisResult | undefined;
 }
 
 // デフォルトのプロフィールデータ
@@ -68,3 +71,21 @@ export const defaultProfileData: Partial<ProfileData> = {
   workingHours: "",
   career: [],
 };
+
+// インプットデータの型定義
+export interface InputData {
+  id: string;
+  title: string;
+  type: string; // book, manga, movie, anime, tv, game, etc.
+  status: string; // completed, reading, watching, planning, dropped
+  review?: string;
+  tags: string[];
+  genres: string[];
+  externalUrl?: string;
+  coverImageUrl?: string;
+  notes?: string;
+  favorite: boolean;
+  aiAnalysisResult?: any; // 必要に応じて詳細な型を定義
+  createdAt: string;
+  consumptionDate?: string;
+}
