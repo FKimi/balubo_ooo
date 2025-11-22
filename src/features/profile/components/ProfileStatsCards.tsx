@@ -88,12 +88,12 @@ export function ProfileStatsCards({
       {stats.map((stat, index) => (
         <Card
           key={index}
-          className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white"
+          className="border border-gray-200 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 bg-white rounded-2xl"
         >
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
               <div
-                className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center ${stat.color}`}
+                className={`w-10 h-10 rounded-xl ${stat.bgColor} flex items-center justify-center ${stat.color}`}
               >
                 {stat.icon}
               </div>

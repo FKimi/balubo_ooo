@@ -44,123 +44,122 @@ export function PublicProfileHeader(props: PublicProfileHeaderProps) {
       : "";
 
   return (
-    <div className="mb-8">
-      <div className="relative w-full bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-        {/* 背景画像（ProfileHeader と同じ高さ/構造） */}
-        <div className="relative h-48 sm:h-64 md:h-72 lg:h-80 w-full overflow-hidden rounded-t-xl">
-          {resolvedBgUrl ? (
-            <Image
-              src={resolvedBgUrl}
-              alt="プロフィール背景"
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800" />
-          )}
-          <div className="absolute inset-0 bg-black/10" />
+    <div className="w-full mb-8">
+      {/* Cover Image Section */}
+      <div className="h-48 sm:h-64 w-full relative bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl overflow-hidden shadow-sm">
+        {resolvedBgUrl ? (
+          <Image
+            src={resolvedBgUrl}
+            alt="プロフィール背景"
+            fill
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 opacity-90" />
+        )}
+        <div className="absolute inset-0 bg-black/5" />
+      </div>
+
+      {/* Profile Content */}
+      <div className="px-6 relative">
+        {/* Avatar */}
+        <div className="relative -mt-16 mb-4 flex justify-center">
+          <div className="relative w-32 h-32 rounded-full border-[6px] border-white shadow-md overflow-hidden bg-white">
+            {resolvedAvatarUrl ? (
+              <Image
+                src={resolvedAvatarUrl}
+                alt="プロフィール画像"
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-4xl font-bold text-slate-300">
+                {displayName ? displayName.charAt(0) : "U"}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* 情報コンテナ（ProfileHeader と同等の白背景セクション） */}
-        <div className="relative bg-white">
-          <div className="relative px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between pt-4 pb-6">
-              <div className="relative -mt-16 sm:-mt-20">
-                <div className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white flex-shrink-0">
-                  {resolvedAvatarUrl ? (
-                    <Image
-                      src={resolvedAvatarUrl}
-                      alt="プロフィール画像"
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <span className="absolute inset-0 flex items-center justify-center text-2xl sm:text-3xl md:text-4xl font-bold text-gray-400">
-                      {displayName ? displayName.charAt(0) : "N"}
-                    </span>
-                  )}
-                </div>
+        {/* Info */}
+        <div className="text-center max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 tracking-tight">
+            {displayName || "ユーザー"}
+          </h1>
+
+          {professions && professions.length > 0 && (
+            <p className="text-lg text-slate-600 font-medium mb-4">
+              {professions[0]}
+            </p>
+          )}
+
+          {/* Meta Info */}
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-500 mb-6">
+            {location && (
+              <div className="flex items-center gap-1.5">
+                <svg
+                  className="w-4 h-4 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>{location}</span>
               </div>
-
-              {/* 共有ビューなので右側は補助アクションに限定 */}
-              {rightSlot && (
-                <div className="flex items-center gap-3">{rightSlot}</div>
-              )}
-            </div>
-
-            {/* テキスト情報・リンク等（ProfileHeaderと近しい階層/余白） */}
-            <div className="pb-6">
-              <div className="mb-4">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-2">
-                  {displayName || "ユーザー"}
-                </h1>
-                {professions && professions.length > 0 && (
-                  <p className="text-base sm:text-lg text-gray-600">
-                    {professions[0]}
-                  </p>
-                )}
+            )}
+            {websiteUrl && (
+              <div className="flex items-center gap-1.5">
+                <svg
+                  className="w-4 h-4 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                  />
+                </svg>
+                <a
+                  href={websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline hover:text-blue-700 transition-colors"
+                >
+                  {websiteUrl.replace(/^https?:\/\//, "")}
+                </a>
               </div>
-
-              {bio && (
-                <p className="text-base text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">
-                  {bio}
-                </p>
-              )}
-
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-600 mb-4">
-                {location && (
-                  <div className="flex items-center gap-1.5">
-                    <svg
-                      className="w-4 h-4 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span>{location}</span>
-                  </div>
-                )}
-                {websiteUrl && (
-                  <div className="flex items-center gap-1.5">
-                    <svg
-                      className="w-4 h-4 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                      />
-                    </svg>
-                    <a
-                      href={websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 hover:underline truncate max-w-[200px] sm:max-w-none transition-colors duration-200 font-medium"
-                    >
-                      {websiteUrl.replace(/^https?:\/\//, "")}
-                    </a>
-                  </div>
-                )}
-              </div>
-
-            </div>
+            )}
           </div>
+
+          {/* Bio */}
+          {bio && (
+            <p className="text-slate-600 leading-relaxed mb-8 whitespace-pre-wrap">
+              {bio}
+            </p>
+          )}
+
+          {/* Actions (Right Slot) */}
+          {rightSlot && (
+            <div className="flex items-center justify-center gap-3">
+              {rightSlot}
+            </div>
+          )}
         </div>
       </div>
     </div>

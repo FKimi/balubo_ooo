@@ -71,13 +71,22 @@ export default function LikeButton({
 
   const handleLike = async () => {
     if (!isAuthenticated) {
-      alert("いいねするにはログインが必要です");
+      // ログインページへリダイレクト（ブロッキングなアラートを回避）
+      window.location.href = "/login";
       return;
     }
 
     if (isLoading) return;
 
+    // 楽観的更新のための現在の状態を保存
+    const previousIsLiked = isLiked;
+    const previousLikeCount = likeCount;
+
+    // 楽観的更新
+    setIsLiked(!isLiked);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
     setIsLoading(true);
+
     try {
       const {
         data: { session },
@@ -85,35 +94,29 @@ export default function LikeButton({
       const authToken = session?.access_token;
 
       if (!authToken) {
-        alert("認証エラーが発生しました");
-        return;
+        throw new Error("認証エラー");
       }
 
-      const url = isLiked ? `/api/likes?workId=${workId}` : "/api/likes";
-      const method = isLiked ? "DELETE" : "POST";
+      const url = previousIsLiked ? `/api/likes?workId=${workId}` : "/api/likes";
+      const method = previousIsLiked ? "DELETE" : "POST";
 
       const fetchOptions: RequestInit = {
         method,
       };
 
-      if (!isLiked) {
+      if (!previousIsLiked) {
         fetchOptions.body = JSON.stringify({
           workId,
           targetType: "work",
         });
       }
 
-      try {
-        await fetcher(url, fetchOptions, { requireAuth: true });
-        // 楽観的更新
-        setIsLiked(!isLiked);
-        setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
-      } catch (error) {
-        alert(error instanceof Error ? error.message : "エラーが発生しました");
-      }
+      await fetcher(url, fetchOptions, { requireAuth: true });
     } catch (error) {
       console.error("いいね操作エラー:", error);
-      alert("エラーが発生しました");
+      // エラー時は状態を戻す
+      setIsLiked(previousIsLiked);
+      setLikeCount(previousLikeCount);
     } finally {
       setIsLoading(false);
     }
@@ -123,18 +126,16 @@ export default function LikeButton({
     <button
       onClick={handleLike}
       disabled={isLoading}
-      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-        isLiked
-          ? "text-red-600 bg-red-50 hover:bg-red-100"
-          : "text-gray-600 bg-gray-50 hover:bg-gray-100 hover:text-red-500"
-      } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+      className={`flex items-center justify-center w-full space-x-2 px-4 py-3 rounded-full transition-all duration-200 font-medium text-sm transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${isLiked
+        ? "text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 focus:ring-red-500"
+        : "text-slate-600 bg-white hover:bg-slate-50 hover:text-red-500 border border-slate-200 focus:ring-slate-500 shadow-sm"
+        } ${isLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <Heart
-        className={`h-5 w-5 transition-all duration-200 ${
-          isLiked ? "fill-current" : ""
-        } ${isLoading ? "" : "group-hover:scale-110"}`}
+        className={`h-5 w-5 transition-all duration-200 ${isLiked ? "fill-current" : ""
+          } ${isLoading ? "" : "group-hover:scale-110"}`}
       />
-      <span className="text-sm font-medium">
+      <span>
         {likeCount > 0 ? likeCount : "いいね"}
       </span>
     </button>

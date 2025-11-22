@@ -163,7 +163,7 @@ export default async function WorkDetailPage({
             <p className="text-gray-600 mb-8">{error.message}</p>
             <a
               href="/works"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
             >
               作品一覧に戻る
             </a>

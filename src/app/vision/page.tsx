@@ -13,7 +13,7 @@ export default function VisionPage() {
             className="flex items-center space-x-2"
             aria-label="balubo トップページ"
           >
-            <span className="text-xl font-bold tracking-tight text-gray-900">
+            <span className="text-xl font-bold tracking-tight text-blue-600">
               balubo
             </span>
           </Link>

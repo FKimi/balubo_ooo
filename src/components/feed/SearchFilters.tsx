@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SearchFiltersProps {
@@ -14,6 +14,8 @@ interface SearchFiltersProps {
   popularTags: string[];
   onApplyFilters: () => void;
   onClearFilters: () => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
 export function SearchFilters({
@@ -26,6 +28,8 @@ export function SearchFilters({
   popularTags,
   onApplyFilters,
   onClearFilters,
+  onRefresh,
+  refreshing = false,
 }: SearchFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
 
@@ -37,7 +41,7 @@ export function SearchFilters({
   const hasActiveFilters = _searchQuery || _filterType !== "all" || _filterTag;
 
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-[73px] z-20">
+    <div className="bg-white border-b border-gray-200">
       {/* 検索バー */}
       <div className="p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
@@ -51,6 +55,18 @@ export function SearchFilters({
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
+          {onRefresh && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onRefresh}
+              disabled={refreshing}
+              className="rounded-full px-3"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+            </Button>
+          )}
           <Button
             type="button"
             variant={showFilters ? "default" : "outline"}
@@ -80,7 +96,7 @@ export function SearchFilters({
 
       {/* フィルターパネル */}
       {showFilters && (
-        <div className="border-t border-gray-100 p-4 bg-gray-50">
+        <div className="border-t border-gray-100 p-4 bg-white">
           <div className="space-y-4">
             {/* タイプフィルター */}
             <div>

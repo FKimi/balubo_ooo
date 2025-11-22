@@ -42,46 +42,39 @@ export function PublicWorksCategoryManager({
   return (
     <div>
       {/* カテゴリタブ */}
-      <div className="flex items-center gap-1 mb-8 p-1 bg-gray-50/50 rounded-2xl w-fit">
+      <div className="flex flex-wrap items-center gap-2 mb-8">
         {allCategoriesWithAll.map((category) => (
           <button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
-            className={`relative px-6 py-2.5 text-sm font-medium transition-all duration-300 ease-out ${
-              selectedCategory === category.id
-                ? "text-[#1e3a8a]"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${selectedCategory === category.id
+                ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+              }`}
           >
             <span className="flex items-center gap-2">
               {category.name}
               <span
-                className={`text-xs font-normal ${
-                  selectedCategory === category.id
-                    ? "text-[#1e3a8a]/70"
-                    : "text-gray-400"
-                }`}
+                className={`text-xs ${selectedCategory === category.id
+                    ? "text-slate-300"
+                    : "text-slate-400"
+                  }`}
               >
                 {category.works.length}
               </span>
             </span>
-
-            {/* アクティブ時の背景 */}
-            {selectedCategory === category.id && (
-              <div className="absolute inset-0 bg-white rounded-xl shadow-sm border border-gray-100 -z-10"></div>
-            )}
           </button>
         ))}
       </div>
 
       {/* 作品一覧 */}
       {filteredWorks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredWorks.map((work) => (
             <WorkCard
               key={work.id}
               work={work as WorkData}
-              onDelete={() => {}}
+              onDelete={() => { }}
             />
           ))}
         </div>

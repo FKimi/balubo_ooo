@@ -8,7 +8,7 @@ import NewWorkForm from "./NewWorkForm";
 export default function NewWorkPage() {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 fade-in">
         <Header />
         <Suspense fallback={<div>Loading...</div>}>
           <NewWorkForm />

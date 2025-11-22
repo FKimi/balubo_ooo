@@ -20,24 +20,36 @@ export function ProfileSkeleton() {
 
           {/* Main Content Skeleton */}
           <div className="flex-1 min-w-0 bg-[#F4F7FF] flex flex-col">
-            {/* Header Area Skeleton */}
-            <div className="hidden lg:block border-b border-gray-200 bg-white px-8 py-6">
-              <Skeleton className="h-8 w-64 mb-2 rounded-lg" />
-              <Skeleton className="h-4 w-96 rounded-lg" />
-            </div>
+
 
             <div className="flex-1 px-4 sm:px-6 lg:px-8 lg:py-8">
               {/* Profile Header Skeleton */}
               <div className="mb-8">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <Skeleton className="w-24 h-24 rounded-xl flex-shrink-0" />
-                    <div className="flex-1 space-y-4">
+                <div className="w-full">
+                  {/* Cover Skeleton */}
+                  <Skeleton className="h-48 sm:h-64 w-full rounded-3xl shadow-sm" />
+
+                  {/* Content Skeleton */}
+                  <div className="px-6 relative">
+                    {/* Avatar Skeleton */}
+                    <div className="relative -mt-16 mb-4 flex justify-center">
+                      <div className="w-32 h-32 rounded-full border-[6px] border-white bg-white overflow-hidden shadow-sm">
+                        <Skeleton className="w-full h-full rounded-full" />
+                      </div>
+                    </div>
+
+                    {/* Info Skeleton */}
+                    <div className="flex flex-col items-center space-y-4 max-w-2xl mx-auto">
                       <Skeleton className="h-8 w-48 rounded-lg" />
-                      <Skeleton className="h-4 w-full max-w-md rounded-lg" />
-                      <div className="flex gap-3">
-                        <Skeleton className="h-5 w-24 rounded-md" />
-                        <Skeleton className="h-5 w-32 rounded-md" />
+                      <Skeleton className="h-6 w-32 rounded-lg" />
+                      <div className="flex gap-4">
+                        <Skeleton className="h-4 w-24 rounded" />
+                        <Skeleton className="h-4 w-32 rounded" />
+                      </div>
+                      <Skeleton className="h-20 w-full rounded-lg" />
+                      <div className="flex gap-3 mt-2">
+                        <Skeleton className="h-10 w-40 rounded-full" />
+                        <Skeleton className="h-10 w-24 rounded-full" />
                       </div>
                     </div>
                   </div>

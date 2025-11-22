@@ -381,10 +381,10 @@ function FeedPageContent() {
             prev.map((item) =>
               item.id === itemId
                 ? {
-                    ...item,
-                    likes_count: Math.max(0, (item.likes_count || 0) - 1),
-                    user_has_liked: false,
-                  }
+                  ...item,
+                  likes_count: Math.max(0, (item.likes_count || 0) - 1),
+                  user_has_liked: false,
+                }
                 : item,
             ),
           );
@@ -418,10 +418,10 @@ function FeedPageContent() {
             prev.map((item) =>
               item.id === itemId
                 ? {
-                    ...item,
-                    likes_count: (item.likes_count || 0) + 1,
-                    user_has_liked: true,
-                  }
+                  ...item,
+                  likes_count: (item.likes_count || 0) + 1,
+                  user_has_liked: true,
+                }
                 : item,
             ),
           );
@@ -527,9 +527,9 @@ function FeedPageContent() {
           setSelectedItem((prev) =>
             prev
               ? {
-                  ...prev,
-                  comments_count: (prev.comments_count || 0) + 1,
-                }
+                ...prev,
+                comments_count: (prev.comments_count || 0) + 1,
+              }
               : null,
           );
         }
@@ -601,39 +601,39 @@ function FeedPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#F4F7FF] fade-in">
         <div className="max-w-full">
           {/* スケルトンヘッダー */}
           <div className="bg-white border-b border-gray-200">
-            <Skeleton className="h-16 w-full" />
+            <div className="h-16 w-full loading-shimmer" />
           </div>
           {/* スケルトングリッドアイテム */}
           <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 max-w-[1920px] mx-auto">
             {[...Array(10)].map((_, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 animate-pulse"
+                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
               >
-                <Skeleton className="aspect-[4/3] w-full bg-gray-200" />
+                <div className="aspect-[4/3] w-full loading-shimmer" />
                 <div className="p-5 space-y-3">
-                  <Skeleton className="h-4 w-3/4 bg-gray-200" />
-                  <Skeleton className="h-3 w-full bg-gray-200" />
-                  <Skeleton className="h-3 w-2/3 bg-gray-200" />
+                  <div className="h-4 w-3/4 loading-shimmer rounded" />
+                  <div className="h-3 w-full loading-shimmer rounded" />
+                  <div className="h-3 w-2/3 loading-shimmer rounded" />
                   <div className="flex gap-1.5 pt-2">
-                    <Skeleton className="h-5 w-16 rounded-md bg-gray-200" />
-                    <Skeleton className="h-5 w-20 rounded-md bg-gray-200" />
+                    <div className="h-5 w-16 rounded-md loading-shimmer" />
+                    <div className="h-5 w-20 rounded-md loading-shimmer" />
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                     <div className="flex items-center gap-2.5">
-                      <Skeleton className="w-9 h-9 rounded-full bg-gray-200" />
+                      <div className="w-9 h-9 rounded-full loading-shimmer" />
                       <div>
-                        <Skeleton className="h-3 w-20 bg-gray-200 mb-1" />
-                        <Skeleton className="h-2.5 w-12 bg-gray-200" />
+                        <div className="h-3 w-20 loading-shimmer rounded mb-1" />
+                        <div className="h-2.5 w-12 loading-shimmer rounded" />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Skeleton className="h-8 w-12 bg-gray-200 rounded" />
-                      <Skeleton className="h-8 w-12 bg-gray-200 rounded" />
+                      <div className="h-8 w-12 loading-shimmer rounded" />
+                      <div className="h-8 w-12 loading-shimmer rounded" />
                     </div>
                   </div>
                 </div>
@@ -646,12 +646,12 @@ function FeedPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F4F7FF]">
       <div className="max-w-full">
         <div className="flex">
           {/* メインフィード - フル幅対応 */}
           <div className="flex-1 max-w-full">
-            {/* 検索・フィルタリング */}
+            {/* 検索・フィルタリング（スティッキー） */}
             <SearchFilters
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
@@ -662,9 +662,11 @@ function FeedPageContent() {
               popularTags={popularTags}
               onApplyFilters={handleApplyFilters}
               onClearFilters={handleClearFilters}
+              onRefresh={handleRefresh}
+              refreshing={refreshing}
             />
 
-            {/* 見つけるセクション */}
+            {/* 見つけるセクション（カルーセル） */}
             <DiscoverySection
               onTagClick={(tag) => {
                 setFilterTag(tag);
@@ -684,28 +686,10 @@ function FeedPageContent() {
               }}
             />
 
-            {/* フィードタブとリフレッシュボタン */}
-            <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 mb-0 p-2">
-              <div className="flex items-center justify-between mb-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="rounded-full"
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-                  />
-                </Button>
-              </div>
-
-            </div>
-
             {/* 未ログインユーザー向け登録CTA */}
             {!isAuthenticated && (
               <div className="px-4 py-6 sm:px-6">
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 text-white shadow-[0_20px_50px_rgba(37,99,235,0.35)]">
                   <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_top,_#fff,_transparent_55%)]" />
                   <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-center md:justify-between">
                     <div className="max-w-2xl space-y-4">
@@ -748,13 +732,13 @@ function FeedPageContent() {
                       </p>
                       <Button
                         onClick={() => router.push("/register")}
-                        className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-blue-600 shadow-md transition-transform hover:-translate-y-0.5 hover:bg-blue-50"
+                        className="rounded-full bg-white px-6 py-3 text-sm font-bold text-blue-600 shadow-md transition-transform hover:-translate-y-0.5 hover:bg-blue-50"
                       >
                         無料で専門性スコアを見る
                       </Button>
                       <Button
                         variant="ghost"
-                        className="rounded-xl border border-white/30 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                        className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
                         onClick={() => router.push("/auth")}
                       >
                         ログインはこちら
@@ -777,7 +761,7 @@ function FeedPageContent() {
 
             {/* フィードアイテム - グリッドレイアウト */}
             {filteredItems.length > 0 ? (
-              <div className="bg-gray-50 min-h-screen">
+              <div className="bg-[#F4F7FF] min-h-screen">
                 {/* グリッドコンテナ */}
                 <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 auto-rows-max max-w-[1920px] mx-auto">
                   {filteredItems.map((item) => (
@@ -797,9 +781,9 @@ function FeedPageContent() {
                 {hasMore && (
                   <div ref={sentinelRef} className="py-12 px-4">
                     {loadingMore && (
-                      <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="flex flex-col items-center justify-center space-y-3 fade-in">
                         <div className="relative">
-                          <div className="animate-spin rounded-full h-10 w-10 border-3 border-blue-100 border-t-blue-600"></div>
+                          <div className="loading-spin rounded-full h-10 w-10 border-3 border-blue-100 border-t-blue-600"></div>
                           <div className="absolute inset-0 animate-ping rounded-full h-10 w-10 border-2 border-blue-200 opacity-20"></div>
                         </div>
                         <span className="text-sm font-medium text-gray-600">
@@ -1071,19 +1055,17 @@ function FeedPageContent() {
                     variant="ghost"
                     size="icon"
                     aria-label="いいね"
-                    className={`transition-colors group ${
-                      selectedItem.user_has_liked
-                        ? "text-red-500"
-                        : "text-gray-500 hover:text-red-500"
-                    }`}
+                    className={`transition-colors group ${selectedItem.user_has_liked
+                      ? "text-red-500"
+                      : "text-gray-500 hover:text-red-500"
+                      }`}
                     onClick={() =>
                       handleLike(selectedItem.id, selectedItem.type)
                     }
                   >
                     <svg
-                      className={`h-5 w-5 ${
-                        selectedItem.user_has_liked ? "fill-current" : ""
-                      }`}
+                      className={`h-5 w-5 ${selectedItem.user_has_liked ? "fill-current" : ""
+                        }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1116,11 +1098,10 @@ function FeedPageContent() {
                     variant="ghost"
                     size="sm"
                     aria-label={isAuthenticated ? "プロフィールを見る" : "ログイン"}
-                    className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${
-                      isAuthenticated
-                        ? "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
-                        : "bg-gray-900 text-white hover:bg-gray-800 border border-gray-900 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30"
-                    }`}
+                    className={`px-6 py-3 font-semibold rounded-full transition-all duration-200 ${isAuthenticated
+                      ? "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+                      : "bg-gray-900 text-white hover:bg-gray-800 border border-gray-900 shadow-md shadow-gray-900/20 hover:shadow-lg hover:shadow-gray-900/30"
+                      }`}
                     onClick={() => {
                       if (!isAuthenticated) {
                         router.push("/auth");

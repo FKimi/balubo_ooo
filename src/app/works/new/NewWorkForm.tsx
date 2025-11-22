@@ -2016,7 +2016,7 @@ ${errorDetailSection}
                   onClick={addCustomRole}
                   disabled={!newRole.trim()}
                   variant="outline"
-                  className="px-6 h-12 font-semibold border-2 border-slate-300 hover:bg-slate-50"
+                  className="px-6 h-12 font-semibold border-2 border-slate-300 hover:bg-slate-50 rounded-full"
                 >
                   追加
                 </Button>
@@ -2191,7 +2191,7 @@ ${errorDetailSection}
                 <Button
                   onClick={analyzeWithAI}
                   disabled={isAnalyzing || isCooldown}
-                  className="bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 px-10 py-4 font-semibold min-w-[160px] whitespace-nowrap backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:shadow-xl text-base"
+                  className="bg-white/20 hover:bg-white/30 text-white border-2 border-white/30 px-10 py-4 font-semibold min-w-[160px] whitespace-nowrap backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:shadow-xl text-base rounded-full"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
                   {isAnalyzing
@@ -2746,7 +2746,7 @@ ${errorDetailSection}
                 <Button
                   onClick={addTag}
                   disabled={!newTag.trim()}
-                  className="px-6 h-12 font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-xl"
+                  className="px-6 h-12 font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
                 >
                   追加
                 </Button>
@@ -2781,7 +2781,7 @@ ${errorDetailSection}
             <Button
               variant="outline"
               onClick={() => router.back()}
-              className="px-8 py-4 text-base font-semibold border-2 border-slate-300 hover:bg-slate-50"
+              className="px-8 py-4 text-base font-semibold border-2 border-slate-300 hover:bg-slate-50 rounded-full"
             >
               キャンセル
             </Button>
@@ -2789,7 +2789,7 @@ ${errorDetailSection}
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteModal(true)}
-                className="px-8 py-4 text-base font-semibold border-2 border-red-300 text-red-600 hover:bg-red-50"
+                className="px-8 py-4 text-base font-semibold border-2 border-red-300 text-red-600 hover:bg-red-50 rounded-full"
               >
                 削除
               </Button>
@@ -2797,7 +2797,7 @@ ${errorDetailSection}
             <Button
               onClick={handleSubmit}
               disabled={isSaving || !formData.title}
-              className="flex-1 px-8 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all rounded-xl"
+              className="flex-1 px-8 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all rounded-full"
             >
               {isSaving ? "保存中..." : "作品を保存"}
             </Button>
@@ -2828,7 +2828,7 @@ ${errorDetailSection}
       {/* 削除確認モーダル */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <svg
@@ -2859,14 +2859,14 @@ ${errorDetailSection}
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-full"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors disabled:opacity-50"
               >
                 {isDeleting ? "削除中..." : "削除"}
               </button>

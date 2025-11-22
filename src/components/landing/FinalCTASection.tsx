@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
 
@@ -86,15 +87,11 @@ export default function FinalCTASection() {
                 </p>
               </div>
               <Button
+                asChild
+                variant="cta"
                 size="lg"
-                className="h-14 rounded-full bg-blue-600 px-8 text-lg font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-105 hover:shadow-blue-500/40"
-                disabled={isRedirecting}
-                onClick={() => {
-                  setIsRedirecting(true);
-                  router.push("/register");
-                }}
               >
-                {isRedirecting ? "読み込み中…" : "無料で始める"}
+                <Link href="/register">今すぐ無料で始める</Link>
               </Button>
             </div>
 

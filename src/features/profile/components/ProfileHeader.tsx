@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ShareProfileButton } from "./ShareProfileButton";
 import React from "react";
+import { MapPin, Link as LinkIcon, Twitter, Github, Instagram, Linkedin, Globe } from "lucide-react";
 
 interface ProfileHeaderProps {
   displayName: string;
@@ -39,15 +40,15 @@ export function ProfileHeader({
   portfolioVisibility,
   rightSlot: _rightSlot,
 }: ProfileHeaderProps) {
-  // Supabaseストレージの相対パスの場合はフルURLを付与、既にフルURLの場合はそのまま使用
-  const _resolvedBgUrl =
+  // Resolve background image URL
+  const resolvedBgUrl =
     backgroundImageUrl && backgroundImageUrl.trim()
       ? backgroundImageUrl.startsWith("/storage")
         ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}${backgroundImageUrl}`
         : backgroundImageUrl
       : "";
 
-
+  // Resolve avatar image URL
   const resolvedAvatarUrl =
     avatarImageUrl && avatarImageUrl.trim()
       ? avatarImageUrl.startsWith("/storage")
@@ -56,121 +57,116 @@ export function ProfileHeader({
       : "";
 
   return (
-    <div className="mb-8 md:mb-10">
-      <div className="bg-white border border-white/60 rounded-[32px] shadow-[0_20px_50px_rgba(37,99,235,0.08)] p-1">
-        <div className="bg-white/50 backdrop-blur-sm rounded-[28px] px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* ヘッダーレイアウト */}
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            {/* アバター + 基本情報 */}
-            <div className="flex flex-col sm:flex-row sm:items-start gap-5 sm:gap-8">
-              <div className="flex-shrink-0">
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-[24px] overflow-hidden border-4 border-white shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
-                  {resolvedAvatarUrl ? (
-                    <Image
-                      src={resolvedAvatarUrl}
-                      alt="プロフィール画像"
-                      fill
-                      className="object-cover"
-                      priority
-                      quality={90}
-                      sizes="(max-width: 640px) 96px, 112px"
-                    />
-                  ) : (
-                    <span className="absolute inset-0 flex items-center justify-center text-2xl sm:text-3xl font-bold text-blue-300/50">
-                      {displayName ? displayName.charAt(0) : "U"}
-                    </span>
-                  )}
-                </div>
-              </div>
+    <div className="w-full mb-8 group">
+      {/* Cover Image Section */}
+      <div className="h-48 sm:h-64 w-full relative bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl overflow-hidden shadow-sm">
+        {resolvedBgUrl && (
+          <Image
+            src={resolvedBgUrl}
+            alt="Cover"
+            fill
+            className="object-cover"
+            priority
+          />
+        )}
+        {/* Edit Cover Button Overlay */}
+        <Link
+          href="/profile/edit"
+          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        >
+          <Button variant="secondary" size="sm" className="bg-white/80 hover:bg-white backdrop-blur-sm text-xs font-medium shadow-sm">
+            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            カバー画像を変更
+          </Button>
+        </Link>
+      </div>
 
-              <div className="flex-1 min-w-0 pt-1">
-                <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 tracking-tight mb-2">
-                  {displayName || "ユーザー"}
-                </h1>
-                {title && (
-                  <p className="text-base sm:text-lg font-medium text-slate-600 mb-4">
-                    {title}
-                  </p>
-                )}
-                <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
-                  {location && (
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-                      <svg
-                        className="w-4 h-4 text-slate-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      <span>{location}</span>
-                    </div>
-                  )}
-                  {websiteUrl && (
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-                      <svg
-                        className="w-4 h-4 text-slate-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                        />
-                      </svg>
-                      <a
-                        href={websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-                      >
-                        {websiteUrl.replace(/^https?:\/\//, "")}
-                      </a>
-                    </div>
-                  )}
-                </div>
+      {/* Profile Content */}
+      <div className="px-6 relative">
+        {/* Avatar */}
+        <div className="relative -mt-16 mb-4 flex justify-center">
+          <div className="relative w-32 h-32 rounded-full border-[6px] border-white shadow-md overflow-hidden bg-white">
+            {resolvedAvatarUrl ? (
+              <Image
+                src={resolvedAvatarUrl}
+                alt={displayName}
+                fill
+                className="object-cover"
+                priority
+                quality={90}
+              />
+            ) : (
+              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-4xl font-bold text-slate-300">
+                {displayName ? displayName.charAt(0) : "U"}
               </div>
-            </div>
+            )}
+          </div>
+        </div>
 
-            {/* アクションボタン */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 lg:flex-col xl:flex-row lg:items-end">
-              {portfolioVisibility === "public" && userId && (
-                <ShareProfileButton
-                  userId={userId}
-                  slug={slug}
-                  displayName={displayName}
-                />
-              )}
-              <Link href="/profile/edit" className="w-full sm:w-auto">
-                <Button className="w-full sm:w-auto rounded-full px-6 h-11 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-[0_8px_20px_-4px_rgba(37,99,235,0.3)] hover:shadow-[0_12px_24px_-4px_rgba(37,99,235,0.4)] hover:-translate-y-0.5 transition-all duration-200">
-                  プロフィールを編集
-                </Button>
-              </Link>
-            </div>
+        {/* Info */}
+        <div className="text-center max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 tracking-tight">
+            {displayName || "ユーザー"}
+          </h1>
+
+          {title && (
+            <p className="text-lg text-slate-600 font-medium mb-4">
+              {title}
+            </p>
+          )}
+
+          {/* Meta Info */}
+          {/* Meta Info */}
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-500 mb-6">
+            {location && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-slate-400" />
+                <span>{location}</span>
+              </div>
+            )}
+            {websiteUrl && (
+              <div className="flex items-center gap-1.5">
+                {(() => {
+                  const lowerUrl = websiteUrl.toLowerCase();
+                  if (lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com")) return <Twitter className="w-4 h-4 text-slate-400" />;
+                  if (lowerUrl.includes("github.com")) return <Github className="w-4 h-4 text-slate-400" />;
+                  if (lowerUrl.includes("instagram.com")) return <Instagram className="w-4 h-4 text-slate-400" />;
+                  if (lowerUrl.includes("linkedin.com")) return <Linkedin className="w-4 h-4 text-slate-400" />;
+                  return <LinkIcon className="w-4 h-4 text-slate-400" />;
+                })()}
+                <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline hover:text-blue-700 transition-colors truncate max-w-[200px]">
+                  {websiteUrl.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                </a>
+              </div>
+            )}
           </div>
 
-          {/* 自己紹介 */}
+          {/* Bio */}
           {bio && (
-            <div className="mt-6 pt-6 border-t border-dashed border-slate-200">
-              <p className="text-base text-slate-600 leading-loose whitespace-pre-wrap max-w-4xl">
+            <div className="mb-8 text-left bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-100 shadow-sm">
+              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
                 {bio}
               </p>
             </div>
           )}
+
+          {/* Actions */}
+          <div className="flex items-center justify-center gap-3">
+            <Link href="/profile/edit">
+              <Button variant="outline" className="rounded-full px-6 h-10 border-slate-300 text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all">
+                プロフィールを編集
+              </Button>
+            </Link>
+            {portfolioVisibility === "public" && userId && (
+              <ShareProfileButton
+                userId={userId}
+                slug={slug}
+                displayName={displayName}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

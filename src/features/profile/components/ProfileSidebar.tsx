@@ -38,7 +38,7 @@ export function ProfileSidebar({
   onTabChange,
 }: ProfileSidebarProps) {
   const [avatarError, setAvatarError] = useState(false);
-  
+
   const resolvedAvatarUrl =
     avatarImageUrl && avatarImageUrl.trim()
       ? avatarImageUrl.startsWith("/storage")
@@ -113,7 +113,7 @@ export function ProfileSidebar({
 
   return (
     <aside className="flex w-full h-full bg-white border-r border-gray-200">
-      <div className="sticky top-0 h-screen overflow-y-auto w-full flex flex-col">
+      <div className="sticky top-0 h-screen w-full flex flex-col">
         {/* ヘッダーセクション */}
         <div className="flex-shrink-0 border-b border-gray-200 bg-white px-5 h-[64px] flex items-center">
           <h2 className="text-base font-bold text-gray-900">
@@ -121,6 +121,7 @@ export function ProfileSidebar({
           </h2>
         </div>
 
+        {/* スクロール可能なコンテンツエリア */}
         <div className="flex-1 overflow-y-auto px-5 py-6">
           <div className="space-y-6">
             {/* ナビゲーションセクション */}
@@ -129,11 +130,10 @@ export function ProfileSidebar({
                 <button
                   key={tab.key}
                   onClick={() => onTabChange(tab.key)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === tab.key
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === tab.key
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-700 hover:bg-gray-50"
+                    }`}
                 >
                   {tab.icon}
                   <span>{tab.label}</span>
@@ -145,7 +145,7 @@ export function ProfileSidebar({
             <div className="pt-6 border-t border-gray-200 space-y-4">
               {/* アバターと基本情報 */}
               <div className="flex flex-col items-center">
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 mb-3 bg-gray-50">
+                <div className="relative w-20 h-20 rounded-full overflow-hidden border border-gray-200 mb-3 bg-gray-50">
                   {resolvedAvatarUrl && !avatarError ? (
                     <Image
                       src={resolvedAvatarUrl}
@@ -203,7 +203,7 @@ export function ProfileSidebar({
                     />
                   )}
                   <Link href="/profile/edit" className="flex-1">
-                    <Button className="w-full px-3 py-1.5 text-xs font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-lg">
+                    <Button className="w-full px-3 py-1.5 text-xs font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-full">
                       編集
                     </Button>
                   </Link>
@@ -226,19 +226,19 @@ export function ProfileSidebar({
                 統計
               </h3>
               <div className="grid grid-cols-2 gap-2">
-                <div className="text-center py-2.5 px-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="text-center py-2.5 px-2 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="text-lg font-semibold text-gray-900 mb-0.5">
                     {worksCount}
                   </div>
                   <div className="text-xs text-gray-500">作品</div>
                 </div>
-                <div className="text-center py-2.5 px-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="text-center py-2.5 px-2 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="text-lg font-semibold text-gray-900 mb-0.5">
                     {skillsCount}
                   </div>
                   <div className="text-xs text-gray-500">スキル</div>
                 </div>
-                <div className="text-center py-2.5 px-2 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="text-center py-2.5 px-2 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="text-lg font-semibold text-gray-900 mb-0.5">
                     {careerCount}
                   </div>
@@ -248,8 +248,91 @@ export function ProfileSidebar({
             </div>
           </div>
         </div>
+
+        {/* 固定アクションボタンセクション */}
+        <div className="flex-shrink-0 border-t border-gray-200 bg-white px-5 py-4 space-y-2">
+          {/* Copy Profile Link Button */}
+          <button
+            onClick={async () => {
+              const profileUrl = `${window.location.origin}/profile/${userId}`;
+              try {
+                await navigator.clipboard.writeText(profileUrl);
+                alert('プロフィールリンクをコピーしました！');
+              } catch (err) {
+                console.error('Failed to copy:', err);
+              }
+            }}
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-all duration-200"
+          >
+            <svg
+              className="w-5 h-5 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+            <span className="whitespace-nowrap">プロフィールリンクをコピー</span>
+          </button>
+
+          {/* Settings & Support Link */}
+          <Link
+            href="/settings"
+            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm rounded-xl text-gray-700 hover:bg-gray-50 transition-all duration-200"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            <span>設定とサポート</span>
+          </Link>
+
+          {/* Logout Button */}
+          <button
+            onClick={async () => {
+              const { supabase } = await import("@/lib/supabase");
+              await supabase.auth.signOut();
+              window.location.href = "/";
+            }}
+            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm rounded-xl text-gray-700 hover:bg-gray-50 transition-all duration-200"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span>ログアウト</span>
+          </button>
+        </div>
       </div>
     </aside>
   );
 }
-

@@ -224,75 +224,75 @@ async function processFeedRequest(request: NextRequest) {
     try {
       [likesCountResult, userLikesResult, commentsCountResult, profilesResult] =
         await Promise.all([
-        // likesカウントをSQL集約で取得（全件取得ではなく集約のみ）
-        (async () => {
-          if (allIds.length === 0) {
-            return { data: null, error: null };
-          }
+          // likesカウントをSQL集約で取得（全件取得ではなく集約のみ）
+          (async () => {
+            if (allIds.length === 0) {
+              return { data: null, error: null };
+            }
 
-          const rpcResult = await supabase.rpc("get_likes_count", {
-            work_ids: allIds,
-            target_type: "work",
-          });
+            const rpcResult = await supabase.rpc("get_likes_count", {
+              work_ids: allIds,
+              target_type: "work",
+            });
 
-          if (!rpcResult.error) {
-            return rpcResult;
-          }
+            if (!rpcResult.error) {
+              return rpcResult;
+            }
 
-          console.log(
-            "Feed API: RPC get_likes_countが利用できないため、フォールバックを使用",
-            rpcResult.error,
-          );
+            console.log(
+              "Feed API: RPC get_likes_countが利用できないため、フォールバックを使用",
+              rpcResult.error,
+            );
 
-          return supabase
-            .from("likes")
-            .select("target_id, target_type")
-            .in("target_id", allIds)
-            .eq("target_type", "work");
-        })(),
-        // 現在のユーザーのいいね状態を取得（user_has_liked判定用）
-        allIds.length > 0 && currentUserId
-          ? supabase
+            return supabase
+              .from("likes")
+              .select("target_id, target_type")
+              .in("target_id", allIds)
+              .eq("target_type", "work");
+          })(),
+          // 現在のユーザーのいいね状態を取得（user_has_liked判定用）
+          allIds.length > 0 && currentUserId
+            ? supabase
               .from("likes")
               .select("target_id")
               .in("target_id", allIds)
               .eq("target_type", "work")
               .eq("user_id", currentUserId)
-          : Promise.resolve({ data: [], error: null }),
-        // commentsカウントをSQL集約で取得
-        (async () => {
-          if (allIds.length === 0) {
-            return { data: null, error: null };
-          }
+            : Promise.resolve({ data: [], error: null }),
+          // commentsカウントをSQL集約で取得
+          (async () => {
+            if (allIds.length === 0) {
+              return { data: null, error: null };
+            }
 
-          const rpcResult = await supabase.rpc("get_comments_count", {
-            work_ids: allIds,
-            target_type: "work",
-          });
+            const rpcResult = await supabase.rpc("get_comments_count", {
+              work_ids: allIds,
+              target_type: "work",
+            });
 
-          if (!rpcResult.error) {
-            return rpcResult;
-          }
+            if (!rpcResult.error) {
+              return rpcResult;
+            }
 
-          console.log(
-            "Feed API: RPC get_comments_countが利用できないため、フォールバックを使用",
-            rpcResult.error,
-          );
+            console.log(
+              "Feed API: RPC get_comments_countが利用できないため、フォールバックを使用",
+              rpcResult.error,
+            );
 
-          return supabase
-            .from("comments")
-            .select("target_id, target_type")
-            .in("target_id", allIds)
-            .eq("target_type", "work");
-        })(),
-        // プロフィール情報を一括取得（軽量化）
-        userIds.length > 0
-          ? supabase
+            return supabase
+              .from("comments")
+              .select("target_id, target_type")
+              .in("target_id", allIds)
+              .eq("target_type", "work");
+          })(),
+          // プロフィール情報を一括取得（軽量化）
+          userIds.length > 0
+            ? supabase
               .from("profiles")
               .select("user_id, display_name, avatar_image_url")
               .in("user_id", userIds)
-          : Promise.resolve({ data: null, error: null }),
-      ]);
+            : Promise.resolve({ data: null, error: null }),
+        ]);
     } catch (parallelError) {
       console.error("Feed API: 並列取得エラー:", parallelError);
       // エラーが発生しても部分的にデータを返せるように、デフォルト値を設定
@@ -359,17 +359,25 @@ async function processFeedRequest(request: NextRequest) {
 
     // プロフィール情報を処理
     const profiles = profilesResult.data || [];
-    
+
     // プロフィール取得エラーのログ出力
     if (profilesResult.error) {
       console.error("Feed API: プロフィール取得エラー:", profilesResult.error);
     }
-    
+
     if (process.env.NODE_ENV === "development") {
       console.log("Feed API: プロフィール取得結果:", {
         profilesCount: profiles?.length || 0,
         userIds: userIds.length,
-        profiles: profiles?.map((p: any) => p.user_id),
+        profiles: profiles?.map((p: any) => ({
+          user_id: p.user_id,
+          display_name: p.display_name,
+          // Base64などの長い文字列をログに出さないように切り詰める
+          avatar_image_url:
+            p.avatar_image_url && p.avatar_image_url.length > 50
+              ? `${p.avatar_image_url.substring(0, 20)}...`
+              : p.avatar_image_url,
+        })),
       });
     }
 
@@ -392,7 +400,7 @@ async function processFeedRequest(request: NextRequest) {
     // 作品を処理（プロフィールがない場合でもデフォルトユーザー情報で表示）
     for (const work of works) {
       let userProfile = profileMap.get(work.user_id);
-      
+
       // プロフィールが見つからない場合はデフォルトユーザー情報を作成
       if (!userProfile) {
         console.warn(
@@ -403,7 +411,7 @@ async function processFeedRequest(request: NextRequest) {
           display_name: "ユーザー",
         };
       }
-      
+
       const key = `work_${work.id}`;
       const feedItem: FeedItem = {
         id: work.id,
@@ -476,10 +484,14 @@ async function processFeedRequest(request: NextRequest) {
         processingTime: `${processingTime}ms`,
       });
       console.log("Feed API: works件数", works.length);
-      console.log("Feed API: likesCountMap", Array.from(likesCountMap.entries()));
+      // ログが大量に出ないように最初の5件だけ表示
       console.log(
-        "Feed API: commentsCountMap",
-        Array.from(commentsCountMap.entries()),
+        "Feed API: likesCountMap (top 5)",
+        Array.from(likesCountMap.entries()).slice(0, 5),
+      );
+      console.log(
+        "Feed API: commentsCountMap (top 5)",
+        Array.from(commentsCountMap.entries()).slice(0, 5),
       );
     }
 

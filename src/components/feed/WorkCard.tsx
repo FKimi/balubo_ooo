@@ -82,7 +82,7 @@ export const WorkCard = memo(function WorkCard({
 
   return (
     <div
-      className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border border-gray-100 hover:border-gray-200"
+      className="group bg-white rounded-[24px] overflow-hidden shadow-[0_18px_45px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_50px_rgba(15,23,42,0.1)] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border-none"
       onClick={handleWorkClick}
       role="button"
       tabIndex={0}
@@ -102,9 +102,8 @@ export const WorkCard = memo(function WorkCard({
               src={_work.banner_image_url}
               alt={_work.title}
               fill
-              className={`object-cover transition-all duration-500 group-hover:scale-105 ${
-                imageLoaded ? "opacity-100" : "opacity-0"
-              }`}
+              className={`object-cover transition-all duration-500 group-hover:scale-105 ${imageLoaded ? "opacity-100" : "opacity-0"
+                }`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -221,7 +220,7 @@ export const WorkCard = memo(function WorkCard({
             {takeFirst(_work.roles, 3).map((role, index) => (
               <span
                 key={index}
-                className="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-md font-medium border border-blue-100"
+                className="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-medium border border-blue-100"
               >
                 {role}
               </span>
@@ -264,11 +263,10 @@ export const WorkCard = memo(function WorkCard({
             <Button
               variant="ghost"
               size="sm"
-              className={`h-8 px-2 transition-colors ${
-                _work.user_has_liked
-                  ? "text-red-500 hover:text-red-600 hover:bg-red-50"
-                  : "text-gray-500 hover:text-red-500 hover:bg-red-50"
-              }`}
+              className={`h-8 px-2 transition-colors ${_work.user_has_liked
+                ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+                }`}
               onClick={(e) => {
                 e.stopPropagation();
                 onLike(_work.id, _work.type);

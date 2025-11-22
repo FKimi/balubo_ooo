@@ -52,9 +52,9 @@ function DraggableWorkCard({
 
   const style = transform
     ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        zIndex: 1000,
-      }
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      zIndex: 1000,
+    }
     : undefined;
 
   return (
@@ -113,17 +113,15 @@ function DroppableCategoryTab({
       onClick={() => onSelect(category.id)}
       role="tab"
       aria-selected={isSelected}
-      className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${
-        isSelected
+      className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-xl ${isSelected
           ? "bg-white text-blue-600 shadow-sm border border-blue-100"
           : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
-      } ${
-        isOver
+        } ${isOver
           ? "ring-2 ring-blue-300"
           : isDragActive
             ? "border-dashed border-blue-400 bg-blue-50"
             : ""
-      }`}
+        }`}
     >
       <span className="flex items-center gap-2">
         <span
@@ -132,9 +130,8 @@ function DroppableCategoryTab({
         />
         <span>{displayLabel}</span>
         <span
-          className={`text-xs font-normal ${
-            isSelected ? "text-blue-600/70" : "text-gray-400"
-          }`}
+          className={`text-xs font-normal ${isSelected ? "text-blue-600/70" : "text-gray-400"
+            }`}
         >
           {count}
         </span>
@@ -462,149 +459,124 @@ export function WorksCategoryManager({
               {/* ALL ボタン */}
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg ${
-                  selectedCategory === "all"
+                className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-xl ${selectedCategory === "all"
                     ? "bg-white text-blue-600 shadow-sm border border-blue-100"
                     : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
-                }`}
+                  }`}
               >
                 <span className="flex items-center gap-2">
                   <span className="font-semibold">すべて</span>
                   <span
-                    className={`text-xs font-normal ${
-                      selectedCategory === "all"
+                    className={`text-xs font-normal ${selectedCategory === "all"
                         ? "text-blue-600/70"
                         : "text-gray-400"
-                    }`}
+                      }`}
                   >
                     {savedWorks.length}
                   </span>
                 </span>
               </button>
 
-            {/* その他のカテゴリ */}
-            {categories
-              .filter((cat) => cat.id !== "uncategorized")
-              .map((category) => (
-                <div key={category.id} className="relative group">
-                  {isEditingCategory === category.id ? (
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-blue-400 rounded-full shadow-sm ring-2 ring-blue-200 min-h-[40px] relative">
-                      {/* 新しく作成されたカテゴリの場合のヒント */}
-                      {category.works.length === 0 &&
-                        editCategoryName === "" && (
-                          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-md whitespace-nowrap z-10">
-                            カテゴリ名を入力してください
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
-                          </div>
-                        )}
-                      {/* 色ドット */}
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <input
-                        type="text"
-                        value={editCategoryName}
-                        onChange={(e) => setEditCategoryName(e.target.value)}
-                        className="w-32 min-w-[8rem] text-sm bg-gray-50 outline-none text-center font-medium rounded-full px-3 py-1 border border-gray-200 focus:border-blue-400 placeholder-gray-400"
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && handleSaveCategory(category.id)
-                        }
-                        onKeyDown={(e) =>
-                          e.key === "Escape" && setIsEditingCategory(null)
-                        }
-                        autoFocus
-                        placeholder="カテゴリ名"
-                        maxLength={20}
-                      />
-                      <button
-                        onClick={() => handleSaveCategory(category.id)}
-                        className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-green-500/10 text-green-700 hover:bg-green-500/20"
-                        title="保存 (Enter)"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+              {/* その他のカテゴリ */}
+              {categories
+                .filter((cat) => cat.id !== "uncategorized")
+                .map((category) => (
+                  <div key={category.id} className="relative group">
+                    {isEditingCategory === category.id ? (
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-blue-400 rounded-full shadow-sm ring-2 ring-blue-200 min-h-[40px] relative">
+                        {/* 新しく作成されたカテゴリの場合のヒント */}
+                        {category.works.length === 0 &&
+                          editCategoryName === "" && (
+                            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs px-3 py-1 rounded-md whitespace-nowrap z-10">
+                              カテゴリ名を入力してください
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
+                            </div>
+                          )}
+                        {/* 色ドット */}
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <input
+                          type="text"
+                          value={editCategoryName}
+                          onChange={(e) => setEditCategoryName(e.target.value)}
+                          className="w-32 min-w-[8rem] text-sm bg-gray-50 outline-none text-center font-medium rounded-full px-3 py-1 border border-gray-200 focus:border-blue-400 placeholder-gray-400"
+                          onKeyPress={(e) =>
+                            e.key === "Enter" && handleSaveCategory(category.id)
+                          }
+                          onKeyDown={(e) =>
+                            e.key === "Escape" && setIsEditingCategory(null)
+                          }
+                          autoFocus
+                          placeholder="カテゴリ名"
+                          maxLength={20}
+                        />
+                        <button
+                          onClick={() => handleSaveCategory(category.id)}
+                          className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-green-500/10 text-green-700 hover:bg-green-500/20"
+                          title="保存 (Enter)"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setIsEditingCategory(null)}
-                        className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-red-500/10 text-red-700 hover:bg-red-500/20"
-                        title="キャンセル (Esc)"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                      <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-gray-500">
-                        {editCategoryName.length}/20文字
-                      </div>
-                    </div>
-                  ) : (
-                    <DroppableCategoryTab
-                      category={category}
-                      selectedCategory={selectedCategory}
-                      onSelect={setSelectedCategory}
-                      isDragActive={isDragActive}
-                      label={category.name || "カテゴリ"}
-                      count={category.works?.length || 0}
-                    />
-                  )}
-
-                  {/* カテゴリ管理ボタン */}
-                  {category.id !== "all" &&
-                    isEditingCategory !== category.id && (
-                      <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                        <div className="flex gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditCategory(category.id, category.name);
-                            }}
-                            className="w-5 h-5 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md"
-                            title="編集"
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            <svg
-                              className="w-2.5 h-2.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              />
-                            </svg>
-                          </button>
-                          {category.id !== "uncategorized" && (
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setIsEditingCategory(null)}
+                          className="w-6 h-6 inline-flex items-center justify-center rounded-full bg-red-500/10 text-red-700 hover:bg-red-500/20"
+                          title="キャンセル (Esc)"
+                        >
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                        <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[11px] text-gray-500">
+                          {editCategoryName.length}/20文字
+                        </div>
+                      </div>
+                    ) : (
+                      <DroppableCategoryTab
+                        category={category}
+                        selectedCategory={selectedCategory}
+                        onSelect={setSelectedCategory}
+                        isDragActive={isDragActive}
+                        label={category.name || "カテゴリ"}
+                        count={category.works?.length || 0}
+                      />
+                    )}
+
+                    {/* カテゴリ管理ボタン */}
+                    {category.id !== "all" &&
+                      isEditingCategory !== category.id && (
+                        <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                          <div className="flex gap-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDeleteCategory(category.id);
+                                handleEditCategory(category.id, category.name);
                               }}
-                              className="w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md"
-                              title="削除"
+                              className="w-5 h-5 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md"
+                              title="編集"
                             >
                               <svg
                                 className="w-2.5 h-2.5"
@@ -616,21 +588,44 @@ export function WorksCategoryManager({
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={2}
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                                 />
                               </svg>
                             </button>
-                          )}
+                            {category.id !== "uncategorized" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteCategory(category.id);
+                                }}
+                                className="w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md"
+                                title="削除"
+                              >
+                                <svg
+                                  className="w-2.5 h-2.5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                </div>
-              ))}
+                      )}
+                  </div>
+                ))}
 
               {/* カテゴリ追加ボタン */}
               <button
                 onClick={handleAddCategory}
-                className="px-5 py-2.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-white/50 rounded-lg transition-all duration-200 border-2 border-dashed border-blue-200 hover:border-blue-300"
+                className="px-5 py-2.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-white/50 rounded-xl transition-all duration-200 border-2 border-dashed border-blue-200 hover:border-blue-300"
                 title="新しいカテゴリを追加"
               >
                 <span className="flex items-center gap-2">
@@ -771,7 +766,7 @@ export function WorksCategoryManager({
               </p>
 
               {/* 削除時の注意事項 */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
                 <div className="flex items-start gap-2">
                   <svg
                     className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"

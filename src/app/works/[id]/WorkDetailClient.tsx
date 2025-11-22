@@ -53,7 +53,18 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
   const [description, setDescription] = useState("");
   const [isSavingDescription, setIsSavingDescription] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
+
+  const showSuccess = (msg: string) => {
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(null), 3000);
+  };
+
+  const showError = (msg: string) => {
+    setError(msg);
+    setTimeout(() => setError(null), 3000);
+  };
 
   const aiAnalysis =
     work?.ai_analysis_result ||
@@ -525,9 +536,10 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           production_notes: productionNotes,
         });
       }
+      showSuccess("制作メモを保存しました");
     } catch (error) {
       console.error("制作メモ保存エラー:", error);
-      alert("制作メモの保存に失敗しました");
+      showError("制作メモの保存に失敗しました");
     } finally {
       setIsSavingProductionNotes(false);
     }
@@ -597,9 +609,10 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           description: description,
         });
       }
+      showSuccess("作品説明を保存しました");
     } catch (error) {
       console.error("作品説明保存エラー:", error);
-      alert("作品説明の保存に失敗しました");
+      showError("作品説明の保存に失敗しました");
     } finally {
       setIsSavingDescription(false);
     }
@@ -645,8 +658,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
       window.location.href = "/profile";
     } catch (error) {
       console.error("作品削除エラー:", error);
-      alert("作品の削除に失敗しました");
-    } finally {
+      showError("作品の削除に失敗しました");
       setIsDeleting(false);
       setShowDeleteModal(false);
     }
@@ -676,13 +688,13 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                 <div className="flex flex-col gap-3 rounded-2xl bg-white/10 p-6 backdrop-blur">
                   <Button
                     onClick={() => router.push("/register")}
-                    className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-blue-600 shadow-md transition-transform hover:-translate-y-0.5 hover:bg-blue-50"
+                    className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-blue-600 shadow-md transition-transform hover:-translate-y-0.5 hover:bg-blue-50"
                   >
                     無料で作品を追加する
                   </Button>
                   <Button
                     variant="ghost"
-                    className="rounded-xl border border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                    className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
                     onClick={() => router.push("/auth")}
                   >
                     ログインはこちら
@@ -723,7 +735,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                  className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <svg
                     className="w-4 h-4 mr-2"
@@ -741,7 +753,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                   削除
                 </button>
                 <Link href={`/works/${work.id}/edit`}>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 rounded-xl">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 rounded-full">
                     <svg
                       className="w-4 h-4 mr-2"
                       fill="none"
@@ -763,7 +775,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
           </div>
 
           {/* 作品詳細 */}
-          <Card className="overflow-hidden shadow-md border border-gray-200 bg-white rounded-xl mb-8 transition-shadow duration-200 hover:shadow-lg">
+          <Card className="overflow-hidden shadow-md border border-gray-200 bg-white rounded-2xl mb-8 transition-shadow duration-200 hover:shadow-lg">
             {/* バナーとタイトルを2カラムレイアウト */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               {/* 左カラム：バナー画像 */}
@@ -1449,7 +1461,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                           href={work.external_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-xl transition-all duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-full transition-all duration-200 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                           aria-label="作品を外部サイトで確認する"
                         >
                           <svg
@@ -1496,7 +1508,7 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                         <Button
                           onClick={() => setShowShareModal(true)}
                           variant="outline"
-                          className="w-full border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-400 text-gray-700 hover:text-blue-700 transition-all duration-200 text-sm py-3 font-medium transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          className="w-full border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-400 text-gray-700 hover:text-blue-700 transition-all duration-200 text-sm py-3 font-medium transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full"
                           aria-label="作品をシェアする"
                         >
                           <svg
@@ -1540,10 +1552,10 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
 
       {/* 削除確認モーダル */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-6 h-6 text-red-600"
                   fill="none"
@@ -1558,35 +1570,51 @@ export default function WorkDetailClient({ workId }: { workId: string }) {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                作品を削除
-              </h3>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  作品を削除
+                </h3>
+                <p className="text-sm text-gray-500">この操作は取り消せません</p>
+              </div>
             </div>
 
-            <p className="text-gray-600 mb-6">
-              「{work?.title}
-              」を削除しますか？この操作は取り消すことができません。
+            <p className="text-gray-600 leading-relaxed mb-8">
+              「{work?.title}」を削除しますか？<br />
+              この操作を実行すると、作品データは永久に失われます。
             </p>
 
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-6 py-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-colors font-medium"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors disabled:opacity-50 font-medium shadow-md shadow-red-500/20"
               >
-                {isDeleting ? "削除中..." : "削除"}
+                {isDeleting ? "削除中..." : "削除する"}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* フィードバックメッセージ */}
+      {(successMessage) && (
+        <div className="fixed bottom-8 right-8 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

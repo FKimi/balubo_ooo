@@ -40,7 +40,7 @@ export function AIAnalysisStrengths({
   const baseSectionSpacing = compact ? "space-y-5" : "space-y-6";
   const framedBoxClass = (extraSpacing = "") =>
     framed
-      ? `${compact ? "p-5 sm:p-6" : "p-6"} border border-slate-200 rounded-[28px] shadow-[0_18px_45px_rgba(15,23,42,0.06)] bg-gradient-to-br from-[#F7F9FF] to-white ${extraSpacing}`
+      ? `${compact ? "p-5 sm:p-6" : "p-6"} border border-slate-200 rounded-2xl shadow-[0_18px_45px_rgba(15,23,42,0.06)] bg-gradient-to-br from-[#F7F9FF] to-white ${extraSpacing}`
       : `${extraSpacing}`;
 
   return (
@@ -87,7 +87,7 @@ export function AIAnalysisStrengths({
               return (
                 <div
                   key={tagData.tag}
-                  className={`rounded-[24px] border p-4 shadow-sm hover:shadow-lg transition-all duration-200 ${tierClass}`}
+                  className={`rounded-2xl border p-4 shadow-sm hover:shadow-lg transition-all duration-200 ${tierClass}`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.3em] text-gray-500/80">
@@ -162,7 +162,7 @@ export function AIAnalysisStrengths({
             return (
               <div
                 key={idx}
-                className={`${compact ? "p-4 sm:p-5" : "p-6"} rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all`}
+                className={`${compact ? "p-4 sm:p-5" : "p-6"} rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all`}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -182,7 +182,7 @@ export function AIAnalysisStrengths({
                           <Badge
                             key={tagIdx}
                             variant="outline"
-                            className="px-2.5 py-1 text-xs bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                            className="px-2.5 py-1 text-xs bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 rounded-full"
                           >
                             {tag}
                           </Badge>
@@ -250,7 +250,7 @@ function SolutionCard({
   index: number;
 }) {
   return (
-    <div className="rounded-[32px] border border-blue-100 bg-gradient-to-br from-blue-50/90 via-white to-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] transition-all">
+    <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/90 via-white to-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] transition-all">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div>
           <p className="text-xs font-semibold text-blue-600 tracking-wide">
@@ -267,7 +267,7 @@ function SolutionCard({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-        <div className="rounded-[24px] border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-semibold text-slate-500 tracking-wide mb-1">
             こんな課題を持つ方へ
           </p>
@@ -275,7 +275,7 @@ function SolutionCard({
             {hint.description}
           </p>
         </div>
-        <div className="rounded-[24px] border border-emerald-100 bg-white p-4">
+        <div className="rounded-xl border border-emerald-100 bg-white p-4">
           <p className="text-xs font-semibold text-emerald-600 tracking-wide mb-1">
             提供する解決策
           </p>
@@ -284,7 +284,7 @@ function SolutionCard({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div className="rounded-[24px] border border-blue-100 bg-white p-4">
+        <div className="rounded-xl border border-blue-100 bg-white p-4">
           <p className="text-xs font-semibold text-blue-600 tracking-wide mb-1">
             期待できる成果
           </p>
@@ -292,7 +292,7 @@ function SolutionCard({
             {hint.whyRecommended}
           </p>
         </div>
-        <div className="rounded-[24px] border border-yellow-100 bg-white p-4">
+        <div className="rounded-xl border border-yellow-100 bg-white p-4">
           <p className="text-xs font-semibold text-yellow-600 tracking-wide mb-1">
             AIインサイト
           </p>

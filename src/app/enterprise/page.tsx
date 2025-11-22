@@ -138,7 +138,7 @@ export default function EnterpriseLandingPage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center space-x-2" aria-label="balubo トップページ">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-gray-900 tracking-tight">balubo</span>
+              <span className="text-xl font-bold text-blue-600 tracking-tight">balubo</span>
             </div>
           </Link>
           <nav className="hidden md:flex items-center space-x-6" aria-label="グローバルナビゲーション">

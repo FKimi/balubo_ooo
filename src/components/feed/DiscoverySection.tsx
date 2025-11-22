@@ -186,7 +186,7 @@ export const DiscoverySection = ({
   }
 
   return (
-    <div className="bg-white border-b border-gray-200 p-6">
+    <div className="bg-[#F4F7FF] p-6">
       <div className="max-w-7xl mx-auto">
         <div className="space-y-8">
           {/* 今日の注目コンテンツ */}
@@ -230,12 +230,12 @@ export const DiscoverySection = ({
                 {data.featured.map((work, index) => (
                   <Card
                     key={work.id}
-                    className="flex-shrink-0 w-80 hover:shadow-lg transition-all duration-300 cursor-pointer group border border-gray-200 hover:border-gray-300"
+                    className="flex-shrink-0 w-80 bg-white rounded-[24px] border-none shadow-[0_18px_45px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_50px_rgba(15,23,42,0.1)] transition-all duration-300 cursor-pointer group overflow-hidden"
                     onClick={() => _onWorkClick?.(work)}
                   >
                     <CardContent className="p-0">
                       {/* 画像とランキングバッジ */}
-                      <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl overflow-hidden">
+                      <div className="relative aspect-video bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-[24px] overflow-hidden">
                         {work.banner_image_url ? (
                           <Image
                             src={work.banner_image_url}
@@ -252,15 +252,14 @@ export const DiscoverySection = ({
                         {/* ランキングバッジ */}
                         <div className="absolute top-3 left-3">
                           <div
-                            className={`px-2 py-1 rounded-full text-xs font-bold text-white shadow-lg ${
-                              index === 0
-                                ? "bg-gray-900"
-                                : index === 1
-                                  ? "bg-gray-700"
-                                  : index === 2
-                                    ? "bg-gray-600"
-                                    : "bg-gray-500"
-                            }`}
+                            className={`px-2 py-1 rounded-full text-xs font-bold text-white shadow-lg ${index === 0
+                              ? "bg-gray-900"
+                              : index === 1
+                                ? "bg-gray-700"
+                                : index === 2
+                                  ? "bg-gray-600"
+                                  : "bg-gray-500"
+                              }`}
                           >
                             #{index + 1}
                           </div>
@@ -369,20 +368,18 @@ export const DiscoverySection = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => _onTagClick?.(tagItem.tag)}
-                    className={`rounded-full px-4 py-2 transition-all duration-200 ${
-                      index < 3
-                        ? "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                    className={`rounded-full px-4 py-2 transition-all duration-200 ${index < 3
+                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                   >
                     <Hash className="h-3 w-3 mr-1" />
                     {tagItem.tag}
                     <span
-                      className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
-                        index < 3
-                          ? "bg-gray-200 text-gray-700"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
+                      className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${index < 3
+                        ? "bg-gray-200 text-gray-700"
+                        : "bg-gray-200 text-gray-600"
+                        }`}
                     >
                       {tagItem.count}
                     </span>

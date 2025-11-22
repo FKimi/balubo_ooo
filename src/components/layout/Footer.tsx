@@ -94,6 +94,11 @@ export function Footer() {
                   私たちがbaluboを創った理由
                 </Link>
               </li>
+              <li>
+                <Link href="/updates" className="hover:text-gray-900">
+                  最近のアップデート
+                </Link>
+              </li>
             </ul>
           </div>
 

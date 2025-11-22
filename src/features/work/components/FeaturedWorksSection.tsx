@@ -69,10 +69,10 @@ export function FeaturedWorksSection({
       const updatedWorks = savedWorks.map((work) =>
         work.id === workId
           ? {
-              ...work,
-              is_featured: true,
-              featured_order: featuredWorks.length + 1,
-            }
+            ...work,
+            is_featured: true,
+            featured_order: featuredWorks.length + 1,
+          }
           : work,
       );
 
@@ -314,7 +314,7 @@ export function FeaturedWorksSection({
                       onDelete={deleteWork}
                       isDraggable={false}
                     />
-                    <div className="absolute inset-0 bg-blue-500 bg-opacity-0 hover:bg-opacity-10 rounded-lg transition-all flex items-center justify-center">
+                    <div className="absolute inset-0 bg-blue-500 bg-opacity-0 hover:bg-opacity-10 rounded-2xl transition-all flex items-center justify-center">
                       <div className="bg-blue-600 text-white p-2 rounded-full opacity-0 hover:opacity-100 transition-opacity">
                         <svg
                           className="w-5 h-5"
@@ -339,13 +339,12 @@ export function FeaturedWorksSection({
         </div>
       ) : (
         <div
-          className={`grid gap-6 ${
-            featuredWorks.length === 1
+          className={`grid gap-6 ${featuredWorks.length === 1
               ? "grid-cols-1 max-w-2xl mx-auto"
               : featuredWorks.length === 2
                 ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
                 : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-          }`}
+            }`}
         >
           {featuredWorks.map((work) => (
             <div key={work.id} className="relative">

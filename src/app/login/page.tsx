@@ -155,7 +155,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8 relative overflow-hidden">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8 relative overflow-hidden fade-in">
       {/* 背景の装飾要素 */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gray-100 rounded-full blur-3xl"></div>

@@ -193,8 +193,8 @@ export function BtoBAnalysisSection({
     }
   };
 
-  // テキストを箇条書きとして表示する関数
-  const renderBulletList = (text: string) => {
+  // テキストを1行で表示する関数（最初の項目のみ）
+  const renderSingleLine = (text: string) => {
     if (!text) return null;
 
     const lines = text.split("\n").filter((line) => line.trim().length > 0);
@@ -204,25 +204,13 @@ export function BtoBAnalysisSection({
 
     if (items.length === 0) return null;
 
+    // 最初の項目のみを表示
+    const firstItem = items[0];
+
     return (
-      <ul className="flex flex-col gap-2">
-        {items.map((item, index) => {
-          const bulletNumber = (index + 1).toString().padStart(2, "0");
-          return (
-            <li
-              key={index}
-              className="group flex items-start gap-3 rounded-2xl border border-slate-100 bg-white/90 px-3 py-2.5 shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition hover:border-blue-100"
-            >
-              <span className="mt-0.5 text-[11px] font-semibold tracking-wide text-slate-400 transition group-hover:text-blue-500">
-                {bulletNumber}
-              </span>
-              <span className="flex-1 text-sm text-slate-700 leading-relaxed">
-                {item}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      <p className="text-base text-slate-800 leading-relaxed font-normal">
+        {firstItem}
+      </p>
     );
   };
 
@@ -278,42 +266,44 @@ export function BtoBAnalysisSection({
         key={config.key}
         className={`${cardBase} rounded-2xl p-5 transition-all duration-200 hover:border-blue-200 flex flex-col h-full`}
       >
-        <div className="flex items-start gap-3 mb-4">
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center ${config.iconBg}`}
-          >
-            {config.icon}
+        <div>
+          <div className="flex items-start gap-3 mb-4">
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center ${config.iconBg}`}
+            >
+              {config.icon}
+            </div>
+            <div>
+              <p className="text-lg font-bold text-gray-900">{config.title}</p>
+              <p className="text-sm text-slate-500 mt-0.5">{config.description}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-gray-900">{config.title}</p>
-            <p className="text-xs text-slate-500">{config.description}</p>
-          </div>
+          {editable ? (
+            <Textarea
+              value={value}
+              onChange={(e) => handleChange(config.key, e.target.value)}
+              className="min-h-[100px] text-base text-gray-700 leading-relaxed resize-none border border-slate-200 rounded-xl bg-white/80 focus-visible:ring-2 focus-visible:ring-blue-200"
+              placeholder={config.placeholder}
+            />
+          ) : (
+            <div className="min-h-[60px] flex items-center">
+              {renderSingleLine(value) || (
+                <p className="text-base text-gray-400">データがまだ反映されていません</p>
+              )}
+            </div>
+          )}
         </div>
-        {editable ? (
-          <Textarea
-            value={value}
-            onChange={(e) => handleChange(config.key, e.target.value)}
-            className="min-h-[140px] text-sm text-gray-700 leading-relaxed resize-none border border-slate-200 rounded-xl bg-white/80 focus-visible:ring-2 focus-visible:ring-blue-200"
-            placeholder={config.placeholder}
-          />
-        ) : (
-          <div className="min-h-[140px] text-sm text-gray-700 leading-relaxed">
-            {renderBulletList(value) || (
-              <p className="text-sm text-gray-400">データがまだ反映されていません</p>
-            )}
-          </div>
-        )}
       </div>
     );
   };
 
   const analysisContent = (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-1 pl-0.5">
-        <h4 className="font-semibold text-slate-900">{title}</h4>
-        <p className="text-xs text-slate-400 flex items-center gap-2">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2 pl-0.5">
+        <h4 className="text-xl font-bold text-slate-900">{title}</h4>
+        <p className="text-sm text-slate-500 flex items-center gap-2">
           <svg
-            className="w-3.5 h-3.5 text-slate-300"
+            className="w-4 h-4 text-slate-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

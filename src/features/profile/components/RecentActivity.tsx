@@ -120,7 +120,7 @@ export function RecentActivity({ works }: RecentActivityProps) {
   }
 
   return (
-    <Card className="bg-white border border-gray-200 rounded-lg shadow-sm">
+    <Card className="bg-white border border-gray-200 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">
           最近の活動
@@ -128,7 +128,7 @@ export function RecentActivity({ works }: RecentActivityProps) {
         <div className="space-y-4">
           {activities.map((activity, index) => (
             <div key={index} className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                 {activity.icon}
               </div>
               <div className="flex-1 min-w-0">

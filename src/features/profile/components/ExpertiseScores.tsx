@@ -18,7 +18,7 @@ export function ExpertiseScores({ strengths, works = [] }: ExpertiseScoresProps)
 
     // 各カテゴリに関連する作品とタグを集計
     const categoryWorks = new Map<string, { works: WorkData[]; tags: string[] }>();
-    
+
     strengths.forEach((strength) => {
       const relatedWorks: WorkData[] = [];
       const relatedTags = new Set<string>();
@@ -99,7 +99,7 @@ export function ExpertiseScores({ strengths, works = [] }: ExpertiseScoresProps)
   }
 
   return (
-    <Card className="bg-white border border-gray-200 rounded-lg shadow-sm">
+    <Card className="bg-white border border-gray-200 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">
           強み・魅力
@@ -125,7 +125,7 @@ export function ExpertiseScores({ strengths, works = [] }: ExpertiseScoresProps)
                     {strength.tags.slice(0, 3).map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
-                        className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+                        className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs"
                       >
                         {tag}
                       </span>

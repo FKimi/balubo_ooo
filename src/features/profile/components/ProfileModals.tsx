@@ -198,7 +198,7 @@ export function ProfileModals({
             <Button
               onClick={onAddSkill}
               disabled={isUpdatingSkills || !newSkill.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
             >
               {isUpdatingSkills ? "追加中..." : "追加"}
             </Button>
@@ -230,7 +230,7 @@ export function ProfileModals({
             <Button
               onClick={() => onUpdateIntroduction(currentIntroduction)}
               disabled={isUpdatingIntroduction}
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
             >
               {isUpdatingIntroduction ? "保存中..." : "保存"}
             </Button>
@@ -331,7 +331,7 @@ export function ProfileModals({
                   newCareer.startDate
                 )
               }
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
             >
               {isUpdatingCareer ? "追加中..." : "追加"}
             </Button>
@@ -441,7 +441,7 @@ export function ProfileModals({
               >
                 キャンセル
               </Button>
-              <Button onClick={onUpdateCareer} disabled={isUpdatingCareer} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30">
+              <Button onClick={onUpdateCareer} disabled={isUpdatingCareer} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full">
                 {isUpdatingCareer ? "保存中..." : "保存"}
               </Button>
             </div>
@@ -467,7 +467,7 @@ export function ProfileModals({
             キャンセル
           </Button>
           <Button
-            className="bg-red-600 text-white hover:bg-red-700"
+            className="bg-red-600 text-white hover:bg-red-700 rounded-full"
             onClick={onDeleteCareer}
             disabled={isUpdatingCareer}
           >

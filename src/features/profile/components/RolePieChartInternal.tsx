@@ -116,7 +116,7 @@ export default function RolePieChartInternal({
   const hoveredData = hoveredIndex !== null ? segments[hoveredIndex] : null;
 
   return (
-    <div className="w-full bg-white p-4 sm:p-6 rounded-xl shadow-sm">
+    <div className="w-full bg-white p-4 sm:p-6 rounded-2xl shadow-sm">
       <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10">
         {/* ドーナツグラフ */}
         <div className="relative" style={{ width: svgSize, height: svgSize }}>
@@ -212,7 +212,7 @@ export default function RolePieChartInternal({
                 key={seg.name}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className="flex items-center p-2 rounded-lg cursor-pointer transition-colors"
+                className="flex items-center p-2 rounded-xl cursor-pointer transition-colors"
                 style={{
                   backgroundColor:
                     hoveredIndex === i ? "#f3f4f6" : "transparent",

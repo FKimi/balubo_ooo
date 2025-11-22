@@ -22,18 +22,17 @@ export function WorkCard({ work, isFeatured = false }: WorkCardProps) {
 
   return (
     <div
-      className={`group relative h-full ${
-        isFeatured
+      className={`group relative h-full ${isFeatured
           ? "transform group-hover:scale-105 transition-transform duration-300"
           : ""
-      }`}
+        }`}
     >
       <Link
         href={`/works/${work.id}`}
-        className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/30 rounded-xl"
+        className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/30 rounded-2xl"
       >
         <Card
-          className={`h-full overflow-hidden transition-all duration-300 ease-in-out rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-lg hover:-translate-y-0.5`}
+          className={`h-full overflow-hidden transition-all duration-300 ease-in-out rounded-2xl border border-gray-100 bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-0.5`}
         >
           <CardContent className="p-0 flex flex-col h-full">
             {/* 画像セクション */}

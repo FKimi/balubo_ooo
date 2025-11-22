@@ -28,7 +28,7 @@ export function PublicFeaturedWorksSection({
         </h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {featuredWorks.map((work, index) => (
           <div key={work.id} className="relative">
             {/* ランキングバッジ */}
@@ -39,7 +39,7 @@ export function PublicFeaturedWorksSection({
                 #{index + 1} 代表作
               </div>
             </div>
-            <WorkCard work={work as WorkData} onDelete={() => {}} isFeatured />
+            <WorkCard work={work as WorkData} onDelete={() => { }} isFeatured />
           </div>
         ))}
       </div>

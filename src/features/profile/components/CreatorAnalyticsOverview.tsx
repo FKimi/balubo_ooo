@@ -208,11 +208,11 @@ export function CreatorAnalyticsOverview({
   return (
     <section className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
           <div className="flex items-start gap-3 mb-5">
             {/* クレイモーフィズム風アイコンコンテナ */}
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shadow-[0_4px_12px_rgba(37,99,235,0.15)]">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-inner">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shadow-[0_4px_12px_rgba(37,99,235,0.15)]">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-inner">
                 <svg
                   className="w-5 h-5 text-white"
                   fill="none"
@@ -242,7 +242,7 @@ export function CreatorAnalyticsOverview({
               personaHighlights.map((item, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl bg-gray-50 p-4 border border-gray-200 shadow-[0_12px_35px_rgba(15,23,42,0.04)]"
+                  className="rounded-xl bg-gray-50 p-4 border border-gray-200 shadow-[0_12px_35px_rgba(15,23,42,0.04)]"
                 >
                   <p className="text-sm font-semibold text-gray-900 mb-1">
                     {item.title}
@@ -270,11 +270,11 @@ export function CreatorAnalyticsOverview({
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
           <div className="flex items-start gap-3 mb-5">
             {/* クレイモーフィズム風アイコンコンテナ */}
-            <div className="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center shadow-[0_4px_12px_rgba(6,182,212,0.15)]">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center shadow-inner">
+            <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center shadow-[0_4px_12px_rgba(6,182,212,0.15)]">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center shadow-inner">
                 <svg
                   className="w-5 h-5 text-white"
                   fill="none"
@@ -304,7 +304,7 @@ export function CreatorAnalyticsOverview({
               audienceLines.map((line, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700 shadow-[0_12px_35px_rgba(15,23,42,0.04)]"
+                  className="rounded-xl bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700 shadow-[0_12px_35px_rgba(15,23,42,0.04)]"
                 >
                   {line}
                 </div>
@@ -319,11 +319,11 @@ export function CreatorAnalyticsOverview({
 
       </div>
 
-      <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)] space-y-4">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)] space-y-4">
         <div className="flex items-start gap-3">
           {/* クレイモーフィズム風アイコンコンテナ */}
-          <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center shadow-[0_4px_12px_rgba(139,92,246,0.15)]">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-inner">
+          <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center shadow-[0_4px_12px_rgba(139,92,246,0.15)]">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-inner">
               <svg
                 className="w-5 h-5 text-white"
                 fill="none"
@@ -353,12 +353,12 @@ export function CreatorAnalyticsOverview({
             styleCards.map((style, idx) => (
               <div
                 key={`${style.label}-${idx}`}
-                className="rounded-[28px] bg-gray-50 border border-gray-200 px-6 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)] flex flex-col xl:flex-row gap-6"
+                className="rounded-2xl bg-gray-50 border border-gray-200 px-6 py-5 shadow-[0_18px_45px_rgba(15,23,42,0.06)] flex flex-col xl:flex-row gap-6"
               >
                 <div className="flex gap-4 xl:w-1/2">
                   {/* クレイモーフィズム風アイコンコンテナ */}
-                  <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(139,92,246,0.15)]">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-inner">
+                  <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0 shadow-[0_4px_12px_rgba(139,92,246,0.15)]">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-inner">
                       <div className="text-white">
                         {style.icon}
                       </div>
@@ -389,13 +389,13 @@ export function CreatorAnalyticsOverview({
                   </div>
                 </div>
                 <div className="grid w-full xl:w-1/2 grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-gray-200 bg-white p-4 h-full shadow-[0_12px_35px_rgba(15,23,42,0.04)]">
+                  <div className="rounded-xl border border-gray-200 bg-white p-4 h-full shadow-[0_12px_35px_rgba(15,23,42,0.04)]">
                     <p className="text-xs font-semibold text-gray-500 mb-1">
                       活用シーン
                     </p>
                     <p className="text-sm text-gray-700 leading-relaxed">{style.bestFor}</p>
                   </div>
-                  <div className="rounded-2xl border border-gray-200 bg-white p-4 h-full shadow-[0_12px_35px_rgba(15,23,42,0.04)]">
+                  <div className="rounded-xl border border-gray-200 bg-white p-4 h-full shadow-[0_12px_35px_rgba(15,23,42,0.04)]">
                     <p className="text-xs font-semibold text-gray-500 mb-1">
                       根拠 / 実績
                     </p>

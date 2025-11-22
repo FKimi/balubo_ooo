@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetcher } from "@/utils/fetcher";
 import { NotificationDropdown } from "./NotificationDropdown";
-import { createSupabaseBrowserClient } from "@/lib/supabase-client";
+import { supabase } from "@/lib/supabase";
 
 interface NotificationData {
   notifications: Array<{
@@ -50,7 +50,6 @@ export function NotificationBell() {
         lastFetchTimeRef.current = now;
 
         // 認証トークンを取得
-        const supabase = createSupabaseBrowserClient();
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -102,7 +101,6 @@ export function NotificationBell() {
 
     try {
       // 認証トークンを取得
-      const supabase = createSupabaseBrowserClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -141,7 +139,6 @@ export function NotificationBell() {
 
     try {
       // 認証トークンを取得
-      const supabase = createSupabaseBrowserClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -171,11 +168,10 @@ export function NotificationBell() {
   };
 
   // チャンネルのクリーンアップ
-  const cleanupChannel = useCallback(() => {
+  const cleanupChannel = useCallback(async () => {
     if (channelRef.current) {
       try {
-        const supabase = createSupabaseBrowserClient();
-        supabase.removeChannel(channelRef.current);
+        await supabase.removeChannel(channelRef.current);
         console.log("✅ チャンネルを削除しました");
       } catch (error) {
         console.error("❌ チャンネル削除でエラー:", error);
@@ -211,77 +207,71 @@ export function NotificationBell() {
 
   // リアルタイム通知の購読
   const subscribeToNotifications = useCallback(async () => {
-    if (!user || isSubscribedRef.current) return;
+    if (!user?.id || isSubscribedRef.current) return;
 
     try {
-      const supabase = createSupabaseBrowserClient();
+      // チャンネル名を固定（ユーザーごとに1つ）
+      const channelName = `user-notifications-${user.id}`;
 
-      // 既存のチャンネルをクリーンアップ
-      cleanupChannel();
-
-      // チャンネル名をユニークにする（タイムスタンプ付き）
-      const channelName = `notifications_${user.id}_${Date.now()}`;
+      // 既に同じ名前のチャンネルが存在する場合は、それを再利用するか、一度削除する
+      // ここでは安全のため一度削除して再作成する戦略をとる
+      const existingChannel = supabase.getChannels().find(c => c.topic === `realtime:${channelName}`);
+      if (existingChannel) {
+        console.log("既存のチャンネルを削除します:", channelName);
+        await supabase.removeChannel(existingChannel);
+      }
 
       const channel = supabase
-        .channel(channelName, {
-          config: {
-            presence: {
-              key: user.id,
-            },
-          },
-        })
+        .channel(channelName)
         .on(
           "postgres_changes",
           {
-            event: "INSERT",
+            event: "*",
             schema: "public",
             table: "notifications",
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
-            console.log("新しい通知を受信:", payload);
-            const newNotification =
-              payload.new as NotificationData["notifications"][0];
-            setNotifications((prev) => [newNotification, ...prev]);
-            setUnreadCount((prev) => prev + 1);
-          },
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            console.log("通知更新を受信:", payload);
-            const updatedNotification =
-              payload.new as NotificationData["notifications"][0];
-            setNotifications((prev) =>
-              prev.map((notification) =>
-                notification.id === updatedNotification.id
-                  ? updatedNotification
-                  : notification,
-              ),
-            );
+            console.log("リアルタイム通知イベント受信:", payload);
 
-            // 既読になった場合は未読数を減らす
-            if (updatedNotification.is_read && !payload.old?.is_read) {
-              setUnreadCount((prev) => Math.max(0, prev - 1));
+            if (payload.eventType === "INSERT") {
+              console.log("新しい通知を受信:", payload);
+              const newNotification =
+                payload.new as NotificationData["notifications"][0];
+              setNotifications((prev) => [newNotification, ...prev]);
+              setUnreadCount((prev) => prev + 1);
+            } else if (payload.eventType === "UPDATE") {
+              console.log("通知更新を受信:", payload);
+              const updatedNotification =
+                payload.new as NotificationData["notifications"][0];
+              setNotifications((prev) =>
+                prev.map((notification) =>
+                  notification.id === updatedNotification.id
+                    ? updatedNotification
+                    : notification,
+                ),
+              );
+
+              // 既読になった場合は未読数を減らす
+              if (updatedNotification.is_read && !payload.old?.is_read) {
+                setUnreadCount((prev) => Math.max(0, prev - 1));
+              }
             }
           },
         );
 
       // 購読を開始
-      const _subscription = channel.subscribe((status) => {
+      const _subscription = channel.subscribe((status, error) => {
         console.log("リアルタイム購読ステータス:", status);
 
         if (status === "SUBSCRIBED") {
           console.log("✅ 通知のリアルタイム購読が開始されました");
           isSubscribedRef.current = true;
         } else if (status === "CHANNEL_ERROR") {
-          console.error("❌ リアルタイム通知でエラーが発生しました");
+          console.error(
+            "❌ リアルタイム通知でエラーが発生しました。SupabaseのRealtime設定やRLSポリシーを確認してください。",
+            error,
+          );
           isSubscribedRef.current = false;
           // フォールバック: ポーリングに切り替え
           setupPolling();
@@ -309,12 +299,12 @@ export function NotificationBell() {
       // エラーが発生した場合は即座にポーリングに切り替え
       setupPolling();
     }
-  }, [user, setupPolling, cleanupChannel]);
+  }, [user?.id, setupPolling, cleanupChannel]);
 
   // 初回読み込みとリアルタイム通知の設定
   useEffect(() => {
     // ユーザーがログアウトしている場合は何もしない
-    if (!user) {
+    if (!user?.id) {
       console.log("👻 ユーザーがログアウトしています");
       cleanupChannel();
       return;
@@ -331,8 +321,6 @@ export function NotificationBell() {
     // クリーンアップ関数を必ず返す
     return () => {
       console.log("🧹 通知システムをクリーンアップ中...");
-
-      // チャンネルのクリーンアップ
       cleanupChannel();
 
       // タイマーやインターバルのクリア
@@ -342,7 +330,7 @@ export function NotificationBell() {
       }
     };
   }, [
-    user,
+    user?.id,
     fetchNotifications,
     subscribeToNotifications,
     setupPolling,

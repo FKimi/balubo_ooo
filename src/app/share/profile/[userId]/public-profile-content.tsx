@@ -2,13 +2,11 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { PublicProfileHeader } from "@/features/profile/components/PublicProfileHeader";
 import { PublicProfileTabs } from "@/features/profile/components/PublicProfileTabs";
 import { Button } from "@/components/ui/button";
 import { AIAnalysisStrengths } from "@/features/profile/components/AIAnalysisStrengths";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
-import { ShareProfileButton } from "@/features/profile/components/ShareProfileButton";
-import { ProfileStatsCards } from "@/features/profile/components/ProfileStatsCards";
+import { PublicProfileHeaderCentered } from "@/features/profile/components/PublicProfileHeaderCentered";
 
 interface PublicProfileData {
   profile: any;
@@ -52,6 +50,7 @@ export function PublicProfileContent({
   const skillsCount = skills.length;
   const careerCount = career.length;
   const profileUserId = profile?.user_id || userId;
+  const title = profile?.title || "";
 
   // 画像の存在チェック
   const hasCustomBackground =
@@ -62,87 +61,64 @@ export function PublicProfileContent({
   const isProfileEmpty = !bio && skills.length === 0 && career.length === 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-        <div className="w-full space-y-8">
-          {/* 戻るリンク */}
-          <div>
-            <Link href="/">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+    <div className="min-h-screen bg-[#F4F7FF] w-full">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 戻るリンク */}
+        <div className="mb-6">
+          <Link href="/">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2 hover:bg-gray-100 transition-colors text-gray-600"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
-                ホームに戻る
-              </Button>
-            </Link>
-          </div>
-
-          {/* 公開プロフィールヘッダー */}
-          <PublicProfileHeader
-            displayName={displayName}
-            bio={bio}
-            location={location}
-            websiteUrl={websiteUrl}
-            backgroundImageUrl={backgroundImageUrl}
-            avatarImageUrl={avatarImageUrl}
-            isProfileEmpty={isProfileEmpty}
-            hasCustomBackground={hasCustomBackground}
-            hasCustomAvatar={hasCustomAvatar}
-            professions={professions}
-            rightSlot={
-              <ShareProfileButton
-                userId={profileUserId}
-                slug={shareSlug}
-                displayName={displayName}
-              />
-            }
-          />
-
-          <ProfileStatsCards
-            worksCount={worksCount}
-            skillsCount={skillsCount}
-            careerCount={careerCount}
-          />
-
-          {/* AI分析による強み (共有ビュー) */}
-          {strengthsAnalysis.strengths.length > 0 && (
-            <AIAnalysisStrengths
-              strengths={strengthsAnalysis.strengths}
-              showDetails={false}
-              works={works}
-              compact={false}
-              framed={false}
-              className="bg-transparent"
-            />
-          )}
-
-          {/* 公開プロフィールタブ */}
-          <PublicProfileTabs
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            profile={profile}
-            works={works || []}
-            skills={skills}
-            career={career}
-            isProfileEmpty={isProfileEmpty}
-            jobMatchingHints={strengthsAnalysis.jobMatchingHints}
-          />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              ホームに戻る
+            </Button>
+          </Link>
         </div>
-      </main>
+
+        {/* ヘッダー (中央揃え) */}
+        <PublicProfileHeaderCentered
+          displayName={displayName}
+          title={title}
+          bio={bio}
+          location={location}
+          websiteUrl={websiteUrl}
+          backgroundImageUrl={backgroundImageUrl}
+          avatarImageUrl={avatarImageUrl}
+          userId={profileUserId}
+          slug={shareSlug}
+        />
+
+        {/* AI分析による強み (共有ビュー) - 削除 */}
+
+        {/* 公開プロフィールタブ */}
+        <PublicProfileTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          profile={profile}
+          works={works || []}
+          skills={skills}
+          career={career}
+          isProfileEmpty={isProfileEmpty}
+          jobMatchingHints={strengthsAnalysis.jobMatchingHints}
+          inputs={_inputs}
+        />
+      </div>
     </div>
   );
 }
+
+

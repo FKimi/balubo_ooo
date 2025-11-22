@@ -58,43 +58,9 @@ export function ErrorFilter() {
     const originalConsoleWarn = console.warn;
     const originalConsoleLog = console.log;
 
-    // console.error をフィルタリング
-    console.error = (...args: unknown[]) => {
-      const message = args
-        .map((arg) => {
-          if (typeof arg === "string") return arg;
-          if (arg instanceof Error) return arg.message;
-          try {
-            return JSON.stringify(arg);
-          } catch {
-            return String(arg);
-          }
-        })
-        .join(" ");
-
-      if (!shouldFilterError(message)) {
-        originalConsoleError.apply(console, args);
-      }
-    };
-
-    // console.warn をフィルタリング
-    console.warn = (...args: unknown[]) => {
-      const message = args
-        .map((arg) => {
-          if (typeof arg === "string") return arg;
-          if (arg instanceof Error) return arg.message;
-          try {
-            return JSON.stringify(arg);
-          } catch {
-            return String(arg);
-          }
-        })
-        .join(" ");
-
-      if (!shouldFilterError(message)) {
-        originalConsoleWarn.apply(console, args);
-      }
-    };
+    // console.error と console.warn のオーバーライドを削除
+    // Next.jsの環境下で再帰呼び出しやスタックオーバーフローの原因になるため
+    // 必要なフィルタリングは window.onerror と unhandledrejection で行う
 
     // window.onerror イベントもフィルタリング
     const originalOnError = window.onerror;

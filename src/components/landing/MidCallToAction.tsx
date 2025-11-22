@@ -22,12 +22,11 @@ export default function MidCallToAction() {
           <div className="mt-10 flex flex-col items-center justify-center gap-y-4 sm:flex-row sm:gap-x-6">
             <Button
               asChild
+              variant="cta"
               size="lg"
-              className="h-14 w-full rounded-full bg-blue-600 px-8 text-lg font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-105 sm:w-auto"
+              className="w-full sm:w-auto"
             >
-              <Link href="/register">
-                無料で専門性を見てみる
-              </Link>
+              <Link href="/register">無料で始める</Link>
             </Button>
             <p className="text-sm text-gray-500 sm:hidden">
               登録は1分、クレジットカード不要

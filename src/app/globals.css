@@ -10,7 +10,8 @@
   :root {
     /* Unified Design Rules 2025 */
     --background: 0 0% 100%;
-    --foreground: 0 0% 7%; /* #111111 */
+    --foreground: 0 0% 7%;
+    /* #111111 */
 
     /* Primary Blue #007AFF */
     --primary: 211 100% 50%;
@@ -38,12 +39,13 @@
     --ring: 211 100% 50%;
 
     /* Radius */
-    --radius: 1.5rem; /* 24px */
-    
+    --radius: 1.5rem;
+    /* 24px */
+
     /* Card */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 7%;
-    
+
     /* Popover */
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 7%;
@@ -87,27 +89,185 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-bold tracking-tight text-text-primary;
   }
 
-  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
-  h2 { @apply text-3xl md:text-4xl; }
-  h3 { @apply text-2xl md:text-3xl; }
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
-  
+
   /* Claymorphism Utilities */
   .clay-card {
     @apply bg-white rounded-2xl shadow-soft border border-white/50 backdrop-blur-sm;
   }
-  
+
   .clay-icon {
     @apply bg-gradient-to-br from-white to-blue-50 shadow-inner rounded-2xl;
   }
+
+  /* Page Transitions */
+  .transition-page {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+  }
+
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .slide-down {
+    animation: slideDown 0.3s ease-out;
+  }
+
+  /* Loading States */
+  .loading-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(to right,
+        #f6f7f8 0%,
+        #edeef1 20%,
+        #f6f7f8 40%,
+        #f6f7f8 100%);
+    background-size: 1000px 100%;
+  }
+
+  .loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .loading-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Touch Targets - モバイル最適化 */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .touch-target-lg {
+    @apply min-h-[48px] min-w-[48px];
+  }
+
+  /* Smooth Scroll */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Focus Visible - アクセシビリティ */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2;
+  }
+
+  /* Safe Area - モバイルノッチ対応 */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

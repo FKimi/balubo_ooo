@@ -11,6 +11,7 @@ import { Toaster } from "react-hot-toast";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { LayoutProvider } from "@/contexts/LayoutContext";
 import { GlobalModalManager } from "@/components/common/GlobalModalManager";
+import { ToastProvider } from "@/components/ui/toast";
 
 // フォント最適化設定
 const inter = Inter({
@@ -193,12 +194,14 @@ export default function RootLayout({
         <ErrorFilter />
         <Toaster position="top-right" />
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <AuthProvider>
-            <LayoutProvider>
-              <NuqsAdapter>{children}</NuqsAdapter>
-              <GlobalModalManager />
-            </LayoutProvider>
-          </AuthProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <LayoutProvider>
+                <NuqsAdapter>{children}</NuqsAdapter>
+                <GlobalModalManager />
+              </LayoutProvider>
+            </AuthProvider>
+          </ToastProvider>
         </ErrorBoundary>
         <Analytics />
       </body>

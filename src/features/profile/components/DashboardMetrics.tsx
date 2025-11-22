@@ -138,11 +138,11 @@ export function DashboardMetrics({ works }: DashboardMetricsProps) {
       {metrics.map((metric, index) => (
         <Card
           key={index}
-          className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+          className="bg-white border border-gray-200 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300"
         >
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                 {metric.icon}
               </div>
             </div>

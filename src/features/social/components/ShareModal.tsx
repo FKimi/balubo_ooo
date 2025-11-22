@@ -125,9 +125,8 @@ export function ShareModal({
               <label className="text-sm font-semibold text-gray-700">
                 投稿内容を編集できます
               </label>
-              <span className={`text-xs font-medium ${
-                editedText.length > 140 ? "text-red-600" : editedText.length > 120 ? "text-orange-600" : "text-gray-500"
-              }`}>
+              <span className={`text-xs font-medium ${editedText.length > 140 ? "text-red-600" : editedText.length > 120 ? "text-orange-600" : "text-gray-500"
+                }`}>
                 {editedText.length} / 140文字
               </span>
             </div>
@@ -138,9 +137,8 @@ export function ShareModal({
                 const newText = e.target.value.length > 140 ? e.target.value.substring(0, 140) : e.target.value;
                 setEditedText(newText);
               }}
-              className={`min-h-[150px] text-base leading-relaxed resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
-                editedText.length > 140 ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
-              }`}
+              className={`min-h-[150px] text-base leading-relaxed resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${editedText.length > 140 ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
+                }`}
               placeholder="投稿内容を入力..."
             />
             {editedText.length > 140 && (
@@ -189,7 +187,7 @@ export function ShareModal({
             <Button
               onClick={handleShare}
               disabled={editedText.length > 140 || editedText.trim().length === 0}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 text-base shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 text-base shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed rounded-full"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -203,7 +201,7 @@ export function ShareModal({
             <Button
               variant="outline"
               onClick={handleCopy}
-              className="flex-1 h-12 text-base border-2 hover:bg-gray-50"
+              className="flex-1 h-12 text-base border-2 hover:bg-gray-50 rounded-full"
             >
               {copied ? (
                 <>

@@ -8,16 +8,18 @@ import React, {
   Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { ProfileData, CareerItem } from "@/features/profile/types";
-// import type { InputData, InputAnalysis } from '@/types/input'
+import { ProfileData, CareerItem, InputData } from "@/features/profile/types";
+// import type { InputAnalysis } from '@/types/input'
 import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { ProfileTabs } from "@/features/profile/components/ProfileTabs";
 import { ProfileModals } from "@/features/profile/components/ProfileModals";
 import { analyzeStrengthsFromWorks } from "@/features/profile/lib/profileUtils";
 import { ProfileSkeleton } from "@/features/profile/components/ProfileSkeleton";
+import { useToast } from "@/components/ui/toast";
 
 // 完全なデフォルトプロフィールデータ
 const completeDefaultProfileData: ProfileData = {
@@ -42,10 +44,13 @@ const completeDefaultProfileData: ProfileData = {
 
 function ProfileLoadingFallback() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center fade-in">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">プロフィールを読み込んでいます...</p>
+        <div className="relative inline-block mb-6">
+          <div className="loading-spin rounded-full h-12 w-12 border-3 border-blue-100 border-t-blue-600 mx-auto"></div>
+          <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 border-2 border-blue-200 opacity-20"></div>
+        </div>
+        <p className="text-gray-600 font-medium">プロフィールを読み込んでいます...</p>
       </div>
     </div>
   );
@@ -53,6 +58,7 @@ function ProfileLoadingFallback() {
 
 function ProfileContent() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const _router = useRouter();
   const searchParams = useSearchParams();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -112,10 +118,10 @@ function ProfileContent() {
   const [savedWorks, setSavedWorks] = useState<any[]>([]);
   const [_isLoadingWorks, setIsLoadingWorks] = useState(false);
 
-  // インプット関連のstate（一時的に未使用）
-  // const [_inputs, _setInputs] = useState<InputData[]>([])
+  // インプット関連のstate
+  const [inputs, setInputs] = useState<InputData[]>([]);
   // const [_inputAnalysis, _setInputAnalysis] = useState<InputAnalysis | null>(null)
-  // const [_isLoadingInputs, _setIsLoadingInputs] = useState(false)
+  const [_isLoadingInputs, setIsLoadingInputs] = useState(false);
 
   // クエリパラメータからタブを設定
   useEffect(() => {
@@ -202,9 +208,10 @@ function ProfileContent() {
         };
 
         // 並列でデータを取得（パフォーマンス改善）
-        const [profileResponse, worksResponse] = await Promise.all([
+        const [profileResponse, worksResponse, inputsResponse] = await Promise.all([
           fetch(`/api/profile`, { headers }),
           fetch(`/api/works?userId=${user.id}`, { headers }),
+          fetch(`/api/inputs?userId=${user.id}`, { headers }),
         ]);
 
         // プロフィールデータの処理
@@ -274,6 +281,20 @@ function ProfileContent() {
           setSavedWorks(sortedWorks);
         } else {
           setSavedWorks([]);
+        }
+
+        // インプットデータの処理
+        if (inputsResponse.ok) {
+          const inputsData = await inputsResponse.json();
+          // APIのレスポンス形式に合わせて調整 (inputsData.inputs または inputsData が配列)
+          const sortedInputs = (inputsData.inputs || inputsData || []).sort((a: any, b: any) => {
+            const dateA = new Date(a.created_at).getTime();
+            const dateB = new Date(b.created_at).getTime();
+            return dateB - dateA;
+          });
+          setInputs(sortedInputs);
+        } else {
+          setInputs([]);
         }
 
       } catch (error) {
@@ -609,112 +630,10 @@ function ProfileContent() {
     <div className="min-h-screen bg-[#F4F7FF] w-full">
       <main className="w-full">
         <div className="max-w-[1920px] mx-auto flex flex-col lg:flex-row w-full">
-          {/* 左サイドバー - ナビゲーションのみ */}
-          <div className="hidden lg:block lg:w-80 lg:flex-shrink-0">
-            <div className="sticky top-0 h-screen bg-white border-r border-gray-200">
-              <div className="flex flex-col h-full">
-                {/* ナビゲーションセクション */}
-                <div className="flex-1 overflow-y-auto px-5 py-6">
-                  <nav className="space-y-1">
-                    {[
-                      {
-                        key: "profile" as const,
-                        label: "Profile",
-                        icon: (
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                        ),
-                      },
-                      {
-                        key: "works" as const,
-                        label: "Works",
-                        icon: (
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                            />
-                          </svg>
-                        ),
-                      },
-                      {
-                        key: "details" as const,
-                        label: "Analytics",
-                        icon: (
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                            />
-                          </svg>
-                        ),
-                      },
-                    ].map((tab) => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                          activeTab === tab.key
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {tab.icon}
-                        <span>{tab.label}</span>
-                      </button>
-                    ))}
-                  </nav>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* メインコンテンツエリア */}
-          <div className="flex-1 min-w-0 bg-gray-50 flex flex-col">
-            {/* デスクトップ用ヘッダー */}
-            <div className="hidden lg:block flex-shrink-0 border-b border-gray-200 bg-white px-8 py-6">
-              <div className="mb-2">
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                  {activeTab === "profile"
-                    ? "プロフィール概要"
-                    : activeTab === "works"
-                      ? "作品ダッシュボード"
-                      : "クリエイター分析"}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {activeTab === "profile"
-                    ? "経験やスキルの整理"
-                    : activeTab === "works"
-                      ? "作品の成果を可視化"
-                      : "専門性とパフォーマンスを分析"}
-                </p>
-              </div>
-            </div>
+          <div className="flex-1 min-w-0 bg-[#F4F7FF] flex flex-col">
+
 
             <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 lg:py-8">
               {/* プロフィールタブの時のみプロフィールヘッダーと統計カードを表示 */}
@@ -769,16 +688,15 @@ function ProfileContent() {
                   savedWorks={savedWorks}
                   setSavedWorks={setSavedWorks}
                   deleteWork={deleteWork}
-                  onAddSkill={() => setIsSkillModalOpen(true)}
                   onRemoveSkill={handleRemoveSkill}
                   setIsSkillModalOpen={setIsSkillModalOpen}
                   onEditCareer={handleEditCareer}
                   onDeleteCareerConfirm={handleDeleteCareerConfirm}
                   setIsCareerModalOpen={setIsCareerModalOpen}
-                  onUpdateIntroduction={handleUpdateIntroduction}
                   setIsIntroductionModalOpen={setIsIntroductionModalOpen}
                   strengthsAnalysis={strengthsAnalysis}
                   getTabsInfo={setTabsInfo}
+                  inputs={inputs}
                 />
               </div>
             </div>
