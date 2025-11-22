@@ -5,7 +5,6 @@ export { default as FeaturesSection } from "./FeaturesSection";
 export { default as VoicesSection } from "./VoicesSection";
 export { default as MidCallToAction } from "./MidCallToAction";
 export { default as FinalCTASection } from "./FinalCTASection";
-export { default as RecommendedSection } from "./RecommendedSection";
 export { SectionDivider } from "./SectionDivider";
 export { default as StickyCTA } from "./StickyCTA";
 export { default as FAQSection } from "./FAQSection";

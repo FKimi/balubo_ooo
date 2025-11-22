@@ -14,7 +14,6 @@ import {
   VoicesSection,
   MidCallToAction,
   FinalCTASection,
-  RecommendedSection,
   SectionDivider,
   StickyCTA,
   FAQSection,
@@ -102,7 +101,7 @@ export default function HomePage() {
             aria-label="balubo トップページ"
           >
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-gray-900 tracking-tight">balubo</span>
+              <span className="text-xl font-bold text-blue-600 tracking-tight">balubo</span>
             </div>
           </Link>
           <nav
@@ -110,16 +109,6 @@ export default function HomePage() {
             aria-label="グローバルナビゲーション"
             suppressHydrationWarning
           >
-            <Link
-              href="#recommended"
-              className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById('recommended')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              おすすめ
-            </Link>
             <Link
               href="/enterprise"
               prefetch={false}
@@ -166,7 +155,8 @@ export default function HomePage() {
             </Button>
             <Button
               asChild
-              className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30"
+              variant="cta"
+              size="default"
             >
               <Link href="/register">無料で登録する</Link>
             </Button>
@@ -190,9 +180,6 @@ export default function HomePage() {
         <WhyBaluboSection />
         <SectionDivider colorClass="text-base-soft-blue" heightClass="h-16" flip />
 
-        {/* 4.5. Recommended Users - Light Blue (Moved here) */}
-        <RecommendedSection />
-
         {/* 5. Recent Works - Light Blue */}
         <RecentWorksSection initialWorks={recentWorks} />
         <SectionDivider colorClass="text-white" heightClass="h-16" flip />
@@ -205,7 +192,6 @@ export default function HomePage() {
         <SectionDivider colorClass="text-white" heightClass="h-16" flip />
 
         <FAQSection />
-        <SectionDivider colorClass="text-white" heightClass="h-16" flip />
 
         <FinalCTASection />
       </main>
