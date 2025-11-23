@@ -246,7 +246,25 @@ export function PublicProfileTabs({
 
         {activeTab === "details" && (
           <div className="space-y-8">
-            <PublicCreatorAnalysis works={works} inputs={inputs} />
+            <PublicCreatorAnalysis
+              works={works}
+              inputs={inputs}
+              profileData={{
+                displayName: profile?.display_name || "",
+                title: profile?.title || "",
+                bio: profile?.bio || "",
+                introduction: profile?.introduction || "",
+                professions: profile?.professions || [],
+                skills: skills || [],
+                location: profile?.location || "",
+                websiteUrl: profile?.website_url || "",
+                portfolioVisibility: "public",
+                jobChangeIntention: "not_considering",
+                sideJobIntention: "not_considering",
+                projectRecruitmentStatus: "not_recruiting",
+                career: career || []
+              }}
+            />
           </div>
         )}
       </div >
