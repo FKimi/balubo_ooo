@@ -18,7 +18,7 @@ export interface CareerFit {
 /**
  * クリエイタータイプを判定する（タグベースの専門性検出）
  */
-export const detectCreatorType = (works: Work[], inputs?: InputData[]): CreatorTypeResult => {
+export const detectCreatorType = (works: Work[], _inputs?: InputData[]): CreatorTypeResult => {
     if (!works || works.length === 0) {
         return {
             type: "新進クリエイター",
@@ -343,7 +343,7 @@ export const extractMainExpertise = (works: Work[]): string[] => {
 /**
  * クリエイターの3つの強みを抽出する (よく使用するタグから生成)
  */
-export const extractCreatorStrengths = (works: Work[], inputs?: InputData[]): Array<{ title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' }> => {
+export const extractCreatorStrengths = (works: Work[], _inputs?: InputData[]): Array<{ title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' }> => {
     const strengths = [];
 
     // タグの使用頻度を計算
@@ -354,7 +354,7 @@ export const extractCreatorStrengths = (works: Work[], inputs?: InputData[]): Ar
 
     // タグごとの専門性マッピング
     const getTagStrength = (tag: string, count: number, totalWorks: number): { title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' } => {
-        const ratio = Math.round((count / totalWorks) * 100);
+        const _ratio = Math.round((count / totalWorks) * 100);
 
         // 業界/領域別のマッピング
         const industryMap: Record<string, { title: string; subtitle: string; description: string; icon: string }> = {

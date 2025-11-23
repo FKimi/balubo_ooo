@@ -28,7 +28,7 @@ export const GrowthTimeline: React.FC<GrowthTimelineProps> = ({ works, career = 
         // キャリア情報をタイムラインに追加
         career.forEach(careerItem => {
             const startDate = careerItem.startDate ? new Date(careerItem.startDate) : new Date();
-            const endDate = careerItem.isCurrent ? new Date() : (careerItem.endDate ? new Date(careerItem.endDate) : new Date());
+            const _endDate = careerItem.isCurrent ? new Date() : (careerItem.endDate ? new Date(careerItem.endDate) : new Date());
 
             timeline.push({
                 type: 'career',
@@ -44,7 +44,7 @@ export const GrowthTimeline: React.FC<GrowthTimelineProps> = ({ works, career = 
         workPhases.forEach(phase => {
             // 期間文字列から日付を推定
             const yearMatch = phase.period.match(/(\d{4})/);
-            const date = yearMatch ? new Date(parseInt(yearMatch[1]), 0, 1) : new Date();
+            const date = yearMatch?.[1] ? new Date(parseInt(yearMatch[1]), 0, 1) : new Date();
 
             timeline.push({
                 type: 'work',
@@ -85,10 +85,10 @@ export const GrowthTimeline: React.FC<GrowthTimelineProps> = ({ works, career = 
                         {/* ドット */}
                         <div
                             className={`absolute -left-[39px] top-0 w-5 h-5 rounded-full border-4 border-white shadow-sm ${index === combinedTimeline.length - 1
-                                    ? "bg-blue-500 ring-4 ring-blue-100"
-                                    : item.type === 'career'
-                                        ? "bg-purple-400"
-                                        : "bg-gray-300"
+                                ? "bg-blue-500 ring-4 ring-blue-100"
+                                : item.type === 'career'
+                                    ? "bg-purple-400"
+                                    : "bg-gray-300"
                                 }`}
                         ></div>
 
@@ -96,10 +96,10 @@ export const GrowthTimeline: React.FC<GrowthTimelineProps> = ({ works, career = 
                             <div className="sm:w-32 flex-shrink-0">
                                 <span
                                     className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${index === combinedTimeline.length - 1
-                                            ? "bg-blue-100 text-blue-700"
-                                            : item.type === 'career'
-                                                ? "bg-purple-100 text-purple-700"
-                                                : "bg-gray-100 text-gray-600"
+                                        ? "bg-blue-100 text-blue-700"
+                                        : item.type === 'career'
+                                            ? "bg-purple-100 text-purple-700"
+                                            : "bg-gray-100 text-gray-600"
                                         }`}
                                 >
                                     {item.type === 'career' ? '💼 ' : '🎨 '}{item.phase}
