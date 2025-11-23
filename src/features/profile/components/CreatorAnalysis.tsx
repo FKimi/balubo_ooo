@@ -38,6 +38,18 @@ export function CreatorAnalysis({ works, inputs, profileData }: CreatorAnalysisP
         }));
     }, [works]);
 
+    // よく使用するタグを事前に計算（Hooksは条件分岐の前に呼ぶ必要がある）
+    const topTags = useMemo(() => {
+        const tagCounts = new Map<string, number>();
+        convertedWorks.forEach(work => {
+            (work.tags || []).forEach(tag => {
+                tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+            });
+        });
+        return Array.from(tagCounts.entries())
+            .sort((a, b) => b[1] - a[1]);
+    }, [convertedWorks]);
+
     if (works.length === 0) {
         return (
             <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
@@ -51,18 +63,6 @@ export function CreatorAnalysis({ works, inputs, profileData }: CreatorAnalysisP
             </div>
         );
     }
-
-    // よく使用するタグを事前に計算
-    const topTags = useMemo(() => {
-        const tagCounts = new Map<string, number>();
-        convertedWorks.forEach(work => {
-            (work.tags || []).forEach(tag => {
-                tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-            });
-        });
-        return Array.from(tagCounts.entries())
-            .sort((a, b) => b[1] - a[1]);
-    }, [convertedWorks]);
 
     return (
         <div className="space-y-6">
