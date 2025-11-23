@@ -10,15 +10,17 @@ import { InputHabits } from "./InputHabits";
 import { EmptyState } from "@/components/common";
 import { useLayout } from "@/contexts/LayoutContext";
 import { InputData, ProfileData } from "../types";
+import { CreatorAnalysisSkeleton } from "./skeletons/CreatorAnalysisSkeleton";
 
 interface CreatorAnalysisProps {
     works: WorkData[];
     strengthsAnalysis?: any; // 後方互換性のため残すが使用しない
     inputs?: InputData[];
     profileData?: ProfileData | null;
+    isLoading?: boolean;
 }
 
-export function CreatorAnalysis({ works, inputs, profileData }: CreatorAnalysisProps) {
+export function CreatorAnalysis({ works, inputs, profileData, isLoading = false }: CreatorAnalysisProps) {
     const { openContentTypeSelector } = useLayout();
 
     // WorkData型をWork型に変換
@@ -49,6 +51,11 @@ export function CreatorAnalysis({ works, inputs, profileData }: CreatorAnalysisP
         return Array.from(tagCounts.entries())
             .sort((a, b) => b[1] - a[1]);
     }, [convertedWorks]);
+
+    // ローディング中はスケルトンを表示
+    if (isLoading) {
+        return <CreatorAnalysisSkeleton />;
+    }
 
     if (works.length === 0) {
         return (

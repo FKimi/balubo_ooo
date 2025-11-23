@@ -10,14 +10,16 @@ import { CareerOutlook } from "./CareerOutlook";
 import { InputHabits } from "./InputHabits";
 import { EmptyState } from "@/components/common";
 import { InputData, ProfileData } from "../types";
+import { CreatorAnalysisSkeleton } from "./skeletons/CreatorAnalysisSkeleton";
 
 interface PublicCreatorAnalysisProps {
     works: WorkData[];
     inputs?: InputData[];
     profileData?: ProfileData | null;
+    isLoading?: boolean;
 }
 
-export function PublicCreatorAnalysis({ works, inputs, profileData }: PublicCreatorAnalysisProps) {
+export function PublicCreatorAnalysis({ works, inputs, profileData, isLoading = false }: PublicCreatorAnalysisProps) {
     // WorkData型をWork型に変換
     const convertedWorks = useMemo(() => {
         return works.map(work => ({
@@ -46,6 +48,11 @@ export function PublicCreatorAnalysis({ works, inputs, profileData }: PublicCrea
         return Array.from(tagCounts.entries())
             .sort((a, b) => b[1] - a[1]);
     }, [convertedWorks]);
+
+    // ローディング中はスケルトンを表示
+    if (isLoading) {
+        return <CreatorAnalysisSkeleton />;
+    }
 
     if (works.length === 0) {
         return (
