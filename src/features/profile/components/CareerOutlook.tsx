@@ -178,24 +178,37 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
 
     return (
         <div className="w-full bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <span>🔮</span>
-                今後のキャリア展望
-            </h3>
-            <p className="text-sm text-gray-500 mb-6">
-                あなたの専門性を活かした、将来の可能性
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center shadow-[0_4px_12px_rgba(168,85,247,0.15)]">
+                        <span className="text-xl">🔮</span>
+                    </div>
+                    今後のキャリア展望
+                </h3>
+                <p className="text-sm text-gray-500">
+                    あなたの専門性を活かした、将来の可能性
+                </p>
+            </div>
+            <div className="space-y-4">
                 {outlooks.map((outlook, index) => (
                     <div
                         key={index}
-                        className={`p-5 rounded-2xl border bg-gradient-to-br ${outlook.color} transition-all hover:shadow-md duration-300`}
+                        className="group relative p-5 rounded-2xl border border-gray-200 bg-white shadow-[0_12px_35px_rgba(15,23,42,0.04)] hover:shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition-all duration-300 cursor-default"
                     >
-                        <div className="text-3xl mb-3">{outlook.icon}</div>
-                        <h4 className="font-bold text-base mb-2 text-gray-900">{outlook.title}</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                            {outlook.description}
-                        </p>
+                        <div className="flex items-start gap-4">
+                            {/* クレイモーフィズム風アイコン */}
+                            <div className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${outlook.color} flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-white/50`}>
+                                <span className="text-2xl">{outlook.icon}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-base mb-2 text-gray-900 group-hover:text-gray-700 transition-colors">
+                                    {outlook.title}
+                                </h4>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    {outlook.description}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>

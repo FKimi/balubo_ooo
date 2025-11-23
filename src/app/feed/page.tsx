@@ -327,13 +327,38 @@ function FeedPageContent() {
 
   // いいね処理
   const handleLike = async (itemId: string, itemType: "work") => {
-    console.log("いいね処理開始:", { itemId, itemType, isAuthenticated });
+    // console.log("いいね処理開始:", { itemId, itemType, isAuthenticated });
 
     if (!isAuthenticated) {
-      console.log("認証されていないため、ログインページにリダイレクト");
+      // console.log("認証されていないため、ログインページにリダイレクト");
       router.push("/login");
       return;
     }
+
+    // 対象アイテムの現在の状態を確認
+    const targetItem = feedItems.find((item) => item.id === itemId);
+    if (!targetItem) {
+      console.error("対象アイテムが見つかりません:", itemId);
+      return;
+    }
+
+    const isCurrentlyLiked = targetItem.user_has_liked;
+    const previousLikesCount = targetItem.likes_count || 0;
+
+    // 1. 楽観的更新 (Optimistic Update) - API呼び出し前にUIを更新
+    setFeedItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? {
+            ...item,
+            likes_count: isCurrentlyLiked
+              ? Math.max(0, (item.likes_count || 0) - 1)
+              : (item.likes_count || 0) + 1,
+            user_has_liked: !isCurrentlyLiked,
+          }
+          : item,
+      ),
+    );
 
     try {
       const {
@@ -342,59 +367,26 @@ function FeedPageContent() {
       const authToken = session?.access_token;
 
       if (!authToken) {
-        console.log("認証トークンが取得できません");
-        router.push("/login");
-        return;
+        // console.log("認証トークンが取得できません");
+        throw new Error("認証トークンが取得できません");
       }
 
-      console.log("認証トークン取得成功");
+      // console.log("認証トークン取得成功");
 
-      // 対象アイテムの現在の状態を確認
-      const targetItem = feedItems.find((item) => item.id === itemId);
-      if (!targetItem) {
-        console.error("対象アイテムが見つかりません:", itemId);
-        return;
-      }
-
-      const isCurrentlyLiked = targetItem.user_has_liked;
-      console.log("現在のいいね状態:", { itemId, isCurrentlyLiked });
-
+      let response;
       if (isCurrentlyLiked) {
-        console.log("いいね削除処理開始");
+        // console.log("いいね削除処理開始");
         // いいね削除
-        const response = await fetch(`/api/likes?workId=${itemId}`, {
+        response = await fetch(`/api/likes?workId=${itemId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
-
-        console.log("いいね削除レスポンス:", {
-          status: response.status,
-          ok: response.ok,
-        });
-
-        if (response.ok) {
-          console.log("いいね削除成功、楽観的更新実行");
-          // 楽観的更新
-          setFeedItems((prev) =>
-            prev.map((item) =>
-              item.id === itemId
-                ? {
-                  ...item,
-                  likes_count: Math.max(0, (item.likes_count || 0) - 1),
-                  user_has_liked: false,
-                }
-                : item,
-            ),
-          );
-        } else {
-          console.error("いいね削除エラー:", response.status);
-        }
       } else {
-        console.log("いいね追加処理開始");
+        // console.log("いいね追加処理開始");
         // いいね追加
-        const response = await fetch("/api/likes", {
+        response = await fetch("/api/likes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -405,33 +397,29 @@ function FeedPageContent() {
             targetType: itemType,
           }),
         });
+      }
 
-        console.log("いいね追加レスポンス:", {
-          status: response.status,
-          ok: response.ok,
-        });
-
-        if (response.ok) {
-          console.log("いいね追加成功、楽観的更新実行");
-          // 楽観的更新
-          setFeedItems((prev) =>
-            prev.map((item) =>
-              item.id === itemId
-                ? {
-                  ...item,
-                  likes_count: (item.likes_count || 0) + 1,
-                  user_has_liked: true,
-                }
-                : item,
-            ),
-          );
-        } else {
-          const errorData = await response.json();
-          console.error("いいね追加エラー:", response.status, errorData);
-        }
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
       }
     } catch (error) {
-      console.error("いいね処理ネットワークエラー:", error);
+      console.error("いいね処理エラー (Reverting):", error);
+      // エラー発生時は状態を元に戻す (Revert)
+      setFeedItems((prev) =>
+        prev.map((item) =>
+          item.id === itemId
+            ? {
+              ...item,
+              likes_count: previousLikesCount,
+              user_has_liked: !!isCurrentlyLiked,
+            }
+            : item,
+        ),
+      );
+
+      if (error instanceof Error && error.message === "認証トークンが取得できません") {
+        router.push("/login");
+      }
     }
   };
 

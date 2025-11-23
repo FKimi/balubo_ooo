@@ -66,6 +66,18 @@ export const WorkCard = memo(function WorkCard({
     router.push(`/works/${_work.id}`);
   };
 
+  const handlePrefetchWork = () => {
+    router.prefetch(`/works/${_work.id}`);
+  };
+
+  const handlePrefetchUser = () => {
+    if (currentUser && _work.user.id === currentUser.id) {
+      router.prefetch("/profile");
+    } else {
+      router.prefetch(`/share/profile/${_work.user.id}`);
+    }
+  };
+
   // formatTimeAgoをメモ化して再計算を防ぐ
   const timeAgo = useMemo(() => {
     const date = new Date(_work.created_at);
@@ -84,6 +96,7 @@ export const WorkCard = memo(function WorkCard({
     <div
       className="group bg-white rounded-[24px] overflow-hidden shadow-[0_18px_45px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_50px_rgba(15,23,42,0.1)] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border-none"
       onClick={handleWorkClick}
+      onMouseEnter={handlePrefetchWork}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -234,6 +247,7 @@ export const WorkCard = memo(function WorkCard({
           <div
             className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity flex-1 min-w-0"
             onClick={handleUserClick}
+            onMouseEnter={handlePrefetchUser}
           >
             {_work.user.avatar_image_url ? (
               <Image

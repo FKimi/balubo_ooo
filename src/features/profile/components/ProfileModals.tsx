@@ -64,16 +64,26 @@ function Modal({
   }, []);
 
   // Disable background scroll while modal is open
+  // Disable background scroll while modal is open
   useEffect(() => {
     if (!isOpen) return;
 
     const originalStyle = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
     return () => {
       document.body.style.overflow = originalStyle;
+      document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   // モーダルを表示しない条件はここで判定（すべての Hooks を呼び出した後）
   if (!mounted || !isOpen) return null;

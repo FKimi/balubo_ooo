@@ -16,7 +16,7 @@ export default function FeaturesSection() {
       />
       <div className="container relative mx-auto max-w-7xl">
         <FadeIn className="mb-16">
-          <div className="mx-auto max-w-3xl text-center">
+          <div className="mx-auto max-w-5xl text-left">
             <h2 className="mb-6 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">
               baluboなら、その悩みを<br className="hidden sm:block" />
               こう解決します。
@@ -32,7 +32,7 @@ export default function FeaturesSection() {
         <FadeIn delay={0.2} className="mx-auto mb-20 grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
             <div className="relative rounded-[32px] border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
-              <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
+              <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
@@ -102,7 +102,7 @@ export default function FeaturesSection() {
           </div>
           <div>
             <div className="relative rounded-[32px] border border-indigo-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
-              <div className="absolute -top-4 -right-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg">
+              <div className="absolute -top-4 -right-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -110,7 +110,7 @@ export default function FeaturesSection() {
 
               {/* Mock UI for Summary */}
               <div className="space-y-5">
-                <div className="rounded-xl bg-gray-50 p-4">
+                <div className="rounded-2xl bg-gray-50 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-red-400"></span>
                     <span className="text-xs font-bold text-gray-500">課題・目的</span>
@@ -119,7 +119,7 @@ export default function FeaturesSection() {
                     業界特有のKPI設定が複雑で、現場が疲弊している現状を打破したい
                   </p>
                 </div>
-                <div className="rounded-xl bg-gray-50 p-4">
+                <div className="rounded-2xl bg-gray-50 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-blue-400"></span>
                     <span className="text-xs font-bold text-gray-500">想定読者</span>
@@ -128,7 +128,7 @@ export default function FeaturesSection() {
                     製造業のDX推進担当者および経営企画室のメンバー
                   </p>
                 </div>
-                <div className="rounded-xl bg-gray-50 p-4">
+                <div className="rounded-2xl bg-gray-50 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-green-400"></span>
                     <span className="text-xs font-bold text-gray-500">成果</span>
@@ -146,7 +146,7 @@ export default function FeaturesSection() {
         <FadeIn delay={0.6} className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
             <div className="relative rounded-[32px] border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
-              <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
+              <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
@@ -169,7 +169,7 @@ export default function FeaturesSection() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-xl bg-blue-50/50 p-4 border border-blue-100">
+                  <div className="rounded-2xl bg-blue-50/50 p-4 border border-blue-100">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-blue-600 text-xs font-bold shadow-sm">1</span>
                       <h4 className="font-bold text-gray-900 text-sm">SaaS / BtoBマーケティング</h4>
@@ -179,7 +179,7 @@ export default function FeaturesSection() {
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-blue-50/50 p-4 border border-blue-100">
+                  <div className="rounded-2xl bg-blue-50/50 p-4 border border-blue-100">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-blue-600 text-xs font-bold shadow-sm">2</span>
                       <h4 className="font-bold text-gray-900 text-sm">経営層インタビュー</h4>

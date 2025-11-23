@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { Home, Settings, LogOut, Clipboard, User, Briefcase, BarChart2 } from "lucide-react";
+import { Home, Settings, LogOut, Clipboard, User, Briefcase, BarChart2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { useLayout } from "@/contexts/LayoutContext";
+import { Button } from "@/components/ui/button";
 
 export function GlobalSidebar() {
     const pathname = usePathname();
@@ -12,6 +14,7 @@ export function GlobalSidebar() {
     const activeTab = searchParams?.get("tab") ?? "profile";
     const { user, signOut } = useAuth();
     const { showToast } = useToast();
+    const { openContentTypeSelector } = useLayout();
 
     const navItems = [
         { href: "/feed", label: "フィード", icon: Home, key: "feed" },
@@ -43,6 +46,13 @@ export function GlobalSidebar() {
                 <Link href="/profile" className="group">
                     <h1 className="text-2xl font-bold text-blue-600 tracking-tight">balubo</h1>
                 </Link>
+                <Button
+                    onClick={openContentTypeSelector}
+                    className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 rounded-xl"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    作品を追加
+                </Button>
             </div>
 
             {/* Navigation */}

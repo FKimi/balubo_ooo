@@ -8,7 +8,7 @@ export interface SkillCategory {
 }
 
 export interface GrowthPhase {
-    phase: "初期" | "中期" | "現在";
+    phase: string; // "2017年"や"2020-2022年"など実際の年を表示
     period: string;
     description: string;
     skills: string[];
@@ -68,62 +68,120 @@ export const extractSkillCategories = (works: Work[]): SkillCategory[] => {
 };
 
 /**
- * 成長の軌跡を分析する
+ * 成長の軌跡を分析する（実際の年単位でフェーズ分け）
  */
 export const analyzeGrowth = (works: Work[]): GrowthPhase[] => {
     if (!works || works.length === 0) return [];
 
+    // 作品を日付順にソート
     const sortedWorks = [...works].sort(
         (a, b) =>
             new Date(a.date || a.productionDate || "").getTime() -
             new Date(b.date || b.productionDate || "").getTime()
     );
 
-    const total = sortedWorks.length;
-    const chunkSize = Math.ceil(total / 3);
+    // 年ごとにグループ化
+    const worksByYear = new Map<number, Work[]>();
+    sortedWorks.forEach(work => {
+        const date = new Date(work.date || work.productionDate || "");
+        const year = date.getFullYear();
+        if (!isNaN(year) && year > 1900) { // 有効な年のみ
+            const existing = worksByYear.get(year) || [];
+            existing.push(work);
+            worksByYear.set(year, existing);
+        }
+    });
+
+    // 年の範囲を取得
+    const years = Array.from(worksByYear.keys()).sort((a, b) => a - b);
+    if (years.length === 0) return [];
 
     const phases: GrowthPhase[] = [];
-    const phaseNames: ("初期" | "中期" | "現在")[] = ["初期", "中期", "現在"];
 
-    for (let i = 0; i < 3; i++) {
-        const start = i * chunkSize;
-        const end = Math.min((i + 1) * chunkSize, total);
-        const phaseWorks = sortedWorks.slice(start, end);
+    // 年をグループ化してフェーズを作成
+    // 1-2年分を1フェーズとする（作品数が少ない場合は複数年まとめる）
+    let currentPhaseYears: number[] = [];
+    let currentPhaseWorks: Work[] = [];
 
-        if (phaseWorks.length === 0) continue;
+    years.forEach((year, index) => {
+        currentPhaseYears.push(year);
+        const yearWorks = worksByYear.get(year) || [];
+        currentPhaseWorks.push(...yearWorks);
 
-        const firstWork = phaseWorks[0];
-        const lastWork = phaseWorks[phaseWorks.length - 1];
+        // 以下の条件でフェーズを確定:
+        // - 作品が5件以上溜まった
+        // - 2年以上経過した
+        // - 最後の年
+        const shouldCreatePhase =
+            currentPhaseWorks.length >= 5 ||
+            currentPhaseYears.length >= 2 ||
+            index === years.length - 1;
 
-        if (!firstWork || !lastWork) continue;
+        if (shouldCreatePhase && currentPhaseWorks.length > 0) {
+            const startYear = currentPhaseYears[0];
+            const endYear = currentPhaseYears[currentPhaseYears.length - 1];
 
-        const startDate = new Date(firstWork.date || firstWork.productionDate || "");
-        const endDate = new Date(lastWork.date || lastWork.productionDate || "");
+            // フェーズ名: 単年なら"2017年"、複数年なら"2020-2022年"
+            const phaseName = startYear === endYear
+                ? `${startYear}年`
+                : `${startYear}-${endYear}年`;
 
-        // このフェーズでの主なスキルを抽出
-        const skills = Array.from(
-            new Set(phaseWorks.flatMap((w) => w.roles || []))
-        ).slice(0, 3);
+            // このフェーズでの主なスキル/役割を抽出
+            const skills = Array.from(
+                new Set(currentPhaseWorks.flatMap((w) => w.roles || []))
+            ).slice(0, 3);
 
-        const phaseName = phaseNames[i];
-        if (!phaseName) continue;
+            // このフェーズでの主なタグを抽出
+            const tags = Array.from(
+                new Set(currentPhaseWorks.flatMap((w) => w.tags || []))
+            ).slice(0, 3);
 
-        phases.push({
-            phase: phaseName,
-            period: `${startDate.getFullYear()}.${startDate.getMonth() + 1} - ${endDate.getFullYear()}.${endDate.getMonth() + 1}`,
-            description: getDescriptionForPhase(i, skills),
-            skills,
-            workCount: phaseWorks.length,
-        });
-    }
+            // 説明文を生成
+            const description = generatePhaseDescription(
+                currentPhaseWorks.length,
+                skills,
+                tags,
+                index === years.length - 1
+            );
+
+            phases.push({
+                phase: phaseName,
+                period: `${startYear}年${startYear === endYear ? '' : ` - ${endYear}年`}`,
+                description,
+                skills,
+                workCount: currentPhaseWorks.length,
+            });
+
+            // リセット
+            currentPhaseYears = [];
+            currentPhaseWorks = [];
+        }
+    });
 
     return phases;
 };
 
-const getDescriptionForPhase = (index: number, skills: string[]): string => {
-    if (index === 0) return `${skills.join("・")}としてのキャリアをスタート`;
-    if (index === 1) return `実績を積み重ね、${skills[0]}としての専門性を深化`;
-    return `${skills.join("・")}など、幅広い領域で価値を発揮中`;
+/**
+ * フェーズの説明文を生成
+ */
+const generatePhaseDescription = (
+    workCount: number,
+    skills: string[],
+    tags: string[],
+    isCurrent: boolean
+): string => {
+    const skillText = skills.length > 0 ? skills.join("・") : "制作活動";
+    const tagText = tags.length > 0 ? `（${tags.slice(0, 2).join("、")}など）` : "";
+
+    if (isCurrent) {
+        return `${skillText}として活動中。${tagText}幅広い領域で価値を発揮しています。`;
+    } else if (workCount >= 10) {
+        return `${skillText}として積極的に活動。${tagText}多数の実績を積み上げました。`;
+    } else if (workCount >= 5) {
+        return `${skillText}として活動。${tagText}着実に実績を重ねました。`;
+    } else {
+        return `${skillText}としての活動を開始。${tagText}経験を積みました。`;
+    }
 };
 
 /**

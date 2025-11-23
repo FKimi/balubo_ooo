@@ -8,6 +8,7 @@ import { Send, MessageCircle, User } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import { fetcher } from "@/utils/fetcher";
 import { EmptyState } from "@/components/common";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Comment {
   id: string;
@@ -89,17 +90,43 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
     }
   }, [workId]);
 
+  const { user } = useAuth();
+
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user) {
       alert("コメントするにはログインが必要です");
       return;
     }
 
     if (!newComment.trim() || isSubmitting) return;
 
+    const tempId = `temp-${Date.now()}`;
+    const optimisticComment: Comment = {
+      id: tempId,
+      content: newComment.trim(),
+      created_at: new Date().toISOString(),
+      user: {
+        id: user.id,
+        display_name:
+          user.user_metadata?.display_name ||
+          user.user_metadata?.full_name ||
+          user.email?.split("@")[0] ||
+          "ユーザー",
+        avatar_image_url:
+          user.user_metadata?.avatar_image_url ||
+          user.user_metadata?.avatar_url ||
+          user.user_metadata?.picture,
+      },
+    };
+
+    // Optimistic update
+    setComments((prev) => [optimisticComment, ...prev]);
+    setCommentCount((prev) => prev + 1);
+    setNewComment("");
     setIsSubmitting(true);
+
     try {
       const {
         data: { session },
@@ -107,33 +134,33 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
       const authToken = session?.access_token;
 
       if (!authToken) {
-        alert("認証エラーが発生しました");
-        return;
+        throw new Error("認証エラーが発生しました");
       }
 
-      try {
-        const data = await fetcher<{ comment: Comment }>(
-          "/api/comments",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              workId,
-              content: newComment.trim(),
-              targetType: "work",
-            }),
-          },
-          { requireAuth: true },
-        );
-        // 新しいコメントを先頭に追加
-        setComments((prev) => [data.comment, ...prev]);
-        setCommentCount((prev) => prev + 1);
-        setNewComment("");
-      } catch (err: any) {
-        alert(err.message || "コメントの投稿に失敗しました");
-      }
-    } catch (error) {
-      console.error("コメント投稿エラー:", error);
-      alert("エラーが発生しました");
+      const data = await fetcher<{ comment: Comment }>(
+        "/api/comments",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            workId,
+            content: optimisticComment.content,
+            targetType: "work",
+          }),
+        },
+        { requireAuth: true },
+      );
+
+      // Replace temp comment with real one
+      setComments((prev) =>
+        prev.map((c) => (c.id === tempId ? data.comment : c)),
+      );
+    } catch (err: any) {
+      console.error("コメント投稿エラー:", err);
+      // Revert optimistic update
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
+      setCommentCount((prev) => prev - 1);
+      setNewComment(optimisticComment.content); // Restore text
+      alert(err.message || "コメントの投稿に失敗しました");
     } finally {
       setIsSubmitting(false);
     }
@@ -177,11 +204,10 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
             <button
               type="submit"
               disabled={!newComment.trim() || isSubmitting}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                newComment.trim() && !isSubmitting
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${newComment.trim() && !isSubmitting
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
             >
               <Send className="h-4 w-4" />
               {isSubmitting ? "投稿中..." : "投稿"}
@@ -250,9 +276,8 @@ export default function CommentsSection({ workId }: CommentsSectionProps) {
         <EmptyState
           title="まだコメントがありません"
           message="最初のコメントを投稿してみませんか？"
-        >
-          <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-        </EmptyState>
+          icon={MessageCircle}
+        />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface AIAnalysisDetailModalProps {
@@ -271,13 +271,43 @@ export function AIAnalysisDetailModal({
 }: AIAnalysisDetailModalProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Escキーとスクロールロックの制御
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // スクロールロック
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Escキー対応
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen || !contentType) return null;
 
   const detail = analysisDetails[contentType as keyof typeof analysisDetails];
   if (!detail) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* ヘッダー */}
         <div className="p-6 border-b border-gray-200">
@@ -414,21 +444,19 @@ export function AIAnalysisDetailModal({
           <div className="flex space-x-1">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "overview"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "overview"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                }`}
             >
               概要
             </button>
             <button
               onClick={() => setActiveTab("detailed")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === "detailed"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === "detailed"
+                ? "bg-blue-600 text-white"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                }`}
             >
               詳細分析項目
             </button>

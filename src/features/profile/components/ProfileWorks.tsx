@@ -36,6 +36,7 @@ export function ProfileWorks({
                 message="最初の作品を追加してポートフォリオを始めましょう"
                 ctaLabel="最初の作品を追加"
                 onCtaClick={openContentTypeSelector}
+                icon={Plus}
             />
         );
     }

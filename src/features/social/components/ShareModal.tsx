@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generateShareModalData } from "@/utils/socialShare";
 import type { WorkData } from "@/features/work/types";
 import { Button } from "@/components/ui/button";
@@ -72,10 +72,40 @@ export function ShareModal({
     );
   };
 
+  // Escキーとスクロールロックの制御
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // スクロールロック
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Escキー対応
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-200">
         {/* ヘッダー */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
@@ -183,42 +213,50 @@ export function ShareModal({
 
         {/* フッター */}
         <div className="border-t border-gray-100 p-6 bg-gray-50">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={handleShare}
-              disabled={editedText.length > 140 || editedText.trim().length === 0}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 text-base shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed rounded-full"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="currentColor"
-                viewBox="0 0 24 24"
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={handleShare}
+                disabled={editedText.length > 140 || editedText.trim().length === 0}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 text-base shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed rounded-full"
               >
-                <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.3 4.3 0 001.88-2.37 8.59 8.59 0 01-2.72 1.04 4.28 4.28 0 00-7.29 3.9 12.14 12.14 0 01-8.82-4.47 4.28 4.28 0 001.32 5.71 4.28 4.28 0 01-1.94-.54v.05a4.28 4.28 0 003.44 4.2 4.3 4.3 0 01-1.93.07 4.28 4.28 0 004 2.97 8.58 8.58 0 01-5.31 1.83A8.65 8.65 0 012 19.54a12.13 12.13 0 006.56 1.92c7.88 0 12.2-6.53 12.2-12.2 0-.19 0-.37-.01-.56A8.65 8.65 0 0022.46 6z" />
-              </svg>
-              Xでシェアする
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCopy}
-              className="flex-1 h-12 text-base border-2 hover:bg-gray-50 rounded-full"
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.3 4.3 0 001.88-2.37 8.59 8.59 0 01-2.72 1.04 4.28 4.28 0 00-7.29 3.9 12.14 12.14 0 01-8.82-4.47 4.28 4.28 0 001.32 5.71 4.28 4.28 0 01-1.94-.54v.05a4.28 4.28 0 003.44 4.2 4.3 4.3 0 01-1.93.07 4.28 4.28 0 004 2.97 8.58 8.58 0 01-5.31 1.83A8.65 8.65 0 012 19.54a12.13 12.13 0 006.56 1.92c7.88 0 12.2-6.53 12.2-12.2 0-.19 0-.37-.01-.56A8.65 8.65 0 0022.46 6z" />
+                </svg>
+                Xでシェアする
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCopy}
+                className="flex-1 h-12 text-base border-2 hover:bg-gray-50 rounded-full"
+              >
+                {copied ? (
+                  <>
+                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    コピーしました
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    テキストをコピー
+                  </>
+                )}
+              </Button>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-sm text-gray-500 hover:text-gray-700 font-medium py-2 transition-colors"
             >
-              {copied ? (
-                <>
-                  <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  コピーしました
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  テキストをコピー
-                </>
-              )}
-            </Button>
+              閉じる
+            </button>
           </div>
         </div>
       </div>

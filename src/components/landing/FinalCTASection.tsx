@@ -63,10 +63,10 @@ export default function FinalCTASection() {
 
   return (
     <section className="bg-white py-24 sm:py-32">
-      <div className="container relative z-10 mx-auto max-w-4xl">
+      <div className="container relative z-10 mx-auto max-w-5xl">
         <FadeIn>
           <div className="mb-12">
-            <div className="mx-auto max-w-3xl text-center">
+            <div className="mx-auto md:mx-0 max-w-3xl text-center md:text-left">
               <h2 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl">
                 次の一歩を、baluboと一緒に踏み出しませんか？
               </h2>

@@ -16,10 +16,7 @@ export interface CareerFit {
 }
 
 /**
- * クリエイタータイプを判定する
- */
-/**
- * クリエイタータイプを判定する
+ * クリエイタータイプを判定する（タグベースの専門性検出）
  */
 export const detectCreatorType = (works: Work[], inputs?: InputData[]): CreatorTypeResult => {
     if (!works || works.length === 0) {
@@ -30,97 +27,142 @@ export const detectCreatorType = (works: Work[], inputs?: InputData[]): CreatorT
         };
     }
 
-    // 役割とタグの集計
-    const allRoles = works.flatMap((work) => work.roles || []);
+    // タグの使用頻度を集計
     const allTags = works.flatMap((work) => work.tags || []);
-    const uniqueRoles = new Set(allRoles);
-    const roleCount = uniqueRoles.size;
+    const tagCounts = new Map<string, number>();
+    allTags.forEach(tag => {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+    });
 
-    // インプットタグの集計
-    const inputTags = inputs?.flatMap(i => i.tags) || [];
+    // 最も使用頻度の高いタグTOP3を取得
+    const topTags = Array.from(tagCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([tag]) => tag);
 
-    // 特定の専門領域タグ
-    const medicalTags = ["Medical", "Healthcare", "医療", "ヘルスケア", "看護", "医師"];
-    const financeTags = ["Finance", "Fintech", "金融", "投資", "株", "資産運用"];
-    const techTags = ["Tech", "Technology", "AI", "SaaS", "Engineering", "IT", "Web3"];
-    const marketingTags = ["Marketing", "SEO", "Ads", "マーケティング", "広告", "PR"];
+    // 役割の集計
+    const allRoles = works.flatMap((work) => work.roles || []);
+    const roleSet = new Set(allRoles);
+    const primaryRole = allRoles.length > 0 ?
+        Array.from(new Set(allRoles))
+            .map(role => ({ role, count: allRoles.filter(r => r === role).length }))
+            .sort((a, b) => b.count - a.count)[0]?.role || "クリエイター"
+        : "クリエイター";
 
-    const hasTag = (tags: string[], targetTags: string[]) => tags.some(t => targetTags.includes(t));
+    // 業界・領域マッピング（タグから業界を特定）
+    const industryMapping: Record<string, { industry: string; icon: string; description: string }> = {
+        // 食品業界
+        "米国食品業界ニュース": { industry: "食品業界", icon: "🍽️", description: "食品業界の専門知識と最新トレンドに精通" },
+        "食品添加物規制": { industry: "食品規制", icon: "📋", description: "食品規制の専門知識を持つ" },
+        "食品業界トレンド": { industry: "食品業界", icon: "📊", description: "食品業界のトレンド分析に強み" },
+        "Food": { industry: "食品業界", icon: "🍽️", description: "食品分野の専門性を持つ" },
 
-    // ライター系の判定
-    if (uniqueRoles.has("Writer") || uniqueRoles.has("ライター")) {
-        if (hasTag(allTags, medicalTags)) {
-            return { type: "メディカルライター", description: "医療・ヘルスケア領域の専門知識を持つ", icon: "🏥" };
-        }
-        if (hasTag(allTags, financeTags)) {
-            return { type: "金融ライター", description: "金融・投資領域の専門知識を持つ", icon: "💰" };
-        }
-        if (hasTag(allTags, techTags) || hasTag(inputTags, techTags)) {
-            return { type: "テックライター", description: "最新技術やITトレンドに精通している", icon: "💻" };
-        }
-        if (hasTag(allTags, marketingTags)) {
-            return { type: "マーケティングライター", description: "マーケティング視点でコンテンツを制作", icon: "📈" };
+        // 医療・ヘルスケア
+        "Medical": { industry: "医療業界", icon: "🏥", description: "医療分野の深い知識を持つ" },
+        "Healthcare": { industry: "ヘルスケア業界", icon: "💊", description: "ヘルスケア領域の専門性を持つ" },
+        "医療": { industry: "医療業界", icon: "🏥", description: "医療分野の専門知識を持つ" },
+        "ヘルスケア": { industry: "ヘルスケア業界", icon: "💊", description: "ヘルスケア領域に精通" },
+        "製薬": { industry: "製薬業界", icon: "💊", description: "製薬業界の専門知識を持つ" },
+
+        // 金融・Fintech
+        "Finance": { industry: "金融業界", icon: "💰", description: "金融分野の深い知見を持つ" },
+        "Fintech": { industry: "Fintech", icon: "💳", description: "Fintech領域の専門性を持つ" },
+        "金融": { industry: "金融業界", icon: "💰", description: "金融分野に精通" },
+        "投資": { industry: "投資・資産運用", icon: "📈", description: "投資分野の専門知識を持つ" },
+
+        // Technology・SaaS
+        "Tech": { industry: "テクノロジー", icon: "💻", description: "最新技術に精通" },
+        "Technology": { industry: "テクノロジー", icon: "💻", description: "技術分野の専門性を持つ" },
+        "AI": { industry: "AI・機械学習", icon: "🤖", description: "AI分野の深い知識を持つ" },
+        "SaaS": { industry: "SaaS", icon: "☁️", description: "SaaS業界の専門性を持つ" },
+        "IT": { industry: "IT業界", icon: "💻", description: "IT分野に精通" },
+
+        // BtoB・Business
+        "BtoB": { industry: "BtoBマーケティング", icon: "🏢", description: "BtoB領域の専門性を持つ" },
+        "Business": { industry: "ビジネス", icon: "💼", description: "ビジネス領域に精通" },
+        "ビジネス": { industry: "ビジネス", icon: "📊", description: "ビジネス分野の専門知識を持つ" },
+
+        // 不動産・教育・法律など
+        "Real Estate": { industry: "不動産業界", icon: "🏠", description: "不動産分野の専門性を持つ" },
+        "不動産": { industry: "不動産業界", icon: "🏠", description: "不動産業界に精通" },
+        "Education": { industry: "教育業界", icon: "📚", description: "教育分野の専門性を持つ" },
+        "教育": { industry: "教育業界", icon: "📚", description: "教育分野に精通" },
+        "Law": { industry: "法律業界", icon: "⚖️", description: "法律分野の専門知識を持つ" },
+        "法律": { industry: "法律業界", icon: "⚖️", description: "法律分野に精通" },
+
+        // マーケティング・広告
+        "Marketing": { industry: "マーケティング", icon: "📈", description: "マーケティング領域の専門性を持つ" },
+        "マーケティング": { industry: "マーケティング", icon: "📈", description: "マーケティング分野に精通" },
+        "SEO": { industry: "SEO・コンテンツマーケティング", icon: "🔍", description: "SEO領域の専門性を持つ" },
+        "広告": { industry: "広告業界", icon: "📺", description: "広告分野に精通" },
+    };
+
+    // TOP3のタグから業界を特定
+    let detectedIndustry: { industry: string; icon: string; description: string } | null = null;
+    for (const tag of topTags) {
+        if (industryMapping[tag]) {
+            detectedIndustry = industryMapping[tag];
+            break;
         }
     }
 
-    // デザイナー系の判定
-    if (uniqueRoles.has("Designer") || uniqueRoles.has("デザイナー")) {
-        if (hasTag(allTags, ["SaaS", "BtoB"])) {
-            return { type: "SaaSプロダクトデザイナー", description: "複雑な業務課題をデザインで解決する", icon: "🔷" };
-        }
-        if (hasTag(allTags, ["Brand", "Branding", "Logo"])) {
-            return { type: "ブランドデザイナー", description: "ブランドの世界観を視覚化する", icon: "🎨" };
-        }
-    }
+    // 役割名を日本語に変換
+    const roleMapping: Record<string, string> = {
+        "Writer": "ライター",
+        "ライター": "ライター",
+        "Editor": "エディター",
+        "エディター": "エディター",
+        "Designer": "デザイナー",
+        "デザイナー": "デザイナー",
+        "Marketer": "マーケター",
+        "マーケター": "マーケター",
+        "Planner": "プランナー",
+        "プランナー": "プランナー",
+    };
 
-    // 活動期間を計算（月数）
-    const dates = works
-        .map((w) => new Date(w.date || w.productionDate || new Date().toISOString()))
-        .sort((a, b) => a.getTime() - b.getTime());
+    const roleInJapanese = roleMapping[primaryRole] || primaryRole;
 
-    const firstDate = dates[0] || new Date();
-    const lastDate = dates[dates.length - 1] || new Date();
-    const activityMonths =
-        (lastDate.getFullYear() - firstDate.getFullYear()) * 12 +
-        (lastDate.getMonth() - firstDate.getMonth());
-
-    // 判定ロジック (既存)
-    if (roleCount >= 4) {
+    // 業界が特定できた場合は、業界+役割の組み合わせで返す
+    if (detectedIndustry) {
         return {
-            type: "マルチロールクリエイター",
-            description: "複数の役割をこなす柔軟性が強み",
-            icon: "🎭",
+            type: `${detectedIndustry.industry}の${roleInJapanese}`,
+            description: detectedIndustry.description,
+            icon: detectedIndustry.icon,
         };
     }
 
-    if (roleCount >= 2 && works.length >= 10) {
+    // 業界が特定できない場合は、役割と実績ベースで判定
+    const roleCount = roleSet.size;
+
+    // 複数の役割を持つ場合
+    if (roleCount >= 3 && works.length >= 10) {
         return {
-            type: "ハイブリッドクリエイター",
-            description: "複数の領域で実績を積み重ねている",
-            icon: "⚡",
+            type: "マルチスキル・クリエイター",
+            description: "複数の専門領域を横断して活躍",
+            icon: "🎭",
         };
     }
 
     if (works.length >= 20) {
         return {
-            type: "スペシャリスト",
-            description: "特定の領域で豊富な実績を持つ",
+            type: `${roleInJapanese}・スペシャリスト`,
+            description: "豊富な実績を持つ専門家",
             icon: "💎",
         };
     }
 
-    if (activityMonths >= 12 && works.length >= 8) {
+    if (works.length >= 10) {
         return {
-            type: "コンスタントクリエイター",
-            description: "継続的に作品を生み出している",
-            icon: "🔄",
+            type: `経験豊富な${roleInJapanese}`,
+            description: "着実に実績を積み重ねている",
+            icon: "⚡",
         };
     }
 
     if (works.length >= 5) {
         return {
-            type: "成長中クリエイター",
-            description: "着実に実績を増やしている",
+            type: `成長中の${roleInJapanese}`,
+            description: "実績を増やし続けている",
             icon: "🚀",
         };
     }
@@ -165,170 +207,237 @@ export const calculateActivityPeriod = (works: Work[]): { years: number; months:
 };
 
 /**
- * 主な専門性を抽出する (ビジネス/業界タグ優先)
+ * 主な専門性を抽出する (ビジネス/業界タグ優先、グルーピングあり)
  */
 export const extractMainExpertise = (works: Work[]): string[] => {
     if (!works || works.length === 0) return [];
 
-    const tagCounts: Record<string, number> = {};
-    const businessTags = [
-        "Medical", "Healthcare", "Finance", "Fintech", "SaaS", "BtoB", "Marketing", "Real Estate",
-        "Education", "Law", "Travel", "Food", "Beauty", "Tech", "AI", "Startup", "Business",
-        "医療", "金融", "不動産", "教育", "法律", "旅行", "食", "美容", "技術", "経営"
-    ];
+    // 業界カテゴリーマッピング（タグをグループ化）
+    const industryCategories: Record<string, {
+        category: string;
+        tags: string[];
+        weight: number
+    }> = {
+        food: {
+            category: "食品業界",
+            tags: ["米国食品業界ニュース", "食品添加物規制", "食品業界トレンド", "Food", "食品", "food"],
+            weight: 10
+        },
+        medical: {
+            category: "医療・ヘルスケア",
+            tags: ["Medical", "Healthcare", "医療", "ヘルスケア", "看護", "医師", "製薬", "病院"],
+            weight: 10
+        },
+        finance: {
+            category: "金融・投資",
+            tags: ["Finance", "Fintech", "金融", "投資", "株", "資産運用", "証券", "銀行"],
+            weight: 10
+        },
+        tech: {
+            category: "テクノロジー・IT",
+            tags: ["Tech", "Technology", "IT", "技術", "エンジニアリング", "プログラミング"],
+            weight: 10
+        },
+        ai: {
+            category: "AI・機械学習",
+            tags: ["AI", "機械学習", "ML", "Deep Learning", "人工知能"],
+            weight: 10
+        },
+        saas: {
+            category: "SaaS・クラウド",
+            tags: ["SaaS", "Cloud", "クラウド", "Web3"],
+            weight: 10
+        },
+        marketing: {
+            category: "マーケティング・広告",
+            tags: ["Marketing", "SEO", "Ads", "マーケティング", "広告", "PR"],
+            weight: 10
+        },
+        business: {
+            category: "ビジネス・経営",
+            tags: ["Business", "BtoB", "ビジネス", "経営", "スタートアップ"],
+            weight: 8
+        },
+        realEstate: {
+            category: "不動産",
+            tags: ["Real Estate", "不動産"],
+            weight: 8
+        },
+        education: {
+            category: "教育",
+            tags: ["Education", "教育", "EdTech"],
+            weight: 8
+        },
+        law: {
+            category: "法律・法務",
+            tags: ["Law", "Legal", "法律", "規制", "弁護士", "法務"],
+            weight: 8
+        },
+        travel: {
+            category: "旅行・観光",
+            tags: ["Travel", "旅行", "観光", "Tourism"],
+            weight: 8
+        },
+        beauty: {
+            category: "美容・コスメ",
+            tags: ["Beauty", "美容", "コスメ", "化粧品"],
+            weight: 8
+        }
+    };
+
+    // カテゴリーごとのスコアを計算
+    const categoryScores: Record<string, { category: string; score: number; tagCount: number }> = {};
 
     works.forEach((work) => {
         work.tags?.forEach((tag) => {
-            if (businessTags.includes(tag) || businessTags.some(bt => tag.includes(bt))) {
-                tagCounts[tag] = (tagCounts[tag] || 0) + 5; // ビジネス系タグは重み付け
-            } else {
-                tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            // どのカテゴリーに属するかチェック
+            let matched = false;
+            Object.entries(industryCategories).forEach(([key, { category, tags, weight }]) => {
+                if (tags.some(t => tag.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(tag.toLowerCase()))) {
+                    if (!categoryScores[key]) {
+                        categoryScores[key] = { category, score: 0, tagCount: 0 };
+                    }
+                    categoryScores[key].score += weight;
+                    categoryScores[key].tagCount += 1;
+                    matched = true;
+                }
+            });
+
+            // どのカテゴリーにもマッチしない場合は個別タグとしてカウント
+            if (!matched) {
+                const key = `other_${tag}`;
+                if (!categoryScores[key]) {
+                    categoryScores[key] = { category: tag, score: 0, tagCount: 0 };
+                }
+                categoryScores[key].score += 3; // 個別タグは低めの重み
+                categoryScores[key].tagCount += 1;
             }
         });
-        // 役割もカウントするが重みは低く
+
+        // 役割も低い重みでカウント
         work.roles?.forEach((role) => {
-            tagCounts[role] = (tagCounts[role] || 0) + 1;
+            const key = `role_${role}`;
+            if (!categoryScores[key]) {
+                categoryScores[key] = { category: role, score: 0, tagCount: 0 };
+            }
+            categoryScores[key].score += 2; // 役割は低めの重み
+            categoryScores[key].tagCount += 1;
         });
     });
 
-    return Object.entries(tagCounts)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3) // Top 3
-        .map(([tag]) => tag);
+    // スコア順にソートして上位3つを取得
+    const topExpertise = Object.values(categoryScores)
+        .sort((a, b) => {
+            // スコアが同じ場合は、タグの出現回数で比較
+            if (b.score === a.score) {
+                return b.tagCount - a.tagCount;
+            }
+            return b.score - a.score;
+        })
+        .slice(0, 3)
+        .map(item => item.category);
+
+    return topExpertise;
 };
 
 /**
- * クリエイターの3つの強みを抽出する (データに基づく具体的強み)
+ * クリエイターの3つの強みを抽出する (よく使用するタグから生成)
  */
 export const extractCreatorStrengths = (works: Work[], inputs?: InputData[]): Array<{ title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' }> => {
     const strengths = [];
 
-    // データ集計
-    const allRoles = works.flatMap((w) => w.roles || []);
-    const roleCounts: Record<string, number> = {};
-    allRoles.forEach(r => roleCounts[r] = (roleCounts[r] || 0) + 1);
-    const sortedRoles = Object.entries(roleCounts).sort(([, a], [, b]) => b - a);
-
+    // タグの使用頻度を計算
     const allTags = works.flatMap((w) => w.tags || []);
     const tagCounts: Record<string, number> = {};
     allTags.forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1);
     const sortedTags = Object.entries(tagCounts).sort(([, a], [, b]) => b - a);
 
-    const inputTags = inputs?.flatMap(i => i.tags) || [];
+    // タグごとの専門性マッピング
+    const getTagStrength = (tag: string, count: number, totalWorks: number): { title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' } => {
+        const ratio = Math.round((count / totalWorks) * 100);
 
-    // 1. Core Competence (最も得意な役割/スキル)
-    if (sortedRoles.length > 0 && sortedRoles[0]) {
-        const [topRole, count] = sortedRoles[0];
-        const ratio = Math.round((count / works.length) * 100);
+        // 業界/領域別のマッピング
+        const industryMap: Record<string, { title: string; subtitle: string; description: string; icon: string }> = {
+            // 医療・ヘルスケア
+            "Medical": { title: "医療業界の専門知識", subtitle: "DOMAIN EXPERTISE", description: `医療分野での制作実績が豊富で、専門用語や業界の文脈を深く理解しています。`, icon: "🏥" },
+            "Healthcare": { title: "ヘルスケア領域のエキスパート", subtitle: "DOMAIN EXPERTISE", description: `ヘルスケア関連コンテンツの制作経験が豊富で、正確性と読みやすさを両立します。`, icon: "💊" },
+            "医療": { title: "医療コンテンツの専門性", subtitle: "DOMAIN EXPERTISE", description: `医療分野での実績が${count}件。専門的な内容を分かりやすく伝えます。`, icon: "🏥" },
 
-        if (ratio >= 70) {
+            // 金融・Fintech
+            "Finance": { title: "金融業界の深い知見", subtitle: "DOMAIN EXPERTISE", description: `金融分野での制作実績が豊富で、複雑な金融商品や市場動向を分かりやすく説明できます。`, icon: "💰" },
+            "Fintech": { title: "Fintechトレンドへの精通", subtitle: "DOMAIN EXPERTISE", description: `Fintech領域の最新動向をキャッチアップし、革新的なサービスを分かりやすく伝えます。`, icon: "💳" },
+            "金融": { title: "金融コンテンツの専門性", subtitle: "DOMAIN EXPERTISE", description: `金融分野での実績が${count}件。経済や投資の専門知識を活かします。`, icon: "💰" },
+
+            // Technology・SaaS
+            "Tech": { title: "テクノロジートレンドへの理解", subtitle: "DOMAIN EXPERTISE", description: `技術トレンドを常にキャッチアップし、最新のテクノロジーを分かりやすく解説します。`, icon: "💻" },
+            "SaaS": { title: "SaaSプロダクトへの深い理解", subtitle: "DOMAIN EXPERTISE", description: `SaaS業界での制作経験が豊富で、プロダクトの価値を効果的に伝えます。`, icon: "☁️" },
+            "AI": { title: "AI・機械学習の知見", subtitle: "DOMAIN EXPERTISE", description: `AI・機械学習分野の実績が豊富で、複雑な技術を分かりやすく説明できます。`, icon: "🤖" },
+            "IT": { title: "IT業界の幅広い知識", subtitle: "DOMAIN EXPERTISE", description: `IT分野での実績が${count}件。技術的な内容を分かりやすく伝えます。`, icon: "💻" },
+
+            // BtoB・Business
+            "BtoB": { title: "BtoBマーケティングの経験", subtitle: "DOMAIN EXPERTISE", description: `BtoB企業向けのコンテンツ制作が得意で、専門的な内容を効果的に伝えます。`, icon: "🏢" },
+            "Business": { title: "ビジネスコンテンツの専門性", subtitle: "DOMAIN EXPERTISE", description: `ビジネス領域での実績が${count}件。経営層向けの提案も可能です。`, icon: "💼" },
+            "ビジネス": { title: "ビジネス文脈の理解", subtitle: "DOMAIN EXPERTISE", description: `ビジネス関連のコンテンツ制作が得意で、戦略的な視点を持っています。`, icon: "📊" },
+
+            // Marketing・SEO
+            "Marketing": { title: "マーケティング視点のコンテンツ", subtitle: "UNIQUE VALUE", description: `マーケティングの知見を活かし、成果につながるコンテンツを制作します。`, icon: "📈" },
+            "SEO": { title: "SEOを意識した制作", subtitle: "UNIQUE VALUE", description: `SEOの知識を活かし、検索エンジンで見つけられやすいコンテンツを制作します。`, icon: "🔍" },
+            "マーケティング": { title: "マーケティング戦略の理解", subtitle: "UNIQUE VALUE", description: `マーケティング視点でコンテンツを企画・制作できます。`, icon: "📈" },
+
+            // 不動産・教育・法律など
+            "Real Estate": { title: "不動産業界の知見", subtitle: "DOMAIN EXPERTISE", description: `不動産分野での制作実績が豊富で、業界特有の専門用語を理解しています。`, icon: "🏠" },
+            "Education": { title: "教育コンテンツの経験", subtitle: "DOMAIN EXPERTISE", description: `教育分野での制作経験を活かし、分かりやすく学びやすいコンテンツを作ります。`, icon: "📚" },
+            "Law": { title: "法律領域の専門知識", subtitle: "DOMAIN EXPERTISE", description: `法律分野での実績が豊富で、正確性と分かりやすさを両立します。`, icon: "⚖️" },
+
+            // 日本語の業界タグ
+            "米国食品業界ニュース": { title: "食品業界ニュースの専門性", subtitle: "DOMAIN EXPERTISE", description: `米国食品業界関連の実績が${count}件。業界トレンドを深く理解しています。`, icon: "🍽️" },
+            "食品添加物規制": { title: "食品規制への精通", subtitle: "DOMAIN EXPERTISE", description: `食品添加物や規制に関する専門知識を活かし、正確なコンテンツを制作します。`, icon: "📋" },
+            "食品業界トレンド": { title: "食品業界トレンドの理解", subtitle: "DOMAIN EXPERTISE", description: `食品業界の最新トレンドをキャッチアップし、タイムリーなコンテンツを提供します。`, icon: "📊" },
+        };
+
+        // マッピングに該当するタグがある場合
+        if (industryMap[tag]) {
+            return { ...industryMap[tag], type: 'domain' as const };
+        }
+
+        // その他のタグの場合は汎用的な説明を生成
+        return {
+            title: `${tag}分野での実績`,
+            subtitle: "CORE COMPETENCE",
+            description: `${tag}に関連するコンテンツを${count}件制作。この領域での経験が豊富です。`,
+            icon: "🎯",
+            type: 'core' as const
+        };
+    };
+
+    // TOP3のタグから強みを生成
+    const top3Tags = sortedTags.slice(0, 3);
+    top3Tags.forEach(([tag, count]) => {
+        strengths.push(getTagStrength(tag, count, works.length));
+    });
+
+    // 強みが3つ未満の場合は補完
+    while (strengths.length < 3) {
+        const allRoles = works.flatMap((w) => w.roles || []);
+        const uniqueRoles = new Set(allRoles);
+
+        if (uniqueRoles.size > 0) {
             strengths.push({
-                type: 'core' as const,
-                title: `${topRole}のスペシャリスト`,
-                subtitle: "CORE COMPETENCE",
-                description: `全作品の${ratio}%で${topRole}を担当。確固たる軸を持っています。`,
-                icon: "🎯"
-            });
-        } else {
-            strengths.push({
-                type: 'core' as const,
-                title: "マルチな制作スキル",
-                subtitle: "CORE COMPETENCE",
-                description: "複数の役割を柔軟にこなし、プロジェクト全体をカバーします。",
+                type: 'unique' as const,
+                title: "多様なスキルセット",
+                subtitle: "UNIQUE VALUE",
+                description: "複数の役割をこなせる柔軟性と、幅広い制作スキルを持っています。",
                 icon: "🛠️"
             });
-        }
-    }
-
-    // 2. Domain Expertise (最も得意な領域)
-    // ビジネス系タグを優先して探す
-    const businessTags = [
-        "Medical", "Healthcare", "Finance", "Fintech", "SaaS", "BtoB", "Marketing", "Real Estate",
-        "Education", "Law", "Travel", "Food", "Beauty", "Tech", "AI", "Startup", "Business",
-        "医療", "金融", "不動産", "教育", "法律", "旅行", "食", "美容", "技術", "経営"
-    ];
-
-    const topBusinessTag = sortedTags.find(([tag]) => businessTags.includes(tag) || businessTags.some(bt => tag.includes(bt)));
-
-    if (topBusinessTag) {
-        strengths.push({
-            type: 'domain' as const,
-            title: `${topBusinessTag[0]}領域のエキスパート`,
-            subtitle: "DOMAIN EXPERTISE",
-            description: `${topBusinessTag[0]}関連の実績が豊富で、業界特有の文脈を理解しています。`,
-            icon: "🏢"
-        });
-    } else if (sortedTags.length > 0 && sortedTags[0]) {
-        // ビジネス系がなければトップのタグを使用
-        strengths.push({
-            type: 'domain' as const,
-            title: `${sortedTags[0][0]}の実績多数`,
-            subtitle: "DOMAIN EXPERTISE",
-            description: `${sortedTags[0][0]}ジャンルでの制作経験が豊富です。`,
-            icon: "🏆"
-        });
-    }
-
-    // 3. Unique Value (掛け合わせやスタイル)
-    const uniqueRoles = new Set(allRoles);
-    const hasTechInput = inputTags.some(t => ["Tech", "AI", "Programming"].includes(t));
-    const hasBusinessInput = inputTags.some(t => ["Business", "Marketing"].includes(t));
-
-    if (uniqueRoles.has("Engineer") && uniqueRoles.has("Designer")) {
-        strengths.push({
-            type: 'unique' as const,
-            title: "デザイン × エンジニアリング",
-            subtitle: "UNIQUE VALUE",
-            description: "実装可能性を考慮したデザインと、UIにこだわった実装が可能です。",
-            icon: "⚡"
-        });
-    } else if (uniqueRoles.has("Writer") && hasTechInput) {
-        strengths.push({
-            type: 'unique' as const,
-            title: "技術への深い理解",
-            subtitle: "UNIQUE VALUE",
-            description: "技術トレンドを常にキャッチアップし、専門的な内容も噛み砕いて表現します。",
-            icon: "🔬"
-        });
-    } else if (uniqueRoles.has("Designer") && hasBusinessInput) {
-        strengths.push({
-            type: 'unique' as const,
-            title: "ビジネス視点のデザイン",
-            subtitle: "UNIQUE VALUE",
-            description: "見た目の美しさだけでなく、ビジネス課題を解決するデザインを提案します。",
-            icon: "💼"
-        });
-    } else {
-        // デフォルトのユニークバリュー
-        const period = calculateActivityPeriod(works);
-        if (period.years >= 3) {
-            strengths.push({
-                type: 'unique' as const,
-                title: "安定したプロジェクト進行",
-                subtitle: "UNIQUE VALUE",
-                description: "豊富な経験に基づき、確実かつ円滑にプロジェクトを推進します。",
-                icon: "⚓"
-            });
         } else {
             strengths.push({
                 type: 'unique' as const,
-                title: "高い成長性と吸収力",
+                title: "高い成長性",
                 subtitle: "UNIQUE VALUE",
-                description: "新しい技術やトレンドを貪欲に吸収し、アウトプットに反映させます。",
+                description: "新しい分野にも積極的に挑戦し、常にスキルアップを続けています。",
                 icon: "🚀"
             });
         }
-    }
-
-    // 足りない場合は補完 (念のため)
-    while (strengths.length < 3) {
-        strengths.push({
-            type: 'unique' as const,
-            title: "クライアントワークの経験",
-            subtitle: "PROFESSIONAL",
-            description: "クライアントの要望を汲み取り、期待を超える提案を行います。",
-            icon: "🤝"
-        });
     }
 
     return strengths.slice(0, 3);

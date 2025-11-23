@@ -28,7 +28,7 @@ export const CreatorStrengths: React.FC<CreatorStrengthsProps> = ({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 {strengths.map((strength, index) => (
                     <div key={index} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col h-full relative overflow-hidden group hover:shadow-md transition-shadow duration-300">
                         {/* 背景装飾 */}

@@ -227,6 +227,7 @@ export function ProfileTabs({
                 works={savedWorks}
                 strengthsAnalysis={strengthsAnalysis}
                 inputs={inputs || []}
+                profileData={profileData}
               />
             </div>
           )}

@@ -51,10 +51,13 @@ interface DiscoverySectionProps {
   onWorkClick?: (_work: FeaturedWork) => void;
 }
 
+import { useRouter } from "next/navigation";
+
 export const DiscoverySection = ({
   onTagClick: _onTagClick,
   onWorkClick: _onWorkClick,
 }: DiscoverySectionProps) => {
+  const router = useRouter();
   const [data, setData] = useState<DiscoveryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -232,6 +235,7 @@ export const DiscoverySection = ({
                     key={work.id}
                     className="flex-shrink-0 w-80 bg-white rounded-[24px] border-none shadow-[0_18px_45px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_50px_rgba(15,23,42,0.1)] transition-all duration-300 cursor-pointer group overflow-hidden"
                     onClick={() => _onWorkClick?.(work)}
+                    onMouseEnter={() => router.prefetch(`/works/${work.id}`)}
                   >
                     <CardContent className="p-0">
                       {/* 画像とランキングバッジ */}

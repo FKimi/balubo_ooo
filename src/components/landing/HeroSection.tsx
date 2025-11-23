@@ -141,9 +141,9 @@ export default function HeroSection() {
 
                     {/* User Defined Tags - Minimalist */}
                     <div className="flex flex-wrap gap-2 mb-2">
-                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#インタビュー</span>
-                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#導入事例</span>
-                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-md text-xs text-gray-500 font-medium">#ホワイトペーパー</span>
+                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-500 font-medium">#インタビュー</span>
+                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-500 font-medium">#導入事例</span>
+                      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-xs text-gray-500 font-medium">#ホワイトペーパー</span>
                     </div>
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export default function HeroSection() {
 
                     <div className="space-y-3">
                       {/* Analysis Item 1 */}
-                      <div className="bg-white/80 p-3.5 rounded-xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <div className="bg-white/80 p-3.5 rounded-2xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div className="flex items-center gap-2.5 mb-2">
                           <span className="flex items-center justify-center w-5 h-5 rounded bg-blue-50 text-blue-600 font-bold text-[10px]">1</span>
                           <h4 className="font-bold text-gray-800 text-sm">スタートアップ・IPO</h4>
@@ -184,7 +184,7 @@ export default function HeroSection() {
                       </div>
 
                       {/* Analysis Item 2 */}
-                      <div className="bg-white/80 p-3.5 rounded-xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+                      <div className="bg-white/80 p-3.5 rounded-2xl border border-blue-100/50 shadow-sm hover:shadow-md transition-shadow duration-300">
                         <div className="flex items-center gap-2.5 mb-2">
                           <span className="flex items-center justify-center w-5 h-5 rounded bg-blue-50 text-blue-600 font-bold text-[10px]">2</span>
                           <h4 className="font-bold text-gray-800 text-sm">BtoBマーケティング</h4>

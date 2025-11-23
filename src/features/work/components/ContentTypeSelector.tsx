@@ -99,21 +99,38 @@ export function ContentTypeSelector({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // モーダルが開かれたときに画面を上部にスクロール
+  // モーダル展開時のスクロール制御
   useEffect(() => {
+    let scrollPosition = 0;
+
     if (isOpen) {
-      // モーダルが開かれたときに画面を最上部にスクロール
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      // 背景スクロールを無効化
-      document.body.style.overflow = "hidden";
+      // 現在のスクロール位置を保存
+      scrollPosition = window.scrollY;
+
+      // 背景スクロールを無効化（位置を固定）
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPosition}px`;
+      document.body.style.width = '100%';
     } else {
-      // モーダルが閉じられたときに背景スクロールを有効化
-      document.body.style.overflow = "unset";
+      // モーダルが閉じられたときにスクロール位置を復元
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
     }
 
     // クリーンアップ
     return () => {
-      document.body.style.overflow = "unset";
+      if (isOpen) {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollPosition);
+      }
     };
   }, [isOpen]);
 
@@ -203,29 +220,26 @@ export function ContentTypeSelector({
                   type="button"
                   onClick={() => handleSelect(type.id, isDisabled)}
                   disabled={isDisabled}
-                  className={`group relative w-full h-full rounded-2xl border-2 text-left transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                    isDisabled
+                  className={`group relative w-full h-full rounded-2xl border-2 text-left transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${isDisabled
                       ? "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400"
                       : `border-transparent ${toneClass} text-gray-900 shadow-[0_18px_45px_rgba(15,23,42,0.08)] hover:-translate-y-1`
-                  }`}
+                    }`}
                 >
                   {!isDisabled && (
                     <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   )}
 
                   <div
-                    className={`relative h-full rounded-[16px] ${
-                      isDisabled ? "p-5" : "p-5 bg-white/85 backdrop-blur"
-                    }`}
+                    className={`relative h-full rounded-[16px] ${isDisabled ? "p-5" : "p-5 bg-white/85 backdrop-blur"
+                      }`}
                   >
                     <div className="flex h-full flex-col space-y-4">
                       <div className="flex items-start justify-between gap-3">
                         <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-200 ${
-                            isDisabled
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-200 ${isDisabled
                               ? "bg-gray-200 text-gray-500"
                               : `${type.iconBg} text-white group-hover:scale-110`
-                          }`}
+                            }`}
                         >
                           <Icon className="w-6 h-6" aria-hidden="true" />
                         </div>
@@ -234,18 +248,16 @@ export function ContentTypeSelector({
 
                       <div className="space-y-2">
                         <h3
-                          className={`text-lg font-semibold tracking-tight ${
-                            isDisabled
+                          className={`text-lg font-semibold tracking-tight ${isDisabled
                               ? "text-gray-400"
                               : "text-gray-900 group-hover:text-blue-700"
-                          }`}
+                            }`}
                         >
                           {type.name}
                         </h3>
                         <p
-                          className={`text-sm leading-relaxed ${
-                            isDisabled ? "text-gray-400" : "text-gray-600"
-                          }`}
+                          className={`text-sm leading-relaxed ${isDisabled ? "text-gray-400" : "text-gray-600"
+                            }`}
                         >
                           {isDisabled
                             ? "近日公開予定です。しばらくお待ちください。"
