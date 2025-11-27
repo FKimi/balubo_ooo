@@ -42,8 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // クライアントサイドでマウントされたことを追跡
   useEffect(() => {
     setMounted(true);
-    // マウント後は即座にloadingをfalseにして、認証チェックを開始
-    setLoading(false);
+    // loadingはgetInitialUser完了まで維持
   }, []);
 
   useEffect(() => {

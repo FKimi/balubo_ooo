@@ -58,7 +58,7 @@ function ProfileLoadingFallback() {
 
 function ProfileContent() {
   const { user } = useAuth();
-  const { showToast: _showToast } = useToast();
+  const { showToast } = useToast();
   const _router = useRouter();
   const searchParams = useSearchParams();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -75,6 +75,9 @@ function ProfileContent() {
     activeTab: string;
     onTabChange: (_tab: string) => void;
   } | null>(null);
+
+  // 保存中の状態管理
+  const [isSaving, setIsSaving] = useState(false);
 
   // スキル管理用のstate
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
@@ -315,8 +318,9 @@ function ProfileContent() {
 
   // スキル追加
   const handleAddSkill = async () => {
-    if (!newSkill.trim() || !profileData) return;
+    if (!newSkill.trim() || !profileData || isSaving) return;
 
+    console.log("[Profile] スキル追加開始:", newSkill.trim());
     const skillToAdd = newSkill.trim();
     const previousProfileData = { ...profileData };
     const updatedSkills = [...profileData.skills, skillToAdd];
@@ -326,80 +330,112 @@ function ProfileContent() {
     setProfileData(updatedProfile);
     setNewSkill("");
     setIsSkillModalOpen(false);
+    setIsSaving(true);
 
     try {
       // 2. バックグラウンドでAPI呼び出し
       await saveSkillsToDatabase(updatedProfile);
-      console.log("スキルを追加しました");
+      console.log("[Profile] スキル追加成功:", skillToAdd);
+      showToast("スキルを追加しました", "success");
     } catch (error) {
-      console.error("スキル追加エラー:", error);
+      console.error("[Profile] スキル追加エラー:", error);
       // 3. エラー時はロールバック
       setProfileData(previousProfileData);
       setSkillError("スキルの追加に失敗しました。");
-      // エラーをユーザーに通知するためにトーストなどを出すのが理想的だが、
-      // ここでは簡易的にコンソールエラーとstate復元を行う
-      alert("スキルの追加に失敗しました。");
+      showToast(
+        `スキルの追加に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        "error"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
   // スキル削除
   const handleRemoveSkill = async (index: number) => {
-    if (!profileData) return;
+    if (!profileData || isSaving) return;
 
+    console.log("[Profile] スキル削除開始:", profileData.skills[index]);
     const previousProfileData = { ...profileData };
+    const removedSkill = profileData.skills[index];
     const updatedSkills = profileData.skills.filter((_, i) => i !== index);
     const updatedProfile = { ...profileData, skills: updatedSkills };
 
     // 1. 楽観的更新
     setProfileData(updatedProfile);
+    setIsSaving(true);
 
     try {
       // 2. バックグラウンドでAPI呼び出し
       await saveSkillsToDatabase(updatedProfile);
-      console.log("スキルを削除しました");
+      console.log("[Profile] スキル削除成功:", removedSkill);
+      showToast("スキルを削除しました", "success");
     } catch (error) {
-      console.error("スキル削除エラー:", error);
+      console.error("[Profile] スキル削除エラー:", error);
       // 3. エラー時はロールバック
       setProfileData(previousProfileData);
-      alert("スキルの削除に失敗しました。");
+      showToast(
+        `スキルの削除に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        "error"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  // スキルをデータベースに保存
-  const saveSkillsToDatabase = async (updatedProfile: ProfileData) => {
+  // セッショントークンを取得するヘルパー関数
+  const getAuthHeaders = async () => {
     if (!user) throw new Error("認証が必要です");
 
     const { supabase } = await import("@/lib/supabase");
     const {
       data: { session },
+      error: sessionError,
     } = await supabase.auth.getSession();
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (session?.access_token) {
-      headers["Authorization"] = `Bearer ${session.access_token}`;
+    if (sessionError) {
+      console.error("[Profile] セッション取得エラー:", sessionError);
+      throw new Error(`セッションの取得に失敗しました: ${sessionError.message}`);
     }
+
+    if (!session?.access_token) {
+      throw new Error("認証トークンが見つかりません。再ログインしてください。");
+    }
+
+    return {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${session.access_token}`,
+    };
+  };
+
+  // スキルをデータベースに保存
+  const saveSkillsToDatabase = async (updatedProfile: ProfileData) => {
+    console.log("[Profile] スキル保存API呼び出し開始");
+    const headers = await getAuthHeaders();
 
     const response = await fetch("/api/profile", {
       method: "PUT",
       headers,
       body: JSON.stringify({
-        userId: user.id,
+        userId: user!.id,
         skills: updatedProfile.skills,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("スキルの保存に失敗しました");
+      const errorText = await response.text();
+      console.error("[Profile] スキル保存APIエラー:", errorText);
+      throw new Error(`スキルの保存に失敗しました (${response.status}): ${errorText}`);
     }
+
+    console.log("[Profile] スキル保存API成功");
   };
 
   // キャリア追加
   const handleAddCareer = async () => {
-    if (!newCareer.company || !newCareer.position || !profileData) return;
+    if (!newCareer.company || !newCareer.position || !profileData || isSaving) return;
 
+    console.log("[Profile] キャリア追加開始:", newCareer);
     const careerItem: CareerItem = {
       id: Date.now().toString(),
       company: newCareer.company || "",
@@ -427,16 +463,23 @@ function ProfileContent() {
       isCurrent: false,
     });
     setIsCareerModalOpen(false);
+    setIsSaving(true);
 
     try {
       // 2. バックグラウンドでAPI呼び出し
       await saveCareerToDatabase(updatedProfile);
-      console.log("キャリア情報を追加しました");
+      console.log("[Profile] キャリア追加成功");
+      showToast("キャリア情報を追加しました", "success");
     } catch (error) {
-      console.error("キャリア追加エラー:", error);
+      console.error("[Profile] キャリア追加エラー:", error);
       // 3. エラー時はロールバック
       setProfileData(previousProfileData);
-      alert("キャリア情報の追加に失敗しました。");
+      showToast(
+        `キャリア情報の追加に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        "error"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -448,8 +491,9 @@ function ProfileContent() {
 
   // キャリア更新
   const handleUpdateCareer = async () => {
-    if (!editingCareer || !profileData) return;
+    if (!editingCareer || !profileData || isSaving) return;
 
+    console.log("[Profile] キャリア更新開始:", editingCareer);
     const previousProfileData = { ...profileData };
     const updatedCareer = profileData.career.map((item) =>
       item.id === editingCareer.id ? editingCareer : item,
@@ -460,16 +504,23 @@ function ProfileContent() {
     setProfileData(updatedProfile);
     setEditingCareer(null);
     setIsEditCareerModalOpen(false);
+    setIsSaving(true);
 
     try {
       // 2. バックグラウンドでAPI呼び出し
       await saveCareerToDatabase(updatedProfile);
-      console.log("キャリア情報を更新しました");
+      console.log("[Profile] キャリア更新成功");
+      showToast("キャリア情報を更新しました", "success");
     } catch (error) {
-      console.error("キャリア更新エラー:", error);
+      console.error("[Profile] キャリア更新エラー:", error);
       // 3. エラー時はロールバック
       setProfileData(previousProfileData);
-      alert("キャリア情報の更新に失敗しました。");
+      showToast(
+        `キャリア情報の更新に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        "error"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -481,8 +532,9 @@ function ProfileContent() {
 
   // キャリア削除
   const handleDeleteCareer = async () => {
-    if (!deletingCareerId || !profileData) return;
+    if (!deletingCareerId || !profileData || isSaving) return;
 
+    console.log("[Profile] キャリア削除開始:", deletingCareerId);
     const previousProfileData = { ...profileData };
     const updatedCareer = profileData.career.filter(
       (item) => item.id !== deletingCareerId,
@@ -493,102 +545,101 @@ function ProfileContent() {
     setProfileData(updatedProfile);
     setDeletingCareerId(null);
     setIsDeleteConfirmOpen(false);
+    setIsSaving(true);
 
     try {
       // 2. バックグラウンドでAPI呼び出し
       await saveCareerToDatabase(updatedProfile);
-      console.log("キャリア情報を削除しました");
+      console.log("[Profile] キャリア削除成功");
+      showToast("キャリア情報を削除しました", "success");
     } catch (error) {
-      console.error("キャリア削除エラー:", error);
+      console.error("[Profile] キャリア削除エラー:", error);
       // 3. エラー時はロールバック
       setProfileData(previousProfileData);
-      alert("キャリア情報の削除に失敗しました。");
+      showToast(
+        `キャリア情報の削除に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        "error"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
   // キャリアをデータベースに保存
   const saveCareerToDatabase = async (updatedProfile: ProfileData) => {
-    if (!user) throw new Error("認証が必要です");
-
-    const { supabase } = await import("@/lib/supabase");
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (session?.access_token) {
-      headers["Authorization"] = `Bearer ${session.access_token}`;
-    }
+    console.log("[Profile] キャリア保存API呼び出し開始");
+    const headers = await getAuthHeaders();
 
     const response = await fetch("/api/profile", {
       method: "PUT",
       headers,
       body: JSON.stringify({
-        userId: user.id,
+        userId: user!.id,
         career: updatedProfile.career,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("キャリア情報の保存に失敗しました");
+      const errorText = await response.text();
+      console.error("[Profile] キャリア保存APIエラー:", errorText);
+      throw new Error(`キャリア情報の保存に失敗しました (${response.status}): ${errorText}`);
     }
+
+    console.log("[Profile] キャリア保存API成功");
   };
 
   // 自己紹介更新
   const handleUpdateIntroduction = async (introduction: string) => {
-    if (!profileData) return;
+    if (!profileData || isSaving) return;
 
+    console.log("[Profile] 自己紹介更新開始");
     const previousProfileData = { ...profileData };
     const updatedProfile = { ...profileData, introduction };
 
     // 1. 楽観的更新
     setProfileData(updatedProfile);
     setIsIntroductionModalOpen(false);
+    setIsSaving(true);
 
     try {
       // 2. バックグラウンドでAPI呼び出し
       await saveIntroductionToDatabase(updatedProfile);
-      console.log("自己紹介を更新しました");
+      console.log("[Profile] 自己紹介更新成功");
+      showToast("自己紹介を更新しました", "success");
     } catch (error) {
-      console.error("自己紹介更新エラー:", error);
+      console.error("[Profile] 自己紹介更新エラー:", error);
       // 3. エラー時はロールバック
       setProfileData(previousProfileData);
-      alert("自己紹介の更新に失敗しました。");
+      showToast(
+        `自己紹介の更新に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+        "error"
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
   // 自己紹介をデータベースに保存
   const saveIntroductionToDatabase = async (updatedProfile: ProfileData) => {
-    if (!user) throw new Error("認証が必要です");
-
-    const { supabase } = await import("@/lib/supabase");
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (session?.access_token) {
-      headers["Authorization"] = `Bearer ${session.access_token}`;
-    }
+    console.log("[Profile] 自己紹介保存API呼び出し開始");
+    const headers = await getAuthHeaders();
 
     const response = await fetch("/api/profile", {
       method: "PUT",
       headers,
       body: JSON.stringify({
-        userId: user.id,
+        userId: user!.id,
         introduction: updatedProfile.introduction,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("自己紹介の保存に失敗しました");
+      const errorText = await response.text();
+      console.error("[Profile] 自己紹介保存APIエラー:", errorText);
+      throw new Error(`自己紹介の保存に失敗しました (${response.status}): ${errorText}`);
     }
+
+    console.log("[Profile] 自己紹介保存API成功");
   };
 
   // プロフィール情報から表示用データを取得
@@ -731,6 +782,7 @@ function ProfileContent() {
           deletingCareerId={deletingCareerId}
           setDeletingCareerId={setDeletingCareerId}
           onDeleteCareer={handleDeleteCareer}
+          isSaving={isSaving}
         />
       </main>
     </div>

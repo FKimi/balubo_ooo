@@ -30,19 +30,19 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "医療コンテンツの事業化",
                 description: "医療知識を活かしたオンライン講座やコンサルティング事業の立ち上げ",
-                icon: "💼",
+                icon: "📋",
                 color: "from-emerald-50 to-teal-50 border-emerald-100"
             });
             items.push({
                 title: "専門性を活かした横展開",
                 description: "医療で培った深い理解力を活かして、金融や法律など他の専門領域でも活躍",
-                icon: "🌐",
+                icon: "↗",
                 color: "from-blue-50 to-indigo-50 border-blue-100"
             });
             items.push({
                 title: "医療メディアの編集長",
                 description: "医療系メディアの編集長として、コンテンツ戦略全体を統括",
-                icon: "👑",
+                icon: "✦",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
         }
@@ -51,19 +51,19 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "Fintech領域への進出",
                 description: "金融知識を活かして、Fintechスタートアップのコンテンツ戦略を担当",
-                icon: "🚀",
+                icon: "↗",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
             items.push({
                 title: "投資教育コンテンツの制作",
                 description: "金融リテラシー向上のための教育コンテンツやセミナー事業",
-                icon: "📈",
+                icon: "📊",
                 color: "from-amber-50 to-orange-50 border-amber-100"
             });
             items.push({
                 title: "金融メディアの編集長",
                 description: "経済・金融メディアの編集長として、コンテンツ戦略全体を統括",
-                icon: "👑",
+                icon: "✦",
                 color: "from-blue-50 to-cyan-50 border-blue-100"
             });
         }
@@ -72,19 +72,19 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "リーガルテック領域への進出",
                 description: "法律知識を活かして、リーガルテック企業のコンテンツ戦略を担当",
-                icon: "⚖️",
+                icon: "↗",
                 color: "from-indigo-50 to-purple-50 border-indigo-100"
             });
             items.push({
                 title: "法律教育コンテンツの制作",
                 description: "一般向けの法律教育コンテンツやセミナー事業の立ち上げ",
-                icon: "📚",
+                icon: "📋",
                 color: "from-blue-50 to-indigo-50 border-blue-100"
             });
             items.push({
                 title: "法律メディアの編集長",
                 description: "法律・法務メディアの編集長として、コンテンツ戦略全体を統括",
-                icon: "👑",
+                icon: "✦",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
         }
@@ -93,19 +93,19 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "テクニカルライターへの転身",
                 description: "技術ドキュメントやAPI仕様書など、エンジニア向けコンテンツの専門家に",
-                icon: "💻",
+                icon: "</>",
                 color: "from-cyan-50 to-blue-50 border-cyan-100"
             });
             items.push({
                 title: "テックメディアの編集長",
                 description: "IT・テック系メディアの編集長として、コンテンツ戦略全体を統括",
-                icon: "👑",
+                icon: "✦",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
             items.push({
                 title: "SaaS企業のコンテンツ責任者",
                 description: "SaaS企業でコンテンツマーケティング全体を統括",
-                icon: "🚀",
+                icon: "↗",
                 color: "from-blue-50 to-indigo-50 border-blue-100"
             });
         }
@@ -120,13 +120,13 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "マーケティングメディアの編集長",
                 description: "マーケティング系メディアの編集長として、業界をリード",
-                icon: "👑",
+                icon: "✦",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
             items.push({
                 title: "コンテンツ制作会社の立ち上げ",
                 description: "自身のスキルを活かして、コンテンツ制作会社を起業",
-                icon: "🏢",
+                icon: "★",
                 color: "from-amber-50 to-orange-50 border-amber-100"
             });
         }
@@ -135,19 +135,19 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "ビジネスメディアの編集長",
                 description: "ビジネス系メディアの編集長として、コンテンツ戦略全体を統括",
-                icon: "👑",
+                icon: "✦",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
             items.push({
                 title: "スタートアップのPR責任者",
                 description: "スタートアップのPR・広報責任者として、ブランド構築をリード",
-                icon: "📣",
+                icon: "↗",
                 color: "from-blue-50 to-indigo-50 border-blue-100"
             });
             items.push({
                 title: "コンテンツ制作会社の立ち上げ",
                 description: "自身のスキルを活かして、コンテンツ制作会社を起業",
-                icon: "🏢",
+                icon: "★",
                 color: "from-amber-50 to-orange-50 border-amber-100"
             });
         }
@@ -156,19 +156,19 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
             items.push({
                 title: "メディアの編集長",
                 description: "Webメディアの編集長として、コンテンツ戦略全体を統括",
-                icon: "👑",
+                icon: "✦",
                 color: "from-purple-50 to-pink-50 border-purple-100"
             });
             items.push({
                 title: "専門性の深化",
                 description: "現在の強みをさらに深め、その分野のスペシャリストを目指す",
-                icon: "🎯",
+                icon: "↑",
                 color: "from-gray-50 to-slate-50 border-gray-100"
             });
             items.push({
                 title: "コンテンツ制作会社の立ち上げ",
                 description: "自身のスキルを活かして、コンテンツ制作会社を起業",
-                icon: "🏢",
+                icon: "★",
                 color: "from-amber-50 to-orange-50 border-amber-100"
             });
         }
@@ -179,10 +179,7 @@ export const CareerOutlook: React.FC<CareerOutlookProps> = ({ works, inputs }) =
     return (
         <div className="w-full bg-white rounded-3xl border border-gray-100 shadow-sm p-6 md:p-8">
             <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center shadow-[0_4px_12px_rgba(168,85,247,0.15)]">
-                        <span className="text-xl">🔮</span>
-                    </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                     今後のキャリア展望
                 </h3>
                 <p className="text-sm text-gray-500">

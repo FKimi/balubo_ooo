@@ -27,7 +27,7 @@ export function GlobalSidebar() {
         const profileUrl = `${window.location.origin}/profile/${user?.id}`;
         try {
             await navigator.clipboard.writeText(profileUrl);
-            showToast("プロフィールリンクをコピーしました！", "success");
+            showToast("プロフィールリンクをコピーしました", "success");
         } catch (err) {
             console.error("Copy failed", err);
             showToast("コピーに失敗しました", "error");
@@ -83,7 +83,7 @@ export function GlobalSidebar() {
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded border border-gray-300 hover:bg-gray-50"
                 >
                     <Clipboard className="w-4 h-4" />
-                    <span>プロフィールリンクをコピー</span>
+                    <span>プロフィールを共有</span>
                 </button>
                 <Link
                     href="/settings"

@@ -170,8 +170,8 @@ export const DiscoverySection = ({
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-md">
-                    <TrendingUp className="h-5 w-5 text-white" />
+                  <div className="p-2 bg-gray-100 rounded-xl">
+                    <TrendingUp className="h-5 w-5 text-gray-700" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">
@@ -338,8 +338,8 @@ export const DiscoverySection = ({
           {data?.tags && data.tags.length > 0 && (
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-md">
-                  <Hash className="h-5 w-5 text-white" />
+                <div className="p-2 bg-gray-100 rounded-xl">
+                  <Hash className="h-5 w-5 text-gray-700" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">

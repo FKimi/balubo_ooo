@@ -761,7 +761,7 @@ function FeedPageContent() {
                 {/* セクションタイトル - 改善版 */}
                 <div className="max-w-[1920px] mx-auto px-4 sm:px-6 pt-8 pb-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-1 h-8 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
+                    <div className="w-1 h-8 bg-gray-300 rounded-full"></div>
                     <h2 className="text-2xl font-bold text-gray-900">
                       最近追加されたコンテンツ
                     </h2>
