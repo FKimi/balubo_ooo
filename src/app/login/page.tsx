@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { isValidEmail } from "@/utils/validation";
+import { getErrorMessage } from "@/utils/errorUtils";
+
+// ... (existing imports)
 
 interface LoginFormData {
   email: string;
@@ -22,20 +27,11 @@ interface LoginFormData {
 }
 
 interface FormErrors {
-  [key: string]: string;
+  [key: string]: string | undefined;
+  email?: string;
+  password?: string;
+  general?: string;
 }
-
-// バリデーション関数
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return "予期しないエラーが発生しました";
-};
 
 function LoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -49,6 +45,7 @@ function LoginForm() {
   const { signIn, signInWithGoogle } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showToast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -69,7 +66,7 @@ function LoginForm() {
     // ガード節パターンでバリデーション
     if (!formData.email.trim()) {
       newErrors.email = "メールアドレスを入力してください";
-    } else if (!validateEmail(formData.email)) {
+    } else if (!isValidEmail(formData.email)) {
       newErrors.email = "有効なメールアドレスを入力してください";
     }
 
@@ -116,6 +113,18 @@ function LoginForm() {
         setErrors({ general: "ログインに失敗しました" });
         return;
       }
+
+      // 成功トーストを表示
+      const userName =
+        data.user.user_metadata?.display_name ||
+        data.user.user_metadata?.full_name ||
+        data.user.email?.split("@")[0] ||
+        "";
+
+      showToast(
+        userName ? `おかえりなさい、${userName}さん！` : "おかえりなさい！",
+        "success"
+      );
 
       // 成功パス：プロフィールページのprofileタブに遷移
       router.push("/profile?tab=profile");

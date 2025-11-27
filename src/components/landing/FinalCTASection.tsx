@@ -62,7 +62,7 @@ export default function FinalCTASection() {
   const router = useRouter();
 
   return (
-    <section className="bg-white py-24 sm:py-32">
+    <section className="bg-white py-16 sm:py-32">
       <div className="container relative z-10 mx-auto max-w-5xl">
         <FadeIn>
           <div className="mb-12">
@@ -76,7 +76,7 @@ export default function FinalCTASection() {
             </div>
           </div>
 
-          <div className="mx-auto mt-4 max-w-3xl rounded-[32px] border border-blue-50/90 bg-white/95 p-8 shadow-[0_22px_60px_rgba(37,99,235,0.16)] backdrop-blur-sm">
+          <div className="mx-auto mt-4 max-w-3xl rounded-[32px] border border-blue-50/90 bg-white/95 p-6 md:p-8 shadow-[0_22px_60px_rgba(37,99,235,0.16)] backdrop-blur-sm">
             <div className="flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
               <div className="space-y-2 md:flex-1">
                 <p className="text-2xl font-semibold text-gray-900">

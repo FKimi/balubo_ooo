@@ -73,7 +73,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="bg-white py-24 sm:py-32"
+      className="bg-white py-16 sm:py-32"
     >
       <div className="container relative mx-auto max-w-4xl">
         <FadeIn className="mb-16">

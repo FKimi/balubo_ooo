@@ -8,7 +8,7 @@ export default function FeaturesSection() {
   return (
     <section
       id="analysis"
-      className="relative isolate overflow-hidden bg-base-soft-blue py-24 px-4 text-gray-900 md:py-32"
+      className="relative isolate overflow-hidden bg-base-soft-blue py-16 px-4 text-gray-900 md:py-32"
     >
       <div
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.3),_transparent_65%)]"
@@ -31,7 +31,7 @@ export default function FeaturesSection() {
         {/* Feature 1: Tags Analysis */}
         <FadeIn delay={0.2} className="mx-auto mb-20 grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <div className="relative rounded-[32px] border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+            <div className="relative rounded-[32px] border border-blue-100 bg-white p-6 md:p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
               <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -101,7 +101,7 @@ export default function FeaturesSection() {
             </p>
           </div>
           <div>
-            <div className="relative rounded-[32px] border border-indigo-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+            <div className="relative rounded-[32px] border border-indigo-100 bg-white p-6 md:p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
               <div className="absolute -top-4 -right-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -145,7 +145,7 @@ export default function FeaturesSection() {
         {/* Feature 3: Expertise Visualization (New) */}
         <FadeIn delay={0.6} className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <div className="relative rounded-[32px] border border-blue-100 bg-white p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
+            <div className="relative rounded-[32px] border border-blue-100 bg-white p-6 md:p-8 shadow-soft-lg transition-transform hover:scale-[1.01]">
               <div className="absolute -top-4 -left-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />

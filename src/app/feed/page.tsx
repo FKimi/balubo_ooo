@@ -15,7 +15,9 @@ import { EmptyState } from "@/components/common";
 
 import { SearchFilters } from "@/components/feed/SearchFilters";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useFeedScrollRestoration } from "@/hooks/useFeedScrollRestoration";
 import { WorkCard } from "@/components/feed/WorkCard";
+import { WorkCardSkeleton } from "@/components/feed/WorkCardSkeleton";
 import { DiscoverySection } from "@/components/feed/DiscoverySection";
 import { formatTimeAgo } from "@/utils/dateFormat";
 import { takeFirst, getArrayLength } from "@/utils/arrayUtils";
@@ -79,6 +81,16 @@ function FeedPageContent() {
 
   const router = useRouter();
 
+  // スクロール復元フック
+  const { clearScrollRestoration } = useFeedScrollRestoration(
+    feedItems,
+    nextCursor,
+    hasMore,
+    setFeedItems,
+    setNextCursor,
+    setHasMore
+  );
+
   // 認証状態確認
   useEffect(() => {
     const checkAuth = async () => {
@@ -134,7 +146,7 @@ function FeedPageContent() {
           headers["Authorization"] = `Bearer ${currentSession.access_token}`;
         }
 
-        // クエリパラメータを構築
+        // クエリパラメータを構築(最大20件で打ち止め)
         const searchParams = new URLSearchParams({
           limit: "20",
           ...(params.cursor && { cursor: params.cursor }),
@@ -147,8 +159,8 @@ function FeedPageContent() {
         const cacheOptions: RequestInit = {
           method: "GET",
           headers,
-          // Next.jsのfetchキャッシュを活用（30秒間）
-          next: { revalidate: 30 },
+          // フィードを12時間キャッシュ（1日2回更新）
+          next: { revalidate: 43200 },
         };
 
         const response = await fetch(`/api/feed?${searchParams}`, cacheOptions);
@@ -191,8 +203,9 @@ function FeedPageContent() {
             },
           );
           setTotal(feedData.total || 0);
-          setHasMore(feedData.pagination?.hasMore || false);
-          setNextCursor(feedData.pagination?.nextCursor || null);
+          // 無限スクロールを無効化(最大20件で打ち止め)
+          setHasMore(false);
+          setNextCursor(null);
 
           // 人気タグの更新（初回のみ）
           if (!append && feedData.items.length > 0) {
@@ -248,12 +261,25 @@ function FeedPageContent() {
   // 初回データ取得（検索条件変更時にも再取得）
   useEffect(() => {
     if (isAuthenticated !== null) {
-      // 認証状態が確定してから実行
-      fetchFeedData(false, {
-        searchQuery,
-        filterType,
-        filterTag,
-      });
+      // 復元されたデータがある場合は初回フェッチをスキップ
+      // ただし、フィルターが変更された場合はフェッチする
+      const isInitialLoad = feedItems.length === 0 && !searchQuery && !filterTag;
+      const isFilterChanged = searchQuery || filterTag || filterType !== "all";
+
+      if (isInitialLoad || isFilterChanged) {
+        // 既にデータがある場合（復元後など）で、フィルター変更がない場合はスキップしたいが、
+        // 依存配列の都合上、ここで制御するのは難しい。
+        // シンプルに「データが空」または「フィルター適用時」にフェッチするようにする。
+
+        // 復元直後は feedItems がセットされているはずなので、ここはスキップされるはず
+        if (feedItems.length === 0 || isFilterChanged) {
+          fetchFeedData(false, {
+            searchQuery,
+            filterType,
+            filterTag,
+          });
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -261,7 +287,8 @@ function FeedPageContent() {
     filterTag,
     filterType,
     searchQuery,
-    // fetchFeedDataは依存配列から除外（useCallbackでメモ化済み）
+    // feedItems.length を依存配列に含めると無限ループの恐れがあるため注意が必要だが、
+    // ここでは初期ロード制御のために意図的に外している、もしくはロジック内でガードしている
   ]);
 
   // 無限スクロール
@@ -297,26 +324,32 @@ function FeedPageContent() {
       filterType,
       filterTag,
     });
+    clearScrollRestoration(); // フィルター適用時はスクロール位置をリセット
     setHasMore(true);
     setNextCursor(null);
+    setFeedItems([]); // リセット
     fetchFeedData(false, { searchQuery, filterType, filterTag });
-  }, [searchQuery, filterType, filterTag, fetchFeedData]);
+  }, [searchQuery, filterType, filterTag, fetchFeedData, clearScrollRestoration]);
 
   const handleClearFilters = useCallback(() => {
+    clearScrollRestoration();
     setSearchQuery("");
     setFilterType("all");
     setFilterTag("");
     setHasMore(true);
     setNextCursor(null);
+    setFeedItems([]); // リセット
     fetchFeedData(false);
-  }, [fetchFeedData]);
+  }, [fetchFeedData, clearScrollRestoration]);
 
   const handleRefresh = useCallback(() => {
+    clearScrollRestoration();
     setRefreshing(true);
     setHasMore(true);
     setNextCursor(null);
+    // setFeedItems([]); // リフレッシュ時は既存を表示したままにするか、クリアするか。ここではクリアしない
     fetchFeedData(false, { searchQuery, filterType, filterTag });
-  }, [searchQuery, filterType, filterTag, fetchFeedData]);
+  }, [searchQuery, filterType, filterTag, fetchFeedData, clearScrollRestoration]);
 
   // 作品のみをフィルタリング（インプットは削除済み）
   const filteredItems = useMemo(() => {
@@ -595,37 +628,10 @@ function FeedPageContent() {
           <div className="bg-white border-b border-gray-200">
             <div className="h-16 w-full loading-shimmer" />
           </div>
-          {/* スケルトングリッドアイテム */}
+          {/* WorkCardSkeletonグリッド */}
           <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 max-w-[1920px] mx-auto">
             {[...Array(10)].map((_, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
-              >
-                <div className="aspect-[4/3] w-full loading-shimmer" />
-                <div className="p-5 space-y-3">
-                  <div className="h-4 w-3/4 loading-shimmer rounded" />
-                  <div className="h-3 w-full loading-shimmer rounded" />
-                  <div className="h-3 w-2/3 loading-shimmer rounded" />
-                  <div className="flex gap-1.5 pt-2">
-                    <div className="h-5 w-16 rounded-md loading-shimmer" />
-                    <div className="h-5 w-20 rounded-md loading-shimmer" />
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full loading-shimmer" />
-                      <div>
-                        <div className="h-3 w-20 loading-shimmer rounded mb-1" />
-                        <div className="h-2.5 w-12 loading-shimmer rounded" />
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="h-8 w-12 loading-shimmer rounded" />
-                      <div className="h-8 w-12 loading-shimmer rounded" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <WorkCardSkeleton key={idx} />
             ))}
           </div>
         </div>
@@ -657,11 +663,13 @@ function FeedPageContent() {
             {/* 見つけるセクション（カルーセル） */}
             <DiscoverySection
               onTagClick={(tag) => {
+                clearScrollRestoration();
                 setFilterTag(tag);
                 setSearchQuery("");
                 setFilterType("all");
                 setHasMore(true);
                 setNextCursor(null);
+                setFeedItems([]);
                 fetchFeedData(false, {
                   searchQuery: "",
                   filterType: "all",
@@ -750,6 +758,19 @@ function FeedPageContent() {
             {/* フィードアイテム - グリッドレイアウト */}
             {filteredItems.length > 0 ? (
               <div className="bg-[#F4F7FF] min-h-screen">
+                {/* セクションタイトル - 改善版 */}
+                <div className="max-w-[1920px] mx-auto px-4 sm:px-6 pt-8 pb-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-1 h-8 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      最近追加されたコンテンツ
+                    </h2>
+                  </div>
+                  <p className="text-sm text-gray-600 ml-7">
+                    新着のポートフォリオ作品をチェックしよう
+                  </p>
+                </div>
+
                 {/* グリッドコンテナ */}
                 <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6 auto-rows-max max-w-[1920px] mx-auto">
                   {filteredItems.map((item) => (
@@ -782,20 +803,7 @@ function FeedPageContent() {
                   </div>
                 )}
 
-                {/* 全て読み込み完了メッセージ */}
-                {!hasMore && filteredItems.length > 0 && (
-                  <div className="text-center py-16 px-4">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full mb-6">
-                      <span className="text-3xl">✨</span>
-                    </div>
-                    <p className="text-lg font-semibold text-gray-900 mb-2">
-                      全ての作品を表示しました
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      新しい作品をお楽しみに！
-                    </p>
-                  </div>
-                )}
+
 
                 {/* フィード下部フッター */}
                 <footer className="bg-white border-t border-gray-200 mt-8">

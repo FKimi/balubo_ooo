@@ -175,6 +175,127 @@ export const detectCreatorType = (works: Work[], _inputs?: InputData[]): Creator
 };
 
 /**
+ * クリエイターのキャッチフレーズを自動生成する
+ * 例: "食品業界に強いプロ編集者", "医療分野に精通した専門ライター"
+ */
+export const generateCreatorCatchphrase = (works: Work[], inputs?: InputData[]): string => {
+    if (!works || works.length === 0) {
+        return "新進クリエイター";
+    }
+
+    // 主要な専門性を取得
+    const mainExpertise = extractMainExpertise(works);
+    const primaryDomain = mainExpertise[0]; // TOP1を使用
+
+    // クリエイタータイプ（役割）を取得
+    const creatorType = detectCreatorType(works, inputs);
+
+    // 役割名を抽出して整形
+    const extractRole = (typeStr: string): string => {
+        // "食品業界のライター" → "ライター"
+        // "マルチスキル・クリエイター" → "クリエイター"
+        // "ライター・スペシャリスト" → "ライター"
+        const roleMap: Record<string, string> = {
+            "ライター": "ライター",
+            "エディター": "エディター",
+            "編集": "エディター",
+            "デザイナー": "デザイナー",
+            "マーケター": "マーケター",
+            "プランナー": "プランナー",
+            "エンジニア": "エンジニア",
+            "クリエイター": "クリエイター",
+        };
+
+        // 優先順位:
+        // 1. 直接的な役割名 (ライター, エディターなど)
+        // 2. "〇〇の[役割]" の形式
+        // 3. "〇〇・[役割]" の形式
+        // 4. "マルチスキル・クリエイター" のような複合名から"クリエイター"を抽出
+
+        const patterns = [
+            /(ライター|エディター|デザイナー|マーケター|プランナー|エンジニア)/, // Specific roles
+            /の(ライター|エディター|デザイナー|マーケター|プランナー|エンジニア|編集)/, // "〇〇の[役割]"
+            /(ライター|エディター|デザイナー|マーケター|プランナー|エンジニア)・スペシャリスト/, // "[役割]・スペシャリスト"
+            /マルチスキル・(クリエイター)/, // "マルチスキル・クリエイター"
+            /(クリエイター)/ // Generic creator
+        ];
+
+        for (const pattern of patterns) {
+            const match = typeStr.match(pattern);
+            if (match) {
+                // match[1]は最初のキャプチャグループ
+                const extracted = match[1] || match[0];
+                return roleMap[extracted] || extracted;
+            }
+        }
+        return typeStr; // Fallback if no specific role is found
+    };
+
+    const baseRole = extractRole(creatorType.type);
+
+    // 実績に応じてプロフェッショナル修飾語を付与
+    const getProfessionalModifier = (): string => {
+        if (works.length >= 20) return "プロ";
+        if (works.length >= 10) return "プロ";
+        if (works.length >= 5) return "";
+        return "";
+    };
+
+    const modifier = getProfessionalModifier();
+    const professionalRole = modifier ? `${modifier}${baseRole}` : baseRole;
+
+    // パターン1: 業界/専門性が明確な場合
+    if (primaryDomain && !primaryDomain.includes("その他")) {
+        // 専門性の種類に応じてフレーズを調整
+        const domainPatterns: Record<string, string> = {
+            "食品業界": "に強い",
+            "医療・ヘルスケア": "に精通した",
+            "金融・投資": "に強い",
+            "テクノロジー・IT": "に精通した",
+            "AI・機械学習": "に強い",
+            "SaaS・クラウド": "に強い",
+            "マーケティング・広告": "に強い",
+            "ビジネス・経営": "に精通した",
+            "不動産": "に強い",
+            "教育": "に強い",
+            "法律・法務": "に強い",
+            "旅行・観光": "に強い",
+            "美容・コスメ": "に強い",
+        };
+
+        const pattern = domainPatterns[primaryDomain] || "に強い";
+        return `${primaryDomain}${pattern}${professionalRole}`;
+    }
+
+    // パターン2: スキル/技術が明確な場合（タグベース）
+    const allTags = works.flatMap((w) => w.tags || []);
+    const skillTags = ["SEO", "UI/UX", "データ分析", "コンテンツマーケティング", "SNS運用", "ブランディング"];
+    const detectedSkill = skillTags.find(skill =>
+        allTags.some(tag => tag.includes(skill) || skill.includes(tag))
+    );
+
+    if (detectedSkill) {
+        return `${detectedSkill}が得意な${professionalRole}`;
+    }
+
+    // パターン3: 実績ベースのフォールバック
+    if (works.length >= 20) {
+        return `${baseRole}・スペシャリスト`;
+    }
+
+    if (works.length >= 10) {
+        return `経験豊富な${professionalRole}`;
+    }
+
+    if (works.length >= 5) {
+        return `成長中の${baseRole}`;
+    }
+
+    // デフォルト
+    return baseRole || "新進クリエイター";
+};
+
+/**
  * 活動期間を計算する
  */
 export const calculateActivityPeriod = (works: Work[]): { years: number; months: number } => {

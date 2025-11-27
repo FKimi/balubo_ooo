@@ -94,7 +94,7 @@ export const WorkCard = memo(function WorkCard({
 
   return (
     <div
-      className="group bg-white rounded-[24px] overflow-hidden shadow-[0_18px_45px_rgba(15,23,42,0.06)] hover:shadow-[0_20px_50px_rgba(15,23,42,0.1)] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer border-none"
+      className="group bg-white rounded-[24px] overflow-hidden shadow-[0_18px_45px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] transition-all duration-500 ease-out transform hover:-translate-y-1 cursor-pointer border-none focus-visible:ring-4 focus-visible:ring-blue-500/20 focus-visible:outline-none"
       onClick={handleWorkClick}
       onMouseEnter={handlePrefetchWork}
       role="button"
@@ -119,9 +119,9 @@ export const WorkCard = memo(function WorkCard({
                 }`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw"
               loading="lazy"
-              quality={85}
+              quality={75}
               placeholder="blur"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             />
@@ -272,39 +272,40 @@ export const WorkCard = memo(function WorkCard({
             </div>
           </div>
 
-          {/* アクション統計 */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* アクション統計 - 改善版 */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
-              className={`h-8 px-2 transition-colors ${_work.user_has_liked
-                ? "text-red-500 hover:text-red-600 hover:bg-red-50"
-                : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+              className={`h-9 px-3 transition-all duration-300 rounded-xl ${_work.user_has_liked
+                ? "text-red-500 bg-red-50 hover:bg-red-100 hover:shadow-sm"
+                : "text-gray-600 hover:text-red-500 hover:bg-red-50 hover:shadow-sm"
                 }`}
               onClick={(e) => {
                 e.stopPropagation();
                 onLike(_work.id, _work.type);
               }}
+              aria-label={`${_work.likes_count || 0}件のいいね${_work.user_has_liked ? '済み' : ''}`}
             >
               <Heart
-                className={`h-4 w-4 ${_work.user_has_liked ? "fill-current" : ""}`}
+                className={`h-4 w-4 transition-transform duration-300 ${_work.user_has_liked ? "fill-current scale-110" : "group-hover:scale-110"}`}
               />
-              <span className="ml-1 text-xs font-medium">
+              <span className="ml-1.5 text-sm font-medium">
                 {_work.likes_count || 0}
               </span>
             </Button>
-
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors"
+              className="h-9 px-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 rounded-xl hover:shadow-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onOpenComments(_work.id);
               }}
+              aria-label={`${_work.comments_count || 0}件のコメント`}
             >
-              <MessageCircle className="h-4 w-4" />
-              <span className="ml-1 text-xs font-medium">
+              <MessageCircle className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+              <span className="ml-1.5 text-sm font-medium">
                 {_work.comments_count || 0}
               </span>
             </Button>

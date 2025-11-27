@@ -9,3 +9,5 @@ export { SectionDivider } from "./SectionDivider";
 export { default as StickyCTA } from "./StickyCTA";
 export { default as FAQSection } from "./FAQSection";
 export { default as RecentWorksSection } from "./RecentWorksSection";
+export { Header } from "./Header";
+export { ClientWrapper } from "./ClientWrapper";

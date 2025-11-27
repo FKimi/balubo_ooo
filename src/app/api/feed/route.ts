@@ -6,8 +6,8 @@ import type { PostgrestError } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// レスポンスキャッシュを追加
-export const revalidate = 60; // 60秒間キャッシュに延長
+// レスポンスキャッシュを追加（12時間キャッシュでデータ転送量を大幅削減）
+export const revalidate = 43200; // 12時間（1日2回更新）
 
 interface FeedUser {
   id: string;
@@ -95,7 +95,7 @@ async function processFeedRequest(request: NextRequest) {
 
   // URLパラメータから検索条件を取得
   const { searchParams } = new URL(request.url);
-  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50); // 最大50件
+  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50); // デフォルト20件
   const cursor = searchParams.get("cursor"); // カーソルベースページネーション
   const searchQuery = searchParams.get("q"); // 検索クエリ
   const filterType = searchParams.get("type") as "work" | null; // タイプフィルター
@@ -144,11 +144,12 @@ async function processFeedRequest(request: NextRequest) {
     currentUserId,
   });
 
-  // 作品のみを取得（インプット機能は削除済み）
+  // 作品のみを取得(インプット機能は削除済み)
+  // 注: LEFT()や配列スライスはSupabaseクエリビルダーで非対応のため、アプリ側で制限
   let worksQuery = supabase
     .from("works")
     .select(
-      "id, user_id, title, description, external_url, tags, roles, banner_image_url, created_at",
+      "id, user_id, title, description, tags, roles, banner_image_url, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -426,6 +427,7 @@ async function processFeedRequest(request: NextRequest) {
         roles: work.roles?.slice(0, 3) || [],
       };
 
+      // descriptionは200文字に制限してデータ転送量削減
       if (work.description) {
         feedItem.description = work.description.substring(0, 200);
       }
@@ -495,15 +497,12 @@ async function processFeedRequest(request: NextRequest) {
       );
     }
 
-    // レスポンスを構築（本番環境ではdebug情報を削除してサイズ削減）
+    // レスポンスを構築（転送量削減のため最小限のデータのみ）
     const responseData: any = {
       items: limitedItems,
-      stats,
-      total: limitedItems.length,
       pagination: {
         hasMore,
         nextCursor,
-        limit,
       },
     };
 
@@ -524,7 +523,7 @@ async function processFeedRequest(request: NextRequest) {
     return NextResponse.json(responseData, {
       headers: {
         "Cache-Control":
-          "public, s-maxage=30, stale-while-revalidate=60, max-age=0",
+          "public, s-maxage=43200, stale-while-revalidate=86400, max-age=0",
         "Content-Type": "application/json",
       },
     });

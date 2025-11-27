@@ -5,8 +5,8 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// レスポンスキャッシュを追加
-export const revalidate = 60; // より新鮮さを保つため1分キャッシュ
+// レスポンスキャッシュを12時間に延長（データ転送量削減）
+export const revalidate = 43200; // 12時間
 
 // 今日の注目コンテンツとトレンドタグを取得するAPIエンドポイント
 export async function GET(request: NextRequest) {
@@ -223,15 +223,15 @@ export async function GET(request: NextRequest) {
             ...work,
             user: profile
               ? {
-                  id: profile.user_id,
-                  display_name: profile.display_name || "ユーザー",
-                  avatar_image_url: profile.avatar_image_url || null,
-                }
+                id: profile.user_id,
+                display_name: profile.display_name || "ユーザー",
+                avatar_image_url: profile.avatar_image_url || null,
+              }
               : {
-                  id: work.user_id,
-                  display_name: "ユーザー",
-                  avatar_image_url: null,
-                },
+                id: work.user_id,
+                display_name: "ユーザー",
+                avatar_image_url: null,
+              },
             likes_count: likesCount || 0,
             comments_count: commentsCount || 0,
             user_has_liked: userHasLiked,
@@ -297,9 +297,7 @@ export async function GET(request: NextRequest) {
       {
         headers: {
           "Cache-Control":
-            "no-store, no-cache, must-revalidate, proxy-revalidate",
-          Pragma: "no-cache",
-          Expires: "0",
+            "public, s-maxage=43200, stale-while-revalidate=86400, max-age=0",
         },
       },
     );

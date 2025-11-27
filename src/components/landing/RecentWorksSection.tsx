@@ -146,7 +146,7 @@ export default function RecentWorksSection({
   }
 
   return (
-    <section id="works" className="bg-base-soft-blue py-24 sm:py-32">
+    <section id="works" className="bg-base-soft-blue py-16 sm:py-32">
       <div className="container mx-auto max-w-7xl px-4">
         <FadeIn className="mb-16 text-center md:text-left">
           <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl">

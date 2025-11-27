@@ -37,11 +37,11 @@ export default function WhyBaluboSection() {
   return (
     <section
       id="solution"
-      className="bg-white py-24 sm:py-32"
+      className="bg-white py-16 sm:py-32"
     >
       <div className="container mx-auto max-w-7xl px-4">
         {/* セクションヘッダー */}
-        <FadeIn className="mb-20 text-left">
+        <FadeIn className="mb-20 text-center">
           <h2 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
             使い方は、<br className="hidden sm:block" />
             驚くほどシンプル。
@@ -60,7 +60,7 @@ export default function WhyBaluboSection() {
           {solutions.map((solution, index) => (
             <StaggerItem
               key={solution.title}
-              className="relative flex flex-col items-start text-left"
+              className="relative flex flex-col items-center text-center"
             >
               {/* ステップ番号とアイコン */}
               <div className="mb-6 relative">
@@ -75,7 +75,7 @@ export default function WhyBaluboSection() {
               </div>
 
               {/* コンテンツ */}
-              <div className="pr-4">
+              <div>
                 <h3 className="mb-4 text-xl font-bold text-gray-900">
                   {solution.title}
                 </h3>

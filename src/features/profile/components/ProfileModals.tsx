@@ -14,7 +14,6 @@ interface ProfileModalsProps {
   newSkill: string;
   setNewSkill: (_value: string) => void;
   onAddSkill: () => void;
-  isUpdatingSkills: boolean;
   skillError: string | null;
   setSkillError: (_err: string | null) => void;
   /* --- Introduction --- */
@@ -22,7 +21,6 @@ interface ProfileModalsProps {
   setIsIntroductionModalOpen: (_open: boolean) => void;
   currentIntroduction: string;
   setCurrentIntroduction: (_value: string) => void;
-  isUpdatingIntroduction: boolean;
   onUpdateIntroduction: (_intro: string) => void;
   /* --- Career add --- */
   isCareerModalOpen: boolean;
@@ -42,7 +40,6 @@ interface ProfileModalsProps {
   deletingCareerId: string | null;
   setDeletingCareerId: (_id: string | null) => void;
   onDeleteCareer: () => void;
-  isUpdatingCareer: boolean;
 }
 
 // シンプルなモーダルコンポーネント
@@ -133,7 +130,6 @@ export function ProfileModals({
   newSkill,
   setNewSkill,
   onAddSkill,
-  isUpdatingSkills,
   skillError,
   setSkillError,
   /* Intro */
@@ -141,7 +137,6 @@ export function ProfileModals({
   setIsIntroductionModalOpen,
   currentIntroduction,
   setCurrentIntroduction,
-  isUpdatingIntroduction,
   onUpdateIntroduction,
   /* Career add */
   isCareerModalOpen,
@@ -161,7 +156,6 @@ export function ProfileModals({
   deletingCareerId: _deletingCareerId, // unused here but kept for completeness
   setDeletingCareerId: _setDeletingCareerId, // unused
   onDeleteCareer,
-  isUpdatingCareer,
 }: ProfileModalsProps) {
   /* Skill handlers */
   const closeSkillModal = () => {
@@ -194,23 +188,21 @@ export function ProfileModals({
             value={newSkill}
             placeholder="例: ライティング"
             onChange={(e) => setNewSkill(e.target.value)}
-            disabled={isUpdatingSkills}
           />
           {skillError && <p className="text-sm text-red-600">{skillError}</p>}
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={closeSkillModal}
-              disabled={isUpdatingSkills}
             >
               キャンセル
             </Button>
             <Button
               onClick={onAddSkill}
-              disabled={isUpdatingSkills || !newSkill.trim()}
+              disabled={!newSkill.trim()}
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
             >
-              {isUpdatingSkills ? "追加中..." : "追加"}
+              追加
             </Button>
           </div>
         </div>
@@ -227,22 +219,19 @@ export function ProfileModals({
             value={currentIntroduction}
             rows={8}
             onChange={(e) => setCurrentIntroduction(e.target.value)}
-            disabled={isUpdatingIntroduction}
           />
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={closeIntroModal}
-              disabled={isUpdatingIntroduction}
             >
               キャンセル
             </Button>
             <Button
               onClick={() => onUpdateIntroduction(currentIntroduction)}
-              disabled={isUpdatingIntroduction}
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
             >
-              {isUpdatingIntroduction ? "保存中..." : "保存"}
+              保存
             </Button>
           </div>
         </div>
@@ -261,7 +250,6 @@ export function ProfileModals({
             onChange={(e) =>
               setNewCareer({ ...newCareer, company: e.target.value })
             }
-            disabled={isUpdatingCareer}
           />
           <Input
             placeholder="役職 / ポジション"
@@ -269,7 +257,6 @@ export function ProfileModals({
             onChange={(e) =>
               setNewCareer({ ...newCareer, position: e.target.value })
             }
-            disabled={isUpdatingCareer}
           />
           <Input
             placeholder="部署 (任意)"
@@ -277,7 +264,6 @@ export function ProfileModals({
             onChange={(e) =>
               setNewCareer({ ...newCareer, department: e.target.value })
             }
-            disabled={isUpdatingCareer}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Input
@@ -287,7 +273,6 @@ export function ProfileModals({
               onChange={(e) =>
                 setNewCareer({ ...newCareer, startDate: e.target.value })
               }
-              disabled={isUpdatingCareer}
             />
             {!newCareer.isCurrent && (
               <Input
@@ -297,7 +282,6 @@ export function ProfileModals({
                 onChange={(e) =>
                   setNewCareer({ ...newCareer, endDate: e.target.value })
                 }
-                disabled={isUpdatingCareer}
               />
             )}
           </div>
@@ -309,7 +293,6 @@ export function ProfileModals({
               onChange={(e) =>
                 setNewCareer({ ...newCareer, isCurrent: e.target.checked })
               }
-              disabled={isUpdatingCareer}
             />
             <label htmlFor="isCurrent" className="text-sm text-gray-700">
               現在の職歴
@@ -321,20 +304,17 @@ export function ProfileModals({
             onChange={(e) =>
               setNewCareer({ ...newCareer, description: e.target.value })
             }
-            disabled={isUpdatingCareer}
           />
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={closeCareerModal}
-              disabled={isUpdatingCareer}
             >
               キャンセル
             </Button>
             <Button
               onClick={onAddCareer}
               disabled={
-                isUpdatingCareer ||
                 !(
                   newCareer.company &&
                   newCareer.position &&
@@ -343,7 +323,7 @@ export function ProfileModals({
               }
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full"
             >
-              {isUpdatingCareer ? "追加中..." : "追加"}
+              追加
             </Button>
           </div>
         </div>
@@ -363,7 +343,6 @@ export function ProfileModals({
               onChange={(e) =>
                 setEditingCareer({ ...editingCareer, company: e.target.value })
               }
-              disabled={isUpdatingCareer}
             />
             <Input
               placeholder="役職 / ポジション"
@@ -371,7 +350,6 @@ export function ProfileModals({
               onChange={(e) =>
                 setEditingCareer({ ...editingCareer, position: e.target.value })
               }
-              disabled={isUpdatingCareer}
             />
             <Input
               placeholder="部署 (任意)"
@@ -382,7 +360,6 @@ export function ProfileModals({
                   department: e.target.value,
                 })
               }
-              disabled={isUpdatingCareer}
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Input
@@ -395,7 +372,6 @@ export function ProfileModals({
                     startDate: e.target.value,
                   })
                 }
-                disabled={isUpdatingCareer}
               />
               {!editingCareer.isCurrent && (
                 <Input
@@ -408,7 +384,6 @@ export function ProfileModals({
                       endDate: e.target.value,
                     })
                   }
-                  disabled={isUpdatingCareer}
                 />
               )}
             </div>
@@ -426,7 +401,6 @@ export function ProfileModals({
                       : (editingCareer.endDate ?? ""),
                   })
                 }
-                disabled={isUpdatingCareer}
               />
               <label htmlFor="editIsCurrent" className="text-sm text-gray-700">
                 現在の職歴
@@ -441,18 +415,16 @@ export function ProfileModals({
                   description: e.target.value,
                 })
               }
-              disabled={isUpdatingCareer}
             />
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={closeEditCareerModal}
-                disabled={isUpdatingCareer}
               >
                 キャンセル
               </Button>
-              <Button onClick={onUpdateCareer} disabled={isUpdatingCareer} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full">
-                {isUpdatingCareer ? "保存中..." : "保存"}
+              <Button onClick={onUpdateCareer} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 rounded-full">
+                保存
               </Button>
             </div>
           </div>
@@ -472,16 +444,14 @@ export function ProfileModals({
           <Button
             variant="outline"
             onClick={closeDeleteConfirm}
-            disabled={isUpdatingCareer}
           >
             キャンセル
           </Button>
           <Button
             className="bg-red-600 text-white hover:bg-red-700 rounded-full"
             onClick={onDeleteCareer}
-            disabled={isUpdatingCareer}
           >
-            {isUpdatingCareer ? "削除中..." : "削除"}
+            削除
           </Button>
         </div>
       </Modal>

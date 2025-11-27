@@ -51,7 +51,7 @@ export default function VoicesSection() {
   return (
     <section
       id="voices"
-      className="bg-base-soft-blue py-24 sm:py-32"
+      className="bg-base-soft-blue py-16 sm:py-32"
     >
       <div className="container relative z-10 mx-auto max-w-7xl px-4">
         <FadeIn className="mb-20 text-left">
@@ -69,7 +69,7 @@ export default function VoicesSection() {
           {voices.map((voice) => (
             <StaggerItem
               key={voice.name}
-              className="flex flex-col rounded-[32px] border border-white/60 bg-white p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg"
+              className="flex flex-col rounded-[32px] border border-white/60 bg-white p-6 md:p-8 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg"
             >
               {/* ユーザー情報 */}
               <div className="mb-6 flex items-center gap-4">

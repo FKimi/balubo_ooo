@@ -79,13 +79,11 @@ function ProfileContent() {
   // スキル管理用のstate
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [newSkill, setNewSkill] = useState("");
-  const [isUpdatingSkills, setIsUpdatingSkills] = useState(false);
   const [skillError, setSkillError] = useState<string | null>(null);
 
   // 自己紹介管理用のstate
   const [isIntroductionModalOpen, setIsIntroductionModalOpen] = useState(false);
   const [currentIntroduction, setCurrentIntroduction] = useState("");
-  const [isUpdatingIntroduction, setIsUpdatingIntroduction] = useState(false);
 
   // 自己紹介モーダルが開かれた時に現在の内容を設定
   useEffect(() => {
@@ -113,7 +111,6 @@ function ProfileContent() {
   const [editingCareer, setEditingCareer] = useState<CareerItem | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [deletingCareerId, setDeletingCareerId] = useState<string | null>(null);
-  const [isUpdatingCareer, setIsUpdatingCareer] = useState(false);
 
   const [savedWorks, setSavedWorks] = useState<any[]>([]);
   const [_isLoadingWorks, setIsLoadingWorks] = useState(false);
@@ -320,25 +317,28 @@ function ProfileContent() {
   const handleAddSkill = async () => {
     if (!newSkill.trim() || !profileData) return;
 
+    const skillToAdd = newSkill.trim();
+    const previousProfileData = { ...profileData };
+    const updatedSkills = [...profileData.skills, skillToAdd];
+    const updatedProfile = { ...profileData, skills: updatedSkills };
+
+    // 1. 楽観的更新: UIを即座に更新し、モーダルを閉じる
+    setProfileData(updatedProfile);
+    setNewSkill("");
+    setIsSkillModalOpen(false);
+
     try {
-      setIsUpdatingSkills(true);
-      setSkillError(null);
-
-      const updatedSkills = [...profileData.skills, newSkill.trim()];
-      const updatedProfile = { ...profileData, skills: updatedSkills };
-
+      // 2. バックグラウンドでAPI呼び出し
       await saveSkillsToDatabase(updatedProfile);
-      setProfileData(updatedProfile);
-      setNewSkill("");
-      setIsSkillModalOpen(false);
-
-      // 成功メッセージを表示（オプション）
       console.log("スキルを追加しました");
     } catch (error) {
       console.error("スキル追加エラー:", error);
-      setSkillError("スキルの追加に失敗しました。もう一度お試しください。");
-    } finally {
-      setIsUpdatingSkills(false);
+      // 3. エラー時はロールバック
+      setProfileData(previousProfileData);
+      setSkillError("スキルの追加に失敗しました。");
+      // エラーをユーザーに通知するためにトーストなどを出すのが理想的だが、
+      // ここでは簡易的にコンソールエラーとstate復元を行う
+      alert("スキルの追加に失敗しました。");
     }
   };
 
@@ -346,23 +346,22 @@ function ProfileContent() {
   const handleRemoveSkill = async (index: number) => {
     if (!profileData) return;
 
+    const previousProfileData = { ...profileData };
+    const updatedSkills = profileData.skills.filter((_, i) => i !== index);
+    const updatedProfile = { ...profileData, skills: updatedSkills };
+
+    // 1. 楽観的更新
+    setProfileData(updatedProfile);
+
     try {
-      setIsUpdatingSkills(true);
-      setSkillError(null);
-
-      const updatedSkills = profileData.skills.filter((_, i) => i !== index);
-      const updatedProfile = { ...profileData, skills: updatedSkills };
-
+      // 2. バックグラウンドでAPI呼び出し
       await saveSkillsToDatabase(updatedProfile);
-      setProfileData(updatedProfile);
-
-      // 成功メッセージを表示（オプション）
       console.log("スキルを削除しました");
     } catch (error) {
       console.error("スキル削除エラー:", error);
-      setSkillError("スキルの削除に失敗しました。もう一度お試しください。");
-    } finally {
-      setIsUpdatingSkills(false);
+      // 3. エラー時はロールバック
+      setProfileData(previousProfileData);
+      alert("スキルの削除に失敗しました。");
     }
   };
 
@@ -401,43 +400,43 @@ function ProfileContent() {
   const handleAddCareer = async () => {
     if (!newCareer.company || !newCareer.position || !profileData) return;
 
+    const careerItem: CareerItem = {
+      id: Date.now().toString(),
+      company: newCareer.company || "",
+      position: newCareer.position || "",
+      department: newCareer.department || "",
+      startDate: newCareer.startDate || "",
+      endDate: newCareer.isCurrent ? "" : newCareer.endDate || "",
+      description: newCareer.description || "",
+      isCurrent: newCareer.isCurrent || false,
+    };
+
+    const previousProfileData = { ...profileData };
+    const updatedCareer = [...profileData.career, careerItem];
+    const updatedProfile = { ...profileData, career: updatedCareer };
+
+    // 1. 楽観的更新
+    setProfileData(updatedProfile);
+    setNewCareer({
+      company: "",
+      position: "",
+      department: "",
+      startDate: "",
+      endDate: "",
+      description: "",
+      isCurrent: false,
+    });
+    setIsCareerModalOpen(false);
+
     try {
-      setIsUpdatingCareer(true);
-
-      const careerItem: CareerItem = {
-        id: Date.now().toString(),
-        company: newCareer.company || "",
-        position: newCareer.position || "",
-        department: newCareer.department || "",
-        startDate: newCareer.startDate || "",
-        endDate: newCareer.isCurrent ? "" : newCareer.endDate || "",
-        description: newCareer.description || "",
-        isCurrent: newCareer.isCurrent || false,
-      };
-
-      const updatedCareer = [...profileData.career, careerItem];
-      const updatedProfile = { ...profileData, career: updatedCareer };
-
+      // 2. バックグラウンドでAPI呼び出し
       await saveCareerToDatabase(updatedProfile);
-      setProfileData(updatedProfile);
-      setNewCareer({
-        company: "",
-        position: "",
-        department: "",
-        startDate: "",
-        endDate: "",
-        description: "",
-        isCurrent: false,
-      });
-      setIsCareerModalOpen(false);
-
-      // 成功メッセージを表示（オプション）
       console.log("キャリア情報を追加しました");
     } catch (error) {
       console.error("キャリア追加エラー:", error);
-      alert("キャリア情報の追加に失敗しました。もう一度お試しください。");
-    } finally {
-      setIsUpdatingCareer(false);
+      // 3. エラー時はロールバック
+      setProfileData(previousProfileData);
+      alert("キャリア情報の追加に失敗しました。");
     }
   };
 
@@ -451,26 +450,26 @@ function ProfileContent() {
   const handleUpdateCareer = async () => {
     if (!editingCareer || !profileData) return;
 
+    const previousProfileData = { ...profileData };
+    const updatedCareer = profileData.career.map((item) =>
+      item.id === editingCareer.id ? editingCareer : item,
+    );
+    const updatedProfile = { ...profileData, career: updatedCareer };
+
+    // 1. 楽観的更新
+    setProfileData(updatedProfile);
+    setEditingCareer(null);
+    setIsEditCareerModalOpen(false);
+
     try {
-      setIsUpdatingCareer(true);
-
-      const updatedCareer = profileData.career.map((item) =>
-        item.id === editingCareer.id ? editingCareer : item,
-      );
-      const updatedProfile = { ...profileData, career: updatedCareer };
-
+      // 2. バックグラウンドでAPI呼び出し
       await saveCareerToDatabase(updatedProfile);
-      setProfileData(updatedProfile);
-      setEditingCareer(null);
-      setIsEditCareerModalOpen(false);
-
-      // 成功メッセージを表示（オプション）
       console.log("キャリア情報を更新しました");
     } catch (error) {
       console.error("キャリア更新エラー:", error);
-      alert("キャリア情報の更新に失敗しました。もう一度お試しください。");
-    } finally {
-      setIsUpdatingCareer(false);
+      // 3. エラー時はロールバック
+      setProfileData(previousProfileData);
+      alert("キャリア情報の更新に失敗しました。");
     }
   };
 
@@ -484,26 +483,26 @@ function ProfileContent() {
   const handleDeleteCareer = async () => {
     if (!deletingCareerId || !profileData) return;
 
+    const previousProfileData = { ...profileData };
+    const updatedCareer = profileData.career.filter(
+      (item) => item.id !== deletingCareerId,
+    );
+    const updatedProfile = { ...profileData, career: updatedCareer };
+
+    // 1. 楽観的更新
+    setProfileData(updatedProfile);
+    setDeletingCareerId(null);
+    setIsDeleteConfirmOpen(false);
+
     try {
-      setIsUpdatingCareer(true);
-
-      const updatedCareer = profileData.career.filter(
-        (item) => item.id !== deletingCareerId,
-      );
-      const updatedProfile = { ...profileData, career: updatedCareer };
-
+      // 2. バックグラウンドでAPI呼び出し
       await saveCareerToDatabase(updatedProfile);
-      setProfileData(updatedProfile);
-      setDeletingCareerId(null);
-      setIsDeleteConfirmOpen(false);
-
-      // 成功メッセージを表示（オプション）
       console.log("キャリア情報を削除しました");
     } catch (error) {
       console.error("キャリア削除エラー:", error);
-      alert("キャリア情報の削除に失敗しました。もう一度お試しください。");
-    } finally {
-      setIsUpdatingCareer(false);
+      // 3. エラー時はロールバック
+      setProfileData(previousProfileData);
+      alert("キャリア情報の削除に失敗しました。");
     }
   };
 
@@ -542,22 +541,22 @@ function ProfileContent() {
   const handleUpdateIntroduction = async (introduction: string) => {
     if (!profileData) return;
 
+    const previousProfileData = { ...profileData };
+    const updatedProfile = { ...profileData, introduction };
+
+    // 1. 楽観的更新
+    setProfileData(updatedProfile);
+    setIsIntroductionModalOpen(false);
+
     try {
-      setIsUpdatingIntroduction(true);
-
-      const updatedProfile = { ...profileData, introduction };
-
+      // 2. バックグラウンドでAPI呼び出し
       await saveIntroductionToDatabase(updatedProfile);
-      setProfileData(updatedProfile);
-      setIsIntroductionModalOpen(false);
-
-      // 成功メッセージを表示（オプション）
       console.log("自己紹介を更新しました");
     } catch (error) {
       console.error("自己紹介更新エラー:", error);
-      alert("自己紹介の更新に失敗しました。もう一度お試しください。");
-    } finally {
-      setIsUpdatingIntroduction(false);
+      // 3. エラー時はロールバック
+      setProfileData(previousProfileData);
+      alert("自己紹介の更新に失敗しました。");
     }
   };
 
@@ -710,14 +709,12 @@ function ProfileContent() {
           newSkill={newSkill}
           setNewSkill={setNewSkill}
           onAddSkill={handleAddSkill}
-          isUpdatingSkills={isUpdatingSkills}
           skillError={skillError}
           setSkillError={setSkillError}
           isIntroductionModalOpen={isIntroductionModalOpen}
           setIsIntroductionModalOpen={setIsIntroductionModalOpen}
           currentIntroduction={currentIntroduction}
           setCurrentIntroduction={setCurrentIntroduction}
-          isUpdatingIntroduction={isUpdatingIntroduction}
           onUpdateIntroduction={handleUpdateIntroduction}
           isCareerModalOpen={isCareerModalOpen}
           setIsCareerModalOpen={setIsCareerModalOpen}
@@ -734,7 +731,6 @@ function ProfileContent() {
           deletingCareerId={deletingCareerId}
           setDeletingCareerId={setDeletingCareerId}
           onDeleteCareer={handleDeleteCareer}
-          isUpdatingCareer={isUpdatingCareer}
         />
       </main>
     </div>

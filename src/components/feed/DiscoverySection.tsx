@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui";
+import { DiscoverySectionSkeleton } from '@/components/feed/DiscoverySectionSkeleton';
 import {
   TrendingUp,
   Hash,
@@ -135,35 +136,7 @@ export const DiscoverySection = ({
   );
 
   if (loading) {
-    return (
-      <div className="bg-white border-b border-gray-200 p-6">
-        <div className="max-w-7xl mx-auto">
-          <Skeleton className="h-8 w-32 mb-6" />
-          <div className="space-y-6">
-            <div>
-              <Skeleton className="h-6 w-40 mb-4" />
-              <div className="flex gap-4 overflow-hidden">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="flex-shrink-0 w-80">
-                    <Skeleton className="h-48 w-full rounded-xl mb-3" />
-                    <Skeleton className="h-5 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <Skeleton className="h-6 w-32 mb-4" />
-              <div className="flex flex-wrap gap-2">
-                {[...Array(8)].map((_, i) => (
-                  <Skeleton key={i} className="h-8 w-20 rounded-full" />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <DiscoverySectionSkeleton />;
   }
 
   if (error) {
@@ -189,20 +162,26 @@ export const DiscoverySection = ({
   }
 
   return (
-    <div className="bg-[#F4F7FF] p-6">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 pb-8 pt-6 mb-8 rounded-3xl shadow-sm border border-gray-100/50">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
         <div className="space-y-8">
           {/* 今日の注目コンテンツ */}
           {data?.featured && data.featured.length > 0 && (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    今日の注目コンテンツ
-                  </h3>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-md">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      今日の注目コンテンツ
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-0.5">
+                      トレンドの作品をチェック
+                    </p>
+                  </div>
                 </div>
-
                 {/* スクロールボタン */}
                 <div className="flex gap-2">
                   <Button
@@ -210,7 +189,7 @@ export const DiscoverySection = ({
                     size="icon"
                     onClick={() => scrollFeatured("left")}
                     className="h-8 w-8 rounded-full border border-gray-200 hover:bg-gray-50"
-                  >
+                    aria-label="左にスクロール">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   <Button
@@ -218,7 +197,7 @@ export const DiscoverySection = ({
                     size="icon"
                     onClick={() => scrollFeatured("right")}
                     className="h-8 w-8 rounded-full border border-gray-200 hover:bg-gray-50"
-                  >
+                    aria-label="右にスクロール">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -355,14 +334,21 @@ export const DiscoverySection = ({
             </div>
           )}
 
-          {/* トレンドタグ */}
+          {/* トレンドタグ - 改善版 */}
           {data?.tags && data.tags.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Hash className="h-5 w-5 text-[#5570F3]" />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  今注目されているタグ
-                </h3>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-md">
+                  <Hash className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    今注目されているタグ
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-0.5">
+                    人気のトピックを探索
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -394,6 +380,6 @@ export const DiscoverySection = ({
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
