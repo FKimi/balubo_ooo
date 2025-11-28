@@ -4,12 +4,12 @@ import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TabNavigation } from "@/components/ui/TabNavigation";
-import { useWorkStatistics } from "@/features/work/hooks/useWorkStatistics";
+// import { useWorkStatistics } from "@/features/work/hooks/useWorkStatistics";
 import { PublicFeaturedWorksSection } from "@/features/work/components/PublicFeaturedWorksSection";
 import { PublicWorksCategoryManager } from "@/features/work/components/PublicWorksCategoryManager";
-import { calculateTopTags } from "@/features/profile/lib/profileUtils";
+// import { calculateTopTags } from "@/features/profile/lib/profileUtils";
 import { EmptyState } from "@/components/common";
-import { useTagStatistics } from "@/hooks/useTagStatistics";
+// import { useTagStatistics } from "@/hooks/useTagStatistics";
 import type { JobMatchingHint } from "@/features/profile/lib/profileUtils";
 import { PublicCreatorAnalysis } from "./PublicCreatorAnalysis";
 
@@ -32,15 +32,12 @@ export function PublicProfileTabs({
   works,
   skills,
   career,
-  jobMatchingHints,
   inputs = [],
 }: PublicProfileTabsProps) {
-  const workStats = useWorkStatistics(works);
-  const {
-    data: tagStatistics,
-    getTagStatistic: _getTagStatistic,
-    getTagRanking: _getTagRanking,
-  } = useTagStatistics();
+  // const workStats = useWorkStatistics(works);
+  // const {
+  //   data: tagStatistics,
+  // } = useTagStatistics();
 
   const workCategories = useMemo(() => {
     const categories: { [key: string]: any } = {};
@@ -62,7 +59,7 @@ export function PublicProfileTabs({
     return Object.values(categories);
   }, [works]);
 
-  const topTags = useMemo(() => calculateTopTags(works), [works]);
+  // const topTags = useMemo(() => calculateTopTags(works), [works]);
   const introductionText = profile?.introduction || profile?.bio || "";
 
   const tabs = [

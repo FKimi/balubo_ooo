@@ -3,7 +3,7 @@ import { Check, X, Pencil } from "lucide-react";
 
 interface InlineEditProps {
     value: string;
-    onSave: (newValue: string) => Promise<void>;
+    onSave: (_newValue: string) => Promise<void>;
     placeholder?: string;
     className?: string;
     inputClassName?: string;
@@ -142,7 +142,7 @@ export const InlineEdit: React.FC<InlineEditProps> = ({
 // タグのインライン編集用コンポーネント
 interface InlineTagEditProps {
     tags: string[];
-    onSave: (newTags: string[]) => Promise<void>;
+    onSave: (_newTags: string[]) => Promise<void>;
     placeholder?: string;
 }
 

@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
+import Link from "next/link";
 
 const trustFeatures = [
   {
@@ -58,9 +56,6 @@ const trustFeatures = [
 ];
 
 export default function FinalCTASection() {
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const router = useRouter();
-
   return (
     <section className="bg-white py-16 sm:py-32">
       <div className="container relative z-10 mx-auto max-w-5xl">

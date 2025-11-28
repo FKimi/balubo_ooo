@@ -1,20 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
 
 export default function HeroSection() {
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const router = useRouter();
 
-  const handleStart = () => {
-    setIsRedirecting(true);
-    router.push("/register");
-  };
 
   return (
     <section className="relative isolate overflow-hidden bg-white pt-10 pb-16 sm:pt-14 sm:pb-24 lg:pb-32">

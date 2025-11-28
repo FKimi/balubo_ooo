@@ -9,7 +9,7 @@ interface Toast {
 }
 
 interface ToastContextType {
-    showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+    showToast: (_message: string, _type?: 'success' | 'error' | 'info') => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);

@@ -9,25 +9,25 @@ import { ProfileWorks } from "./ProfileWorks";
 
 interface ProfileTabsProps {
   activeTab: "profile" | "works" | "details";
-  setActiveTab: (tab: "profile" | "works" | "details") => void;
+  setActiveTab: (_tab: "profile" | "works" | "details") => void;
   profileData: ProfileData | null;
   savedWorks: any[];
-  setSavedWorks: (works: any[]) => void;
-  deleteWork: (workId: string) => void;
+  setSavedWorks: (_works: any[]) => void;
+  deleteWork: (_workId: string) => void;
   // スキル管理
-  onRemoveSkill: (index: number) => void;
-  setIsSkillModalOpen: (isOpen: boolean) => void;
+  onRemoveSkill: (_index: number) => void;
+  setIsSkillModalOpen: (_isOpen: boolean) => void;
   // キャリア管理
-  onEditCareer: (career: any) => void;
-  onDeleteCareerConfirm: (careerId: string) => void;
-  setIsCareerModalOpen: (isOpen: boolean) => void;
+  onEditCareer: (_career: any) => void;
+  onDeleteCareerConfirm: (_careerId: string) => void;
+  setIsCareerModalOpen: (_isOpen: boolean) => void;
   // 自己紹介管理
-  setIsIntroductionModalOpen: (isOpen: boolean) => void;
+  setIsIntroductionModalOpen: (_isOpen: boolean) => void;
   // AI分析による強みのデータ
   strengthsAnalysis: any; // 型定義の不一致を避けるため一旦anyにするか、正しい型を定義する
 
   // タブ情報を外部に提供
-  getTabsInfo?: (info: {
+  getTabsInfo?: (_info: {
     tabs: Array<{
       key: string;
       label: string;
@@ -35,7 +35,7 @@ interface ProfileTabsProps {
       count?: number;
     }>;
     activeTab: string;
-    onTabChange: (tab: string) => void;
+    onTabChange: (_tab: string) => void;
   }) => void;
   inputs?: InputData[];
   isLoading?: boolean;
