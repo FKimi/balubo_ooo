@@ -31,7 +31,7 @@ export function Footer() {
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <a
-                href="https://corp.balubo.jp/"
+                href="https://corp.balubo.jp"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="運営会社：株式会社balubo（新しいタブで開く）"

@@ -810,7 +810,7 @@ function FeedPageContent() {
                   <div className="container mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
                     <div className="flex justify-center space-x-6 md:order-2">
                       <a
-                        href="https://corp.balubo.jp/"
+                        href="https://corp.balubo.jp"
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="運営会社：株式会社balubo（新しいタブで開く）"
