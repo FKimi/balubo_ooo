@@ -62,9 +62,13 @@ function ProfileContent() {
   const _router = useRouter();
   const searchParams = useSearchParams();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [activeTab, setActiveTab] = useState<"profile" | "works" | "details">(
-    "works",
-  );
+  const [activeTab, setActiveTab] = useState<"profile" | "works" | "details">(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && ["profile", "works", "details"].includes(tabParam)) {
+      return tabParam as "profile" | "works" | "details";
+    }
+    return "works";
+  });
   const [_tabsInfo, setTabsInfo] = useState<{
     tabs: Array<{
       key: string;

@@ -381,7 +381,7 @@ export class DatabaseClient {
         production_date: workData.productionDate || null,
         banner_image_url: workData.bannerImageUrl || "",
         preview_data: workData.previewData || null,
-        ai_analysis_result: workData.aiAnalysisResult || null,
+        ai_analysis_result: workData.aiAnalysisResult || workData.ai_analysis_result || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -429,7 +429,7 @@ export class DatabaseClient {
         production_date: workData.productionDate || null,
         banner_image_url: workData.bannerImageUrl || "",
         preview_data: workData.previewData || null,
-        ai_analysis_result: workData.aiAnalysisResult || null,
+        ai_analysis_result: workData.aiAnalysisResult || workData.ai_analysis_result || null,
         updated_at: new Date().toISOString(),
       };
 
@@ -682,7 +682,7 @@ export class DatabaseClient {
         cover_image_url: inputData.coverImageUrl || "",
         notes: inputData.notes || "",
         favorite: inputData.favorite || false,
-        ai_analysis_result: inputData.aiAnalysisResult || null,
+        ai_analysis_result: inputData.aiAnalysisResult || inputData.ai_analysis_result || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -734,7 +734,7 @@ export class DatabaseClient {
         cover_image_url: inputData.coverImageUrl || "",
         notes: inputData.notes || "",
         favorite: inputData.favorite || false,
-        ai_analysis_result: inputData.aiAnalysisResult || null,
+        ai_analysis_result: inputData.aiAnalysisResult || inputData.ai_analysis_result || null,
         updated_at: new Date().toISOString(),
       };
 
@@ -993,7 +993,7 @@ export class DatabaseClient {
           inputs
             .filter((input) => input.rating)
             .reduce((sum, input) => sum + input.rating, 0) /
-            inputs.filter((input) => input.rating).length || 0,
+          inputs.filter((input) => input.rating).length || 0,
 
         // 強化された分析
         interestProfile,
