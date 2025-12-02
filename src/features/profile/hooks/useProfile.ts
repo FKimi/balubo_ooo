@@ -20,6 +20,7 @@ export interface Profile {
   experience_years: number | null;
   working_hours: string;
   career: any[];
+  slug?: string;
   created_at: string;
   updated_at: string;
 }

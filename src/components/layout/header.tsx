@@ -175,7 +175,9 @@ export function Header() {
                         </div>
                         <div className="flex items-center gap-2">
                           <code className="flex-1 text-xs text-gray-700 bg-white px-2 py-1.5 rounded border border-gray-200 overflow-x-auto">
-                            {`${typeof window !== 'undefined' ? window.location.origin : ''}/profile/${profile?.user_id || user?.id}`}
+                            {profile?.slug && profile.slug.length > 0
+                              ? `${typeof window !== 'undefined' ? window.location.origin : ''}/${profile.slug}`
+                              : `${typeof window !== 'undefined' ? window.location.origin : ''}/profile/${profile?.user_id || user?.id}`}
                           </code>
                         </div>
                       </div>
@@ -183,7 +185,9 @@ export function Header() {
                       {/* Copy Profile Link Button */}
                       <button
                         onClick={async () => {
-                          const profileUrl = `${window.location.origin}/profile/${profile?.user_id || user?.id}`;
+                          const profileUrl = profile?.slug && profile.slug.length > 0
+                            ? `${window.location.origin}/${profile.slug}`
+                            : `${window.location.origin}/profile/${profile?.user_id || user?.id}`;
                           try {
                             await navigator.clipboard.writeText(profileUrl);
                             showToast('プロフィールリンクをコピーしました！', 'success');

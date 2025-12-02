@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import { Home, Settings, LogOut, Clipboard, User, Briefcase, BarChart2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useLayout } from "@/contexts/LayoutContext";
@@ -13,6 +14,7 @@ export function GlobalSidebar() {
     const searchParams = useSearchParams();
     const activeTab = searchParams?.get("tab") ?? "profile";
     const { user, signOut } = useAuth();
+    const { profile } = useProfile();
     const { showToast } = useToast();
     const { openContentTypeSelector } = useLayout();
 
@@ -24,7 +26,9 @@ export function GlobalSidebar() {
     ];
 
     const handleCopyLink = async () => {
-        const profileUrl = `${window.location.origin}/profile/${user?.id}`;
+        const profileUrl = profile?.slug && profile.slug.length > 0
+            ? `${window.location.origin}/${profile.slug}`
+            : `${window.location.origin}/profile/${user?.id}`;
         try {
             await navigator.clipboard.writeText(profileUrl);
             showToast("プロフィールリンクをコピーしました", "success");

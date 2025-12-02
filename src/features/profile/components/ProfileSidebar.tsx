@@ -254,7 +254,9 @@ export function ProfileSidebar({
           {/* Copy Profile Link Button */}
           <button
             onClick={async () => {
-              const profileUrl = `${window.location.origin}/profile/${userId}`;
+              const profileUrl = slug && slug.length > 0
+                ? `${window.location.origin}/${slug}`
+                : `${window.location.origin}/profile/${userId}`;
               try {
                 await navigator.clipboard.writeText(profileUrl);
                 alert('プロフィールリンクをコピーしました！');
