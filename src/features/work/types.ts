@@ -174,16 +174,16 @@ export interface AIAnalysisResult {
     quality?: string[];
     unique?: string[];
   };
-  // 改善提案
-  improvementSuggestions?: string[];
-  // 専門的洞察
-  professionalInsights?: {
-    editorialQuality?: string;
-    marketValue?: string;
-    scalabilityPotential?: string;
-    marketPositioning?: string;
-    industryTrends?: string;
-  };
+  // 改善提案 - 削除済み
+  // improvementSuggestions?: string[];
+  // 専門的洞察 - 削除済み
+  // professionalInsights?: {
+  //   editorialQuality?: string;
+  //   marketValue?: string;
+  //   scalabilityPotential?: string;
+  //   marketPositioning?: string;
+  //   industryTrends?: string;
+  // };
   // 記事専用の分析（後方互換性のため保持）
   articleSpecificAnalysis?: {
     writingStyle?: string;

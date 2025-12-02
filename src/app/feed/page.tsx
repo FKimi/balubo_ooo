@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/common";
 import { SearchFilters } from "@/components/feed/SearchFilters";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useFeedScrollRestoration } from "@/hooks/useFeedScrollRestoration";
+import { useDebounce } from "react-use";
 import { WorkCard } from "@/components/feed/WorkCard";
 import { WorkCardSkeleton } from "@/components/feed/WorkCardSkeleton";
 import { DiscoverySection } from "@/components/feed/DiscoverySection";
@@ -72,6 +73,7 @@ function FeedPageContent() {
 
   // 新しい状態変数：検索・フィルタリング・ページネーション
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "work">("all");
   const [filterTag, setFilterTag] = useState("");
   const [hasMore, setHasMore] = useState(true);
@@ -89,6 +91,15 @@ function FeedPageContent() {
     setFeedItems,
     setNextCursor,
     setHasMore
+  );
+
+  // 検索クエリのデバウンス処理
+  useDebounce(
+    () => {
+      setDebouncedSearchQuery(searchQuery);
+    },
+    800,
+    [searchQuery]
   );
 
   // 認証状態確認
@@ -263,8 +274,8 @@ function FeedPageContent() {
     if (isAuthenticated !== null) {
       // 復元されたデータがある場合は初回フェッチをスキップ
       // ただし、フィルターが変更された場合はフェッチする
-      const isInitialLoad = feedItems.length === 0 && !searchQuery && !filterTag;
-      const isFilterChanged = searchQuery || filterTag || filterType !== "all";
+      const isInitialLoad = feedItems.length === 0 && !debouncedSearchQuery && !filterTag;
+      const isFilterChanged = debouncedSearchQuery || filterTag || filterType !== "all";
 
       if (isInitialLoad || isFilterChanged) {
         // 既にデータがある場合（復元後など）で、フィルター変更がない場合はスキップしたいが、
@@ -274,7 +285,7 @@ function FeedPageContent() {
         // 復元直後は feedItems がセットされているはずなので、ここはスキップされるはず
         if (feedItems.length === 0 || isFilterChanged) {
           fetchFeedData(false, {
-            searchQuery,
+            searchQuery: debouncedSearchQuery,
             filterType,
             filterTag,
           });
@@ -286,7 +297,7 @@ function FeedPageContent() {
     isAuthenticated,
     filterTag,
     filterType,
-    searchQuery,
+    debouncedSearchQuery,
     // feedItems.length を依存配列に含めると無限ループの恐れがあるため注意が必要だが、
     // ここでは初期ロード制御のために意図的に外している、もしくはロジック内でガードしている
   ]);

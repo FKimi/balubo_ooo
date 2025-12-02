@@ -166,78 +166,138 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // ユーザー情報を個別に取得し、統計データを追加
-      const worksWithStats = await Promise.all(
-        (featuredWorks || []).map(async (work) => {
-          // ユーザー情報取得（フィードAPIと同じ方法）
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("user_id, display_name, avatar_image_url")
-            .eq("user_id", work.user_id)
-            .single();
+      // ユーザーIDを収集
+      const userIds = [...new Set((featuredWorks || []).map((w: any) => w.user_id))];
+      const workIds = (featuredWorks || []).map((w: any) => w.id);
 
-          if (profileError) {
-            console.log(
-              `プロフィール取得エラー (user_id: ${work.user_id}):`,
-              profileError.message,
-            );
-          } else {
-            console.log(
-              `プロフィール取得成功 (user_id: ${work.user_id}):`,
-              profile,
-            );
-          }
+      // 並列で関連データを取得
+      let likesCountResult, userLikesResult, commentsCountResult, profilesResult;
 
-          // いいね数（フィードAPIと同じ方法）
-          const { count: likesCount, error: _likesError } = await supabase
-            .from("likes")
-            .select("*", { count: "exact", head: true })
-            .eq("target_id", work.id)
-            .eq("target_type", "work");
+      try {
+        [likesCountResult, userLikesResult, commentsCountResult, profilesResult] = await Promise.all([
+          // likesカウント（RPCまたは一括取得）
+          (async () => {
+            if (workIds.length === 0) return { data: null, error: null };
 
-          // コメント数（フィードAPIと同じ方法）
-          const { count: commentsCount, error: _commentsError } = await supabase
-            .from("comments")
-            .select("*", { count: "exact", head: true })
-            .eq("target_id", work.id)
-            .eq("target_type", "work");
+            // RPCを試行
+            const rpcResult = await supabase.rpc("get_likes_count", {
+              work_ids: workIds,
+              target_type: "work",
+            });
 
-          console.log(
-            `統計情報 (${work.id}): いいね${likesCount}, コメント${commentsCount}`,
-          );
+            if (!rpcResult.error) return rpcResult;
 
-          // ユーザーのいいね状態（フィードAPIと同じ方法）
-          let userHasLiked = false;
-          if (currentUserId) {
-            const { data: userLike } = await supabase
+            // フォールバック: 一括取得
+            return supabase
               .from("likes")
-              .select("id")
-              .eq("target_id", work.id)
+              .select("target_id")
+              .in("target_id", workIds)
+              .eq("target_type", "work");
+          })(),
+
+          // ユーザーのいいね状態
+          currentUserId && workIds.length > 0
+            ? supabase
+              .from("likes")
+              .select("target_id")
+              .in("target_id", workIds)
               .eq("target_type", "work")
               .eq("user_id", currentUserId)
-              .single();
-            userHasLiked = !!userLike;
-          }
+            : Promise.resolve({ data: [], error: null }),
 
-          return {
-            ...work,
-            user: profile
-              ? {
-                id: profile.user_id,
-                display_name: profile.display_name || "ユーザー",
-                avatar_image_url: profile.avatar_image_url || null,
-              }
-              : {
-                id: work.user_id,
-                display_name: "ユーザー",
-                avatar_image_url: null,
-              },
-            likes_count: likesCount || 0,
-            comments_count: commentsCount || 0,
-            user_has_liked: userHasLiked,
-          };
-        }),
-      );
+          // commentsカウント（RPCまたは一括取得）
+          (async () => {
+            if (workIds.length === 0) return { data: null, error: null };
+
+            // RPCを試行
+            const rpcResult = await supabase.rpc("get_comments_count", {
+              work_ids: workIds,
+              target_type: "work",
+            });
+
+            if (!rpcResult.error) return rpcResult;
+
+            // フォールバック: 一括取得
+            return supabase
+              .from("comments")
+              .select("target_id")
+              .in("target_id", workIds)
+              .eq("target_type", "work");
+          })(),
+
+          // プロフィール一括取得
+          userIds.length > 0
+            ? supabase
+              .from("profiles")
+              .select("user_id, display_name, avatar_image_url")
+              .in("user_id", userIds)
+            : Promise.resolve({ data: [], error: null }),
+        ]);
+      } catch (error) {
+        console.error("Discovery API: 関連データ取得エラー", error);
+        // エラー時は空データで続行
+        likesCountResult = { data: [], error };
+        userLikesResult = { data: [], error };
+        commentsCountResult = { data: [], error };
+        profilesResult = { data: [], error };
+      }
+
+      // マップ作成
+      const likesCountMap = new Map<string, number>();
+      const likesData = likesCountResult?.data || [];
+      if (Array.isArray(likesData)) {
+        if (likesData[0]?.work_id !== undefined) {
+          // RPC結果
+          likesData.forEach((item: any) => likesCountMap.set(item.work_id, item.count));
+        } else {
+          // フォールバック結果
+          likesData.forEach((item: any) => {
+            likesCountMap.set(item.target_id, (likesCountMap.get(item.target_id) || 0) + 1);
+          });
+        }
+      }
+
+      const commentsCountMap = new Map<string, number>();
+      const commentsData = commentsCountResult?.data || [];
+      if (Array.isArray(commentsData)) {
+        if (commentsData[0]?.work_id !== undefined) {
+          // RPC結果
+          commentsData.forEach((item: any) => commentsCountMap.set(item.work_id, item.count));
+        } else {
+          // フォールバック結果
+          commentsData.forEach((item: any) => {
+            commentsCountMap.set(item.target_id, (commentsCountMap.get(item.target_id) || 0) + 1);
+          });
+        }
+      }
+
+      const userLikesSet = new Set<string>();
+      userLikesResult?.data?.forEach((item: any) => userLikesSet.add(item.target_id));
+
+      const profileMap = new Map<string, any>();
+      profilesResult?.data?.forEach((p: any) => profileMap.set(p.user_id, p));
+
+      // データを結合
+      const worksWithStats = (featuredWorks || []).map((work: any) => {
+        const profile = profileMap.get(work.user_id);
+        return {
+          ...work,
+          user: profile
+            ? {
+              id: profile.user_id,
+              display_name: profile.display_name || "ユーザー",
+              avatar_image_url: profile.avatar_image_url || null,
+            }
+            : {
+              id: work.user_id,
+              display_name: "ユーザー",
+              avatar_image_url: null,
+            },
+          likes_count: likesCountMap.get(work.id) || 0,
+          comments_count: commentsCountMap.get(work.id) || 0,
+          user_has_liked: userLikesSet.has(work.id),
+        };
+      });
 
       console.log("統計情報追加完了:", worksWithStats.length);
 

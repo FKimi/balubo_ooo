@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useDebounce } from "react-use";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -286,23 +287,31 @@ function NewWorkForm({
   // URLが変更された時の処理
   const handleUrlChange = (url: string) => {
     setFormData((prev) => ({ ...prev, externalUrl: url }));
+  };
 
-    // URLが有効な形式の場合、自動でプレビューを取得
-    if (url.trim()) {
-      try {
-        new URL(url.trim());
-        fetchLinkPreview(url.trim());
-      } catch {
-        // 無効なURLの場合はプレビューをクリア
+  // URLプレビューのデバウンス処理
+  useDebounce(
+    () => {
+      const url = formData.externalUrl;
+      // URLが有効な形式の場合、自動でプレビューを取得
+      if (url.trim()) {
+        try {
+          new URL(url.trim());
+          fetchLinkPreview(url.trim());
+        } catch {
+          // 無効なURLの場合はプレビューをクリア
+          setPreviewData(null);
+          setPreviewError("");
+        }
+      } else {
+        // 空の場合もプレビューをクリア
         setPreviewData(null);
         setPreviewError("");
       }
-    } else {
-      // 空の場合もプレビューをクリア
-      setPreviewData(null);
-      setPreviewError("");
-    }
-  };
+    },
+    800, // 800ms待機
+    [formData.externalUrl]
+  );
 
   // ファイルアップロード処理
   const handleFileUpload = (files: FileList | File[]) => {

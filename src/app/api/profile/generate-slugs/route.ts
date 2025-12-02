@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { slugify } from "@/utils/slug";
+import { generateUserSlug } from "@/utils/slug";
 
 export async function POST(_request: NextRequest) {
   try {
@@ -54,7 +54,7 @@ export async function POST(_request: NextRequest) {
     for (const profile of profiles) {
       if (!profile.display_name) continue;
 
-      const baseSlug = slugify(profile.display_name);
+      const baseSlug = generateUserSlug(profile.display_name);
       if (!baseSlug) continue;
 
       // スラッグの重複チェックと調整

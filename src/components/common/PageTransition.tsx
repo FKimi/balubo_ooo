@@ -24,7 +24,7 @@ export function PageTransition({ children }: PageTransitionProps) {
         setIsTransitioning(true);
 
         // スクロール位置をトップに戻す
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "auto" });
 
         // アニメーション完了後にトランジション状態を解除
         const timer = setTimeout(() => {

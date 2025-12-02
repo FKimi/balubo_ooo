@@ -2,171 +2,6 @@
 
 // 基本的なひらがな・カタカナからローマ字への変換テーブル
 const hiraganaToRomaji: Record<string, string> = {
-  // あ行
-  あ: "a",
-  い: "i",
-  う: "u",
-  え: "e",
-  お: "o",
-  ア: "a",
-  イ: "i",
-  ウ: "u",
-  エ: "e",
-  オ: "o",
-
-  // か行
-  か: "ka",
-  き: "ki",
-  く: "ku",
-  け: "ke",
-  こ: "ko",
-  カ: "ka",
-  キ: "ki",
-  ク: "ku",
-  ケ: "ke",
-  コ: "ko",
-  が: "ga",
-  ぎ: "gi",
-  ぐ: "gu",
-  げ: "ge",
-  ご: "go",
-  ガ: "ga",
-  ギ: "gi",
-  グ: "gu",
-  ゲ: "ge",
-  ゴ: "go",
-
-  // さ行
-  さ: "sa",
-  し: "shi",
-  す: "su",
-  せ: "se",
-  そ: "so",
-  サ: "sa",
-  シ: "shi",
-  ス: "su",
-  セ: "se",
-  ソ: "so",
-  ざ: "za",
-  じ: "ji",
-  ず: "zu",
-  ぜ: "ze",
-  ぞ: "zo",
-  ザ: "za",
-  ジ: "ji",
-  ズ: "zu",
-  ゼ: "ze",
-  ゾ: "zo",
-
-  // た行
-  た: "ta",
-  ち: "chi",
-  つ: "tsu",
-  て: "te",
-  と: "to",
-  タ: "ta",
-  チ: "chi",
-  ツ: "tsu",
-  テ: "te",
-  ト: "to",
-  だ: "da",
-  ぢ: "ji",
-  づ: "zu",
-  で: "de",
-  ど: "do",
-  ダ: "da",
-  ヂ: "ji",
-  ヅ: "zu",
-  デ: "de",
-  ド: "do",
-
-  // な行
-  な: "na",
-  に: "ni",
-  ぬ: "nu",
-  ね: "ne",
-  の: "no",
-  ナ: "na",
-  ニ: "ni",
-  ヌ: "nu",
-  ネ: "ne",
-  ノ: "no",
-
-  // は行
-  は: "ha",
-  ひ: "hi",
-  ふ: "fu",
-  へ: "he",
-  ほ: "ho",
-  ハ: "ha",
-  ヒ: "hi",
-  フ: "fu",
-  ヘ: "he",
-  ホ: "ho",
-  ば: "ba",
-  び: "bi",
-  ぶ: "bu",
-  べ: "be",
-  ぼ: "bo",
-  バ: "ba",
-  ビ: "bi",
-  ブ: "bu",
-  ベ: "be",
-  ボ: "bo",
-  ぱ: "pa",
-  ぴ: "pi",
-  ぷ: "pu",
-  ぺ: "pe",
-  ぽ: "po",
-  パ: "pa",
-  ピ: "pi",
-  プ: "pu",
-  ペ: "pe",
-  ポ: "po",
-
-  // ま行
-  ま: "ma",
-  み: "mi",
-  む: "mu",
-  め: "me",
-  も: "mo",
-  マ: "ma",
-  ミ: "mi",
-  ム: "mu",
-  メ: "me",
-  モ: "mo",
-
-  // や行
-  や: "ya",
-  ゆ: "yu",
-  よ: "yo",
-  ヤ: "ya",
-  ユ: "yu",
-  ヨ: "yo",
-
-  // ら行
-  ら: "ra",
-  り: "ri",
-  る: "ru",
-  れ: "re",
-  ろ: "ro",
-  ラ: "ra",
-  リ: "ri",
-  ル: "ru",
-  レ: "re",
-  ロ: "ro",
-
-  // わ行
-  わ: "wa",
-  ゐ: "wi",
-  ゑ: "we",
-  を: "wo",
-  ん: "n",
-  ワ: "wa",
-  ヰ: "wi",
-  ヱ: "we",
-  ヲ: "wo",
-  ン: "n",
 
   // 小文字
   ゃ: "ya",
@@ -387,15 +222,34 @@ export function simpleToRomaji(text: string): string {
 export function generateRomajiSlug(displayName: string): string {
   if (!displayName) return "";
 
-  // 簡易ローマ字変換を使用
-  let slug = simpleToRomaji(displayName);
+  // まず通常のローマ字変換を試みる
+  let slug = toRomaji(displayName);
 
-  // 英数字以外を削除し、小文字に変換
+  // ローマ字変換が失敗した場合（日本語文字が残っている場合）、簡易変換を使用
+  if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(slug)) {
+    slug = simpleToRomaji(displayName);
+  }
+
+  // URL用に正規化
   slug = slug
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") // 先頭末尾の-を削除
     .replace(/-{2,}/g, "-"); // 連続する-を1つに
+
+  // まだ日本語文字が残っている場合、または空の場合は、
+  // 英数字のみを抽出してフォールバックを生成
+  if (!slug || /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(slug)) {
+    // 元の文字列から英数字のみを抽出
+    const alphanumeric = displayName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+
+    if (alphanumeric) {
+      slug = alphanumeric;
+    } else {
+      // 英数字もない場合は、ランダムな文字列を生成
+      slug = "user-" + Math.random().toString(36).substring(2, 9);
+    }
+  }
 
   // 長すぎる場合は切り詰める
   if (slug.length > 50) {

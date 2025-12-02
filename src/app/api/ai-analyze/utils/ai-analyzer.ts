@@ -147,8 +147,20 @@ export interface AnalysisResult {
     /** @deprecated 後方互換用 */
     solution?: string;
   };
-  learningPoints: string[];
-  clientAppeal: string[];
+  // 改善提案 - 削除済み
+  // improvementSuggestions: string[];
+  // 専門的洞察 - 削除済み
+  // professionalInsights: {
+  //   marketPositioning: string;
+  //   scalabilityPotential: string;
+  //   industryTrends: string;
+  // };
+  oneLinerSummary: string;
+  tagCloud: string[];
+  // 学習ポイント - 削除済み
+  // learningPoints: string[];
+  // クライアントアピール - 削除済み
+  // clientAppeal: string[];
   // 写真分析用の詳細メトリクス（オプショナル）
   detailedMetrics?: {
     technology?: {
@@ -372,7 +384,7 @@ async function callGeminiAPISingle(
     console.error("エラーデータ:", JSON.stringify(errorData, null, 2));
     console.error("エラーデータ型:", typeof errorData);
     console.error("エラーデータキー:", Object.keys(errorData));
-    
+
     // エラーデータの詳細を確認
     if (errorData && typeof errorData === "object") {
       if (errorData.error) {
@@ -391,7 +403,7 @@ async function callGeminiAPISingle(
         console.error("errorData.message:", errorData.message);
       }
     }
-    
+
     console.error("レスポンスヘッダー:", Object.fromEntries(response.headers.entries()));
     console.error("=======================");
 
@@ -431,7 +443,7 @@ async function callGeminiAPISingle(
         errorMessage = errorData.message;
         errorDetails.errorMessage = errorData.message;
       }
-      
+
       // エラーデータ全体を保存
       errorDetails.fullErrorData = errorData;
     }
@@ -536,12 +548,12 @@ export function parseAnalysisResult(generatedText: string): AnalysisResult {
         expertise: ["ユニークな作品"],
         impact: ["ユニークな作品"],
       },
-      improvementSuggestions: ["分析を再実行してください"],
-      professionalInsights: {
-        marketPositioning: "分析に失敗しました",
-        scalabilityPotential: "分析に失敗しました",
-        industryTrends: "分析に失敗しました",
-      },
+      // improvementSuggestions: ["分析を再実行してください"],
+      // professionalInsights: {
+      //   marketPositioning: "分析に失敗しました",
+      //   scalabilityPotential: "分析に失敗しました",
+      //   industryTrends: "分析に失敗しました",
+      // },
       oneLinerSummary: "分析に失敗しました",
       tagCloud: ["#分析失敗"],
       contentAnalysis: {
@@ -552,8 +564,8 @@ export function parseAnalysisResult(generatedText: string): AnalysisResult {
         problem: "分析に失敗しました",
         solution: "分析に失敗しました",
       },
-      learningPoints: ["分析を再実行してください"],
-      clientAppeal: ["分析を再実行してください"],
+      // learningPoints: ["分析を再実行してください"],
+      // clientAppeal: ["分析を再実行してください"],
     };
   }
 }
@@ -645,7 +657,7 @@ export function handleAnalysisError(error: unknown) {
 
   // エラー詳細を取得
   const errorDetails = (error as any)?.errorDetails || null;
-  
+
   return NextResponse.json(
     {
       error: errorMessage,
@@ -669,11 +681,11 @@ export function processFileInfo(uploadedFiles?: any[], fileCount?: number) {
 - ファイル数: ${fileCount || uploadedFiles.length}個
 - ファイル詳細:
 ${uploadedFiles
-  .map(
-    (file: any, index: number) =>
-      `  ${index + 1}. ${file.name} (${file.type}, ${(file.size / 1024).toFixed(1)}KB)`,
-  )
-  .join("\n")}
+      .map(
+        (file: any, index: number) =>
+          `  ${index + 1}. ${file.name} (${file.type}, ${(file.size / 1024).toFixed(1)}KB)`,
+      )
+      .join("\n")}
 `;
 }
 
@@ -694,14 +706,14 @@ export function processImageFiles(imageFiles?: any[]) {
     return `
 【重要】アップロードされた画像ファイルの詳細分析対象:
 ${validImageFiles
-  .map((imageFile: any, index: number) => {
-    // Base64データを短縮（最初の1000文字のみ）
-    const shortData =
-      imageFile.data.length > 1000
-        ? imageFile.data.substring(0, 1000) + "...(データが長いため省略)"
-        : imageFile.data;
+        .map((imageFile: any, index: number) => {
+          // Base64データを短縮（最初の1000文字のみ）
+          const shortData =
+            imageFile.data.length > 1000
+              ? imageFile.data.substring(0, 1000) + "...(データが長いため省略)"
+              : imageFile.data;
 
-    return `画像${index + 1}: ${imageFile.name}
+          return `画像${index + 1}: ${imageFile.name}
 ファイル形式: ${imageFile.type}
 ファイルサイズ: ${(imageFile.size / 1024).toFixed(1)}KB
 画像内容（短縮版）: ${shortData}
@@ -715,18 +727,18 @@ ${validImageFiles
 - 使用されているデザイン要素（タイポグラフィ、アイコン、レイアウトなど）
 - 感情やメッセージの伝達力
 - ターゲット層への訴求力`;
-  })
-  .join("\n\n")}
+        })
+        .join("\n\n")}
 `;
   } else {
     return `
 アップロードされた画像ファイル（メタデータのみ）:
 ${imageFiles
-  .map(
-    (imageFile: any, index: number) =>
-      `画像${index + 1}: ${imageFile.name} - ${imageFile.data}`,
-  )
-  .join("\n")}
+        .map(
+          (imageFile: any, index: number) =>
+            `画像${index + 1}: ${imageFile.name} - ${imageFile.data}`,
+        )
+        .join("\n")}
 `;
   }
 }
