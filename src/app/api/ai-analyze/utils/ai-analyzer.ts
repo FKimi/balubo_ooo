@@ -129,12 +129,7 @@ export interface AnalysisResult {
     expertise: string[];
     impact: string[];
   };
-  improvementSuggestions: string[];
-  professionalInsights: {
-    marketPositioning: string;
-    scalabilityPotential: string;
-    industryTrends: string;
-  };
+
   oneLinerSummary: string;
   tagCloud: string[];
   contentAnalysis: {
@@ -155,8 +150,7 @@ export interface AnalysisResult {
   //   scalabilityPotential: string;
   //   industryTrends: string;
   // };
-  oneLinerSummary: string;
-  tagCloud: string[];
+
   // 学習ポイント - 削除済み
   // learningPoints: string[];
   // クライアントアピール - 削除済み

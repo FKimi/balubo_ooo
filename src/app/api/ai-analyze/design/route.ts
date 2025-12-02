@@ -141,16 +141,7 @@ ${imageContentText}
       "ビジネス・ブランド価値向上"
     ]
   },
-  "improvementSuggestions": [
-    "より具体的で実践的な改善提案1",
-    "技術的・表現的向上のための提案2",
-    "市場価値・競争力強化のための提案3"
-  ],
-  "professionalInsights": {
-    "marketPositioning": "市場でのポジショニングと競合優位性",
-    "scalabilityPotential": "このスタイル・手法の展開可能性",
-    "industryTrends": "業界トレンドとの関連性"
-  },
+
   "oneLinerSummary": "デザイナーの魅力を1〜2文で表現するキャッチコピー",
   "tagCloud": ["#美的センス", "#色彩感覚", "#レイアウト力", "#ブランディング", "#ユーザビリティ", "#創造性"],
   "detailedMetrics": {
