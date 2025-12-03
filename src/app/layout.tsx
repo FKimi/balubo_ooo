@@ -3,6 +3,7 @@ import { Inter, Noto_Sans_JP, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { ErrorFilter } from "@/components/utils/ErrorFilter";
 import { ErrorBoundary } from "react-error-boundary";
@@ -204,6 +205,7 @@ export default function RootLayout({
           </ToastProvider>
         </ErrorBoundary>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -19,12 +19,12 @@ export function Footer() {
               <p className="mt-2 text-xs leading-relaxed text-gray-500">
                 プロフィールのイメージを見てみたい方は{" "}
                 <a
-                  href="https://balubo.jp/fumiya-kimiwada"
+                  href="https://www.balubo.jp/fumiya-kimiwada-1"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2"
                 >
-                  balubo.jp/fumiya-kimiwada
+                  balubo.jp/fumiya-kimiwada-1
                 </a>
                 をご覧ください。
               </p>
