@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { debounce, runInIdle } from "@/utils/performance";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -63,12 +63,15 @@ export const DiscoverySection = ({
   const [error, setError] = useState<string | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
 
-  // データ取得（パフォーマンス最適化済み）
+  // データ取得フラグ（初回ローディングのみtrue）- useRefで管理することでuseCallbackの依存配列問題を回避
+  const isInitialLoadRef = useRef(true);
+
+  // データ取得（パフォーマンス最適化 + 無限ループ修正済み）
   const fetchDiscoveryData = useCallback(async () => {
     try {
       setError(null);
       // 初回のみローディング表示を出す
-      if (!data) setLoading(true);
+      if (isInitialLoadRef.current) setLoading(true);
 
       // 重い処理をrequestIdleCallbackで実行
       await runInIdle(async () => {
@@ -94,13 +97,15 @@ export const DiscoverySection = ({
       setError(error instanceof Error ? error.message : "データ取得エラー");
     } finally {
       setLoading(false);
+      isInitialLoadRef.current = false;
     }
-  }, [data]);
+  }, []); // ← 依存配列を空にして、関数参照を安定化
 
   useEffect(() => {
+    // 初回マウント時にデータ取得
     fetchDiscoveryData();
 
-    // 60秒ごとにポーリングして最新ランキングを取得（パフォーマンス向上のため30秒→60秒に延長）
+    // 60秒ごとにポーリングして最新ランキングを取得
     const intervalId = setInterval(() => {
       fetchDiscoveryData();
     }, 60000);
@@ -114,7 +119,8 @@ export const DiscoverySection = ({
       clearInterval(intervalId);
       window.removeEventListener("focus", onFocus);
     };
-  }, [fetchDiscoveryData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // ← 初回マウント時のみ実行（fetchDiscoveryDataは安定しているため依存不要）
 
   // 横スクロール処理（スロットル適用）
   const scrollFeatured = useCallback(
