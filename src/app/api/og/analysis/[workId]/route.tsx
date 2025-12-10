@@ -105,6 +105,153 @@ export async function GET(
     const tags = work.tags?.slice(0, 3) || [];
     const roles = work.roles?.slice(0, 2) || [];
 
+    // バナー画像がある場合は、それを背景にしたデザインを返す
+    if (work.banner_image_url) {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#1e293b",
+              position: "relative",
+              fontFamily:
+                "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+            }}
+          >
+            {/* 背景画像 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={work.banner_image_url}
+              alt={title}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+
+            {/* オーバーレイ */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
+              }}
+            />
+
+            {/* コンテンツ */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                zIndex: 10,
+                padding: "60px",
+                textAlign: "center",
+                width: "100%",
+              }}
+            >
+              {/* ロゴ */}
+              <div
+                style={{
+                  fontSize: "32px",
+                  fontWeight: "900",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  marginBottom: "20px",
+                  letterSpacing: "-1px",
+                }}
+              >
+                balubo
+              </div>
+
+              {/* タイトル */}
+              <div
+                style={{
+                  fontSize: "60px",
+                  fontWeight: "800",
+                  color: "white",
+                  marginBottom: "24px",
+                  lineHeight: "1.2",
+                  textShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                  maxWidth: "1000px",
+                  wordBreak: "break-word",
+                }}
+              >
+                {title}
+              </div>
+
+              {/* 作者情報 */}
+              <div
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "600",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <span>by {authorName}</span>
+              </div>
+
+              {/* タグ（オプション：スペースがあれば表示） */}
+              {tags.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "12px",
+                    marginTop: "30px",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                  }}
+                >
+                  {tags.map((tag: string, index: number) => (
+                    <div
+                      key={index}
+                      style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.2)",
+                        color: "white",
+                        padding: "6px 16px",
+                        borderRadius: "20px",
+                        fontSize: "16px",
+                        fontWeight: "500",
+                        backdropFilter: "blur(4px)",
+                      }}
+                    >
+                      #{tag}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ),
+        {
+          width: OGP_CONFIG.width,
+          height: OGP_CONFIG.height,
+          headers: {
+            "Cache-Control": "public, max-age=3600, s-maxage=3600",
+            "Content-Type": "image/png",
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "SAMEORIGIN",
+          },
+        },
+      );
+    }
+
     return new ImageResponse(
       (
         <div
