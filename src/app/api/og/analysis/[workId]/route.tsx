@@ -20,36 +20,15 @@ function getBackgroundColor(type: string): string {
   );
 }
 
-// 画像をフェッチしてArrayBufferを取得する関数
-async function fetchImage(url: string): Promise<ArrayBuffer | null> {
-  try {
-    // 相対パスの場合は絶対パスに変換
-    let fetchUrl = url;
-    if (url.startsWith("/")) {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_APP_URL || "https://www.balubo.jp";
-      fetchUrl = `${baseUrl}${url}`;
-    }
+// URLを絶対パスに変換する関数
+function getAbsoluteUrl(url: string): string {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
 
-    console.log(`Fetching image for OGP: ${fetchUrl}`);
-    const response = await fetch(fetchUrl);
-    if (!response.ok) {
-      console.error(
-        `Failed to fetch image: ${fetchUrl}, status: ${response.status}`,
-      );
-      return null;
-    }
-    return await response.arrayBuffer();
-  } catch (error) {
-    console.error(`Error fetching image: ${url}`, error);
-    return null;
-  }
-}
-
-// ArrayBufferをBase64データURLに変換
-function arrayBufferToDataUrl(buffer: ArrayBuffer, type = "image/png"): string {
-  const base64 = Buffer.from(buffer).toString("base64");
-  return `data:${type};base64,${base64}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.balubo.jp";
+  // URLが/で始まっていない場合は/を追加
+  const path = url.startsWith("/") ? url : `/${url}`;
+  return `${baseUrl}${path}`;
 }
 
 // 作品データを取得
@@ -139,16 +118,12 @@ export async function GET(
     const roles = work.roles?.slice(0, 2) || [];
 
     // 画像URLの決定（バナー画像優先、なければプレビュー画像）
-    const imageUrl = work.banner_image_url || work.preview_data?.image;
+    const rawImageUrl = work.banner_image_url || work.preview_data?.image;
+    // 絶対パスに変換
+    const imageUrl = rawImageUrl ? getAbsoluteUrl(rawImageUrl) : null;
 
     // 画像がある場合は、それを背景にしたデザインを返す
     if (imageUrl) {
-      // 画像をフェッチしてデータURLに変換（Vercel OGでの表示安定化のため）
-      const imageBuffer = await fetchImage(imageUrl);
-      const imageDataUrl = imageBuffer
-        ? arrayBufferToDataUrl(imageBuffer)
-        : imageUrl; // フォールバックとして元のURLを使用
-
       return new ImageResponse(
         (
           <div
@@ -168,7 +143,7 @@ export async function GET(
             {/* 背景画像 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={imageDataUrl}
+              src={imageUrl}
               alt={title}
               style={{
                 position: "absolute",
