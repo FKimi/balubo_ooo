@@ -120,17 +120,15 @@ export async function GET(
     // 画像URLの決定（バナー画像優先、なければプレビュー画像）
     const rawImageUrl = work.banner_image_url || work.preview_data?.image;
 
-    // 絶対パスに変換し、Supabaseの場合は最適化パラメータを付与
+    // 絶対パスに変換し、_next/image経由で取得するように変更
     let imageUrl = null;
     if (rawImageUrl) {
-      imageUrl = getAbsoluteUrl(rawImageUrl);
+      const absoluteRawUrl = getAbsoluteUrl(rawImageUrl);
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.balubo.jp";
 
-      // Supabaseの画像URLの場合、サイズと品質を指定して最適化
-      // これによりEdge Functionのタイムアウトやメモリ制限を回避
-      if (imageUrl.includes("supabase.co/storage/v1/object/public")) {
-        const separator = imageUrl.includes("?") ? "&" : "?";
-        imageUrl = `${imageUrl}${separator}width=1200&quality=80&format=origin`;
-      }
+      // _next/imageプロキシを使用
+      // これにより、外部サイトの403エラーを回避し、かつ画像を最適化（リサイズ・WebP化など）できる
+      imageUrl = `${baseUrl}/_next/image?url=${encodeURIComponent(absoluteRawUrl)}&w=1200&q=80`;
     }
 
     // 画像がある場合は、それを背景にしたデザインを返す
