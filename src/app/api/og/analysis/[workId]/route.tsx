@@ -119,8 +119,19 @@ export async function GET(
 
     // 画像URLの決定（バナー画像優先、なければプレビュー画像）
     const rawImageUrl = work.banner_image_url || work.preview_data?.image;
-    // 絶対パスに変換
-    const imageUrl = rawImageUrl ? getAbsoluteUrl(rawImageUrl) : null;
+
+    // 絶対パスに変換し、Supabaseの場合は最適化パラメータを付与
+    let imageUrl = null;
+    if (rawImageUrl) {
+      imageUrl = getAbsoluteUrl(rawImageUrl);
+
+      // Supabaseの画像URLの場合、サイズと品質を指定して最適化
+      // これによりEdge Functionのタイムアウトやメモリ制限を回避
+      if (imageUrl.includes("supabase.co/storage/v1/object/public")) {
+        const separator = imageUrl.includes("?") ? "&" : "?";
+        imageUrl = `${imageUrl}${separator}width=1200&quality=80&format=origin`;
+      }
+    }
 
     // 画像がある場合は、それを背景にしたデザインを返す
     if (imageUrl) {
