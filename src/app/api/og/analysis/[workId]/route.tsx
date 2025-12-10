@@ -20,10 +20,42 @@ function getBackgroundColor(type: string): string {
   );
 }
 
+// 画像をフェッチしてArrayBufferを取得する関数
+async function fetchImage(url: string): Promise<ArrayBuffer | null> {
+  try {
+    // 相対パスの場合は絶対パスに変換
+    let fetchUrl = url;
+    if (url.startsWith("/")) {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL || "https://www.balubo.jp";
+      fetchUrl = `${baseUrl}${url}`;
+    }
+
+    console.log(`Fetching image for OGP: ${fetchUrl}`);
+    const response = await fetch(fetchUrl);
+    if (!response.ok) {
+      console.error(
+        `Failed to fetch image: ${fetchUrl}, status: ${response.status}`,
+      );
+      return null;
+    }
+    return await response.arrayBuffer();
+  } catch (error) {
+    console.error(`Error fetching image: ${url}`, error);
+    return null;
+  }
+}
+
+// ArrayBufferをBase64データURLに変換
+function arrayBufferToDataUrl(buffer: ArrayBuffer, type = "image/png"): string {
+  const base64 = Buffer.from(buffer).toString("base64");
+  return `data:${type};base64,${base64}`;
+}
+
 // 作品データを取得
 async function getWorkData(
   workId: string,
-): Promise<{ work: WorkData | null; author: AuthorData | null }> {
+): Promise<{ work: (WorkData & { preview_data?: any }) | null; author: AuthorData | null }> {
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,6 +78,7 @@ async function getWorkData(
         tags,
         roles,
         banner_image_url,
+        preview_data,
         created_at,
         updated_at,
         user_id
@@ -105,8 +138,17 @@ export async function GET(
     const tags = work.tags?.slice(0, 3) || [];
     const roles = work.roles?.slice(0, 2) || [];
 
-    // バナー画像がある場合は、それを背景にしたデザインを返す
-    if (work.banner_image_url) {
+    // 画像URLの決定（バナー画像優先、なければプレビュー画像）
+    const imageUrl = work.banner_image_url || work.preview_data?.image;
+
+    // 画像がある場合は、それを背景にしたデザインを返す
+    if (imageUrl) {
+      // 画像をフェッチしてデータURLに変換（Vercel OGでの表示安定化のため）
+      const imageBuffer = await fetchImage(imageUrl);
+      const imageDataUrl = imageBuffer
+        ? arrayBufferToDataUrl(imageBuffer)
+        : imageUrl; // フォールバックとして元のURLを使用
+
       return new ImageResponse(
         (
           <div
@@ -126,7 +168,7 @@ export async function GET(
             {/* 背景画像 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={work.banner_image_url}
+              src={imageDataUrl}
               alt={title}
               style={{
                 position: "absolute",
