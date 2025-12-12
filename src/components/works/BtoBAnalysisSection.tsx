@@ -193,8 +193,8 @@ export function BtoBAnalysisSection({
     }
   };
 
-  // テキストを1行で表示する関数（最初の項目のみ）
-  const renderSingleLine = (text: string) => {
+  // テキストを全て表示する関数
+  const renderFullContent = (text: string) => {
     if (!text) return null;
 
     const lines = text.split("\n").filter((line) => line.trim().length > 0);
@@ -204,13 +204,17 @@ export function BtoBAnalysisSection({
 
     if (items.length === 0) return null;
 
-    // 最初の項目のみを表示
-    const firstItem = items[0];
-
     return (
-      <p className="text-base text-slate-800 leading-relaxed font-normal">
-        {firstItem}
-      </p>
+      <ul className="list-disc list-outside ml-4 space-y-1 marker:text-slate-400">
+        {items.map((item, index) => (
+          <li
+            key={index}
+            className="text-base text-slate-800 leading-relaxed font-normal pl-1"
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
     );
   };
 
@@ -286,9 +290,11 @@ export function BtoBAnalysisSection({
               placeholder={config.placeholder}
             />
           ) : (
-            <div className="min-h-[60px] flex items-center">
-              {renderSingleLine(value) || (
-                <p className="text-base text-gray-400">データがまだ反映されていません</p>
+            <div className="min-h-[60px] py-2">
+              {renderFullContent(value) || (
+                <p className="text-base text-gray-400">
+                  データがまだ反映されていません
+                </p>
               )}
             </div>
           )}

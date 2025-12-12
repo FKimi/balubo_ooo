@@ -19,11 +19,18 @@ function Calendar({
         <DayPicker
             showOutsideDays={showOutsideDays}
             className={cn("p-3", className)}
+            captionLayout="dropdown"
+            fromYear={1960}
+            toYear={2030}
             classNames={{
                 months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                 month: "space-y-4",
                 caption: "flex justify-center pt-1 relative items-center",
-                caption_label: "text-sm font-medium",
+                caption_label: "text-sm font-medium hidden",
+                caption_dropdowns: "flex justify-center gap-1",
+                dropdown: "bg-transparent p-0 text-sm font-medium cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-md px-2 py-1 appearance-none border-none outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                dropdown_month: "order-1",
+                dropdown_year: "order-2",
                 nav: "space-x-1 flex items-center",
                 nav_button: cn(
                     buttonVariants({ variant: "outline" }),

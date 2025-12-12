@@ -487,51 +487,107 @@ export const extractMainExpertise = (works: Work[]): string[] => {
 /**
  * クリエイターの3つの強みを抽出する (よく使用するタグから生成)
  */
+/**
+ * クリエイターの3つの強みを抽出する (AI分析結果とタグから生成)
+ */
 export const extractCreatorStrengths = (works: Work[], _inputs?: InputData[]): Array<{ title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' }> => {
-    const strengths = [];
+    const strengths: Array<{ title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' }> = [];
+    const usedTitles = new Set<string>();
 
-    // タグの使用頻度を計算
+    // 1. AI分析結果からの抽出 (最優先)
+    const aiExpertiseCounts: Record<string, { count: number; examples: string[] }> = {};
+    const aiKeywordCounts: Record<string, { count: number; examples: string[] }> = {};
+
+    works.forEach(work => {
+        if (work.aiAnalysisResult?.strengths?.expertise) {
+            work.aiAnalysisResult.strengths.expertise.forEach(exp => {
+                // 短いフレーズのみ採用
+                if (exp.length > 20) return;
+                const key = exp.trim();
+                if (!aiExpertiseCounts[key]) aiExpertiseCounts[key] = { count: 0, examples: [] };
+                aiExpertiseCounts[key].count++;
+                aiExpertiseCounts[key].examples.push(work.title);
+            });
+        }
+        // キーワードも集計
+        if (work.aiAnalysisResult?.keywords) {
+            work.aiAnalysisResult.keywords.forEach(kw => {
+                const key = kw.trim();
+                if (!aiKeywordCounts[key]) aiKeywordCounts[key] = { count: 0, examples: [] };
+                aiKeywordCounts[key].count++;
+                aiKeywordCounts[key].examples.push(work.title);
+            });
+        }
+    });
+
+    // AI専門性の上位を取得
+    const topAiExpertise = Object.entries(aiExpertiseCounts)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .filter(([, data]) => data.count >= 2); // 2回以上出現したもの
+
+    topAiExpertise.forEach(([expertise, data]) => {
+        if (strengths.length >= 3) return;
+        if (usedTitles.has(expertise)) return;
+
+        strengths.push({
+            title: `${expertise}分野での実績`,
+            subtitle: "CORE COMPETENCE",
+            description: `AI分析により抽出された強みです。${data.examples.slice(0, 2).join("、")}などで発揮されています。`,
+            icon: "🎯",
+            type: 'core'
+        });
+        usedTitles.add(expertise);
+    });
+
+    if (strengths.length >= 3) return strengths;
+
+    // 2. タグの使用頻度を計算 (AI分析が足りない場合)
     const allTags = works.flatMap((w) => w.tags || []);
     const tagCounts: Record<string, number> = {};
     allTags.forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1);
     const sortedTags = Object.entries(tagCounts).sort(([, a], [, b]) => b - a);
 
     // タグごとの専門性マッピング
-    const getTagStrength = (tag: string, count: number, totalWorks: number): { title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' } => {
-        const _ratio = Math.round((count / totalWorks) * 100);
-
-        // 業界/領域別のマッピング
+    const getTagStrength = (tag: string, count: number, totalWorks: number): { title: string; subtitle: string; description: string; icon: string; type: 'core' | 'domain' | 'unique' } | null => {
+        // 業界/領域別のマッピング (拡充版)
         const industryMap: Record<string, { title: string; subtitle: string; description: string; icon: string }> = {
             // 医療・ヘルスケア
             "Medical": { title: "医療業界の専門知識", subtitle: "DOMAIN EXPERTISE", description: `医療分野での制作実績が豊富で、専門用語や業界の文脈を深く理解しています。`, icon: "🏥" },
             "Healthcare": { title: "ヘルスケア領域のエキスパート", subtitle: "DOMAIN EXPERTISE", description: `ヘルスケア関連コンテンツの制作経験が豊富で、正確性と読みやすさを両立します。`, icon: "💊" },
             "医療": { title: "医療コンテンツの専門性", subtitle: "DOMAIN EXPERTISE", description: `医療分野での実績が${count}件。専門的な内容を分かりやすく伝えます。`, icon: "🏥" },
+            "看護": { title: "看護・医療現場の知見", subtitle: "DOMAIN EXPERTISE", description: `看護・医療現場に関する深い理解があり、実践的なコンテンツを制作できます。`, icon: "🏥" },
 
             // 金融・Fintech
             "Finance": { title: "金融業界の深い知見", subtitle: "DOMAIN EXPERTISE", description: `金融分野での制作実績が豊富で、複雑な金融商品や市場動向を分かりやすく説明できます。`, icon: "💰" },
             "Fintech": { title: "Fintechトレンドへの精通", subtitle: "DOMAIN EXPERTISE", description: `Fintech領域の最新動向をキャッチアップし、革新的なサービスを分かりやすく伝えます。`, icon: "💳" },
             "金融": { title: "金融コンテンツの専門性", subtitle: "DOMAIN EXPERTISE", description: `金融分野での実績が${count}件。経済や投資の専門知識を活かします。`, icon: "💰" },
+            "投資": { title: "投資・資産運用の知識", subtitle: "DOMAIN EXPERTISE", description: `投資分野の実績が豊富で、初心者から経験者まで幅広い層に向けた発信が可能です。`, icon: "📈" },
 
             // Technology・SaaS
             "Tech": { title: "テクノロジートレンドへの理解", subtitle: "DOMAIN EXPERTISE", description: `技術トレンドを常にキャッチアップし、最新のテクノロジーを分かりやすく解説します。`, icon: "💻" },
             "SaaS": { title: "SaaSプロダクトへの深い理解", subtitle: "DOMAIN EXPERTISE", description: `SaaS業界での制作経験が豊富で、プロダクトの価値を効果的に伝えます。`, icon: "☁️" },
             "AI": { title: "AI・機械学習の知見", subtitle: "DOMAIN EXPERTISE", description: `AI・機械学習分野の実績が豊富で、複雑な技術を分かりやすく説明できます。`, icon: "🤖" },
             "IT": { title: "IT業界の幅広い知識", subtitle: "DOMAIN EXPERTISE", description: `IT分野での実績が${count}件。技術的な内容を分かりやすく伝えます。`, icon: "💻" },
+            "DX": { title: "DX推進の知見", subtitle: "DOMAIN EXPERTISE", description: `企業のDX推進に関するコンテンツ制作経験があり、ビジネスと技術の両面を理解しています。`, icon: "🔄" },
 
             // BtoB・Business
             "BtoB": { title: "BtoBマーケティングの経験", subtitle: "DOMAIN EXPERTISE", description: `BtoB企業向けのコンテンツ制作が得意で、専門的な内容を効果的に伝えます。`, icon: "🏢" },
             "Business": { title: "ビジネスコンテンツの専門性", subtitle: "DOMAIN EXPERTISE", description: `ビジネス領域での実績が${count}件。経営層向けの提案も可能です。`, icon: "💼" },
             "ビジネス": { title: "ビジネス文脈の理解", subtitle: "DOMAIN EXPERTISE", description: `ビジネス関連のコンテンツ制作が得意で、戦略的な視点を持っています。`, icon: "📊" },
+            "スタートアップ": { title: "スタートアップ支援の経験", subtitle: "DOMAIN EXPERTISE", description: `スタートアップ企業のスピード感や課題を理解し、成長を支援するコンテンツを作ります。`, icon: "🚀" },
 
             // Marketing・SEO
             "Marketing": { title: "マーケティング視点のコンテンツ", subtitle: "UNIQUE VALUE", description: `マーケティングの知見を活かし、成果につながるコンテンツを制作します。`, icon: "📈" },
             "SEO": { title: "SEOを意識した制作", subtitle: "UNIQUE VALUE", description: `SEOの知識を活かし、検索エンジンで見つけられやすいコンテンツを制作します。`, icon: "🔍" },
             "マーケティング": { title: "マーケティング戦略の理解", subtitle: "UNIQUE VALUE", description: `マーケティング視点でコンテンツを企画・制作できます。`, icon: "📈" },
+            "SNS": { title: "SNS運用のノウハウ", subtitle: "UNIQUE VALUE", description: `SNSの特性を理解し、エンゲージメントを高めるコンテンツ制作が得意です。`, icon: "📱" },
 
-            // 不動産・教育・法律など
+            // その他業界
             "Real Estate": { title: "不動産業界の知見", subtitle: "DOMAIN EXPERTISE", description: `不動産分野での制作実績が豊富で、業界特有の専門用語を理解しています。`, icon: "🏠" },
             "Education": { title: "教育コンテンツの経験", subtitle: "DOMAIN EXPERTISE", description: `教育分野での制作経験を活かし、分かりやすく学びやすいコンテンツを作ります。`, icon: "📚" },
             "Law": { title: "法律領域の専門知識", subtitle: "DOMAIN EXPERTISE", description: `法律分野での実績が豊富で、正確性と分かりやすさを両立します。`, icon: "⚖️" },
+            "Travel": { title: "旅行・観光の専門性", subtitle: "DOMAIN EXPERTISE", description: `旅行・観光分野での実績があり、魅力的な体験を伝えるコンテンツ制作が得意です。`, icon: "✈️" },
+            "Beauty": { title: "美容・コスメの知見", subtitle: "DOMAIN EXPERTISE", description: `美容・コスメ分野のトレンドに詳しく、ターゲットに響く表現が可能です。`, icon: "💄" },
 
             // 日本語の業界タグ
             "米国食品業界ニュース": { title: "食品業界ニュースの専門性", subtitle: "DOMAIN EXPERTISE", description: `米国食品業界関連の実績が${count}件。業界トレンドを深く理解しています。`, icon: "🍽️" },
@@ -544,7 +600,7 @@ export const extractCreatorStrengths = (works: Work[], _inputs?: InputData[]): A
             return { ...industryMap[tag], type: 'domain' as const };
         }
 
-        // その他のタグの場合は汎用的な説明を生成
+        // その他のタグの場合は汎用的な説明を生成 (ただし、あまりに一般的すぎるタグは除外するロジックを入れても良い)
         return {
             title: `${tag}分野での実績`,
             subtitle: "CORE COMPETENCE",
@@ -554,18 +610,27 @@ export const extractCreatorStrengths = (works: Work[], _inputs?: InputData[]): A
         };
     };
 
-    // TOP3のタグから強みを生成
-    const top3Tags = sortedTags.slice(0, 3);
-    top3Tags.forEach(([tag, count]) => {
-        strengths.push(getTagStrength(tag, count, works.length));
-    });
+    // TOPタグから強みを生成
+    for (const [tag, count] of sortedTags) {
+        if (strengths.length >= 3) break;
+
+        const strength = getTagStrength(tag, count, works.length);
+        if (strength && !usedTitles.has(strength.title)) {
+            // 類似したタイトルがないかチェック (簡易的)
+            const isSimilar = strengths.some(s => s.title.includes(tag) || strength.title.includes(s.title.split("分野")[0] || ""));
+            if (!isSimilar) {
+                strengths.push(strength);
+                usedTitles.add(strength.title);
+            }
+        }
+    }
 
     // 強みが3つ未満の場合は補完
     while (strengths.length < 3) {
         const allRoles = works.flatMap((w) => w.roles || []);
         const uniqueRoles = new Set(allRoles);
 
-        if (uniqueRoles.size > 0) {
+        if (uniqueRoles.size > 0 && !usedTitles.has("多様なスキルセット")) {
             strengths.push({
                 type: 'unique' as const,
                 title: "多様なスキルセット",
@@ -573,7 +638,8 @@ export const extractCreatorStrengths = (works: Work[], _inputs?: InputData[]): A
                 description: "複数の役割をこなせる柔軟性と、幅広い制作スキルを持っています。",
                 icon: "🛠️"
             });
-        } else {
+            usedTitles.add("多様なスキルセット");
+        } else if (!usedTitles.has("高い成長性")) {
             strengths.push({
                 type: 'unique' as const,
                 title: "高い成長性",
@@ -581,6 +647,10 @@ export const extractCreatorStrengths = (works: Work[], _inputs?: InputData[]): A
                 description: "新しい分野にも積極的に挑戦し、常にスキルアップを続けています。",
                 icon: "🚀"
             });
+            usedTitles.add("高い成長性");
+        } else {
+            // 無限ループ防止
+            break;
         }
     }
 
