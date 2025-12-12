@@ -74,7 +74,7 @@ export function CreatorAnalysis({ works, inputs, profileData, isLoading = false 
     return (
         <div className="space-y-6">
             {/* ヒーローセクション: クリエイタープロフィール */}
-            <CreatorProfileHero works={convertedWorks} inputs={inputs || []} />
+            <CreatorProfileHero works={convertedWorks} inputs={inputs || []} careers={profileData?.career || []} />
 
             {/* よく使用するタグセクション */}
             {topTags.length > 0 && (

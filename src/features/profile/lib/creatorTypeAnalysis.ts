@@ -298,24 +298,47 @@ export const generateCreatorCatchphrase = (works: Work[], inputs?: InputData[]):
 /**
  * 活動期間を計算する
  */
-export const calculateActivityPeriod = (works: Work[]): { years: number; months: number } => {
-    if (!works || works.length === 0) {
-        return { years: 0, months: 0 };
+/**
+ * 活動期間を計算する
+ */
+export const calculateActivityPeriod = (works: Work[], careers?: { startDate: string }[]): { years: number; months: number } => {
+    const dates: Date[] = [];
+
+    // 作品の日付を追加
+    if (works && works.length > 0) {
+        works.forEach(w => {
+            const date = new Date(w.date || w.productionDate || "");
+            if (!isNaN(date.getTime())) {
+                dates.push(date);
+            }
+        });
     }
 
-    const dates = works
-        .map((w) => new Date(w.date || w.productionDate || new Date().toISOString()))
-        .filter((d) => !isNaN(d.getTime()))
-        .sort((a, b) => a.getTime() - b.getTime());
+    // キャリアの開始日を追加
+    if (careers && careers.length > 0) {
+        careers.forEach(c => {
+            // YYYY年M月 または YYYY/M/D 形式をパース
+            // 日本語の日付形式に対応
+            let dateStr = c.startDate;
+            if (dateStr.includes("年")) {
+                dateStr = dateStr.replace("年", "/").replace("月", "/").replace("日", "");
+            }
+            const date = new Date(dateStr);
+            if (!isNaN(date.getTime())) {
+                dates.push(date);
+            }
+        });
+    }
 
     if (dates.length === 0) {
         return { years: 0, months: 0 };
     }
 
-    const firstDate = dates[0] || new Date();
-    // ウォークスルーの仕様に合わせて、単純に期間を計算
+    // 最も古い日付を取得
+    dates.sort((a, b) => a.getTime() - b.getTime());
+    const firstDate = dates[0]!;
 
-    // 現在までの期間とする場合
+    // 現在までの期間を計算
     const now = new Date();
 
     const diffTime = Math.abs(now.getTime() - firstDate.getTime());

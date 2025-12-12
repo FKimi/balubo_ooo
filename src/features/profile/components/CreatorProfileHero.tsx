@@ -10,17 +10,19 @@ import {
 interface CreatorProfileHeroProps {
     works: Work[];
     inputs?: InputData[];
+    careers?: { startDate: string }[];
 }
 
 export const CreatorProfileHero: React.FC<CreatorProfileHeroProps> = ({
     works,
     inputs = [],
+    careers = [],
 }) => {
     const creatorType = useMemo(
         () => detectCreatorType(works, inputs),
         [works, inputs]
     );
-    const activityPeriod = useMemo(() => calculateActivityPeriod(works), [works]);
+    const activityPeriod = useMemo(() => calculateActivityPeriod(works, careers), [works, careers]);
     const mainExpertise = useMemo(() => extractMainExpertise(works), [works]);
 
     // 自動生成されたキャッチフレーズ

@@ -68,7 +68,7 @@ export function PublicCreatorAnalysis({ works, inputs, profileData, isLoading = 
     return (
         <div className="space-y-6">
             {/* ヒーローセクション: クリエイタープロフィール */}
-            <CreatorProfileHero works={convertedWorks} inputs={inputs || []} />
+            <CreatorProfileHero works={convertedWorks} inputs={inputs || []} careers={profileData?.career || []} />
 
             {/* よく使用するタグセクション */}
             {topTags.length > 0 && (
