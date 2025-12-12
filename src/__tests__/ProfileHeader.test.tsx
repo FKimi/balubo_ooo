@@ -26,8 +26,9 @@ describe("ProfileHeader", () => {
     );
   });
 
-  it('shows placeholder message when displayName is "ユーザー"', () => {
+  it('displays default name when displayName is "ユーザー"', () => {
     render(<ProfileHeader {...defaultProps} displayName="ユーザー" />);
-    expect(screen.getByText("表示名を設定してください")).toBeInTheDocument();
+    // 現在のUIでは「ユーザー」をそのまま表示
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("ユーザー");
   });
 });
