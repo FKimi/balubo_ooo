@@ -11,7 +11,16 @@ import { AIAnalysisDetailModal } from "@/features/work/components/AIAnalysisDeta
 import { ShareModal } from "@/features/social/components/ShareModal";
 import { EnhancedAnalysisProgress } from "@/components/works/EnhancedAnalysisProgress";
 import { BtoBAnalysisSection } from "@/components/works/BtoBAnalysisSection";
-import { ArrowLeft, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Sparkles, X, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { ja } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { supabase } from "@/lib/supabase";
 import { truncateText } from "@/utils/stringUtils";
 import { getArrayLength } from "@/utils/arrayUtils";
@@ -1645,14 +1654,46 @@ ${errorDetailSection}
                   制作時期
                 </h2>
               </div>
-              <Input
-                type="date"
-                value={formData.productionDate}
-                onChange={(e) =>
-                  handleInputChange("productionDate", e.target.value)
-                }
-                className="h-12 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                制作時期
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.productionDate && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.productionDate ? (
+                      format(new Date(formData.productionDate), "yyyy年MM月dd日", {
+                        locale: ja,
+                      })
+                    ) : (
+                      <span>制作日を選択</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={
+                      formData.productionDate
+                        ? new Date(formData.productionDate)
+                        : undefined
+                    }
+                    onSelect={(date) =>
+                      handleInputChange(
+                        "productionDate",
+                        date ? format(date, "yyyy-MM-dd") : "",
+                      )
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* ファイルアップロード - 記事以外の作品タイプのみ */}
