@@ -1,7 +1,6 @@
 "use client";
 
 
-import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
@@ -15,57 +14,34 @@ export default function HeroSection() {
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
           {/* Left Column: Text Content */}
           <FadeIn className="max-w-2xl text-center lg:text-left lg:mx-0 mx-auto">
-            {/* Trust Badges */}
+            {/* Service Status Badge */}
             <div className="mb-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
-              <div className="inline-flex items-center rounded-full border border-gray-200 bg-white/50 px-3 py-1 text-sm font-medium text-gray-600 backdrop-blur-sm">
-                完全無料（β版）
+              <div className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-800">
+                サービス休止中
               </div>
             </div>
 
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl mb-6 leading-[1.15]">
+            <h1 className="text-4xl font-semibold tracking-tight text-[#000000] sm:text-6xl mb-6 leading-[1.15]">
               AIがあなたの専門性を<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              <span className="text-primary-blue">
                 「証明」する。
               </span>
             </h1>
 
-            <p className="mt-6 text-lg leading-8 text-gray-600 mb-10">
+            <p className="mt-6 text-lg leading-8 text-[#666666] mb-10">
               記事URLを入力するだけ。AIがあなたの実績から「専門性」と「思考プロセス」を分析し、
-              クライアントに価値が伝わるポートフォリオを自動生成します。
+              クライアントに価値が伝わるポートフォリオを自動生成。最適な案件とのマッチングを実現します。
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Button
-                asChild
-                variant="cta"
-                size="lg"
-                className="w-full sm:w-auto"
-              >
-                <Link href="/register">無料で始める</Link>
-              </Button>
-              <Button
                 variant="ghost"
                 size="lg"
-                className="h-14 w-full sm:w-auto rounded-full px-8 text-lg font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                className="h-14 w-full sm:w-auto px-8 text-lg font-medium text-[#666666] hover:bg-[#F5F5F5] hover:text-[#000000]"
                 asChild
               >
                 <a href="#features">詳しく見る</a>
               </Button>
-            </div>
-
-            <div className="mt-10 flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                登録1分
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                クレカ不要
-              </div>
             </div>
           </FadeIn>
 
@@ -73,16 +49,16 @@ export default function HeroSection() {
           <FadeIn delay={0.2} className="relative mx-auto w-full max-w-lg lg:max-w-none">
             <div className="relative group">
               {/* Background Decor - More subtle and premium */}
-              <div className="absolute -top-12 -right-12 h-64 w-64 rounded-full bg-blue-100/50 blur-3xl opacity-50 mix-blend-multiply animate-pulse-slow"></div>
-              <div className="absolute -bottom-12 -left-12 h-64 w-64 rounded-full bg-indigo-100/50 blur-3xl opacity-50 mix-blend-multiply animate-pulse-slow delay-1000"></div>
+              <div className="absolute -top-12 -right-12 h-64 w-64 rounded-full bg-[#E3F2FD]/50 blur-3xl opacity-50 mix-blend-multiply animate-pulse-slow"></div>
+              <div className="absolute -bottom-12 -left-12 h-64 w-64 rounded-full bg-[#E3F2FD]/50 blur-3xl opacity-50 mix-blend-multiply animate-pulse-slow delay-1000"></div>
 
               {/* Main Profile Page Mockup */}
-              <div className="relative rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 overflow-hidden transition-transform duration-700 hover:scale-[1.01]">
+              <div className="relative rounded-md bg-white shadow-md ring-1 ring-[#E0E0E0]/5 overflow-hidden transition-transform duration-700 hover:scale-[1.01]">
                 {/* Window Controls - Sleeker */}
-                <div className="h-8 bg-white border-b border-gray-50 flex items-center px-4 gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                <div className="h-8 bg-white border-b border-[#E0E0E0] flex items-center px-4 gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#E0E0E0]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#E0E0E0]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#E0E0E0]"></div>
                 </div>
 
                 {/* Profile Header Section */}

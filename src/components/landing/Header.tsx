@@ -8,7 +8,7 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
+        <header className="sticky top-0 z-50 border-b border-[#E0E0E0] bg-white/95 backdrop-blur-sm">
             <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
                 {/* モバイルメニューボタン */}
                 <div className="md:hidden">
@@ -36,7 +36,7 @@ export function Header() {
                     onClick={() => setIsMobileMenuOpen(false)}
                 >
                     <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-blue-600 tracking-tight">balubo</span>
+                        <span className="text-xl font-semibold text-[#0077B5] tracking-tight">balubo</span>
                     </div>
                 </Link>
                 <nav
@@ -47,13 +47,19 @@ export function Header() {
                     <Link
                         href="/enterprise"
                         prefetch={false}
-                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                        className="text-sm text-[#000000] hover:text-[#0077B5] transition-colors font-medium"
                     >
                         企業の方はこちら
                     </Link>
                     <Link
+                        href="/jobs"
+                        className="text-sm text-[#000000] hover:text-[#0077B5] transition-colors font-medium"
+                    >
+                        案件を探す
+                    </Link>
+                    <Link
                         href="#features"
-                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                        className="text-sm text-[#000000] hover:text-[#0077B5] transition-colors font-medium"
                         onClick={(e) => {
                             e.preventDefault();
                             document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
@@ -63,7 +69,7 @@ export function Header() {
                     </Link>
                     <Link
                         href="#analysis"
-                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                        className="text-sm text-[#000000] hover:text-[#0077B5] transition-colors font-medium"
                         onClick={(e) => {
                             e.preventDefault();
                             document.getElementById('analysis')?.scrollIntoView({ behavior: 'smooth' });
@@ -73,7 +79,7 @@ export function Header() {
                     </Link>
                     <Link
                         href="#voices"
-                        className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                        className="text-sm text-[#000000] hover:text-[#0077B5] transition-colors font-medium"
                         onClick={(e) => {
                             e.preventDefault();
                             document.getElementById('voices')?.scrollIntoView({ behavior: 'smooth' });
@@ -84,16 +90,9 @@ export function Header() {
                     <Button
                         asChild
                         variant="ghost"
-                        className="text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        className="text-sm text-[#000000] hover:text-[#000000] hover:bg-[#F5F5F5]"
                     >
                         <Link href="/login">ログイン</Link>
-                    </Button>
-                    <Button
-                        asChild
-                        variant="cta"
-                        size="default"
-                    >
-                        <Link href="/register">無料で登録する</Link>
                     </Button>
                 </nav>
             </div>
@@ -108,6 +107,13 @@ export function Header() {
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
                             企業の方はこちら
+                        </Link>
+                        <Link
+                            href="/jobs"
+                            className="text-gray-700 hover:text-blue-600"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            案件を探す
                         </Link>
                         <Link
                             href="#features"
@@ -150,16 +156,6 @@ export function Header() {
                         >
                             ログイン
                         </Link>
-                        <Button
-                            asChild
-                            variant="cta"
-                            size="lg"
-                            className="w-full"
-                        >
-                            <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                無料で登録する
-                            </Link>
-                        </Button>
                     </nav>
                 </div>
             )}
